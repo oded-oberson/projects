@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>מפת הפרויקטים · דנה אוברזון אדריכלים</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4f8f'/%3E%3Cpath d='M8 22V12l8-5 8 5v10' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; font-family: "Heebo", "Segoe UI", Arial, sans-serif; background: #f3f4f6; color: #566070; }
+  @media (prefers-color-scheme: dark) { body { background: #111418; color: #a9b1bd; } }
+  .box { text-align: center; font-size: 15px; }
+  .spin { width: 28px; height: 28px; margin: 0 auto 14px; border: 3px solid rgba(29,79,143,.2); border-top-color: #1d4f8f; border-radius: 50%; animation: r 0.9s linear infinite; }
+  @keyframes r { to { transform: rotate(360deg); } }
+  .err { color: #a12727; }
+</style>
+</head>
+<body>
+<div class="box"><div class="spin"></div><div id="msg">טוען את המערכת…</div></div>
+<script>
+(async () => {
+  const SB_URL = 'https://pdbgmmzjghxophcdxchg.supabase.co';
+  const SB_KEY = 'sb_publishable_bX-xcucDh5W1ZwxQNVnH6g_3og7abIP';
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/site_chunks?select=b64&order=seq.asc', {
+      headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY },
+      cache: 'no-store',
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const rows = await r.json();
+    if (!rows.length) throw new Error('empty');
+    const bytes = Uint8Array.from(atob(rows.map((x) => x.b64).join('')), (c) => c.charCodeAt(0));
+    const html = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+    document.open();
+    document.write(html);
+    document.close();
+  } catch (e) {
+    console.error(e);
+    document.querySelector('.spin').style.display = 'none';
+    document.getElementById('msg').innerHTML = '<span class="err">לא הצלחנו לטעון את המערכת.</span><br>בדקו את החיבור לאינטרנט ונסו לרענן את הדף.';
+  }
+})();
+</script>
+</body>
+</html>
