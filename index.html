@@ -19,19 +19,26 @@
 <body>
 <div class="box"><div class="spin"></div><div id="msg">טוען את המערכת…</div></div>
 <script>
+// Loader (v2): the application page is stored as ordered text blocks in Supabase
+// (public.site_blocks, page = 'app'). Fetch them, join, and hand the document over.
 (async () => {
   const SB_URL = 'https://pdbgmmzjghxophcdxchg.supabase.co';
   const SB_KEY = 'sb_publishable_bX-xcucDh5W1ZwxQNVnH6g_3og7abIP';
+  const PAGE_SIZE = 500;
   try {
-    const r = await fetch(SB_URL + '/rest/v1/site_chunks?select=b64&order=seq.asc', {
-      headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY },
-      cache: 'no-store',
-    });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const rows = await r.json();
-    if (!rows.length) throw new Error('empty');
-    const bytes = Uint8Array.from(atob(rows.map((x) => x.b64).join('')), (c) => c.charCodeAt(0));
-    const html = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+    const parts = [];
+    for (let from = 0; ; from += PAGE_SIZE) {
+      const r = await fetch(SB_URL + '/rest/v1/site_blocks?select=body&page=eq.app&order=seq.asc', {
+        headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, Range: from + '-' + (from + PAGE_SIZE - 1) },
+        cache: 'no-store',
+      });
+      if (!r.ok && r.status !== 206) throw new Error('HTTP ' + r.status);
+      const rows = await r.json();
+      rows.forEach((x) => parts.push(x.body));
+      if (rows.length < PAGE_SIZE) break;
+    }
+    if (!parts.length) throw new Error('empty');
+    const html = parts.join('');
     document.open();
     document.write(html);
     document.close();
