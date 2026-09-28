@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://pdbgmmzjghxophcdxchg.supabase.co" crossorigin>
 <link rel="preconnect" href="https://use.typekit.net" crossorigin>
 <link rel="preconnect" href="https://oberson-arch.com" crossorigin>
+<link rel="preload" as="image" href="logo-draw.webp">
 <link rel="stylesheet" href="https://use.typekit.net/iqp8fqo.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
@@ -17,7 +18,9 @@
   html, body { height: 100%; margin: 0; background: #fff; }
   #boot { position: fixed; inset: 0; z-index: 1000; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; padding: 24px; transition: opacity .5s ease; }
   #boot.out { opacity: 0; pointer-events: none; }
-  #boot img { width: min(560px, 74vw); height: auto; display: block; }
+  #boot-logo { width: min(560px, 74vw); aspect-ratio: 823 / 139; background: url(logo-draw.webp) no-repeat 0 0 / 100% auto; }
+  #boot-logo.static { background: url(logo.svg) no-repeat center / contain; }
+  #boot.leaving #boot-pct, #boot.leaving #boot-bar, #boot.leaving #boot-msg { opacity: 0; transition: opacity .25s ease; }
   #boot-pct { font-family: "futura-pt", "Narkiss Block", Arial, sans-serif; font-weight: 300; font-size: 46px; line-height: 1; letter-spacing: .08em; color: #000; font-variant-numeric: tabular-nums; direction: ltr; min-height: 46px; }
   #boot-bar { width: min(560px, 74vw); height: 1px; background: #e4e4e4; position: relative; direction: ltr; }
   #boot-bar i { position: absolute; left: 0; top: -0.5px; height: 2px; width: 0; background: #000; }
@@ -30,15 +33,17 @@
 </head>
 <body>
 <div id="boot" role="status" aria-live="polite">
-  <img src="logo-anim.webp" alt="OBERSON" width="823" height="139" decoding="async">
+  <div id="boot-logo" role="img" aria-label="OBERSON"></div>
   <div id="boot-pct">0%</div>
   <div id="boot-bar"><i></i></div>
   <div id="boot-msg">טוען את המערכת…</div>
 </div>
 <script>
-// Loader (v3): draws the boot screen, fetches the application page (stored as ordered text blocks in
+// Loader (v3.2): draws the boot screen, fetches the application page (stored as ordered text blocks in
 // Supabase, public.site_blocks / page = 'app'), injects it into this document, and keeps reporting
 // progress that the application itself sends through window.__boot until its first real render.
+// The logo is drawn frame by frame as a direct function of the displayed percentage (sprite sheet
+// logo-draw.webp: 105 frames, blank -> full logo); on exit it un-draws (logo-undraw.webp: 41 frames).
 (() => {
   const SB_URL = 'https://pdbgmmzjghxophcdxchg.supabase.co';
   const SB_KEY = 'sb_publishable_bX-xcucDh5W1ZwxQNVnH6g_3og7abIP';
@@ -47,11 +52,23 @@
   const P_INJECT = 56;             // progress after the page is injected and its scripts have run
   const WATCHDOG_MS = 25000;       // never keep the curtain up longer than this after the app started
 
-  const $ = (id) => document.getElementById(id);
-  const boot = $('boot'), pctEl = $('boot-pct'), barEl = $('boot-bar').firstElementChild, msgEl = $('boot-msg');
-  let target = 0, shown = 0, raf = 0, finished = false, failed = false;
+  const DRAW_N = 105, UNDRAW_N = 41, UNDRAW_MS = 420;   // sprite frames (vertical strips) and the exit duration
 
-  const paint = () => { const v = Math.round(shown); pctEl.textContent = v + '%'; barEl.style.width = shown + '%'; };
+  const $ = (id) => document.getElementById(id);
+  const boot = $('boot'), logoEl = $('boot-logo'), pctEl = $('boot-pct'), barEl = $('boot-bar').firstElementChild, msgEl = $('boot-msg');
+  let target = 0, shown = 0, raf = 0, finished = false, failed = false, logoOk = false, undrawImg = null;
+
+  // The logo strip: percent -> frame. If the strip cannot load, show the static logo instead.
+  const drawImg = new Image();
+  drawImg.onload = () => { logoOk = true; undrawImg = new Image(); undrawImg.src = 'logo-undraw.webp'; };
+  drawImg.onerror = () => { logoEl.classList.add('static'); };
+  drawImg.src = 'logo-draw.webp';
+  const frameY = (i, n) => (i / (n - 1) * 100) + '%';
+  const paint = () => {
+    const v = Math.round(shown);
+    pctEl.textContent = v + '%'; barEl.style.width = shown + '%';
+    if (!logoEl.classList.contains('static')) logoEl.style.backgroundPositionY = frameY(Math.round(shown / 100 * (DRAW_N - 1)), DRAW_N);
+  };
   // requestAnimationFrame pauses in hidden tabs; fall back to a timer there so the readout still settles.
   const schedule = (fn) => (document.hidden ? (setTimeout(fn, 120), -1) : requestAnimationFrame(fn));
   const tick = () => {
@@ -75,8 +92,23 @@
     set(100, '');
     let hidden = false;
     const hide = () => { if (hidden) return; hidden = true; boot.classList.add('out'); setTimeout(() => boot.remove(), 600); };
+    // exit: the logo un-draws (the original animation's opening), the curtain fades during the second half
+    const leave = () => {
+      boot.classList.add('leaving');
+      const canUndraw = logoOk && undrawImg && undrawImg.complete && undrawImg.naturalWidth > 0 && !document.hidden;
+      if (!canUndraw) { hide(); return; }
+      logoEl.style.backgroundImage = 'url(logo-undraw.webp)';
+      const t1 = performance.now();
+      const step = (now) => {
+        const k = Math.min(1, (now - t1) / UNDRAW_MS);
+        logoEl.style.backgroundPositionY = frameY(Math.round(k * (UNDRAW_N - 1)), UNDRAW_N);
+        if (k >= 0.55) hide();
+        if (k < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
     const t0 = Date.now();
-    const wait = () => ((shown >= 99.5 || Date.now() - t0 > 1500) ? setTimeout(hide, 120) : setTimeout(wait, 40));
+    const wait = () => ((shown >= 99.5 || Date.now() - t0 > 1500) ? setTimeout(leave, 140) : setTimeout(wait, 40));
     wait();
   };
   const fail = (html) => {
