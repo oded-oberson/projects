@@ -20,12 +20,12 @@
   #boot img { width: min(560px, 74vw); height: auto; display: block; }
   #boot-pct { font-family: "futura-pt", "Narkiss Block", Arial, sans-serif; font-weight: 300; font-size: 46px; line-height: 1; letter-spacing: .08em; color: #000; font-variant-numeric: tabular-nums; direction: ltr; min-height: 46px; }
   #boot-bar { width: min(560px, 74vw); height: 1px; background: #e4e4e4; position: relative; direction: ltr; }
-  #boot-bar i { position: absolute; left: 0; top: -0.5px; height: 2px; width: 0; background: #000; transition: width .2s linear; }
+  #boot-bar i { position: absolute; left: 0; top: -0.5px; height: 2px; width: 0; background: #000; }
   #boot-msg { font-family: "Narkiss Block", "futura-pt", Arial, sans-serif; font-weight: 400; font-size: 14px; letter-spacing: .06em; color: #8a8a8a; min-height: 21px; text-align: center; line-height: 1.5; }
   #boot-msg.err { color: #a11f1f; }
   #boot-msg .again { display: inline-block; margin-top: 12px; padding: 6px 14px; border: 1px solid #000; background: #fff; color: #000; font: inherit; letter-spacing: .06em; cursor: pointer; }
   #boot-msg .again:hover { background: #000; color: #fff; }
-  @media (prefers-reduced-motion: reduce) { #boot, #boot-bar i { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { #boot { transition: none; } }
 </style>
 </head>
 <body>
@@ -52,14 +52,17 @@
   let target = 0, shown = 0, raf = 0, finished = false, failed = false;
 
   const paint = () => { const v = Math.round(shown); pctEl.textContent = v + '%'; barEl.style.width = shown + '%'; };
+  // requestAnimationFrame pauses in hidden tabs; fall back to a timer there so the readout still settles.
+  const schedule = (fn) => (document.hidden ? (setTimeout(fn, 120), -1) : requestAnimationFrame(fn));
   const tick = () => {
     raf = 0;
     const d = target - shown;
     if (d <= 0.05) { shown = target; paint(); return; }
-    shown += Math.max(0.3, d * 0.16);
+    shown += document.hidden ? d : Math.max(0.3, d * 0.16);
     paint();
-    raf = requestAnimationFrame(tick);
+    raf = schedule(tick);
   };
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !raf && target > shown) raf = schedule(tick); });
   const set = (p, msg) => {
     if (failed) return;
     target = Math.max(target, Math.min(100, p));
@@ -70,13 +73,15 @@
     if (finished || failed) return;
     finished = true;
     set(100, '');
-    const hide = () => { boot.classList.add('out'); setTimeout(() => boot.remove(), 600); };
-    const wait = () => (shown >= 99.5 ? setTimeout(hide, 120) : setTimeout(wait, 40));
+    let hidden = false;
+    const hide = () => { if (hidden) return; hidden = true; boot.classList.add('out'); setTimeout(() => boot.remove(), 600); };
+    const t0 = Date.now();
+    const wait = () => ((shown >= 99.5 || Date.now() - t0 > 1500) ? setTimeout(hide, 120) : setTimeout(wait, 40));
     wait();
   };
   const fail = (html) => {
     failed = true;
-    if (raf) cancelAnimationFrame(raf); raf = 0;
+    if (raf > 0) cancelAnimationFrame(raf); raf = 0;
     msgEl.className = 'err';
     msgEl.innerHTML = html + '<br><button type="button" class="again" onclick="location.reload()">לטעון שוב</button>';
   };
