@@ -9,20 +9,20 @@
 <link rel="preconnect" href="https://pdbgmmzjghxophcdxchg.supabase.co" crossorigin>
 <link rel="preconnect" href="https://use.typekit.net" crossorigin>
 <link rel="preconnect" href="https://oberson-arch.com" crossorigin>
-<link rel="preload" as="image" href="logo-draw.webp">
+<link rel="preload" as="image" href="logo-draw.v4.webp">
 <link rel="stylesheet" href="https://use.typekit.net/iqp8fqo.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   @font-face { font-family: "Narkiss Block"; font-weight: 400; font-style: normal; font-display: swap; src: url("https://oberson-arch.com/wp-content/themes/oberson/fonts/NarkissBlock-Regular.woff2") format("woff2"); }
   :root { color-scheme: light; }
   html, body { height: 100%; margin: 0; background: #fff; }
-  #boot { position: fixed; inset: 0; z-index: 1000; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; padding: 24px; transition: opacity .5s ease; }
+  #boot { position: fixed; inset: 0; z-index: 1000; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 24px; transition: opacity .5s ease; }
   #boot.out { opacity: 0; pointer-events: none; }
-  #boot-logo { width: min(560px, 74vw); aspect-ratio: 823 / 139; background: url(logo-draw.webp) no-repeat 0 0 / 400% auto; }
+  #boot-logo { width: min(360px, 62vw); aspect-ratio: 823 / 139; background: url(logo-draw.v4.webp) no-repeat 0 0 / 400% auto; }
   #boot-logo.static { background: url(logo.svg) no-repeat center / contain !important; }
   #boot.leaving #boot-pct, #boot.leaving #boot-bar, #boot.leaving #boot-msg { opacity: 0; transition: opacity .25s ease; }
-  #boot-pct { font-family: "futura-pt", "Narkiss Block", Arial, sans-serif; font-weight: 300; font-size: 46px; line-height: 1; letter-spacing: .08em; color: #000; font-variant-numeric: tabular-nums; direction: ltr; min-height: 46px; }
-  #boot-bar { width: min(560px, 74vw); height: 1px; background: #e4e4e4; position: relative; direction: ltr; }
+  #boot-pct { font-family: "futura-pt", "Narkiss Block", Arial, sans-serif; font-weight: 300; font-size: 34px; line-height: 1; letter-spacing: .08em; color: #000; font-variant-numeric: tabular-nums; direction: ltr; min-height: 34px; }
+  #boot-bar { width: min(360px, 62vw); height: 1px; background: #e4e4e4; position: relative; direction: ltr; }
   #boot-bar i { position: absolute; left: 0; top: -0.5px; height: 2px; width: 0; background: #000; }
   #boot-msg { font-family: "Narkiss Block", "futura-pt", Arial, sans-serif; font-weight: 400; font-size: 14px; letter-spacing: .06em; color: #8a8a8a; min-height: 21px; text-align: center; line-height: 1.5; }
   #boot-msg.err { color: #a11f1f; }
@@ -39,11 +39,11 @@
   <div id="boot-msg">טוען את המערכת…</div>
 </div>
 <script>
-// Loader (v3.2): draws the boot screen, fetches the application page (stored as ordered text blocks in
+// Loader (v3.4): draws the boot screen, fetches the application page (stored as ordered text blocks in
 // Supabase, public.site_blocks / page = 'app'), injects it into this document, and keeps reporting
 // progress that the application itself sends through window.__boot until its first real render.
 // The logo is drawn frame by frame as a direct function of the displayed percentage (sprite grid
-// logo-draw.webp: 105 frames in 4 columns, blank -> full logo, 1.5x resolution with vector-crisp
+// logo-draw.v4.webp (versioned name so the page and the sprite never mismatch in caches): 105 frames in 4 columns, blank -> full logo, 1.5x resolution with vector-crisp
 // edges); on exit the same frames run backwards so the logo un-draws before the curtain lifts.
 (() => {
   const SB_URL = 'https://pdbgmmzjghxophcdxchg.supabase.co';
@@ -63,7 +63,7 @@
   const drawImg = new Image();
   drawImg.onload = () => { logoOk = true; };
   drawImg.onerror = () => { logoEl.classList.add('static'); };
-  drawImg.src = 'logo-draw.webp';
+  drawImg.src = 'logo-draw.v4.webp';
   const framePos = (i, s) => { const k = Math.max(0, Math.min(s.n - 1, i)); return ((k % s.cols) / (s.cols - 1) * 100) + '% ' + (Math.floor(k / s.cols) / (s.rows - 1) * 100) + '%'; };
   const paint = () => {
     const v = Math.round(shown);
