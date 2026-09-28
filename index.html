@@ -18,8 +18,8 @@
   html, body { height: 100%; margin: 0; background: #fff; }
   #boot { position: fixed; inset: 0; z-index: 1000; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; padding: 24px; transition: opacity .5s ease; }
   #boot.out { opacity: 0; pointer-events: none; }
-  #boot-logo { width: min(560px, 74vw); aspect-ratio: 823 / 139; background: url(logo-draw.webp) no-repeat 0 0 / 100% auto; }
-  #boot-logo.static { background: url(logo.svg) no-repeat center / contain; }
+  #boot-logo { width: min(560px, 74vw); aspect-ratio: 823 / 139; background: url(logo-draw.webp) no-repeat 0 0 / 400% auto; }
+  #boot-logo.static { background: url(logo.svg) no-repeat center / contain !important; }
   #boot.leaving #boot-pct, #boot.leaving #boot-bar, #boot.leaving #boot-msg { opacity: 0; transition: opacity .25s ease; }
   #boot-pct { font-family: "futura-pt", "Narkiss Block", Arial, sans-serif; font-weight: 300; font-size: 46px; line-height: 1; letter-spacing: .08em; color: #000; font-variant-numeric: tabular-nums; direction: ltr; min-height: 46px; }
   #boot-bar { width: min(560px, 74vw); height: 1px; background: #e4e4e4; position: relative; direction: ltr; }
@@ -42,8 +42,9 @@
 // Loader (v3.2): draws the boot screen, fetches the application page (stored as ordered text blocks in
 // Supabase, public.site_blocks / page = 'app'), injects it into this document, and keeps reporting
 // progress that the application itself sends through window.__boot until its first real render.
-// The logo is drawn frame by frame as a direct function of the displayed percentage (sprite sheet
-// logo-draw.webp: 105 frames, blank -> full logo); on exit it un-draws (logo-undraw.webp: 41 frames).
+// The logo is drawn frame by frame as a direct function of the displayed percentage (sprite grid
+// logo-draw.webp: 105 frames in 4 columns, blank -> full logo, 1.5x resolution with vector-crisp
+// edges); on exit the same frames run backwards so the logo un-draws before the curtain lifts.
 (() => {
   const SB_URL = 'https://pdbgmmzjghxophcdxchg.supabase.co';
   const SB_KEY = 'sb_publishable_bX-xcucDh5W1ZwxQNVnH6g_3og7abIP';
@@ -52,22 +53,22 @@
   const P_INJECT = 56;             // progress after the page is injected and its scripts have run
   const WATCHDOG_MS = 25000;       // never keep the curtain up longer than this after the app started
 
-  const DRAW_N = 105, UNDRAW_N = 41, UNDRAW_MS = 420;   // sprite frames (vertical strips) and the exit duration
+  const SPR_DRAW = { n: 105, cols: 4, rows: 27 }, UNDRAW_MS = 380;   // sprite grid and the exit duration
 
   const $ = (id) => document.getElementById(id);
   const boot = $('boot'), logoEl = $('boot-logo'), pctEl = $('boot-pct'), barEl = $('boot-bar').firstElementChild, msgEl = $('boot-msg');
-  let target = 0, shown = 0, raf = 0, finished = false, failed = false, logoOk = false, undrawImg = null;
+  let target = 0, shown = 0, raf = 0, finished = false, failed = false, logoOk = false;
 
   // The logo strip: percent -> frame. If the strip cannot load, show the static logo instead.
   const drawImg = new Image();
-  drawImg.onload = () => { logoOk = true; undrawImg = new Image(); undrawImg.src = 'logo-undraw.webp'; };
+  drawImg.onload = () => { logoOk = true; };
   drawImg.onerror = () => { logoEl.classList.add('static'); };
   drawImg.src = 'logo-draw.webp';
-  const frameY = (i, n) => (i / (n - 1) * 100) + '%';
+  const framePos = (i, s) => { const k = Math.max(0, Math.min(s.n - 1, i)); return ((k % s.cols) / (s.cols - 1) * 100) + '% ' + (Math.floor(k / s.cols) / (s.rows - 1) * 100) + '%'; };
   const paint = () => {
     const v = Math.round(shown);
     pctEl.textContent = v + '%'; barEl.style.width = shown + '%';
-    if (!logoEl.classList.contains('static')) logoEl.style.backgroundPositionY = frameY(Math.round(shown / 100 * (DRAW_N - 1)), DRAW_N);
+    if (!logoEl.classList.contains('static')) logoEl.style.backgroundPosition = framePos(Math.round(shown / 100 * (SPR_DRAW.n - 1)), SPR_DRAW);
   };
   // requestAnimationFrame pauses in hidden tabs; fall back to a timer there so the readout still settles.
   const schedule = (fn) => (document.hidden ? (setTimeout(fn, 120), -1) : requestAnimationFrame(fn));
@@ -95,13 +96,11 @@
     // exit: the logo un-draws (the original animation's opening), the curtain fades during the second half
     const leave = () => {
       boot.classList.add('leaving');
-      const canUndraw = logoOk && undrawImg && undrawImg.complete && undrawImg.naturalWidth > 0 && !document.hidden;
-      if (!canUndraw) { hide(); return; }
-      logoEl.style.backgroundImage = 'url(logo-undraw.webp)';
+      if (!logoOk || document.hidden || logoEl.classList.contains('static')) { hide(); return; }
       const t1 = performance.now();
       const step = (now) => {
         const k = Math.min(1, (now - t1) / UNDRAW_MS);
-        logoEl.style.backgroundPositionY = frameY(Math.round(k * (UNDRAW_N - 1)), UNDRAW_N);
+        logoEl.style.backgroundPosition = framePos(Math.round((1 - k) * (SPR_DRAW.n - 1)), SPR_DRAW);
         if (k >= 0.55) hide();
         if (k < 1) requestAnimationFrame(step);
       };
