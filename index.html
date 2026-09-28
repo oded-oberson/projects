@@ -5,48 +5,161 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>מפת הפרויקטים · דנה אוברזון אדריכלים</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231d4f8f'/%3E%3Cpath d='M8 22V12l8-5 8 5v10' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23fff'/%3E%3Ccircle cx='16' cy='16' r='11.5' fill='none' stroke='%23000' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://pdbgmmzjghxophcdxchg.supabase.co" crossorigin>
+<link rel="preconnect" href="https://use.typekit.net" crossorigin>
+<link rel="preconnect" href="https://oberson-arch.com" crossorigin>
+<link rel="stylesheet" href="https://use.typekit.net/iqp8fqo.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
-  :root { color-scheme: light dark; }
-  body { margin: 0; min-height: 100vh; display: grid; place-items: center; font-family: "Heebo", "Segoe UI", Arial, sans-serif; background: #f3f4f6; color: #566070; }
-  @media (prefers-color-scheme: dark) { body { background: #111418; color: #a9b1bd; } }
-  .box { text-align: center; font-size: 15px; }
-  .spin { width: 28px; height: 28px; margin: 0 auto 14px; border: 3px solid rgba(29,79,143,.2); border-top-color: #1d4f8f; border-radius: 50%; animation: r 0.9s linear infinite; }
-  @keyframes r { to { transform: rotate(360deg); } }
-  .err { color: #a12727; }
+  @font-face { font-family: "Narkiss Block"; font-weight: 400; font-style: normal; font-display: swap; src: url("https://oberson-arch.com/wp-content/themes/oberson/fonts/NarkissBlock-Regular.woff2") format("woff2"); }
+  :root { color-scheme: light; }
+  html, body { height: 100%; margin: 0; background: #fff; }
+  #boot { position: fixed; inset: 0; z-index: 1000; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 26px; padding: 24px; transition: opacity .5s ease; }
+  #boot.out { opacity: 0; pointer-events: none; }
+  #boot img { width: min(560px, 74vw); height: auto; display: block; }
+  #boot-pct { font-family: "futura-pt", "Narkiss Block", Arial, sans-serif; font-weight: 300; font-size: 46px; line-height: 1; letter-spacing: .08em; color: #000; font-variant-numeric: tabular-nums; direction: ltr; min-height: 46px; }
+  #boot-bar { width: min(560px, 74vw); height: 1px; background: #e4e4e4; position: relative; direction: ltr; }
+  #boot-bar i { position: absolute; left: 0; top: -0.5px; height: 2px; width: 0; background: #000; transition: width .2s linear; }
+  #boot-msg { font-family: "Narkiss Block", "futura-pt", Arial, sans-serif; font-weight: 400; font-size: 14px; letter-spacing: .06em; color: #8a8a8a; min-height: 21px; text-align: center; line-height: 1.5; }
+  #boot-msg.err { color: #a11f1f; }
+  #boot-msg .again { display: inline-block; margin-top: 12px; padding: 6px 14px; border: 1px solid #000; background: #fff; color: #000; font: inherit; letter-spacing: .06em; cursor: pointer; }
+  #boot-msg .again:hover { background: #000; color: #fff; }
+  @media (prefers-reduced-motion: reduce) { #boot, #boot-bar i { transition: none; } }
 </style>
 </head>
 <body>
-<div class="box"><div class="spin"></div><div id="msg">טוען את המערכת…</div></div>
+<div id="boot" role="status" aria-live="polite">
+  <img src="logo-anim.webp" alt="OBERSON" width="823" height="139" decoding="async">
+  <div id="boot-pct">0%</div>
+  <div id="boot-bar"><i></i></div>
+  <div id="boot-msg">טוען את המערכת…</div>
+</div>
 <script>
-// Loader (v2): the application page is stored as ordered text blocks in Supabase
-// (public.site_blocks, page = 'app'). Fetch them, join, and hand the document over.
-(async () => {
+// Loader (v3): draws the boot screen, fetches the application page (stored as ordered text blocks in
+// Supabase, public.site_blocks / page = 'app'), injects it into this document, and keeps reporting
+// progress that the application itself sends through window.__boot until its first real render.
+(() => {
   const SB_URL = 'https://pdbgmmzjghxophcdxchg.supabase.co';
   const SB_KEY = 'sb_publishable_bX-xcucDh5W1ZwxQNVnH6g_3og7abIP';
-  const PAGE_SIZE = 500;
-  try {
-    const parts = [];
-    for (let from = 0; ; from += PAGE_SIZE) {
-      const r = await fetch(SB_URL + '/rest/v1/site_blocks?select=body&page=eq.app&order=seq.asc', {
-        headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, Range: from + '-' + (from + PAGE_SIZE - 1) },
-        cache: 'no-store',
-      });
-      if (!r.ok && r.status !== 206) throw new Error('HTTP ' + r.status);
-      const rows = await r.json();
-      rows.forEach((x) => parts.push(x.body));
-      if (rows.length < PAGE_SIZE) break;
+  const PAGE = 52;                 // rows per request; the first request reveals the total, the rest run in parallel
+  const P_BLOCKS = [4, 50];        // progress span (in %) for fetching the page blocks
+  const P_INJECT = 56;             // progress after the page is injected and its scripts have run
+  const WATCHDOG_MS = 25000;       // never keep the curtain up longer than this after the app started
+
+  const $ = (id) => document.getElementById(id);
+  const boot = $('boot'), pctEl = $('boot-pct'), barEl = $('boot-bar').firstElementChild, msgEl = $('boot-msg');
+  let target = 0, shown = 0, raf = 0, finished = false, failed = false;
+
+  const paint = () => { const v = Math.round(shown); pctEl.textContent = v + '%'; barEl.style.width = shown + '%'; };
+  const tick = () => {
+    raf = 0;
+    const d = target - shown;
+    if (d <= 0.05) { shown = target; paint(); return; }
+    shown += Math.max(0.3, d * 0.16);
+    paint();
+    raf = requestAnimationFrame(tick);
+  };
+  const set = (p, msg) => {
+    if (failed) return;
+    target = Math.max(target, Math.min(100, p));
+    if (msg) msgEl.textContent = msg;
+    if (!raf) raf = requestAnimationFrame(tick);
+  };
+  const finish = () => {
+    if (finished || failed) return;
+    finished = true;
+    set(100, '');
+    const hide = () => { boot.classList.add('out'); setTimeout(() => boot.remove(), 600); };
+    const wait = () => (shown >= 99.5 ? setTimeout(hide, 120) : setTimeout(wait, 40));
+    wait();
+  };
+  const fail = (html) => {
+    failed = true;
+    if (raf) cancelAnimationFrame(raf); raf = 0;
+    msgEl.className = 'err';
+    msgEl.innerHTML = html + '<br><button type="button" class="again" onclick="location.reload()">לטעון שוב</button>';
+  };
+  window.__boot = { set: (p, msg) => set(p * 100, msg), done: finish, fail };
+
+  const rest = (from, to) => fetch(SB_URL + '/rest/v1/site_blocks?select=body&page=eq.app&order=seq.asc', {
+    headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, Range: from + '-' + to, Prefer: 'count=exact' },
+    cache: 'no-store',
+  }).then(async (r) => {
+    if (!r.ok && r.status !== 206) throw new Error('HTTP ' + r.status);
+    const total = parseInt(String(r.headers.get('content-range') || '').split('/')[1], 10);
+    return { rows: await r.json(), total: Number.isFinite(total) ? total : NaN };
+  });
+
+  async function fetchBlocks() {
+    const first = await rest(0, PAGE - 1);
+    const pages = [first.rows];
+    let got = first.rows.length;
+    const total = Number.isFinite(first.total) ? first.total : NaN;
+    const span = P_BLOCKS[1] - P_BLOCKS[0];
+    const report = () => set(P_BLOCKS[0] + span * (Number.isFinite(total) && total > 0 ? Math.min(1, got / total) : 0.5));
+    report();
+    if (Number.isFinite(total)) {
+      const n = Math.ceil(total / PAGE);
+      const rest_ = [];
+      for (let i = 1; i < n; i++) rest_.push(rest(i * PAGE, (i + 1) * PAGE - 1).then((r) => { pages[i] = r.rows; got += r.rows.length; report(); }));
+      await Promise.all(rest_);
+    } else {
+      for (let from = PAGE; first.rows.length === PAGE; from += PAGE) {   // unknown total: page sequentially
+        const r = await rest(from, from + PAGE - 1); pages.push(r.rows); got += r.rows.length; report();
+        if (r.rows.length < PAGE) break;
+      }
     }
-    if (!parts.length) throw new Error('empty');
-    const html = parts.join('');
-    document.open();
-    document.write(html);
-    document.close();
-  } catch (e) {
-    console.error(e);
-    document.querySelector('.spin').style.display = 'none';
-    document.getElementById('msg').innerHTML = '<span class="err">לא הצלחנו לטעון את המערכת.</span><br>בדקו את החיבור לאינטרנט ונסו לרענן את הדף.';
+    const html = pages.flat().map((x) => x.body).join('');
+    if (!html.trim()) throw new Error('empty');
+    return html;
   }
+
+  const loadScript = (src) => new Promise((res, rej) => {
+    if ([...document.scripts].some((s) => s.src === src || s.getAttribute('src') === src)) return res();
+    const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('script ' + src)); document.head.appendChild(s);
+  });
+
+  async function inject(html) {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    for (const a of [...doc.documentElement.attributes]) document.documentElement.setAttribute(a.name, a.value);
+    const waits = [], inline = [];
+    for (const el of [...doc.head.children]) {
+      const tag = el.tagName;
+      if (tag === 'TITLE') document.title = el.textContent;
+      else if (tag === 'SCRIPT') { if (el.getAttribute('src')) waits.push(loadScript(el.getAttribute('src'))); else inline.push(el.textContent); }
+      else if (tag === 'META' && (el.getAttribute('charset') || el.getAttribute('name') === 'viewport')) continue;
+      else if (tag === 'LINK' && el.rel === 'icon') { const old = document.querySelector('link[rel="icon"]'); if (old) old.href = el.getAttribute('href'); else document.head.appendChild(document.importNode(el, true)); }
+      else if (tag === 'LINK' && [...document.querySelectorAll('link')].some((l) => l.getAttribute('href') === el.getAttribute('href'))) continue;
+      else document.head.appendChild(document.importNode(el, true));
+    }
+    for (const a of [...doc.body.attributes]) if (a.name !== 'style') document.body.setAttribute(a.name, a.value);
+    for (const el of [...doc.body.childNodes]) {
+      if (el.nodeType === 1 && el.tagName === 'SCRIPT') { if (el.getAttribute('src')) waits.push(loadScript(el.getAttribute('src'))); else inline.push(el.textContent); }
+      else document.body.appendChild(document.importNode(el, true));
+    }
+    await Promise.all(waits);
+    set(P_INJECT, 'מפעיל…');
+    for (const code of inline) { const s = document.createElement('script'); s.textContent = code; document.body.appendChild(s); }
+  }
+
+  (async () => {
+    try {
+      set(P_BLOCKS[0], 'טוען את המערכת…');
+      const html = await fetchBlocks();
+      set(P_BLOCKS[1] + 2, 'בונה את הדף…');
+      let scriptError = null;
+      const onErr = (e) => { scriptError = e.error || e.message || e; };
+      window.addEventListener('error', onErr);
+      await inject(html);
+      window.removeEventListener('error', onErr);
+      if (scriptError && !finished) throw scriptError;
+      setTimeout(() => { if (!finished && !failed) { console.warn('boot watchdog: app did not report readiness'); finish(); } }, WATCHDOG_MS);
+    } catch (e) {
+      console.error(e);
+      fail('לא הצלחנו לטעון את המערכת.<br>בדקו את החיבור לאינטרנט ונסו שוב.');
+    }
+  })();
 })();
 </script>
 </body>
