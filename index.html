@@ -26,13 +26,13 @@
   #boot { position: fixed; inset: 0; z-index: 1000; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 24px; transition: opacity .5s ease; }
   #boot.out { opacity: 0; pointer-events: none; }
   #boot-brand { display: flex; align-items: baseline; justify-content: center; direction: ltr; }
-  #boot-logo { position: relative; width: min(300px, 50vw); aspect-ratio: 823 / 139; background: url(logo-draw.v4.webp) no-repeat 0 0 / 400% auto; }
+  #boot-logo { position: relative; width: min(360px, 62vw); aspect-ratio: 823 / 139; background: url(logo-draw.v4.webp) no-repeat 0 0 / 400% auto; }
   /* OBERSONLINE: once the logo is fully drawn, its ON lights up green and LINE follows in the geometric face */
   #boot-on { position: absolute; inset: 0; background: #12b76a; -webkit-mask: url(logo-draw.v4.webp) no-repeat 0% 100% / 400% auto; mask: url(logo-draw.v4.webp) no-repeat 0% 100% / 400% auto; clip-path: inset(0 0 0 71.5%); opacity: 0; transition: opacity .35s ease; }
   #boot-logo.static #boot-on { -webkit-mask: url(logo.svg) no-repeat center / contain; mask: url(logo.svg) no-repeat center / contain; }
   #boot.full #boot-on { opacity: 1; }
   #boot.leaving #boot-on { opacity: 0; }
-  #boot-line { font-family: "futura-pt", "Narkiss Block", Arial, sans-serif; font-weight: 300; font-size: min(65px, 10.85vw); letter-spacing: .06em; line-height: 1; margin-left: .05em; color: #12b76a; opacity: 0; transition: opacity .35s ease; }
+  #boot-line { font-family: "futura-pt", "Narkiss Block", Arial, sans-serif; font-weight: 400; font-size: clamp(20px, 4.6vw, 30px); letter-spacing: .16em; line-height: 1; margin-left: .3em; color: #000; opacity: 0; transition: opacity .35s ease; }
   #boot.full #boot-line { opacity: 1; }
   #boot.leaving #boot-line { opacity: 0; }
   #boot-logo.static { background: url(logo.svg) no-repeat center / contain !important; }
@@ -55,7 +55,7 @@
   <div id="boot-msg">טוען את המערכת…</div>
 </div>
 <script>
-// Loader (v3.7 — OBERSONLINE wordmark; PWA manifest + service worker; the application page comes from app.html on this origin or, as a
+// Loader (v3.8 — OBERSONLINE wordmark, small black LINE; PWA manifest + service worker; the application page comes from app.html on this origin or, as a
 // fallback, from ordered text blocks in Supabase (public.site_blocks / page = 'app') — see site_meta below): draws the boot screen, fetches the page, injects it into this document, and keeps reporting
 // progress that the application itself sends through window.__boot until its first real render.
 // The logo is drawn frame by frame as a direct function of the displayed percentage (sprite grid

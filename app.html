@@ -92,9 +92,9 @@
   .brand .logo { width: 152px; }
   .brand:hover .logo { color: var(--ink-2); }
   .brand-office { display: none; }
-  /* the wordmark reads OBERSONLINE: the drawn logo (OBERS black, ON green) continued by LINE in the geometric face, cap height matched to the logo */
+  /* the wordmark reads OBERSONLINE: the drawn logo (OBERS black, ON green) followed by a small black LINE in the geometric face, sitting on the logo's baseline */
   .logo-on { color: var(--online); }
-  .brand-line { font-family: var(--font-num); font-weight: 300; font-size: 33px; letter-spacing: .06em; color: var(--online); margin-inline-start: .05em; line-height: 1; }
+  .brand-line { font-family: var(--font-num); font-weight: 400; font-size: 16px; letter-spacing: .16em; color: var(--ink); margin-inline-start: 6px; line-height: 1; }
   .brand-title { font-family: var(--font-display); font-weight: 200; font-size: 22px; line-height: 1.2; color: var(--ink); letter-spacing: .02em; }
   .nav { display: flex; gap: 4px; flex-wrap: wrap; margin-inline-start: auto; }
   .nav button {
@@ -488,10 +488,10 @@
   .auth-wrap { min-height: calc(100vh - 40px); display: flex; align-items: center; justify-content: center; padding: 20px 0; }
   .auth-card { width: min(440px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 0; padding: 40px 36px 32px; }
   .auth-brand { margin-bottom: 28px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
-  .auth-brand .logo { width: 62%; }
+  .auth-brand .logo { width: min(300px, 80%); }
   .auth-brand .brand-office { display: block; font-size: 12.5px; letter-spacing: .14em; color: var(--ink-2); }
-  .auth-brand .brand-line { font-size: 13.4cqw; margin-inline-start: .05em; }
-  .auth-brand .brand-row { display: flex; align-items: baseline; justify-content: center; direction: ltr; width: 100%; container-type: inline-size; }
+  .auth-brand .brand-line { font-size: 30px; margin-inline-start: 10px; }
+  .auth-brand .brand-row { display: flex; align-items: baseline; justify-content: center; direction: ltr; width: 100%; }
   .auth-brand .brand-title { font-size: 20px; }
   .auth-title { font-family: var(--font-display); font-weight: 400; font-size: 20px; margin: 0 0 8px; letter-spacing: .02em; }
   .auth-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--rule); margin-bottom: 18px; }
@@ -571,7 +571,7 @@
   .rp-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--rule); padding-bottom: 12px; margin-bottom: 12px; }
   .rp-brand { display: flex; align-items: baseline; direction: ltr; }
   .rp-brand .logo { width: 150px; }
-  .rp-line { font-family: var(--font-num); font-weight: 300; font-size: 32.5px; letter-spacing: .06em; color: var(--online); margin-left: .05em; line-height: 1; }
+  .rp-line { font-family: var(--font-num); font-weight: 400; font-size: 16px; letter-spacing: .16em; color: var(--ink); margin-left: 6px; line-height: 1; }
   .rp-titles { text-align: start; }
   .rp-title { font-family: var(--font-display); font-weight: 200; font-size: 26px; line-height: 1.1; letter-spacing: .01em; }
   .rp-title span { color: var(--ink-2); }
@@ -645,7 +645,6 @@
     .masthead-inner { gap: 8px; padding-inline: 16px; }
     .brand { padding: 10px 0; }
     .brand .logo { width: 118px; }
-    .brand-line { font-size: 25.6px; }
     .nav { width: 100%; margin-inline-start: 0; overflow-x: auto; flex-wrap: nowrap; }
     .nav button { padding: 8px 9px 11px; }
     .head-tools { margin-inline-start: auto; gap: 6px; min-width: 0; }
