@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>OBERSON GO</title>
+<title>OBERSONLINE</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23fff'/%3E%3Ccircle cx='16' cy='16' r='11.5' fill='none' stroke='%23000' stroke-width='3'/%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link rel="preconnect" href="https://use.typekit.net" crossorigin>
@@ -48,6 +48,7 @@
     --font-display: "Narkiss Block", "futura-pt", "Heebo", Arial, sans-serif;
     --font-num: "futura-pt", "Narkiss Block", "Heebo", Arial, sans-serif;
     --go: #e10600;
+    --online: #12b76a; /* the ON of the wordmark and the LINE that follows it: OBERSONLINE */
   }
 
   * { box-sizing: border-box; }
@@ -87,11 +88,13 @@
     max-width: 1480px; margin: 0 auto; padding-inline: 24px;
     display: flex; align-items: center; gap: 28px; flex-wrap: wrap; min-height: 64px;
   }
-  .brand { display: inline-flex; align-items: flex-end; padding: 12px 0; border: 0; background: none; min-width: 0; direction: ltr; }
+  .brand { display: inline-flex; align-items: baseline; padding: 12px 0; border: 0; background: none; min-width: 0; direction: ltr; }
   .brand .logo { width: 152px; }
   .brand:hover .logo { color: var(--ink-2); }
   .brand-office { display: none; }
-  .brand-go { font-family: var(--font-num); font-weight: 400; font-size: 16px; letter-spacing: .16em; color: var(--go); margin-inline-start: 5px; line-height: 1; margin-bottom: 1px; }
+  /* the wordmark reads OBERSONLINE: the drawn logo (OBERS black, ON green) continued by LINE in the geometric face, cap height matched to the logo */
+  .logo-on { color: var(--online); }
+  .brand-line { font-family: var(--font-num); font-weight: 300; font-size: 33px; letter-spacing: .06em; color: var(--online); margin-inline-start: .05em; line-height: 1; }
   .brand-title { font-family: var(--font-display); font-weight: 200; font-size: 22px; line-height: 1.2; color: var(--ink); letter-spacing: .02em; }
   .nav { display: flex; gap: 4px; flex-wrap: wrap; margin-inline-start: auto; }
   .nav button {
@@ -485,10 +488,10 @@
   .auth-wrap { min-height: calc(100vh - 40px); display: flex; align-items: center; justify-content: center; padding: 20px 0; }
   .auth-card { width: min(440px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 0; padding: 40px 36px 32px; }
   .auth-brand { margin-bottom: 28px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
-  .auth-brand .logo { width: min(300px, 80%); }
+  .auth-brand .logo { width: 62%; }
   .auth-brand .brand-office { display: block; font-size: 12.5px; letter-spacing: .14em; color: var(--ink-2); }
-  .auth-brand .brand-go { font-family: var(--font-num); font-weight: 400; font-size: 30px; letter-spacing: .16em; line-height: 1; color: var(--go); margin-inline-start: .18em; padding-inline-start: 0; margin-bottom: 2px; border: 0; }
-  .auth-brand .brand-row { display: flex; align-items: flex-end; justify-content: center; direction: ltr; width: 100%; }
+  .auth-brand .brand-line { font-size: 13.4cqw; margin-inline-start: .05em; }
+  .auth-brand .brand-row { display: flex; align-items: baseline; justify-content: center; direction: ltr; width: 100%; container-type: inline-size; }
   .auth-brand .brand-title { font-size: 20px; }
   .auth-title { font-family: var(--font-display); font-weight: 400; font-size: 20px; margin: 0 0 8px; letter-spacing: .02em; }
   .auth-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--rule); margin-bottom: 18px; }
@@ -566,9 +569,9 @@
   .rp-pagefoot { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--ink-3); border-top: 1px solid var(--line); padding-top: 6px; margin-top: 12px; letter-spacing: .04em; }
   .rp-b { margin-bottom: 8px; font-size: 13px; line-height: 1.45; }
   .rp-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--rule); padding-bottom: 12px; margin-bottom: 12px; }
-  .rp-brand { display: flex; align-items: flex-end; direction: ltr; }
+  .rp-brand { display: flex; align-items: baseline; direction: ltr; }
   .rp-brand .logo { width: 150px; }
-  .rp-go { font-family: var(--font-num); font-weight: 400; font-size: 16px; letter-spacing: .16em; color: var(--go); margin-left: 5px; margin-bottom: 1px; }
+  .rp-line { font-family: var(--font-num); font-weight: 300; font-size: 32.5px; letter-spacing: .06em; color: var(--online); margin-left: .05em; line-height: 1; }
   .rp-titles { text-align: start; }
   .rp-title { font-family: var(--font-display); font-weight: 200; font-size: 26px; line-height: 1.1; letter-spacing: .01em; }
   .rp-title span { color: var(--ink-2); }
@@ -642,6 +645,7 @@
     .masthead-inner { gap: 8px; padding-inline: 16px; }
     .brand { padding: 10px 0; }
     .brand .logo { width: 118px; }
+    .brand-line { font-size: 25.6px; }
     .nav { width: 100%; margin-inline-start: 0; overflow-x: auto; flex-wrap: nowrap; }
     .nav button { padding: 8px 9px 11px; }
     .head-tools { margin-inline-start: auto; gap: 6px; min-width: 0; }
@@ -661,11 +665,11 @@
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="logo-mark" viewBox="0 0 1000 162.4"><path fill="currentColor" fill-rule="evenodd" d="M76.4 161.8C75.7 161.8 73.8 161.6 72.2 161.4C52.9 159.3 35.2 150.3 22 135.9C13.4 126.7 7.1 115.5 3.7 103.7C-1.9 84.1 0 63.1 8.9 45.2C19.5 24.1 38.9 8.6 61.7 2.8C68.7 1.1 73.3 0.5 82.2 0.5C91.2 0.5 95.8 1.1 103.1 2.9C117.5 6.6 130.3 14.1 140.9 25C145.3 29.5 149.2 34.5 152.7 40.3L153.1 41.1L153.1 20.8L153.2 0.4L207.8 0.4C243 0.4 263.1 0.5 264.4 0.6C274.4 1.8 284 6.4 290.8 13.6C291.6 14.4 292.2 15 292.3 15C292.3 15 292.4 11.7 292.4 7.7L292.4 0.4L413.7 0.4C497.8 0.4 535.6 0.5 537.1 0.7C553.8 2.5 568.1 14 573.3 29.9C581.9 56 564.3 83.2 537.1 86.2C535.8 86.3 529.9 86.4 522.6 86.4C514.9 86.4 510.3 86.5 510.3 86.6C510.4 86.8 527.5 101.4 548.5 119.1L586.6 151.4L629.1 151.4C656.9 151.4 672.5 151.4 674.1 151.2C678.4 150.8 682 149.7 685.7 147.8C694.8 143 700.8 134.3 702.1 124.1C702.5 121 702.2 113.7 701.6 111.1C700.3 105 697.6 100 693.2 95.5C688.7 91.1 684 88.5 677.4 87C675.4 86.6 675.2 86.6 645.8 86.4C614 86.3 615.2 86.3 610.8 85.2C605.2 83.8 599.3 81 594.7 77.5C592.9 76.1 589.2 72.5 587.7 70.6C581.4 62.8 578.1 53.4 578.1 43.4C578.1 33.8 581.1 24.8 587.1 17.1C588.4 15.2 592.1 11.6 594 10C600.4 4.8 608.5 1.5 616.8 0.6C618.5 0.5 656.8 0.4 750.8 0.5L882.5 0.5L935.3 75.9C976 134.1 988.2 151.3 988.6 151.4L989.1 151.5L989.1 76.9L989.1 2.4L994.3 2.4L999.6 2.4L999.6 82.2L999.6 161.9L991 161.9L982.5 161.9L929.7 86.4C900.6 44.9 876.7 11 876.6 11C876.4 11.1 876.3 31 876.3 85.4L876.2 159.8L871 159.8L865.7 159.8L865.7 140.5L865.7 121.1L864.6 122.9C858.8 132.6 850.2 141.6 841.1 147.8C829.8 155.5 817.7 159.9 803.7 161.6C800 162 788.6 161.9 784.6 161.4C763.1 158.8 744.1 148.3 730.8 131.7C713.7 110.4 708.5 82.1 717 56.1C722.1 40.5 732.1 26.5 745.4 16.6C747.6 15 752.1 12 753 11.5C753.3 11.4 753.5 11.2 753.5 11.1C753.5 11 723.1 11 685.4 11L617.2 11.1L615.1 11.5C608.6 13 603.3 15.7 598.8 19.9C593.3 25.2 589.9 31.8 588.9 39.4C588.5 42.5 588.5 44.4 588.9 47.4C590.6 60.5 599.8 71.1 612.3 74.6C616.5 75.8 614.9 75.8 647 75.9C678.9 76.1 677.2 76 681.6 77.1C696 80.7 707.7 92.3 711.5 106.7C712.6 110.7 712.8 112.8 712.8 118.8C712.8 126.3 712.2 130 710.2 135.2C704.5 150 691.2 160.1 675.5 161.7C674 161.9 658 161.9 627.9 161.9L582.5 161.9L539.5 125.5L496.5 89L496.4 82.5L496.3 76L516.2 75.9C536 75.8 536.2 75.8 538.5 75.3C552 72.5 562.1 62.2 564.5 48.8C565 45.9 565 41 564.5 38.1C562.1 24.6 551.9 14.3 538.3 11.5L535.9 11L419.5 11L303 11L303 43.4L303 75.8L367.7 75.9L432.4 75.9L432.4 81.2L432.4 86.4L367.7 86.5L303 86.6L303 118.9L303 151.3L367.7 151.4L432.4 151.4L432.4 156.7L432.4 161.9L362.4 161.9L292.4 161.9L292.4 154.7C292.4 150.6 292.3 147.4 292.3 147.4C292.3 147.4 291.3 148.3 290.1 149.5C283.7 155.7 276.3 159.6 267.2 161.4L264.8 161.8L209 161.9L153.2 162L153.1 141.7L153 121.5L151.4 124.1C138.6 144.4 117.4 158 94 161.2C88.9 161.9 81.6 162.1 76.4 161.8ZM87 151.2C102.6 150.2 116.5 144.6 128.4 134.7C131 132.4 135.8 127.6 137.9 124.9C144.5 116.5 149.3 106.7 151.5 96.5C152.8 90.8 153 88.4 153 81.3C153 73.3 152.7 70.2 150.9 63.4C144.5 38.8 124.8 19.3 100.1 13.1C93.9 11.6 89.5 11.1 82.2 11.1C74.8 11.1 70.4 11.6 64.2 13.1C58.6 14.5 52.4 17 47.5 19.7C29.8 29.6 17.1 46.4 12.8 65.9C11.5 71.6 11.3 74 11.3 81.2C11.3 88.3 11.5 90.8 12.8 96.4C15.2 107.4 20.4 117.7 27.6 126.2C42.3 143.7 63.8 152.7 87 151.2ZM262.4 151.2C268.4 150.7 274 148.6 278.7 145.3C281 143.7 284.6 140 286.2 137.8C292.9 128.3 294.1 116.4 289.5 105.7C285 95.4 274.9 88.1 263.4 86.7C262.2 86.5 246.2 86.4 216.2 86.4L170.7 86.4L170.7 81.2L170.7 75.9L217.2 75.9L263.7 75.8L265.9 75.3C272.8 73.8 278 71 282.7 66.3C286.5 62.5 289 58.6 290.6 53.5C291.8 49.9 292.2 47.3 292.2 43.4C292.2 39.6 291.8 37 290.6 33.4C289 28.4 286.5 24.4 282.7 20.6C278 15.9 272.6 13 265.8 11.5L263.5 11L213.7 11L163.9 10.9L163.9 81.2L163.9 151.4L212.1 151.4C239 151.4 261.2 151.3 262.4 151.2ZM802.6 151C829.6 148.1 852.4 130.3 861.5 105C865.5 94.1 866.7 82.4 865 70.8C861.2 44.8 842.3 22.6 817 14.4C810.4 12.3 804.5 11.3 797 11C772 10.2 749 21.9 735.3 42.5C729.1 51.9 725.4 62 724 73.5C723.5 77.5 723.5 84.9 724 88.9C726 105.1 732.9 119.4 744.2 130.7C756.6 143.1 772.9 150.3 790.5 151.3C792.9 151.4 800.4 151.2 802.6 151ZM292.3 71.9C292.3 71.9 291.2 72.9 290 74.1C287.6 76.4 284.3 79 282.2 80.2C281.5 80.6 281 81 280.9 81.1C280.8 81.2 281.7 81.8 282.8 82.5C285.3 84.1 288.4 86.6 290.5 88.8L292.3 90.5L292.3 81.3C292.3 76.2 292.3 72 292.3 71.9ZM865.7 11C865.6 11 858.8 11 850.6 11L835.6 11L837.8 12.4C845.8 17.3 853.2 23.9 859.2 31.5C860.5 33.2 864 38.3 865 40L865.6 41.1L865.7 26.1C865.7 17.8 865.7 11.1 865.7 11Z"/></symbol></svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><clipPath id="clip-obers" clipPathUnits="userSpaceOnUse"><rect x="-2" y="-2" width="717" height="167"/></clipPath><clipPath id="clip-on" clipPathUnits="userSpaceOnUse"><rect x="715" y="-2" width="290" height="167"/></clipPath><path id="logo-path" fill="currentColor" fill-rule="evenodd" d="M76.4 161.8C75.7 161.8 73.8 161.6 72.2 161.4C52.9 159.3 35.2 150.3 22 135.9C13.4 126.7 7.1 115.5 3.7 103.7C-1.9 84.1 0 63.1 8.9 45.2C19.5 24.1 38.9 8.6 61.7 2.8C68.7 1.1 73.3 0.5 82.2 0.5C91.2 0.5 95.8 1.1 103.1 2.9C117.5 6.6 130.3 14.1 140.9 25C145.3 29.5 149.2 34.5 152.7 40.3L153.1 41.1L153.1 20.8L153.2 0.4L207.8 0.4C243 0.4 263.1 0.5 264.4 0.6C274.4 1.8 284 6.4 290.8 13.6C291.6 14.4 292.2 15 292.3 15C292.3 15 292.4 11.7 292.4 7.7L292.4 0.4L413.7 0.4C497.8 0.4 535.6 0.5 537.1 0.7C553.8 2.5 568.1 14 573.3 29.9C581.9 56 564.3 83.2 537.1 86.2C535.8 86.3 529.9 86.4 522.6 86.4C514.9 86.4 510.3 86.5 510.3 86.6C510.4 86.8 527.5 101.4 548.5 119.1L586.6 151.4L629.1 151.4C656.9 151.4 672.5 151.4 674.1 151.2C678.4 150.8 682 149.7 685.7 147.8C694.8 143 700.8 134.3 702.1 124.1C702.5 121 702.2 113.7 701.6 111.1C700.3 105 697.6 100 693.2 95.5C688.7 91.1 684 88.5 677.4 87C675.4 86.6 675.2 86.6 645.8 86.4C614 86.3 615.2 86.3 610.8 85.2C605.2 83.8 599.3 81 594.7 77.5C592.9 76.1 589.2 72.5 587.7 70.6C581.4 62.8 578.1 53.4 578.1 43.4C578.1 33.8 581.1 24.8 587.1 17.1C588.4 15.2 592.1 11.6 594 10C600.4 4.8 608.5 1.5 616.8 0.6C618.5 0.5 656.8 0.4 750.8 0.5L882.5 0.5L935.3 75.9C976 134.1 988.2 151.3 988.6 151.4L989.1 151.5L989.1 76.9L989.1 2.4L994.3 2.4L999.6 2.4L999.6 82.2L999.6 161.9L991 161.9L982.5 161.9L929.7 86.4C900.6 44.9 876.7 11 876.6 11C876.4 11.1 876.3 31 876.3 85.4L876.2 159.8L871 159.8L865.7 159.8L865.7 140.5L865.7 121.1L864.6 122.9C858.8 132.6 850.2 141.6 841.1 147.8C829.8 155.5 817.7 159.9 803.7 161.6C800 162 788.6 161.9 784.6 161.4C763.1 158.8 744.1 148.3 730.8 131.7C713.7 110.4 708.5 82.1 717 56.1C722.1 40.5 732.1 26.5 745.4 16.6C747.6 15 752.1 12 753 11.5C753.3 11.4 753.5 11.2 753.5 11.1C753.5 11 723.1 11 685.4 11L617.2 11.1L615.1 11.5C608.6 13 603.3 15.7 598.8 19.9C593.3 25.2 589.9 31.8 588.9 39.4C588.5 42.5 588.5 44.4 588.9 47.4C590.6 60.5 599.8 71.1 612.3 74.6C616.5 75.8 614.9 75.8 647 75.9C678.9 76.1 677.2 76 681.6 77.1C696 80.7 707.7 92.3 711.5 106.7C712.6 110.7 712.8 112.8 712.8 118.8C712.8 126.3 712.2 130 710.2 135.2C704.5 150 691.2 160.1 675.5 161.7C674 161.9 658 161.9 627.9 161.9L582.5 161.9L539.5 125.5L496.5 89L496.4 82.5L496.3 76L516.2 75.9C536 75.8 536.2 75.8 538.5 75.3C552 72.5 562.1 62.2 564.5 48.8C565 45.9 565 41 564.5 38.1C562.1 24.6 551.9 14.3 538.3 11.5L535.9 11L419.5 11L303 11L303 43.4L303 75.8L367.7 75.9L432.4 75.9L432.4 81.2L432.4 86.4L367.7 86.5L303 86.6L303 118.9L303 151.3L367.7 151.4L432.4 151.4L432.4 156.7L432.4 161.9L362.4 161.9L292.4 161.9L292.4 154.7C292.4 150.6 292.3 147.4 292.3 147.4C292.3 147.4 291.3 148.3 290.1 149.5C283.7 155.7 276.3 159.6 267.2 161.4L264.8 161.8L209 161.9L153.2 162L153.1 141.7L153 121.5L151.4 124.1C138.6 144.4 117.4 158 94 161.2C88.9 161.9 81.6 162.1 76.4 161.8ZM87 151.2C102.6 150.2 116.5 144.6 128.4 134.7C131 132.4 135.8 127.6 137.9 124.9C144.5 116.5 149.3 106.7 151.5 96.5C152.8 90.8 153 88.4 153 81.3C153 73.3 152.7 70.2 150.9 63.4C144.5 38.8 124.8 19.3 100.1 13.1C93.9 11.6 89.5 11.1 82.2 11.1C74.8 11.1 70.4 11.6 64.2 13.1C58.6 14.5 52.4 17 47.5 19.7C29.8 29.6 17.1 46.4 12.8 65.9C11.5 71.6 11.3 74 11.3 81.2C11.3 88.3 11.5 90.8 12.8 96.4C15.2 107.4 20.4 117.7 27.6 126.2C42.3 143.7 63.8 152.7 87 151.2ZM262.4 151.2C268.4 150.7 274 148.6 278.7 145.3C281 143.7 284.6 140 286.2 137.8C292.9 128.3 294.1 116.4 289.5 105.7C285 95.4 274.9 88.1 263.4 86.7C262.2 86.5 246.2 86.4 216.2 86.4L170.7 86.4L170.7 81.2L170.7 75.9L217.2 75.9L263.7 75.8L265.9 75.3C272.8 73.8 278 71 282.7 66.3C286.5 62.5 289 58.6 290.6 53.5C291.8 49.9 292.2 47.3 292.2 43.4C292.2 39.6 291.8 37 290.6 33.4C289 28.4 286.5 24.4 282.7 20.6C278 15.9 272.6 13 265.8 11.5L263.5 11L213.7 11L163.9 10.9L163.9 81.2L163.9 151.4L212.1 151.4C239 151.4 261.2 151.3 262.4 151.2ZM802.6 151C829.6 148.1 852.4 130.3 861.5 105C865.5 94.1 866.7 82.4 865 70.8C861.2 44.8 842.3 22.6 817 14.4C810.4 12.3 804.5 11.3 797 11C772 10.2 749 21.9 735.3 42.5C729.1 51.9 725.4 62 724 73.5C723.5 77.5 723.5 84.9 724 88.9C726 105.1 732.9 119.4 744.2 130.7C756.6 143.1 772.9 150.3 790.5 151.3C792.9 151.4 800.4 151.2 802.6 151ZM292.3 71.9C292.3 71.9 291.2 72.9 290 74.1C287.6 76.4 284.3 79 282.2 80.2C281.5 80.6 281 81 280.9 81.1C280.8 81.2 281.7 81.8 282.8 82.5C285.3 84.1 288.4 86.6 290.5 88.8L292.3 90.5L292.3 81.3C292.3 76.2 292.3 72 292.3 71.9ZM865.7 11C865.6 11 858.8 11 850.6 11L835.6 11L837.8 12.4C845.8 17.3 853.2 23.9 859.2 31.5C860.5 33.2 864 38.3 865 40L865.6 41.1L865.7 26.1C865.7 17.8 865.7 11.1 865.7 11Z"/></defs><symbol id="logo-mark" viewBox="0 0 1000 162.4"><use href="#logo-path" clip-path="url(#clip-obers)"/><use href="#logo-path" class="logo-on" clip-path="url(#clip-on)"/></symbol></svg>
 <div id="app">
   <header class="masthead" id="masthead" hidden>
     <div class="masthead-inner">
-      <button type="button" class="brand" data-action="nav" data-view="overview" title="OBERSON GO"><svg class="logo" aria-label="OBERSON"><use href="#logo-mark"/></svg><span class="brand-go" aria-hidden="true">GO</span><span class="brand-office" id="brand-office">OBERSON</span></button>
+      <button type="button" class="brand" data-action="nav" data-view="overview" title="OBERSONLINE"><svg class="logo" aria-label="OBERSONLINE"><use href="#logo-mark"/></svg><span class="brand-line" aria-hidden="true">LINE</span><span class="brand-office" id="brand-office">OBERSON</span></button>
       <nav class="nav" id="nav" aria-label="ניווט ראשי"></nav>
       <div class="head-tools">
         <span id="bell" class="bell"></span>
@@ -770,6 +774,7 @@ const DEFAULT_SETTINGS = {
   partnerTypes: ['אדריכלות', 'עיצוב פנים', 'עיצוב ואמנות', 'יחסי ציבור ותקשורת', 'צילום', 'רשויות', 'שירותים למשרד', 'אחר'],
   staleDays: 14,
   loadPerLevel: 4,
+  leadCapacityShare: 0.25,
   teamRoles: ['ראש/ת צוות', 'אדריכל/ית', 'אדריכל/ית בכיר/ה', 'מעצב/ת פנים', 'מנהל/ת פרויקטים', 'מתמחה', 'סטודנט/ית', 'מנהל/ת משרד', 'הנהלת חשבונות', 'אחר'],
 };
 
@@ -842,8 +847,12 @@ const tenureLabel = (startDate) => {
   return mo ? `${ys} ו-${mo === 1 ? 'חודש' : mo + ' חודשים'}` : ys;
 };
 const loadPerLevel = () => Number(settings().loadPerLevel) || 4;
+/* a team lead runs the team, so only part of their position (25% by default) counts towards project capacity */
+const leadShare = () => { const v = settings().leadCapacityShare; const n = Number(v); return v == null || v === '' || isNaN(n) ? 0.25 : Math.min(1, Math.max(0, n)); };
+const isTeamLead = (cid) => !!cid && T().some((t) => t.leadId === cid);
+const capacityLevel = (c) => empLevel(c) * (isTeamLead(c.id) ? leadShare() : 1);
 const teamMembers = (tid) => employees().filter((e) => e.teamId === tid);
-const teamCapacity = (tid) => sum(teamMembers(tid), empLevel);
+const teamCapacity = (tid) => sum(teamMembers(tid), capacityLevel);
 /* a project's load is shared equally by the people assigned to it (lead + members); with nobody assigned it stays with the team */
 function personalLoads(act) {
   const m = {};
@@ -1485,8 +1494,11 @@ function renderSettings() {
         <div></div>
       </div>`).join('')}</div>
       <div class="inline-note" style="margin-top:10px">ניקוד העומס של פרויקט = משקל הגודל × משקל השלב הפעיל. הסכום לכל צוות ולכל מוביל מוצג בסקירה.</div>
-      ${canSeeLevels() ? `<div class="field" style="margin-top:14px"><label>נקודות עומס לעובד/ת ברמה 1 (קיבולת)</label><input type="number" step="0.5" min="0.5" id="set-load-per-level" value="${loadPerLevel()}" style="max-width:120px" ${ro ? 'disabled' : ''}>
-        <div class="inline-note">קיבולת צוות = סכום רמות הניסיון × הערך הזה. רמה אוטומטית לפי ותק: ${LEVEL_STEPS.map((s) => `${fmtNum(s.level, 2)} ${s.label}`).join(' · ')}; ערך ידני עד ${LEVEL_MAX} בכרטיס העובד/ת. מטריצת העומס נמצאת בצוותים.</div></div>` : ''}
+      ${canSeeLevels() ? `<div class="field-row" style="margin-top:14px">
+        <div class="field"><label>נקודות עומס לעובד/ת ברמה 1 (קיבולת)</label><input type="number" step="0.5" min="0.5" id="set-load-per-level" value="${loadPerLevel()}" style="max-width:120px" ${ro ? 'disabled' : ''}></div>
+        <div class="field"><label>חלק המשרה של ראש/ת צוות שנספר לקיבולת (%)</label><input type="number" step="5" min="0" max="100" id="set-lead-share" value="${Math.round(leadShare() * 100)}" style="max-width:120px" ${ro ? 'disabled' : ''}></div>
+      </div>
+      <div class="inline-note">קיבולת צוות = סכום רמות הניסיון × הנקודות לרמה; ראש/ת צוות מנהל/ת את הצוות ולכן נספר/ת רק בחלק מהמשרה. רמה אוטומטית לפי ותק: ${LEVEL_STEPS.map((s) => `${fmtNum(s.level, 2)} ${s.label}`).join(' · ')}; ערך ידני עד ${LEVEL_MAX} בכרטיס העובד/ת. מטריצת העומס נמצאת בצוותים.</div>` : ''}
       <div class="field" style="margin-top:14px"><label>"ללא עדכון" אחרי כמה ימים</label><input type="number" min="1" id="set-stale-days" value="${st.staleDays || 14}" style="max-width:120px" ${ro ? 'disabled' : ''}></div>
       <div class="field"><label>שם המשרד</label><input type="text" id="set-office-name" value="${esc(st.officeName || '')}" ${ro ? 'disabled' : ''}></div>
     </div>
@@ -1544,20 +1556,20 @@ function shortVal(v) {
 function memberSub(c, act, loads) {
   const counts = `${act.filter((p) => p.leadId === c.id).length} מוביל/ה · ${act.filter((p) => (p.memberIds || []).includes(c.id)).length} משתתף/ת`;
   if (!canSeeLevels()) return counts;
-  const lvl = empLevel(c); const manual = manualLevel(c) != null; const u = utilInfo(loads[c.id] || 0, lvl);
-  return `<span class="lvl ${manual ? 'manual' : ''}" title="${manual ? 'רמה ידנית' : 'רמה אוטומטית לפי ותק: ' + esc(tenureLabel(c.startDate))}">רמה ${fmtNum(lvl, 2)}${manual ? '' : ' (אוטו׳)'}</span> · <span class="util ${u.cls}" title="עומס אישי ${fmtNum(loads[c.id] || 0)} מתוך ${fmtNum(u.cap)}">${u.pct == null ? u.label : u.pct + '%'}</span> · ${counts}`;
+  const lvl = empLevel(c); const manual = manualLevel(c) != null; const lead = isTeamLead(c.id); const cl = capacityLevel(c); const u = utilInfo(loads[c.id] || 0, cl);
+  return `<span class="lvl ${manual ? 'manual' : ''}" title="${manual ? 'רמה ידנית' : 'רמה אוטומטית לפי ותק: ' + esc(tenureLabel(c.startDate))}">רמה ${fmtNum(lvl, 2)}${manual ? '' : ' (אוטו׳)'}</span>${lead ? ` · <span title="ראש/ת צוות: רק ${Math.round(leadShare() * 100)}% מהמשרה נספרים לקיבולת הפרויקטים">ראש/ת צוות ${Math.round(leadShare() * 100)}% → ${fmtNum(cl, 2)}</span>` : ''} · <span class="util ${u.cls}" title="עומס אישי ${fmtNum(loads[c.id] || 0)} מתוך ${fmtNum(u.cap)}">${u.pct == null ? u.label : u.pct + '%'}</span> · ${counts}`;
 }
 /* load matrix: people, capacity (Σ levels × points per level), projects, load and utilisation per team */
 function loadMatrix(act) {
-  const rows = T().map((t) => { const ms = teamMembers(t.id); const ps = act.filter((p) => p.teamId === t.id); const load = sum(ps, projectWeight); const lv = sum(ms, empLevel); return { id: t.id, name: t.name, lead: cname(t.leadId, ''), n: ms.length, lv, ps: ps.length, load, u: utilInfo(load, lv), noStart: ms.filter((e) => !e.startDate && manualLevel(e) == null).length }; });
+  const rows = T().map((t) => { const ms = teamMembers(t.id); const ps = act.filter((p) => p.teamId === t.id); const load = sum(ps, projectWeight); const lv = sum(ms, capacityLevel); return { id: t.id, name: t.name, lead: cname(t.leadId, ''), n: ms.length, lv, ps: ps.length, load, u: utilInfo(load, lv), noStart: ms.filter((e) => !e.startDate && manualLevel(e) == null).length }; });
   const noTeam = act.filter((p) => !p.teamId);
   const tot = { n: sum(rows, (r) => r.n), lv: sum(rows, (r) => r.lv), ps: sum(rows, (r) => r.ps) + noTeam.length, load: sum(rows, (r) => r.load) + sum(noTeam, projectWeight) };
   tot.u = utilInfo(tot.load, tot.lv);
   const unknown = sum(rows, (r) => r.noStart);
   return `<div class="panel" id="load-matrix" style="margin-bottom:14px">
-    <div class="panel-head"><h2 class="panel-title">מטריצת עומס</h2><span class="panel-sub">קיבולת = סכום רמות הניסיון × ${fmtNum(loadPerLevel())} נקודות לרמה 1 · עומס = סכום ניקוד הפרויקטים הפעילים (גודל × שלב) · לראשי צוותים ומעלה</span></div>
+    <div class="panel-head"><h2 class="panel-title">מטריצת עומס</h2><span class="panel-sub">קיבולת = סכום רמות הניסיון × ${fmtNum(loadPerLevel())} נקודות לרמה 1 (ראש/ת צוות נספר/ת ב-${Math.round(leadShare() * 100)}%) · עומס = סכום ניקוד הפרויקטים הפעילים (גודל × שלב) · לראשי צוותים ומעלה</span></div>
     <div class="table-wrap"><table class="matrix">
-      <thead><tr><th>צוות</th><th class="num">אנשים</th><th class="num">סכום רמות</th><th class="num">קיבולת</th><th class="num">פרויקטים</th><th class="num">עומס</th><th class="num">ניצולת</th><th>מצב</th></tr></thead>
+      <thead><tr><th>צוות</th><th class="num">אנשים</th><th class="num" title="סכום רמות הניסיון, ראש/ת הצוות בחלקו/ה בלבד">רמות נטו</th><th class="num">קיבולת</th><th class="num">פרויקטים</th><th class="num">עומס</th><th class="num">ניצולת</th><th>מצב</th></tr></thead>
       <tbody>${rows.map((r) => `<tr class="clickable" data-action="goto-projects" data-team="${r.id}">
         <td><strong>${esc(r.name)}</strong>${r.lead ? ` <small class="muted">${esc(r.lead)}</small>` : ''}</td><td class="num">${r.n}</td><td class="num">${fmtNum(r.lv, 2)}</td><td class="num">${fmtNum(r.u.cap)}</td><td class="num">${r.ps}</td><td class="num">${fmtNum(r.load)}</td>
         <td class="num"><div class="util-bar"><div class="${r.u.cls}" style="width:${Math.min(100, r.u.pct || 0)}%"></div></div>${r.u.pct == null ? '—' : r.u.pct + '%'}</td><td>${utilChip(r.u)}</td>
@@ -1566,7 +1578,7 @@ function loadMatrix(act) {
       </tbody>
       <tfoot><tr><td>סה"כ המשרד</td><td class="num">${tot.n}</td><td class="num">${fmtNum(tot.lv, 2)}</td><td class="num">${fmtNum(tot.u.cap)}</td><td class="num">${tot.ps}</td><td class="num">${fmtNum(tot.load)}</td><td class="num">${tot.u.pct == null ? '—' : tot.u.pct + '%'}</td><td>${utilChip(tot.u)}</td></tr></tfoot>
     </table></div>
-    <div class="inline-note" style="margin-top:8px">רמה אוטומטית לפי ותק: ${LEVEL_STEPS.map((s) => `${fmtNum(s.level, 2)} ${s.label}`).join(' · ')}. ערך ידני (עד ${LEVEL_MAX}) נקבע בכרטיס העובד/ת.${unknown ? ` <strong>${unknown} עובדים ללא תאריך תחילת עבודה</strong> נספרים כרמה 1 עד שיוזן תאריך או ערך ידני.` : ''}${isManager() ? ' הנקודות לרמה נקבעות בהגדרות.' : ''}</div>
+    <div class="inline-note" style="margin-top:8px">רמה אוטומטית לפי ותק: ${LEVEL_STEPS.map((s) => `${fmtNum(s.level, 2)} ${s.label}`).join(' · ')}. ערך ידני (עד ${LEVEL_MAX}) נקבע בכרטיס העובד/ת. ראש/ת צוות מנהל/ת את הצוות, ולכן רק ${Math.round(leadShare() * 100)}% מהרמה שלו/ה נספרים לקיבולת הפרויקטים.${unknown ? ` <strong>${unknown} עובדים ללא תאריך תחילת עבודה</strong> נספרים כרמה 1 עד שיוזן תאריך או ערך ידני.` : ''}${isManager() ? ' הנקודות לרמה וחלק ראש הצוות נקבעים בהגדרות.' : ''}</div>
   </div>`;
 }
 function renderTeams() {
@@ -1945,7 +1957,7 @@ function renderAuth() {
   const err = a.error ? `<div class="banner" style="margin-top:12px">${esc(a.error)}</div>` : '';
   const note = a.notice ? `<div class="banner info" style="margin-top:12px">${esc(a.notice)}</div>` : '';
   const busy = a.busy ? 'disabled' : '';
-  const brand = `<div class="auth-brand"><div class="brand-row"><svg class="logo" aria-label="OBERSON"><use href="#logo-mark"/></svg><span class="brand-go" aria-hidden="true">GO</span></div><div class="brand-office">OBERSON GO · משימות, לקוחות ופרויקטים</div></div>`;
+  const brand = `<div class="auth-brand"><div class="brand-row"><svg class="logo" aria-label="OBERSONLINE"><use href="#logo-mark"/></svg><span class="brand-line" aria-hidden="true">LINE</span></div><div class="brand-office">OBERSONLINE · משימות, לקוחות ופרויקטים</div></div>`;
   if (a.status === 'loading') return `<div class="auth-wrap"><div class="auth-card">${brand}<div class="loading">מתחבר…</div></div></div>`;
   if (a.status === 'pending' || a.status === 'nopro') return `<div class="auth-wrap"><div class="auth-card">${brand}
     <h2 class="auth-title">החשבון ממתין לאישור</h2>
@@ -2579,7 +2591,7 @@ function reportBlocks(v) {
   const blocks = [];
   const b = (cls, html) => blocks.push(`<div class="rp-b ${cls}">${html}</div>`);
   const kv = (k, val) => `<div class="rp-kv"><span>${k}</span><strong>${esc(val || '—')}</strong></div>`;
-  b('rp-header', `<div class="rp-brand"><svg class="logo" aria-label="OBERSON"><use href="#logo-mark"/></svg><span class="rp-go">GO</span></div>
+  b('rp-header', `<div class="rp-brand"><svg class="logo" aria-label="OBERSONLINE"><use href="#logo-mark"/></svg><span class="rp-line">LINE</span></div>
     <div class="rp-titles"><div class="rp-title">${esc(K.report)} <span>מס' ${v.seq}</span></div><div class="rp-project">${esc(p.name)}${p.number ? ` <small>פרויקט ${esc(p.number)}</small>` : ''}</div></div>`);
   b('rp-meta', `${kv('תאריך', fmtDate(v.visitDate) + (v.visitTime ? ' · ' + v.visitTime : ''))}${kv('כתובת', [p.address, p.city].filter(Boolean).join(', '))}${kv('לקוח', cname(p.clientId, ''))}${kv('נערך על ידי', uname(v.authorId, ''))}${kv(K.people, v.attendees)}${v.nextVisit ? kv('ביקור הבא', fmtDate(v.nextVisit)) : ''}`);
   if (v.summary) b('rp-section', `<h3>${esc(K.summary)}</h3><p>${esc(v.summary).replace(/\n/g, '<br>')}</p>`);
@@ -3248,7 +3260,8 @@ function levelSection(c) {
   if (!canSeeLevels() || c.type !== 'employee') return '';
   const row = levelRow(c.id); const manual = manualLevel(c); const auto = autoLevel(c.startDate); const lvl = empLevel(c);
   const edit = canEditLevel(c);
-  const load = personalLoads(activeProjects())[c.id] || 0; const u = utilInfo(load, lvl);
+  const lead = isTeamLead(c.id); const cl = capacityLevel(c);
+  const load = personalLoads(activeProjects())[c.id] || 0; const u = utilInfo(load, cl);
   return `<div class="section" id="level-section">
     <h3 class="section-title">רמת ניסיון ועומס <small>לראשי צוותים ומעלה</small></h3>
     <div class="field-row">
@@ -3257,8 +3270,9 @@ function levelSection(c) {
     </div>
     <div class="lvl-summary">
       <span class="chip ${manual != null ? 'accent' : 'dim'}">רמה בפועל ${fmtNum(lvl, 2)}${manual != null ? ' · ידני' : ' · אוטומטי'}</span>
+      ${lead ? `<span class="chip accent" title="ראש/ת צוות מנהל/ת את הצוות; רק חלק מהמשרה נספר לקיבולת הפרויקטים">ראש/ת צוות · ${Math.round(leadShare() * 100)}% → ${fmtNum(cl, 2)}</span>` : ''}
       ${utilChip(u)}
-      <span class="muted">עומס אישי ${fmtNum(load)} מתוך ${fmtNum(u.cap)} (${fmtNum(lvl, 2)} × ${fmtNum(loadPerLevel())})</span>
+      <span class="muted">עומס אישי ${fmtNum(load)} מתוך ${fmtNum(u.cap)} (${fmtNum(cl, 2)} × ${fmtNum(loadPerLevel())})</span>
       ${manual != null && edit ? `<button class="btn ghost small" data-action="level-auto" data-id="${c.id}">חזרה לחישוב אוטומטי</button>` : ''}
     </div>
     <div class="inline-note">${LEVEL_STEPS.map((s) => `${fmtNum(s.level, 2)} ${s.label}`).join(' · ')}. העומס האישי הוא חלקו/ה בניקוד הפרויקטים הפעילים (מחולק שווה בין המוביל/ה והמשתתפים).${edit ? '' : ' עריכת הרמה: מנהלים וראש/ת הצוות של העובד/ת.'}</div>
@@ -3529,6 +3543,7 @@ document.addEventListener('change', (e) => {
   if (id === 'set-unknown-weight') { patchSettings({ unknownPhaseWeight: Number(el.value) || 0 }); return; }
   if (id === 'set-stale-days') { patchSettings({ staleDays: Math.max(1, Number(el.value) || 14) }); return; }
   if (id === 'set-load-per-level') { patchSettings({ loadPerLevel: Math.max(0.5, Number(el.value) || 4) }); return; }
+  if (id === 'set-lead-share') { const n = Number(el.value); patchSettings({ leadCapacityShare: isNaN(n) ? 0.25 : Math.min(1, Math.max(0, n / 100)) }); return; }
   if (id === 'set-office-name') { patchSettings({ officeName: el.value.trim() }); return; }
 });
 document.addEventListener('keydown', (e) => {
@@ -3832,7 +3847,7 @@ async function exportExcel() {
   if (isManager()) sheets.splice(2, 0, { name: 'עמלות', rows: kRows, widths: [36, 26, 12, 14, 12, 12, 12, 40] });
   const data = xlsxBuild(sheets);
   const stamp = new Date().toISOString().slice(0, 10);
-  try { downloadBytes(`OBERSON GO ${stamp}.xlsx`, data); toast('הקובץ ירד'); }
+  try { downloadBytes(`OBERSONLINE ${stamp}.xlsx`, data); toast('הקובץ ירד'); }
   catch (err) { toast('הייצוא נכשל: ' + (err?.message || '')); }
 }
 

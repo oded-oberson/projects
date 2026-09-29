@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>OBERSON GO</title>
+<title>OBERSONLINE</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23fff'/%3E%3Ccircle cx='16' cy='16' r='11.5' fill='none' stroke='%23000' stroke-width='3'/%3E%3C/svg%3E">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#ffffff">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="OBERSON GO">
+<meta name="apple-mobile-web-app-title" content="OBERSONLINE">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://pdbgmmzjghxophcdxchg.supabase.co" crossorigin>
 <link rel="preconnect" href="https://use.typekit.net" crossorigin>
@@ -25,11 +25,16 @@
   html, body { height: 100%; margin: 0; background: #fff; }
   #boot { position: fixed; inset: 0; z-index: 1000; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 24px; transition: opacity .5s ease; }
   #boot.out { opacity: 0; pointer-events: none; }
-  #boot-brand { display: flex; align-items: flex-end; justify-content: center; direction: ltr; }
-  #boot-logo { width: min(360px, 62vw); aspect-ratio: 823 / 139; background: url(logo-draw.v4.webp) no-repeat 0 0 / 400% auto; }
-  #boot-go { font-family: "futura-pt", "Narkiss Block", Arial, sans-serif; font-weight: 400; font-size: clamp(20px, 4.6vw, 30px); letter-spacing: .16em; line-height: 1; margin-left: .18em; margin-bottom: .08em; color: #e10600; opacity: 0; transition: opacity .35s ease; }
-  #boot.full #boot-go { opacity: 1; }
-  #boot.leaving #boot-go { opacity: 0; }
+  #boot-brand { display: flex; align-items: baseline; justify-content: center; direction: ltr; }
+  #boot-logo { position: relative; width: min(300px, 50vw); aspect-ratio: 823 / 139; background: url(logo-draw.v4.webp) no-repeat 0 0 / 400% auto; }
+  /* OBERSONLINE: once the logo is fully drawn, its ON lights up green and LINE follows in the geometric face */
+  #boot-on { position: absolute; inset: 0; background: #12b76a; -webkit-mask: url(logo-draw.v4.webp) no-repeat 0% 100% / 400% auto; mask: url(logo-draw.v4.webp) no-repeat 0% 100% / 400% auto; clip-path: inset(0 0 0 71.5%); opacity: 0; transition: opacity .35s ease; }
+  #boot-logo.static #boot-on { -webkit-mask: url(logo.svg) no-repeat center / contain; mask: url(logo.svg) no-repeat center / contain; }
+  #boot.full #boot-on { opacity: 1; }
+  #boot.leaving #boot-on { opacity: 0; }
+  #boot-line { font-family: "futura-pt", "Narkiss Block", Arial, sans-serif; font-weight: 300; font-size: min(65px, 10.85vw); letter-spacing: .06em; line-height: 1; margin-left: .05em; color: #12b76a; opacity: 0; transition: opacity .35s ease; }
+  #boot.full #boot-line { opacity: 1; }
+  #boot.leaving #boot-line { opacity: 0; }
   #boot-logo.static { background: url(logo.svg) no-repeat center / contain !important; }
   #boot.leaving #boot-pct, #boot.leaving #boot-bar, #boot.leaving #boot-msg { opacity: 0; transition: opacity .25s ease; }
   #boot-pct { font-family: "futura-pt", "Narkiss Block", Arial, sans-serif; font-weight: 300; font-size: 34px; line-height: 1; letter-spacing: .08em; color: #000; font-variant-numeric: tabular-nums; direction: ltr; min-height: 34px; }
@@ -44,13 +49,13 @@
 </head>
 <body>
 <div id="boot" role="status" aria-live="polite">
-  <div id="boot-brand"><div id="boot-logo" role="img" aria-label="OBERSON"></div><span id="boot-go" aria-hidden="true">GO</span></div>
+  <div id="boot-brand"><div id="boot-logo" role="img" aria-label="OBERSONLINE"><div id="boot-on"></div></div><span id="boot-line" aria-hidden="true">LINE</span></div>
   <div id="boot-pct">0%</div>
   <div id="boot-bar"><i></i></div>
   <div id="boot-msg">טוען את המערכת…</div>
 </div>
 <script>
-// Loader (v3.6 — PWA manifest + service worker; the application page comes from app.html on this origin or, as a
+// Loader (v3.7 — OBERSONLINE wordmark; PWA manifest + service worker; the application page comes from app.html on this origin or, as a
 // fallback, from ordered text blocks in Supabase (public.site_blocks / page = 'app') — see site_meta below): draws the boot screen, fetches the page, injects it into this document, and keeps reporting
 // progress that the application itself sends through window.__boot until its first real render.
 // The logo is drawn frame by frame as a direct function of the displayed percentage (sprite grid
