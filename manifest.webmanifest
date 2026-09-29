@@ -1,0 +1,23 @@
+{
+  "name": "OBERSON GO",
+  "short_name": "OBERSON GO",
+  "description": "מערכת ניהול המשרד של OBERSON — פרויקטים, משימות, מאגרים, שטח ודוחות פיקוח",
+  "lang": "he",
+  "dir": "rtl",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "id": "oberson-go",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "ביקור באתר", "short_name": "ביקור", "url": "./?source=pwa#field", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "המשימות שלי", "short_name": "משימות", "url": "./?source=pwa#tasks", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }
+  ]
+}

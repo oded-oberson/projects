@@ -1,2 +1,11 @@
-# projects
-Oberson Architects - projects dashboard (login page)
+# OBERSON GO
+
+מערכת ניהול המשרד של OBERSON — פרויקטים, משימות, מאגרים (לקוחות, אנשי קשר, ספקים, יועצים), צוותים, שטח (ביקורי אתר, דוחות פיקוח עליון וסיכומי פגישות).
+
+הריפו הזה הוא רק שכבת ההפצה (GitHub Pages):
+
+- `index.html` — מסך הטעינה (Loader) שמושך את דף האפליקציה ומריץ אותו.
+- `app.html` — דף האפליקציה הבנוי (HTML + CSS + JS בקובץ אחד). מקור חלופי: הטבלה `site_blocks` ב-Supabase.
+- `manifest.webmanifest`, `sw.js`, האייקונים — התקנה כאפליקציה (PWA) בטלפון ובמחשב.
+
+הנתונים, ההרשאות והקבצים נמצאים ב-Supabase (Postgres + Auth + Storage). אין כאן סודות: המפתח הציבורי (anon) נועד לשימוש בדפדפן והגישה לנתונים נשלטת ב-RLS.
