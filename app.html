@@ -364,6 +364,26 @@
   .member-name { font-weight: 400; }
   .member-name:hover { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
   .member-sub { font-size: 12.5px; color: var(--ink-3); }
+  .team-lead .member-sub { flex-basis: 100%; }
+  /* ---------- experience levels & load matrix (team leads and up) ---------- */
+  .lvl { color: var(--ink-2); }
+  .lvl.manual { color: var(--ink); border-bottom: 1px solid var(--ink); }
+  .util.good { color: var(--good-ink); }
+  .util.warn { color: var(--warn-ink); }
+  .util.crit { color: var(--crit-ink); font-weight: 500; }
+  .matrix th.num, .matrix td.num { text-align: end; }
+  .matrix tbody tr.clickable { cursor: pointer; }
+  .matrix tbody tr.clickable:hover { background: var(--surface-2); }
+  .matrix tbody tr.muted td { color: var(--ink-3); }
+  .matrix tfoot td { border-top: 1px solid var(--rule); border-bottom: 0; font-weight: 500; background: var(--surface); }
+  .matrix small.muted { color: var(--ink-3); font-weight: 400; margin-inline-start: 6px; }
+  .util-bar { display: inline-block; width: 64px; height: 4px; background: var(--surface-2); vertical-align: middle; margin-inline-end: 8px; overflow: hidden; }
+  .util-bar > div { height: 100%; background: var(--ink); }
+  .util-bar > div.good { background: var(--good); }
+  .util-bar > div.warn { background: var(--warn); }
+  .util-bar > div.crit { background: var(--crit); }
+  .lvl-summary { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; margin: 4px 0 8px; }
+  @media (max-width: 720px) { .util-bar { display: none; } }
   /* ---------- project phases ---------- */
   .phase-list { display: grid; gap: 4px; }
   .phase-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 8px; align-items: center; }
@@ -379,7 +399,8 @@
   .progress { height: 4px; background: var(--surface-2); border-radius: 0; overflow: hidden; margin: 2px 0 12px; }
   .progress > div { height: 100%; background: var(--ink); border-radius: 0; transition: width .25s ease; }
   @media (max-width: 720px) {
-    .member-row { grid-template-columns: 1fr auto; }
+    .member-list.wide { grid-template-columns: minmax(0, 1fr); }
+    .member-row { grid-template-columns: minmax(0, 1fr) auto; }
     .member-row input { grid-column: 1 / -1; }
     .phase-status-label { display: none; }
   }
@@ -748,6 +769,7 @@ const DEFAULT_SETTINGS = {
   consultantTypes: ['קונסטרוקציה', 'אינסטלציה', 'חשמל', 'מיזוג אוויר', 'נגישות', 'בטיחות', 'תנועה', 'אקוסטיקה', 'נוף', 'תאורה', 'שילוט', 'מלונאות', 'מעליות', 'אחר'],
   partnerTypes: ['אדריכלות', 'עיצוב פנים', 'עיצוב ואמנות', 'יחסי ציבור ותקשורת', 'צילום', 'רשויות', 'שירותים למשרד', 'אחר'],
   staleDays: 14,
+  loadPerLevel: 4,
   teamRoles: ['ראש/ת צוות', 'אדריכל/ית', 'אדריכל/ית בכיר/ה', 'מעצב/ת פנים', 'מנהל/ת פרויקטים', 'מתמחה', 'סטודנט/ית', 'מנהל/ת משרד', 'הנהלת חשבונות', 'אחר'],
 };
 
@@ -799,6 +821,48 @@ const projectWeight = (p) => {
   return sw * pw;
 };
 const isStale = (p) => { const d = daysSince(p.statusUpdatedAt); return d == null || d > (settings().staleDays || 14); };
+/* ===================== experience levels & capacity (team leads and up) =====================
+   level per employee: 0.5 up to 6 months in the office, 0.75 up to a year, 1 from a year, 1.25 from 3 years, 1.5 from 5 years;
+   a manual value (0–2) overrides the calculation. team capacity = Σ levels × load points per level (settings.loadPerLevel). */
+const LEVEL_MAX = 2;
+const LEVEL_STEPS = [{ months: 6, level: 0.5, label: 'עד חצי שנה' }, { months: 12, level: 0.75, label: 'עד שנה' }, { months: 36, level: 1, label: 'משנה' }, { months: 60, level: 1.25, label: 'מ-3 שנים' }, { months: Infinity, level: 1.5, label: 'מ-5 שנים' }];
+const canSeeLevels = () => ['owner', 'manager', 'team_lead'].includes(myRole());
+const myContactId = () => me()?.contactId || null;
+const canEditLevel = (c) => !!c && c.type === 'employee' && (isManager() || (myRole() === 'team_lead' && !!c.teamId && T().some((t) => t.id === c.teamId && t.leadId === myContactId())));
+const tenureMonths = (startDate) => { if (!startDate) return null; const d = new Date(startDate); if (isNaN(d)) return null; return Math.max(0, (Date.now() - d.getTime()) / (365.25 * 86400000 / 12)); };
+const autoLevel = (startDate) => { const m = tenureMonths(startDate); if (m == null) return 1; return LEVEL_STEPS.find((s) => m < s.months).level; };
+const levelRow = (cid) => S.employee_levels[cid] || null;
+const manualLevel = (c) => { const r = levelRow(c.id); return r && r.level != null && r.level !== '' ? Math.min(LEVEL_MAX, Math.max(0, Number(r.level))) : null; };
+const empLevel = (c) => { const m = manualLevel(c); return m != null ? m : autoLevel(c.startDate); };
+const tenureLabel = (startDate) => {
+  const m = tenureMonths(startDate); if (m == null) return 'ללא תאריך תחילת עבודה';
+  const y = Math.floor(m / 12), mo = Math.floor(m % 12);
+  if (y === 0) return mo <= 1 ? 'חודש' : `${mo} חודשים`;
+  const ys = y === 1 ? 'שנה' : y === 2 ? 'שנתיים' : `${y} שנים`;
+  return mo ? `${ys} ו-${mo === 1 ? 'חודש' : mo + ' חודשים'}` : ys;
+};
+const loadPerLevel = () => Number(settings().loadPerLevel) || 4;
+const teamMembers = (tid) => employees().filter((e) => e.teamId === tid);
+const teamCapacity = (tid) => sum(teamMembers(tid), empLevel);
+/* a project's load is shared equally by the people assigned to it (lead + members); with nobody assigned it stays with the team */
+function personalLoads(act) {
+  const m = {};
+  act.forEach((p) => {
+    const people = [...new Set([p.leadId, ...(p.memberIds || [])].filter((x) => x && S.contacts[x]))];
+    if (!people.length) return;
+    const share = projectWeight(p) / people.length;
+    people.forEach((id) => { m[id] = (m[id] || 0) + share; });
+  });
+  return m;
+}
+const UTIL = [{ max: 0.7, label: 'פנוי', cls: 'good' }, { max: 1, label: 'מאוזן', cls: '' }, { max: 1.2, label: 'עמוס', cls: 'warn' }, { max: Infinity, label: 'עומס יתר', cls: 'crit' }];
+function utilInfo(load, levels) {
+  const cap = levels * loadPerLevel();
+  if (!cap) return { pct: null, cap: 0, label: load > 0 ? 'ללא קיבולת' : '—', cls: load > 0 ? 'crit' : 'muted' };
+  const r = load / cap; const u = UTIL.find((x) => r < x.max);
+  return { pct: Math.round(r * 100), cap, label: u.label, cls: u.cls };
+}
+const utilChip = (u) => `<span class="chip ${({ good: 'green', warn: 'yellow', crit: 'red', muted: 'dim' })[u.cls] || 'accent'}" title="עומס ÷ קיבולת">${u.pct == null ? u.label : u.pct + '% · ' + u.label}</span>`;
 const activeProjects = () => P().filter((p) => p.state === 'active');
 const projectsOfContact = (cid) => P().filter((p) => p.clientId === cid || (p.clientPersonIds || []).includes(cid) || ROLES.some((r) => r.single ? p[r.field] === cid : (p[r.field] || []).includes(cid)));
 /* people (type person) hang off an organisation contact through parentId */
@@ -922,7 +986,7 @@ function menuChip(text, attrs, cls = '') {
   return `<span class="chip btn-chip ${cls}" ${attrs} role="button" tabindex="0">${esc(text)}</span>`;
 }
 function bars(rows, opts = {}) {
-  const max = Math.max(1, ...rows.map((r) => r.value));
+  const max = Math.max(1, opts.max || 0, ...rows.map((r) => r.value));
   return `<div class="bars">${rows.map((r) => {
     const pct = Math.max(0, Math.round((r.value / max) * 100));
     const click = r.click ? `data-action="${r.click.action}" ${r.click.attrs || ''}` : '';
@@ -988,13 +1052,17 @@ function renderOverview() {
     { label: 'ללא רמזור', value: act.filter((p) => !p.health).length, cls: 'muted', click: { action: 'goto-projects', attrs: 'data-health="none"' } },
   ];
 
-  // workload by team
+  // workload by team — team leads and up see utilisation (load ÷ capacity by experience levels); staff see the weighted load only
+  const levels = canSeeLevels();
   const teamRows = T().map((t) => {
-    const ps = act.filter((p) => p.teamId === t.id);
-    return { label: t.name, small: cname(t.leadId, ''), value: sum(ps, projectWeight), display: `<strong>${fmtNum(sum(ps, projectWeight))}</strong> · ${ps.length} פרויקטים`, click: { action: 'goto-projects', attrs: `data-team="${t.id}"` } };
+    const ps = act.filter((p) => p.teamId === t.id); const load = sum(ps, projectWeight);
+    const click = { action: 'goto-projects', attrs: `data-team="${t.id}"` };
+    if (!levels) return { label: t.name, small: cname(t.leadId, ''), value: load, display: `<strong>${fmtNum(load)}</strong> · ${ps.length} פרויקטים`, click };
+    const u = utilInfo(load, teamCapacity(t.id));
+    return { label: t.name, small: cname(t.leadId, ''), value: u.pct || 0, cls: u.cls, display: `<strong>${u.pct == null ? u.label : u.pct + '%'}</strong> · ${fmtNum(load)} / ${fmtNum(u.cap)}`, click };
   });
   const noTeamW = sum(noTeam, projectWeight);
-  if (noTeam.length) teamRows.push({ label: 'ללא צוות', value: noTeamW, cls: 'muted', display: `<strong>${fmtNum(noTeamW)}</strong> · ${noTeam.length} פרויקטים`, click: { action: 'goto-projects', attrs: 'data-flag="noTeam"' } });
+  if (noTeam.length) teamRows.push({ label: 'ללא צוות', value: levels ? 0 : noTeamW, cls: 'muted', display: `<strong>${fmtNum(noTeamW)}</strong> · ${noTeam.length} פרויקטים`, click: { action: 'goto-projects', attrs: 'data-flag="noTeam"' } });
 
   // workload by lead
   const leadMap = {};
@@ -1062,8 +1130,8 @@ function renderOverview() {
         </div>`).join('')}</div>` : `<div class="empty">אין כרגע פרויקטים אדומים. ${act.filter((p) => !p.health).length ? 'רוב הפרויקטים עדיין ללא רמזור — כדאי לעבור עליהם.' : 'כל הכבוד.'}</div>`}
     </div>
     <div class="panel">
-      <div class="panel-head"><h2 class="panel-title">עומס לפי צוות</h2><span class="panel-sub">משוקלל לפי גודל ושלב</span></div>
-      ${teamRows.length ? bars(teamRows) : '<div class="empty">עדיין לא הוגדרו צוותים.</div>'}
+      <div class="panel-head"><h2 class="panel-title">עומס לפי צוות</h2><span class="panel-sub">${levels ? 'ניצולת · עומס / קיבולת לפי רמות ניסיון' : 'משוקלל לפי גודל ושלב'}${levels ? ' <button class="btn ghost small" data-action="nav" data-view="teams">למטריצה</button>' : ''}</span></div>
+      ${teamRows.length ? bars(teamRows, { max: levels ? 100 : 0 }) : '<div class="empty">עדיין לא הוגדרו צוותים.</div>'}
     </div>
     <div class="panel">
       <div class="panel-head"><h2 class="panel-title">עומס לפי מוביל/ת פרויקט</h2><span class="panel-sub">ניקוד · מספר פרויקטים</span></div>
@@ -1417,6 +1485,8 @@ function renderSettings() {
         <div></div>
       </div>`).join('')}</div>
       <div class="inline-note" style="margin-top:10px">ניקוד העומס של פרויקט = משקל הגודל × משקל השלב הפעיל. הסכום לכל צוות ולכל מוביל מוצג בסקירה.</div>
+      ${canSeeLevels() ? `<div class="field" style="margin-top:14px"><label>נקודות עומס לעובד/ת ברמה 1 (קיבולת)</label><input type="number" step="0.5" min="0.5" id="set-load-per-level" value="${loadPerLevel()}" style="max-width:120px" ${ro ? 'disabled' : ''}>
+        <div class="inline-note">קיבולת צוות = סכום רמות הניסיון × הערך הזה. רמה אוטומטית לפי ותק: ${LEVEL_STEPS.map((s) => `${fmtNum(s.level, 2)} ${s.label}`).join(' · ')}; ערך ידני עד ${LEVEL_MAX} בכרטיס העובד/ת. מטריצת העומס נמצאת בצוותים.</div></div>` : ''}
       <div class="field" style="margin-top:14px"><label>"ללא עדכון" אחרי כמה ימים</label><input type="number" min="1" id="set-stale-days" value="${st.staleDays || 14}" style="max-width:120px" ${ro ? 'disabled' : ''}></div>
       <div class="field"><label>שם המשרד</label><input type="text" id="set-office-name" value="${esc(st.officeName || '')}" ${ro ? 'disabled' : ''}></div>
     </div>
@@ -1460,7 +1530,7 @@ function summarizeChanges(a) {
   if (a.action === 'delete') return '';
   return '';
 }
-const FIELD_LABELS = { parent_id: 'פרויקט אב', type_id: 'סוג אבן דרך', billed: 'הוגש', contract: 'חוזה', name: 'שם', state: 'מצב', health: 'רמזור', status_note: 'הערת סטטוס', status_updated_at: 'עודכן', phases: 'שלבים', team_id: 'צוות', lead_id: 'מוביל/ה', member_ids: 'חברי צוות', client_id: 'לקוח', pm_id: 'ניהול פרויקט', contractor_ids: 'קבלנים', consultant_ids: 'יועצים', supplier_ids: 'ספקים', partner_ids: 'שיתופי פעולה', size: 'גודל', type: 'סוג', city: 'עיר', address: 'כתובת', notes: 'הערות', role: 'תפקיד', category: 'תחום', phone: 'טלפון', email: 'מייל', active: 'פעיל', amount: 'סכום', status: 'סטטוס', needs_review: 'לאימות', due_date: 'יעד', start_date: 'התחלה', number: 'מספר', company: 'חברה', data: 'נתונים', contact_id: 'עובד מקושר', full_name: 'שם מלא' };
+const FIELD_LABELS = { level: 'רמת ניסיון', parent_id: 'פרויקט אב', type_id: 'סוג אבן דרך', billed: 'הוגש', contract: 'חוזה', name: 'שם', state: 'מצב', health: 'רמזור', status_note: 'הערת סטטוס', status_updated_at: 'עודכן', phases: 'שלבים', team_id: 'צוות', lead_id: 'מוביל/ה', member_ids: 'חברי צוות', client_id: 'לקוח', pm_id: 'ניהול פרויקט', contractor_ids: 'קבלנים', consultant_ids: 'יועצים', supplier_ids: 'ספקים', partner_ids: 'שיתופי פעולה', size: 'גודל', type: 'סוג', city: 'עיר', address: 'כתובת', notes: 'הערות', role: 'תפקיד', category: 'תחום', phone: 'טלפון', email: 'מייל', active: 'פעיל', amount: 'סכום', status: 'סטטוס', needs_review: 'לאימות', due_date: 'יעד', start_date: 'התחלה', number: 'מספר', company: 'חברה', data: 'נתונים', contact_id: 'עובד מקושר', full_name: 'שם מלא' };
 function shortVal(v) {
   if (v == null || v === '') return '—';
   if (typeof v === 'string') { const c = S.contacts[v]; const t = S.teams[v]; if (c) return c.name; if (t) return t.name; if (HEALTH[v]) return HEALTH[v].label; if (STATES[v]) return STATES[v]; return v.length > 40 ? v.slice(0, 40) + '…' : v; }
@@ -1470,31 +1540,63 @@ function shortVal(v) {
 }
 
 /* ===================== teams ===================== */
+/* one line under a person's name: experience level and personal load (team leads and up), then the project counts */
+function memberSub(c, act, loads) {
+  const counts = `${act.filter((p) => p.leadId === c.id).length} מוביל/ה · ${act.filter((p) => (p.memberIds || []).includes(c.id)).length} משתתף/ת`;
+  if (!canSeeLevels()) return counts;
+  const lvl = empLevel(c); const manual = manualLevel(c) != null; const u = utilInfo(loads[c.id] || 0, lvl);
+  return `<span class="lvl ${manual ? 'manual' : ''}" title="${manual ? 'רמה ידנית' : 'רמה אוטומטית לפי ותק: ' + esc(tenureLabel(c.startDate))}">רמה ${fmtNum(lvl, 2)}${manual ? '' : ' (אוטו׳)'}</span> · <span class="util ${u.cls}" title="עומס אישי ${fmtNum(loads[c.id] || 0)} מתוך ${fmtNum(u.cap)}">${u.pct == null ? u.label : u.pct + '%'}</span> · ${counts}`;
+}
+/* load matrix: people, capacity (Σ levels × points per level), projects, load and utilisation per team */
+function loadMatrix(act) {
+  const rows = T().map((t) => { const ms = teamMembers(t.id); const ps = act.filter((p) => p.teamId === t.id); const load = sum(ps, projectWeight); const lv = sum(ms, empLevel); return { id: t.id, name: t.name, lead: cname(t.leadId, ''), n: ms.length, lv, ps: ps.length, load, u: utilInfo(load, lv), noStart: ms.filter((e) => !e.startDate && manualLevel(e) == null).length }; });
+  const noTeam = act.filter((p) => !p.teamId);
+  const tot = { n: sum(rows, (r) => r.n), lv: sum(rows, (r) => r.lv), ps: sum(rows, (r) => r.ps) + noTeam.length, load: sum(rows, (r) => r.load) + sum(noTeam, projectWeight) };
+  tot.u = utilInfo(tot.load, tot.lv);
+  const unknown = sum(rows, (r) => r.noStart);
+  return `<div class="panel" id="load-matrix" style="margin-bottom:14px">
+    <div class="panel-head"><h2 class="panel-title">מטריצת עומס</h2><span class="panel-sub">קיבולת = סכום רמות הניסיון × ${fmtNum(loadPerLevel())} נקודות לרמה 1 · עומס = סכום ניקוד הפרויקטים הפעילים (גודל × שלב) · לראשי צוותים ומעלה</span></div>
+    <div class="table-wrap"><table class="matrix">
+      <thead><tr><th>צוות</th><th class="num">אנשים</th><th class="num">סכום רמות</th><th class="num">קיבולת</th><th class="num">פרויקטים</th><th class="num">עומס</th><th class="num">ניצולת</th><th>מצב</th></tr></thead>
+      <tbody>${rows.map((r) => `<tr class="clickable" data-action="goto-projects" data-team="${r.id}">
+        <td><strong>${esc(r.name)}</strong>${r.lead ? ` <small class="muted">${esc(r.lead)}</small>` : ''}</td><td class="num">${r.n}</td><td class="num">${fmtNum(r.lv, 2)}</td><td class="num">${fmtNum(r.u.cap)}</td><td class="num">${r.ps}</td><td class="num">${fmtNum(r.load)}</td>
+        <td class="num"><div class="util-bar"><div class="${r.u.cls}" style="width:${Math.min(100, r.u.pct || 0)}%"></div></div>${r.u.pct == null ? '—' : r.u.pct + '%'}</td><td>${utilChip(r.u)}</td>
+      </tr>`).join('')}
+      ${noTeam.length ? `<tr class="muted clickable" data-action="goto-projects" data-flag="noTeam"><td>ללא צוות</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">${noTeam.length}</td><td class="num">${fmtNum(sum(noTeam, projectWeight))}</td><td class="num">—</td><td><span class="chip dim">לא משויך</span></td></tr>` : ''}
+      </tbody>
+      <tfoot><tr><td>סה"כ המשרד</td><td class="num">${tot.n}</td><td class="num">${fmtNum(tot.lv, 2)}</td><td class="num">${fmtNum(tot.u.cap)}</td><td class="num">${tot.ps}</td><td class="num">${fmtNum(tot.load)}</td><td class="num">${tot.u.pct == null ? '—' : tot.u.pct + '%'}</td><td>${utilChip(tot.u)}</td></tr></tfoot>
+    </table></div>
+    <div class="inline-note" style="margin-top:8px">רמה אוטומטית לפי ותק: ${LEVEL_STEPS.map((s) => `${fmtNum(s.level, 2)} ${s.label}`).join(' · ')}. ערך ידני (עד ${LEVEL_MAX}) נקבע בכרטיס העובד/ת.${unknown ? ` <strong>${unknown} עובדים ללא תאריך תחילת עבודה</strong> נספרים כרמה 1 עד שיוזן תאריך או ערך ידני.` : ''}${isManager() ? ' הנקודות לרמה נקבעות בהגדרות.' : ''}</div>
+  </div>`;
+}
 function renderTeams() {
   const emp = employees();
   const act = activeProjects();
   const unassigned = emp.filter((e) => !e.teamId);
   const mgr = isManager();
+  const levels = canSeeLevels();
+  const loads = levels ? personalLoads(act) : {};
   const roleInput = (c) => mgr ? `<input type="text" list="dl-roles" id="role-${c.id}" value="${esc(S.ui.drafts['role-' + c.id] ?? (c.role || ''))}" data-bind="contacts:${c.id}:role" placeholder="הגדרה בצוות…">` : `<span class="muted">${esc(c.role || '')}</span>`;
   const cards = T().map((t) => {
     const lead = contact(t.leadId);
     const members = emp.filter((e) => e.teamId === t.id && e.id !== t.leadId);
     const ps = act.filter((p) => p.teamId === t.id);
     const load = sum(ps, projectWeight);
+    const u = levels ? utilInfo(load, teamCapacity(t.id)) : null;
     return `<div class="panel team-card">
       <div class="panel-head">
         <div class="team-name">${mgr ? `<input type="text" id="team-name-${t.id}" value="${esc(t.name)}" data-team-name="${t.id}" aria-label="שם הצוות">` : `<span style="font-weight:600;font-size:16px">${esc(t.name)}</span>`}</div>
-        <div class="team-stats"><span>${members.length + (lead ? 1 : 0)} אנשים</span><span>${ps.length} פרויקטים פעילים</span><span>עומס ${fmtNum(load)}</span></div>
+        <div class="team-stats"><span>${members.length + (lead ? 1 : 0)} אנשים</span><span>${ps.length} פרויקטים פעילים</span><span>עומס ${fmtNum(load)}${u ? ` / ${fmtNum(u.cap)}` : ''}</span>${u ? utilChip(u) : ''}</div>
       </div>
       <div class="team-lead">
         <span class="chip accent">${ICON.star} ראש/ת צוות</span>
-        ${lead ? `<a href="#" class="member-name" data-action="open-contact" data-id="${lead.id}" style="text-decoration:none;color:inherit">${esc(lead.name)}</a>
+        ${lead ? `<a href="#" class="member-name" data-action="open-contact" data-id="${lead.id}" style="text-decoration:none;color:inherit">${esc(lead.name)}</a>${levels && lead.teamId === t.id ? `<span class="member-sub">${memberSub(lead, act, loads)}</span>` : ''}
           ${mgr ? `<button class="btn ghost small" data-action="pick-add" data-col="teams" data-doc="${t.id}" data-field="leadId" data-type="employee" data-single="1">החלף</button>` : ''}`
           : (mgr ? `<button class="btn small" data-action="pick-add" data-col="teams" data-doc="${t.id}" data-field="leadId" data-type="employee" data-single="1">${ICON.plus} בחר ראש צוות</button>` : '<span class="muted">לא הוגדר</span>')}
       </div>
       <div class="member-list">
         ${members.length ? members.map((c) => `<div class="member-row">
-          <div><a href="#" class="member-name" data-action="open-contact" data-id="${c.id}" style="text-decoration:none;color:inherit">${esc(c.name)}</a><div class="member-sub">${act.filter((p) => p.leadId === c.id).length} מוביל/ה · ${act.filter((p) => (p.memberIds || []).includes(c.id)).length} משתתף/ת</div></div>
+          <div><a href="#" class="member-name" data-action="open-contact" data-id="${c.id}" style="text-decoration:none;color:inherit">${esc(c.name)}</a><div class="member-sub">${memberSub(c, act, loads)}</div></div>
           ${roleInput(c)}
           ${mgr ? `<button class="icon-btn" data-action="team-remove-member" data-id="${c.id}" title="הסר מהצוות">${ICON.x}</button>` : '<span></span>'}
         </div>`).join('') : '<div class="inline-note" style="padding:6px 0">עדיין אין חברי צוות.</div>'}
@@ -1507,14 +1609,15 @@ function renderTeams() {
   }).join('');
   return `
   <div class="view-head">
-    <div><h1 class="view-title">צוותים</h1><div class="view-sub">ראש צוות, חברי צוות וההגדרה של כל עובד בצוות. עובד יכול להיות בצוות אחד; שינוי נשמר מיד.</div></div>
+    <div><h1 class="view-title">צוותים</h1><div class="view-sub">ראש צוות, חברי צוות וההגדרה של כל עובד בצוות. עובד יכול להיות בצוות אחד; שינויים נשמרים בלחיצה על "שמור".</div></div>
     <div class="view-actions">${mgr ? `<button class="btn" data-action="new-contact" data-type="employee">${ICON.plus} עובד/ת חדש/ה</button><div class="add-row" style="margin:0"><input type="text" id="add-team" placeholder="שם צוות חדש…" style="width:180px"><button class="btn primary small" data-action="add-team">${ICON.plus} צוות חדש</button></div>` : ''}</div>
   </div>
+  ${levels ? loadMatrix(act) : ''}
   <div class="team-grid">${cards || '<div class="panel"><div class="empty">עדיין אין צוותים. הוסיפו צוות ראשון למעלה.</div></div>'}</div>
   <div class="panel" style="margin-top:14px">
     <div class="panel-head"><h2 class="panel-title">עובדים ללא צוות</h2><span class="panel-sub">${unassigned.length} · לחיצה על "ללא צוות" משייכת</span></div>
     ${unassigned.length ? `<div class="member-list wide">${unassigned.map((c) => `<div class="member-row">
-      <div><a href="#" class="member-name" data-action="open-contact" data-id="${c.id}" style="text-decoration:none;color:inherit">${esc(c.name)}</a><div class="member-sub">${act.filter((p) => p.leadId === c.id).length} פרויקטים כמוביל/ה</div></div>
+      <div><a href="#" class="member-name" data-action="open-contact" data-id="${c.id}" style="text-decoration:none;color:inherit">${esc(c.name)}</a><div class="member-sub">${memberSub(c, act, loads)}</div></div>
       ${roleInput(c)}
       ${mgr ? menuChip('ללא צוות', `data-action="menu" data-menu="ctam" data-id="${c.id}"`, 'dim') : '<span class="chip dim">ללא צוות</span>'}
     </div>`).join('')}</div>` : '<div class="empty">כל העובדים הפעילים משויכים לצוות.</div>'}
@@ -1530,11 +1633,12 @@ const snake = (k) => k.replace(/[A-Z]/g, (m) => '_' + m.toLowerCase());
 const camel = (k) => k.replace(/_([a-z])/g, (m, c) => c.toUpperCase());
 const toRow = (obj) => { const o = {}; Object.entries(obj).forEach(([k, v]) => { if (k === 'updatedAt' || k === 'createdAt' || k === 'updatedBy') return; o[snake(k)] = v; }); return o; };
 const fromRow = (row) => { const o = {}; Object.entries(row).forEach(([k, v]) => { o[camel(k)] = v; }); return o; };
-const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types'];
+const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels'];
 
 S.auth = { status: 'loading', session: null, profile: null, notice: '', error: '' };
 S.profiles = {}; S.invitations = {}; S.audit = [];
 S.milestone_types = {}; S.project_milestones = {}; S.milestonesLoaded = {}; S.milestonesLoading = {}; // contract milestones per project (DataWave + manual), loaded when a project drawer opens
+S.employee_levels = {}; // manual experience levels (team leads and up; RLS hides the table from staff)
 const me = () => S.auth.profile;
 const myRole = () => me()?.role || 'anon';
 const isManager = () => ['owner', 'manager'].includes(myRole());
@@ -1629,7 +1733,7 @@ function subscribeRealtime() {
     }, 250);
   };
   rtChannel = sb.channel('office-live');
-  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files'].forEach((table) => {
+  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels'].forEach((table) => {
     rtChannel.on('postgres_changes', { event: '*', schema: 'public', table }, () => scheduleRefetch(table));
   });
   rtChannel.subscribe();
@@ -3115,6 +3219,7 @@ function drawerContact(id) {
       <label class="switch"><input type="checkbox" id="c-active" ${c.active !== false ? 'checked' : ''} data-bind="contacts:${c.id}:active"> פעיל (מופיע ברשימות הבחירה)</label>
     </div>
     ${ORG_TYPES.includes(c.type) ? orgPeopleSection(c) : ''}
+    ${levelSection(c)}
     <div class="section">
       <h3 class="section-title">פרויקטים מקושרים <small>${linked.length}</small></h3>
       ${linked.length ? `<div class="list">${linked.map((p) => `<div class="list-item" data-action="open-project" data-id="${p.id}">
@@ -3132,6 +3237,33 @@ function drawerContact(id) {
     ${isManager() ? (linked.length ? `<span class="inline-note">מקושר/ת ל-${linked.length} פרויקטים — אפשר להשבית או למזג, לא למחוק.</span>` : confirmButton('delete-doc', `data-col="contacts" data-id="${c.id}"`, 'מחק לצמיתות')) : ''}
   </div>`;
 }
+/* experience level + personal load of an employee — team leads and up; editable by managers and by the person's own team lead */
+function setEmpLevel(cid, patch) {
+  const row = S.employee_levels[cid];
+  if (row) { patchDoc('employee_levels', cid, patch); return; }
+  if (patch.level == null && !(patch.note || '').trim()) { render(); return; }
+  createDoc('employee_levels', cid, Object.assign({ level: null, note: '' }, patch));
+}
+function levelSection(c) {
+  if (!canSeeLevels() || c.type !== 'employee') return '';
+  const row = levelRow(c.id); const manual = manualLevel(c); const auto = autoLevel(c.startDate); const lvl = empLevel(c);
+  const edit = canEditLevel(c);
+  const load = personalLoads(activeProjects())[c.id] || 0; const u = utilInfo(load, lvl);
+  return `<div class="section" id="level-section">
+    <h3 class="section-title">רמת ניסיון ועומס <small>לראשי צוותים ומעלה</small></h3>
+    <div class="field-row">
+      ${field('רמה ידנית (0–2, קפיצות של 0.25)', `<input type="number" id="c-level" min="0" max="${LEVEL_MAX}" step="0.25" value="${manual ?? ''}" placeholder="אוטומטי: ${fmtNum(auto, 2)}" data-bind="employee_levels:${c.id}:level" ${edit ? '' : 'disabled'}>`, `ותק: ${esc(tenureLabel(c.startDate))} · רמה אוטומטית ${fmtNum(auto, 2)}${c.startDate ? '' : ' (אין תאריך תחילת עבודה — נספר/ת כרמה 1)'}`)}
+      ${field('הערה', textInput('c-level-note', row?.note || '', `data-bind="employee_levels:${c.id}:note" placeholder="למשל: ניסיון קודם ממשרד אחר" ${edit ? '' : 'disabled'}`))}
+    </div>
+    <div class="lvl-summary">
+      <span class="chip ${manual != null ? 'accent' : 'dim'}">רמה בפועל ${fmtNum(lvl, 2)}${manual != null ? ' · ידני' : ' · אוטומטי'}</span>
+      ${utilChip(u)}
+      <span class="muted">עומס אישי ${fmtNum(load)} מתוך ${fmtNum(u.cap)} (${fmtNum(lvl, 2)} × ${fmtNum(loadPerLevel())})</span>
+      ${manual != null && edit ? `<button class="btn ghost small" data-action="level-auto" data-id="${c.id}">חזרה לחישוב אוטומטי</button>` : ''}
+    </div>
+    <div class="inline-note">${LEVEL_STEPS.map((s) => `${fmtNum(s.level, 2)} ${s.label}`).join(' · ')}. העומס האישי הוא חלקו/ה בניקוד הפרויקטים הפעילים (מחולק שווה בין המוביל/ה והמשתתפים).${edit ? '' : ' עריכת הרמה: מנהלים וראש/ת הצוות של העובד/ת.'}</div>
+  </div>`;
+}
 function drawerContactReadOnly(c) {
   const linked = projectsOfContact(c.id).sort((a, b) => (a.state === 'active' ? 0 : 1) - (b.state === 'active' ? 0 : 1) || byName(a, b));
   const row = (l, v) => v ? `<div class="role-row"><div class="role-name">${l}</div><div class="role-body">${v}</div></div>` : '';
@@ -3143,6 +3275,7 @@ function drawerContactReadOnly(c) {
   <div class="drawer-body">
     <div class="section">${row('צוות', esc(tname(c.teamId, '')))}${row('תפקיד', esc(c.role))}${row(c.type === 'person' ? 'לקוח / חברה' : 'חברה', c.type === 'person' && c.parentId && S.contacts[c.parentId] ? `<a href="#" data-action="open-contact" data-id="${c.parentId}">${esc(personOrg(c))}</a>` : esc(c.company))}${row('תחום', esc(c.category))}${row('טלפון', c.phone ? `<span class="ltr">${esc(c.phone)}</span>` : '')}${row('טלפון נוסף', c.phone2 ? `<span class="ltr">${esc(c.phone2)}</span>` : '')}${row('מייל', c.email ? `<span class="ltr">${esc(c.email)}</span>` : '')}${row('כתובת', esc(c.address))}${row('הערות', esc(c.notes))}
       <div class="inline-note" style="margin-top:8px">עריכת ${esc(CTYPES[c.type]?.plural || '')} שמורה למנהלים.</div></div>
+    ${levelSection(c)}
     ${c.type !== 'employee' && c.type !== 'person' && peopleOf(c.id).length ? `<div class="section"><h3 class="section-title">אנשי קשר <small>${peopleOf(c.id).length}</small></h3><div class="list">${peopleOf(c.id).map((x) => personRow(x)).join('')}</div></div>` : ''}
     <div class="section"><h3 class="section-title">פרויקטים מקושרים <small>${linked.length}</small></h3>
       ${linked.length ? `<div class="list">${linked.map((p) => `<div class="list-item" data-action="open-project" data-id="${p.id}">${healthChip(p.health)}<div class="li-body"><div class="li-title">${esc(p.name)}</div><div class="li-sub">${esc(rolesOfContactIn(p, c.id).join(' · '))} · ${esc(phaseLabel(p))}</div></div><div class="li-side">${ICON.back}</div></div>`).join('')}</div>` : '<div class="inline-note">לא מקושר לאף פרויקט.</div>'}
@@ -3342,6 +3475,12 @@ function bindHandler(el) {
   if ((col === 'site_visits' || col === 'visit_items') && !canWriteField()) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'project_milestones' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'milestone_types' && !isManager()) { toast('אין לך הרשאת עריכה'); render(); return; }
+  if (col === 'employee_levels') { // the row may not exist yet: create it on first edit; an empty level means "back to automatic"
+    if (!canEditLevel(S.contacts[id])) { toast('אין לך הרשאת עריכה'); render(); return; }
+    delete S.ui.drafts[el.id];
+    const v = key === 'level' ? (el.value === '' ? null : Math.min(LEVEL_MAX, Math.max(0, Math.round(Number(el.value) * 4) / 4))) : el.value;
+    setEmpLevel(id, { [key]: v }); return;
+  }
   let v;
   if (el.type === 'checkbox') v = el.checked;
   else if (el.type === 'number') v = el.value === '' ? null : Number(el.value);
@@ -3389,6 +3528,7 @@ document.addEventListener('change', (e) => {
   if (el.dataset.sizeWeight) { const sizes = settings().sizes.map((s) => s.id === el.dataset.sizeWeight ? Object.assign({}, s, { weight: Number(el.value) || 0 }) : s); patchSettings({ sizes }); return; }
   if (id === 'set-unknown-weight') { patchSettings({ unknownPhaseWeight: Number(el.value) || 0 }); return; }
   if (id === 'set-stale-days') { patchSettings({ staleDays: Math.max(1, Number(el.value) || 14) }); return; }
+  if (id === 'set-load-per-level') { patchSettings({ loadPerLevel: Math.max(0.5, Number(el.value) || 4) }); return; }
   if (id === 'set-office-name') { patchSettings({ officeName: el.value.trim() }); return; }
 });
 document.addEventListener('keydown', (e) => {
@@ -3580,6 +3720,7 @@ document.addEventListener('click', async (e) => {
     case 'ctab-go': S.ui.ctab = ds.tab; S.ui.ccat = ''; S.ui.climit = 0; nav('contacts'); break;
     case 'audit-load': try { await fetchAudit(); render(); } catch (err) { toast(friendlyError(err)); } break;
     case 'toggle-active': { const c = S.contacts[ds.id]; if (!c) break; const now = c.active === false; patchDoc('contacts', ds.id, { active: now }); if (!now && c.type === 'employee' && c.teamId) patchDoc('contacts', ds.id, { teamId: null }); break; }
+    case 'level-auto': { const c = S.contacts[ds.id]; if (!c || !canEditLevel(c)) break; const row = levelRow(ds.id); if (!row) break; if ((row.note || '').trim()) patchDoc('employee_levels', ds.id, { level: null }); else deleteDoc('employee_levels', ds.id); break; }
     case 'merge-contact': { e.stopPropagation(); const c = S.contacts[ds.id]; if (!c) break;
       openMenu(t, { search: true, placeholder: 'לתוך איזו רשומה למזג?', emptyText: 'אין רשומות מאותו סוג', items: C().filter((x) => x.type === c.type && x.id !== c.id).sort(byName).map((x) => ({ label: x.name, sub: x.company || x.role || x.category || '', value: x.id })), onPick: (it) => { S.ui.confirmMerge = { from: ds.id, into: it.value }; render(); } }); break; }
     case 'merge-confirm': { const m = S.ui.confirmMerge; S.ui.confirmMerge = null; if (m) await mergeContacts(m.from, m.into); break; }
