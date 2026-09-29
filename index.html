@@ -29,8 +29,8 @@
   #boot-brand { --lw: min(300px, 52vw); }
   #boot-logo { position: relative; width: var(--lw); margin-right: calc(var(--lw) * .306); aspect-ratio: 823 / 139; background: url(logo-draw.v5.webp) no-repeat 0 0 / 400% auto; }
   /* OBERSON GO: once the logo is fully drawn, the GO that is part of the wordmark (same stroke, G touching the N) appears in Pantone Green C;
-     positioned on the vector logo's bounds inside the sprite frame (x 0.36%–99.64%, y 1.91%–97.36%) */
-  #boot-go { position: absolute; left: 99.64%; top: 1.91%; height: 95.45%; width: auto; color: #00ab4e; opacity: 0; transition: opacity .35s ease; overflow: visible; }
+     the green marks (dot in the O, GO) sit on the vector logo's bounds inside the sprite frame (x from 0.36%, y 1.91%–97.36%) */
+  #boot-go { position: absolute; left: 0.36%; top: 1.91%; height: 95.45%; width: auto; color: #00ab4e; opacity: 0; transition: opacity .35s ease; overflow: visible; }
   #boot.full #boot-go { opacity: 1; }
   #boot.leaving #boot-go { opacity: 0; }
   #boot-logo.static { background: url(logo.svg) no-repeat center / contain !important; }
@@ -47,7 +47,7 @@
 </head>
 <body>
 <div id="boot" role="status" aria-live="polite">
-  <div id="boot-brand"><div id="boot-logo" role="img" aria-label="OBERSON GO"><svg id="boot-go" viewBox="999.6 0 306.4 162.4" aria-hidden="true"><g class="logo-go" fill="none" stroke="currentColor" stroke-width="10.7"><path d="M1147.25 81.2A71.15 75.85 0 1 1 1130.60 32.44"/><path d="M1076.10 81.2H1152.60"/><ellipse cx="1229.10" cy="81.2" rx="71.15" ry="75.85"/></g></svg></div></div>
+  <div id="boot-brand"><div id="boot-logo" role="img" aria-label="OBERSON GO"><svg id="boot-go" viewBox="0 0 1306 162.4" aria-hidden="true"><circle class="logo-go" cx="76.75" cy="81.3" r="19" fill="currentColor"/><g class="logo-go" fill="none" stroke="currentColor" stroke-width="10.7"><path d="M1147.25 81.2A71.15 75.85 0 1 1 1130.60 32.44"/><path d="M1076.10 81.2H1152.60"/><ellipse cx="1229.10" cy="81.2" rx="71.15" ry="75.85"/></g></svg></div></div>
   <div id="boot-pct">0%</div>
   <div id="boot-bar"><i></i></div>
   <div id="boot-msg">טוען את המערכת…</div>

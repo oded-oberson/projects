@@ -396,6 +396,24 @@
   .phase-row.done .phase-state { border-color: var(--good); color: var(--good); background: var(--good-soft); }
   .phase-row.done input { color: var(--ink-3); text-decoration: line-through; }
   .phase-status-label { font-size: 12.5px; color: var(--ink-3); white-space: nowrap; min-width: 62px; }
+  /* ---------- the project journey: stages holding milestones ---------- */
+  .stg-list { display: grid; gap: 6px; }
+  .stg { border: 1px solid var(--line); background: var(--surface); }
+  .stg.current { border-color: var(--ink); }
+  .stg-head { display: flex; align-items: center; gap: 10px; padding: 8px 10px; cursor: pointer; user-select: none; }
+  .stg-head:hover { background: var(--surface-2); }
+  .stg-head .phase-state { cursor: default; }
+  .stg.done .stg-head .phase-state { border-color: var(--good); color: var(--good); background: var(--good-soft); }
+  .stg.active .stg-head .phase-state, .stg.current .stg-head .phase-state { border-color: var(--ink); color: var(--ink); }
+  .stg-name { font-weight: 500; flex: 1; min-width: 0; }
+  .stg.done .stg-name { color: var(--ink-3); }
+  .stg-count { font-family: var(--font-num); font-variant-numeric: tabular-nums; color: var(--ink-3); font-size: 13px; white-space: nowrap; }
+  .stg-caret { color: var(--ink-3); font-size: 12px; }
+  .stg-body { padding: 4px 10px 10px; border-top: 1px dashed var(--line); }
+  .stg-body .msr { border-inline-start: 0; }
+  .stg-body .ms-add { margin-top: 6px; }
+  .stg-body .ms-add input { flex: 1; min-width: 120px; }
+  .msr-ctx { display: block; font-size: 11.5px; color: var(--ink-3); }
   .ph-why { font-size: 11.5px; color: var(--ink-3); }
   .ph-why.warn { color: var(--warn-ink); }
   .ph-why.dim { color: var(--ink-3); opacity: .8; }
@@ -666,7 +684,7 @@
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="logo-mark" viewBox="0 0 1306 162.4"><path fill="currentColor" fill-rule="evenodd" d="M76.4 161.8C75.7 161.8 73.8 161.6 72.2 161.4C52.9 159.3 35.2 150.3 22 135.9C13.4 126.7 7.1 115.5 3.7 103.7C-1.9 84.1 0 63.1 8.9 45.2C19.5 24.1 38.9 8.6 61.7 2.8C68.7 1.1 73.3 0.5 82.2 0.5C91.2 0.5 95.8 1.1 103.1 2.9C117.5 6.6 130.3 14.1 140.9 25C145.3 29.5 149.2 34.5 152.7 40.3L153.1 41.1L153.1 20.8L153.2 0.4L207.8 0.4C243 0.4 263.1 0.5 264.4 0.6C274.4 1.8 284 6.4 290.8 13.6C291.6 14.4 292.2 15 292.3 15C292.3 15 292.4 11.7 292.4 7.7L292.4 0.4L413.7 0.4C497.8 0.4 535.6 0.5 537.1 0.7C553.8 2.5 568.1 14 573.3 29.9C581.9 56 564.3 83.2 537.1 86.2C535.8 86.3 529.9 86.4 522.6 86.4C514.9 86.4 510.3 86.5 510.3 86.6C510.4 86.8 527.5 101.4 548.5 119.1L586.6 151.4L629.1 151.4C656.9 151.4 672.5 151.4 674.1 151.2C678.4 150.8 682 149.7 685.7 147.8C694.8 143 700.8 134.3 702.1 124.1C702.5 121 702.2 113.7 701.6 111.1C700.3 105 697.6 100 693.2 95.5C688.7 91.1 684 88.5 677.4 87C675.4 86.6 675.2 86.6 645.8 86.4C614 86.3 615.2 86.3 610.8 85.2C605.2 83.8 599.3 81 594.7 77.5C592.9 76.1 589.2 72.5 587.7 70.6C581.4 62.8 578.1 53.4 578.1 43.4C578.1 33.8 581.1 24.8 587.1 17.1C588.4 15.2 592.1 11.6 594 10C600.4 4.8 608.5 1.5 616.8 0.6C618.5 0.5 656.8 0.4 750.8 0.5L882.5 0.5L935.3 75.9C976 134.1 988.2 151.3 988.6 151.4L989.1 151.5L989.1 76.9L989.1 2.4L994.3 2.4L999.6 2.4L999.6 82.2L999.6 161.9L991 161.9L982.5 161.9L929.7 86.4C900.6 44.9 876.7 11 876.6 11C876.4 11.1 876.3 31 876.3 85.4L876.2 159.8L871 159.8L865.7 159.8L865.7 140.5L865.7 121.1L864.6 122.9C858.8 132.6 850.2 141.6 841.1 147.8C829.8 155.5 817.7 159.9 803.7 161.6C800 162 788.6 161.9 784.6 161.4C763.1 158.8 744.1 148.3 730.8 131.7C713.7 110.4 708.5 82.1 717 56.1C722.1 40.5 732.1 26.5 745.4 16.6C747.6 15 752.1 12 753 11.5C753.3 11.4 753.5 11.2 753.5 11.1C753.5 11 723.1 11 685.4 11L617.2 11.1L615.1 11.5C608.6 13 603.3 15.7 598.8 19.9C593.3 25.2 589.9 31.8 588.9 39.4C588.5 42.5 588.5 44.4 588.9 47.4C590.6 60.5 599.8 71.1 612.3 74.6C616.5 75.8 614.9 75.8 647 75.9C678.9 76.1 677.2 76 681.6 77.1C696 80.7 707.7 92.3 711.5 106.7C712.6 110.7 712.8 112.8 712.8 118.8C712.8 126.3 712.2 130 710.2 135.2C704.5 150 691.2 160.1 675.5 161.7C674 161.9 658 161.9 627.9 161.9L582.5 161.9L539.5 125.5L496.5 89L496.4 82.5L496.3 76L516.2 75.9C536 75.8 536.2 75.8 538.5 75.3C552 72.5 562.1 62.2 564.5 48.8C565 45.9 565 41 564.5 38.1C562.1 24.6 551.9 14.3 538.3 11.5L535.9 11L419.5 11L303 11L303 43.4L303 75.8L367.7 75.9L432.4 75.9L432.4 81.2L432.4 86.4L367.7 86.5L303 86.6L303 118.9L303 151.3L367.7 151.4L432.4 151.4L432.4 156.7L432.4 161.9L362.4 161.9L292.4 161.9L292.4 154.7C292.4 150.6 292.3 147.4 292.3 147.4C292.3 147.4 291.3 148.3 290.1 149.5C283.7 155.7 276.3 159.6 267.2 161.4L264.8 161.8L209 161.9L153.2 162L153.1 141.7L153 121.5L151.4 124.1C138.6 144.4 117.4 158 94 161.2C88.9 161.9 81.6 162.1 76.4 161.8ZM87 151.2C102.6 150.2 116.5 144.6 128.4 134.7C131 132.4 135.8 127.6 137.9 124.9C144.5 116.5 149.3 106.7 151.5 96.5C152.8 90.8 153 88.4 153 81.3C153 73.3 152.7 70.2 150.9 63.4C144.5 38.8 124.8 19.3 100.1 13.1C93.9 11.6 89.5 11.1 82.2 11.1C74.8 11.1 70.4 11.6 64.2 13.1C58.6 14.5 52.4 17 47.5 19.7C29.8 29.6 17.1 46.4 12.8 65.9C11.5 71.6 11.3 74 11.3 81.2C11.3 88.3 11.5 90.8 12.8 96.4C15.2 107.4 20.4 117.7 27.6 126.2C42.3 143.7 63.8 152.7 87 151.2ZM262.4 151.2C268.4 150.7 274 148.6 278.7 145.3C281 143.7 284.6 140 286.2 137.8C292.9 128.3 294.1 116.4 289.5 105.7C285 95.4 274.9 88.1 263.4 86.7C262.2 86.5 246.2 86.4 216.2 86.4L170.7 86.4L170.7 81.2L170.7 75.9L217.2 75.9L263.7 75.8L265.9 75.3C272.8 73.8 278 71 282.7 66.3C286.5 62.5 289 58.6 290.6 53.5C291.8 49.9 292.2 47.3 292.2 43.4C292.2 39.6 291.8 37 290.6 33.4C289 28.4 286.5 24.4 282.7 20.6C278 15.9 272.6 13 265.8 11.5L263.5 11L213.7 11L163.9 10.9L163.9 81.2L163.9 151.4L212.1 151.4C239 151.4 261.2 151.3 262.4 151.2ZM802.6 151C829.6 148.1 852.4 130.3 861.5 105C865.5 94.1 866.7 82.4 865 70.8C861.2 44.8 842.3 22.6 817 14.4C810.4 12.3 804.5 11.3 797 11C772 10.2 749 21.9 735.3 42.5C729.1 51.9 725.4 62 724 73.5C723.5 77.5 723.5 84.9 724 88.9C726 105.1 732.9 119.4 744.2 130.7C756.6 143.1 772.9 150.3 790.5 151.3C792.9 151.4 800.4 151.2 802.6 151ZM292.3 71.9C292.3 71.9 291.2 72.9 290 74.1C287.6 76.4 284.3 79 282.2 80.2C281.5 80.6 281 81 280.9 81.1C280.8 81.2 281.7 81.8 282.8 82.5C285.3 84.1 288.4 86.6 290.5 88.8L292.3 90.5L292.3 81.3C292.3 76.2 292.3 72 292.3 71.9ZM865.7 11C865.6 11 858.8 11 850.6 11L835.6 11L837.8 12.4C845.8 17.3 853.2 23.9 859.2 31.5C860.5 33.2 864 38.3 865 40L865.6 41.1L865.7 26.1C865.7 17.8 865.7 11.1 865.7 11Z"/><g class="logo-go" fill="none" stroke="currentColor" stroke-width="10.7"><path d="M1147.25 81.2A71.15 75.85 0 1 1 1130.60 32.44"/><path d="M1076.10 81.2H1152.60"/><ellipse cx="1229.10" cy="81.2" rx="71.15" ry="75.85"/></g></symbol></svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="logo-mark" viewBox="0 0 1306 162.4"><path fill="currentColor" fill-rule="evenodd" d="M76.4 161.8C75.7 161.8 73.8 161.6 72.2 161.4C52.9 159.3 35.2 150.3 22 135.9C13.4 126.7 7.1 115.5 3.7 103.7C-1.9 84.1 0 63.1 8.9 45.2C19.5 24.1 38.9 8.6 61.7 2.8C68.7 1.1 73.3 0.5 82.2 0.5C91.2 0.5 95.8 1.1 103.1 2.9C117.5 6.6 130.3 14.1 140.9 25C145.3 29.5 149.2 34.5 152.7 40.3L153.1 41.1L153.1 20.8L153.2 0.4L207.8 0.4C243 0.4 263.1 0.5 264.4 0.6C274.4 1.8 284 6.4 290.8 13.6C291.6 14.4 292.2 15 292.3 15C292.3 15 292.4 11.7 292.4 7.7L292.4 0.4L413.7 0.4C497.8 0.4 535.6 0.5 537.1 0.7C553.8 2.5 568.1 14 573.3 29.9C581.9 56 564.3 83.2 537.1 86.2C535.8 86.3 529.9 86.4 522.6 86.4C514.9 86.4 510.3 86.5 510.3 86.6C510.4 86.8 527.5 101.4 548.5 119.1L586.6 151.4L629.1 151.4C656.9 151.4 672.5 151.4 674.1 151.2C678.4 150.8 682 149.7 685.7 147.8C694.8 143 700.8 134.3 702.1 124.1C702.5 121 702.2 113.7 701.6 111.1C700.3 105 697.6 100 693.2 95.5C688.7 91.1 684 88.5 677.4 87C675.4 86.6 675.2 86.6 645.8 86.4C614 86.3 615.2 86.3 610.8 85.2C605.2 83.8 599.3 81 594.7 77.5C592.9 76.1 589.2 72.5 587.7 70.6C581.4 62.8 578.1 53.4 578.1 43.4C578.1 33.8 581.1 24.8 587.1 17.1C588.4 15.2 592.1 11.6 594 10C600.4 4.8 608.5 1.5 616.8 0.6C618.5 0.5 656.8 0.4 750.8 0.5L882.5 0.5L935.3 75.9C976 134.1 988.2 151.3 988.6 151.4L989.1 151.5L989.1 76.9L989.1 2.4L994.3 2.4L999.6 2.4L999.6 82.2L999.6 161.9L991 161.9L982.5 161.9L929.7 86.4C900.6 44.9 876.7 11 876.6 11C876.4 11.1 876.3 31 876.3 85.4L876.2 159.8L871 159.8L865.7 159.8L865.7 140.5L865.7 121.1L864.6 122.9C858.8 132.6 850.2 141.6 841.1 147.8C829.8 155.5 817.7 159.9 803.7 161.6C800 162 788.6 161.9 784.6 161.4C763.1 158.8 744.1 148.3 730.8 131.7C713.7 110.4 708.5 82.1 717 56.1C722.1 40.5 732.1 26.5 745.4 16.6C747.6 15 752.1 12 753 11.5C753.3 11.4 753.5 11.2 753.5 11.1C753.5 11 723.1 11 685.4 11L617.2 11.1L615.1 11.5C608.6 13 603.3 15.7 598.8 19.9C593.3 25.2 589.9 31.8 588.9 39.4C588.5 42.5 588.5 44.4 588.9 47.4C590.6 60.5 599.8 71.1 612.3 74.6C616.5 75.8 614.9 75.8 647 75.9C678.9 76.1 677.2 76 681.6 77.1C696 80.7 707.7 92.3 711.5 106.7C712.6 110.7 712.8 112.8 712.8 118.8C712.8 126.3 712.2 130 710.2 135.2C704.5 150 691.2 160.1 675.5 161.7C674 161.9 658 161.9 627.9 161.9L582.5 161.9L539.5 125.5L496.5 89L496.4 82.5L496.3 76L516.2 75.9C536 75.8 536.2 75.8 538.5 75.3C552 72.5 562.1 62.2 564.5 48.8C565 45.9 565 41 564.5 38.1C562.1 24.6 551.9 14.3 538.3 11.5L535.9 11L419.5 11L303 11L303 43.4L303 75.8L367.7 75.9L432.4 75.9L432.4 81.2L432.4 86.4L367.7 86.5L303 86.6L303 118.9L303 151.3L367.7 151.4L432.4 151.4L432.4 156.7L432.4 161.9L362.4 161.9L292.4 161.9L292.4 154.7C292.4 150.6 292.3 147.4 292.3 147.4C292.3 147.4 291.3 148.3 290.1 149.5C283.7 155.7 276.3 159.6 267.2 161.4L264.8 161.8L209 161.9L153.2 162L153.1 141.7L153 121.5L151.4 124.1C138.6 144.4 117.4 158 94 161.2C88.9 161.9 81.6 162.1 76.4 161.8ZM87 151.2C102.6 150.2 116.5 144.6 128.4 134.7C131 132.4 135.8 127.6 137.9 124.9C144.5 116.5 149.3 106.7 151.5 96.5C152.8 90.8 153 88.4 153 81.3C153 73.3 152.7 70.2 150.9 63.4C144.5 38.8 124.8 19.3 100.1 13.1C93.9 11.6 89.5 11.1 82.2 11.1C74.8 11.1 70.4 11.6 64.2 13.1C58.6 14.5 52.4 17 47.5 19.7C29.8 29.6 17.1 46.4 12.8 65.9C11.5 71.6 11.3 74 11.3 81.2C11.3 88.3 11.5 90.8 12.8 96.4C15.2 107.4 20.4 117.7 27.6 126.2C42.3 143.7 63.8 152.7 87 151.2ZM262.4 151.2C268.4 150.7 274 148.6 278.7 145.3C281 143.7 284.6 140 286.2 137.8C292.9 128.3 294.1 116.4 289.5 105.7C285 95.4 274.9 88.1 263.4 86.7C262.2 86.5 246.2 86.4 216.2 86.4L170.7 86.4L170.7 81.2L170.7 75.9L217.2 75.9L263.7 75.8L265.9 75.3C272.8 73.8 278 71 282.7 66.3C286.5 62.5 289 58.6 290.6 53.5C291.8 49.9 292.2 47.3 292.2 43.4C292.2 39.6 291.8 37 290.6 33.4C289 28.4 286.5 24.4 282.7 20.6C278 15.9 272.6 13 265.8 11.5L263.5 11L213.7 11L163.9 10.9L163.9 81.2L163.9 151.4L212.1 151.4C239 151.4 261.2 151.3 262.4 151.2ZM802.6 151C829.6 148.1 852.4 130.3 861.5 105C865.5 94.1 866.7 82.4 865 70.8C861.2 44.8 842.3 22.6 817 14.4C810.4 12.3 804.5 11.3 797 11C772 10.2 749 21.9 735.3 42.5C729.1 51.9 725.4 62 724 73.5C723.5 77.5 723.5 84.9 724 88.9C726 105.1 732.9 119.4 744.2 130.7C756.6 143.1 772.9 150.3 790.5 151.3C792.9 151.4 800.4 151.2 802.6 151ZM292.3 71.9C292.3 71.9 291.2 72.9 290 74.1C287.6 76.4 284.3 79 282.2 80.2C281.5 80.6 281 81 280.9 81.1C280.8 81.2 281.7 81.8 282.8 82.5C285.3 84.1 288.4 86.6 290.5 88.8L292.3 90.5L292.3 81.3C292.3 76.2 292.3 72 292.3 71.9ZM865.7 11C865.6 11 858.8 11 850.6 11L835.6 11L837.8 12.4C845.8 17.3 853.2 23.9 859.2 31.5C860.5 33.2 864 38.3 865 40L865.6 41.1L865.7 26.1C865.7 17.8 865.7 11.1 865.7 11Z"/><circle class="logo-go" cx="76.75" cy="81.3" r="19" fill="currentColor"/><g class="logo-go" fill="none" stroke="currentColor" stroke-width="10.7"><path d="M1147.25 81.2A71.15 75.85 0 1 1 1130.60 32.44"/><path d="M1076.10 81.2H1152.60"/><ellipse cx="1229.10" cy="81.2" rx="71.15" ry="75.85"/></g></symbol></svg>
 <div id="app">
   <header class="masthead" id="masthead" hidden>
     <div class="masthead-inner">
@@ -763,7 +781,7 @@ const visibleViews = () => VIEWS.filter((v) => !v.managers || isManager());
 const DEFAULT_SETTINGS = {
   officeName: 'OBERSON',
   phases: [
-    { id: 'init', name: 'ייזום', weight: 0.5 }, { id: 'concept', name: 'תכנון ראשוני', weight: 1 },
+    { id: 'init', name: 'פתיחת פרויקט', weight: 0.5 }, { id: 'concept', name: 'תכנון ראשוני', weight: 1 },
     { id: 'permit', name: 'היתר', weight: 0.8 }, { id: 'detail', name: 'תכנון מפורט', weight: 1.5 },
     { id: 'tender', name: 'מכרז', weight: 0.7 }, { id: 'build', name: 'ביצוע', weight: 1.2 }, { id: 'handover', name: 'מסירה', weight: 0.5 },
   ],
@@ -804,58 +822,94 @@ const contact = (id) => (id && S.contacts[id]) || null;
 const cname = (id, fallback = '—') => contact(id)?.name || fallback;
 const team = (id) => (id && S.teams[id]) || null;
 const tname = (id, fallback = 'ללא צוות') => team(id)?.name || fallback;
-/* per-project phases: p.phases = [{id, name, weight, state: todo|active|done}]; a project without the array uses the template for its type.
-   Which template phases apply is decided by the project type (settings.phasesByType; by default a permit phase exists only for
-   private houses and residential neighbourhoods) and by the contract: a phase that has milestones in the contract is always in. */
+/* ===================== stages, derived from milestones =====================
+   A stage is a drawer in the office template (name, order, workload weight). What a project has in a stage is its work milestones
+   (contract milestones mapped to the stage through the unified type; template milestones for projects without a contract breakdown).
+   Nobody marks a stage by hand: the database keeps projects.stage / projects.stage_progress up to date from the milestones
+   (recompute_project_stage), and the same rule runs here for parents (which aggregate their sub-projects) and for instant feedback.
+   Which template stages a project type gets: settings.phasesByType (by default a permit stage only for private houses / residential). */
+const STAGE_DONE = '__done', STAGE_NONE = '_none';
 const PERMIT_TYPES = ['בית פרטי', 'מגורים', 'התחדשות עירונית']; // types whose contracts usually include a permit; per project the contract decides
-const TYPE_ONLY_PHASES = { permit: PERMIT_TYPES }; // default rule: phase id → the only types that get it
+const TYPE_ONLY_PHASES = { permit: PERMIT_TYPES }; // default rule: stage id → the only types that get it
 function phaseIdsForType(type) {
   const tpl = settings().phases; const map = settings().phasesByType || {};
   if (type && Array.isArray(map[type])) return tpl.filter((x) => map[type].includes(x.id)).map((x) => x.id);
   return tpl.filter((x) => !TYPE_ONLY_PHASES[x.id] || !type || TYPE_ONLY_PHASES[x.id].includes(type)).map((x) => x.id);
 }
 const phasesForType = (type) => { const ids = phaseIdsForType(type); return settings().phases.filter((x) => ids.includes(x.id)); };
-/* phases the contract asks for: the phase of every milestone type used by the project's milestones (loaded per project) */
-function contractPhases(pid) {
-  const out = new Set();
-  Object.values(S.project_milestones).forEach((m) => { if (m.projectId !== pid) return; const ph = (m.typeId && S.milestone_types[m.typeId]?.phase) || m.phase; if (ph) out.add(ph); });
-  return [...out];
-}
-const contractPhaseCount = (pid, phaseId) => Object.values(S.project_milestones).filter((m) => m.projectId === pid && (((m.typeId && S.milestone_types[m.typeId]?.phase) || m.phase) === phaseId)).length;
-function projectPhases(p) {
-  if (Array.isArray(p.phases)) return p.phases;
-  const tpl = phasesForType(p.type);
-  const idx = p.phase ? tpl.findIndex((x) => x.id === p.phase) : -1;
-  return tpl.map((x, i) => ({ id: x.id, name: x.name, weight: x.weight, state: idx < 0 ? 'todo' : i < idx ? 'done' : i === idx ? 'active' : 'todo' }));
-}
-/* the phase list a project should have: its type's template ∪ the contract's phases; existing states, names and custom phases are kept,
-   a template phase that neither the type nor the contract needs is dropped, missing ones are added in template order */
-function fitPhases(p) {
-  const tpl = settings().phases; const order = new Map(tpl.map((t, i) => [t.id, i]));
-  const want = new Set(phaseIdsForType(p.type)); contractPhases(p.id).forEach((id) => want.add(id));
-  const cur = projectPhases(p);
-  const out = cur.filter((x) => want.has(x.id) || !order.has(x.id));
-  tpl.forEach((t) => {
-    if (!want.has(t.id) || out.some((x) => x.id === t.id)) return;
-    const item = { id: t.id, name: t.name, weight: t.weight, state: 'todo' };
-    let at = 0;
-    for (let i = 0; i < out.length; i++) { const oi = order.get(out[i].id); if (oi != null && oi < order.get(t.id)) at = i + 1; }
-    out.splice(at, 0, item);
+const stageDefs = () => settings().phases;
+const stageDef = (id) => stageDefs().find((x) => x.id === id) || null;
+const stageName = (id) => (id === STAGE_NONE ? 'ללא שלב' : (stageDef(id)?.name || id || ''));
+const stageOrderIndex = (id) => { const i = stageDefs().findIndex((x) => x.id === id); return i >= 0 ? i : (id === STAGE_NONE ? 999 : 500); };
+const emptyProg = () => ({ done: 0, active: 0, total: 0 });
+/* the milestone's stage: the unified type's stage, else the milestone's own */
+const msStage = (m) => (m.typeId && S.milestone_types[m.typeId]?.phase) || m.phase || STAGE_NONE;
+const msIsWork = (m) => ((m.typeId && S.milestone_types[m.typeId]?.kind) || 'work') === 'work';
+/* progress per stage from loaded milestones (exact) — used inside the project card */
+function progressFromMilestones(pid) {
+  const prog = {}; const all = emptyProg();
+  Object.values(S.project_milestones).forEach((m) => {
+    if (m.projectId !== pid || !msIsWork(m)) return;
+    const k = msStage(m); const a = prog[k] || (prog[k] = emptyProg());
+    a.total++; all.total++; if (m.state === 'done') { a.done++; all.done++; } if (m.state === 'active') { a.active++; all.active++; }
   });
-  return out;
+  prog._ = all; return prog;
 }
-const phasesUntouched = (p) => projectPhases(p).every((x) => x.state === 'todo');
-const samePhaseIds = (a, b) => a.length === b.length && a.every((x, i) => x.id === b[i].id);
-const activePhases = (p) => projectPhases(p).filter((x) => x.state === 'active');
-const allPhasesDone = (p) => { const ph = projectPhases(p); return ph.length > 0 && ph.every((x) => x.state === 'done'); };
-const phaseLabel = (p) => { const a = activePhases(p); if (a.length) return a.map((x) => x.name).join(' + '); return allPhasesDone(p) ? 'כל השלבים הושלמו' : 'ללא שלב פעיל'; };
-const hasActivePhaseNamed = (p, name) => activePhases(p).some((x) => x.name === name);
+/* the rule (same as recompute_project_stage in the database): the last stage where work has started; if it is complete → the next stage that
+   has milestones; nothing started → the first stage with milestones; everything done → '__done'; no work milestones → null */
+function deriveStage(prog) {
+  const all = prog._ || emptyProg();
+  if (!all.total) return null;
+  if (all.done === all.total) return STAGE_DONE;
+  const ids = Object.keys(prog).filter((k) => k !== '_').sort((a, b) => stageOrderIndex(a) - stageOrderIndex(b));
+  let lastProg = -1, lpFull = false, firstWith = -1, firstOpen = -1;
+  ids.forEach((id, i) => {
+    const q = prog[id]; if (id === STAGE_NONE || !q.total) return;
+    if (firstWith < 0) firstWith = i;
+    if (q.done < q.total && firstOpen < 0) firstOpen = i;
+    if (q.done > 0 || q.active > 0) { lastProg = i; lpFull = q.done === q.total; }
+  });
+  let i = -1;
+  if (lastProg < 0) i = firstWith;
+  else if (!lpFull) i = lastProg;
+  else { i = ids.findIndex((id, k) => k > lastProg && id !== STAGE_NONE && prog[id].total > 0); if (i < 0) i = firstOpen; }
+  return i >= 0 ? ids[i] : (prog[STAGE_NONE]?.total ? STAGE_NONE : null);
+}
+/* progress per stage as the lists see it: the server-kept value, plus the sub-projects' for a parent; the open card uses the loaded milestones */
+function stageProgressOf(p) {
+  const own = (S.milestonesLoaded[p.id] ? progressFromMilestones(p.id) : (p.stageProgress || {}));
+  const kids = childrenOf(p.id);
+  if (!kids.length) return own;
+  const acc = {};
+  const merge = (pr) => Object.entries(pr || {}).forEach(([k, v]) => { const a = acc[k] || (acc[k] = emptyProg()); a.done += v.done || 0; a.active += v.active || 0; a.total += v.total || 0; });
+  merge(own); kids.forEach((k) => merge(stageProgressOf(k)));
+  if (!acc._) acc._ = emptyProg();
+  return acc;
+}
+const stageOf = (p) => (childrenOf(p.id).length || S.milestonesLoaded[p.id] ? deriveStage(stageProgressOf(p)) : (p.stage || null));
+const currentStage = (p) => { const id = stageOf(p); return id && id !== STAGE_DONE ? (stageDef(id) || { id, name: stageName(id), weight: settings().unknownPhaseWeight ?? 1 }) : null; };
+const activePhases = (p) => { const s = currentStage(p); return s ? [s] : []; };
+const allPhasesDone = (p) => stageOf(p) === STAGE_DONE;
+const phaseLabel = (p) => { const s = currentStage(p); if (s) return s.name; return allPhasesDone(p) ? 'כל אבני הדרך הושלמו' : 'אין אבני דרך'; };
+const hasActivePhaseNamed = (p, name) => currentStage(p)?.name === name;
+const phaseProgress = (p) => { const t = stageProgressOf(p)._ || emptyProg(); return { done: t.done, total: t.total }; };
+/* the stages a project shows: its type's template stages ∪ the stages its milestones use, in template order; each with derived state and counts */
+function projectStages(p) {
+  const prog = stageProgressOf(p); const cur = stageOf(p);
+  const ids = [...new Set([...phaseIdsForType(p.type), ...Object.keys(prog).filter((k) => k !== '_' && prog[k].total > 0)])].sort((a, b) => stageOrderIndex(a) - stageOrderIndex(b));
+  return ids.map((id) => {
+    const q = prog[id] || emptyProg();
+    const state = q.total && q.done === q.total ? 'done' : (id === cur || q.done > 0 || q.active > 0) ? 'active' : 'todo';
+    return { id, name: stageName(id), weight: stageDef(id)?.weight ?? 1, state, done: q.done, total: q.total, active: q.active, current: id === cur };
+  });
+}
+const projectPhases = (p) => projectStages(p);
 const buildPhaseName = () => settings().phases.find((x) => x.id === 'build')?.name || 'ביצוע';
-const phaseProgress = (p) => { const ph = projectPhases(p); return { done: ph.filter((x) => x.state === 'done').length, total: ph.length }; };
 const sizeOf = (id) => settings().sizes.find((s) => s.id === id) || null;
 const employees = () => C().filter((c) => c.type === 'employee' && c.active !== false).sort(byName);
 const teamLeadId = (teamId) => team(teamId)?.leadId || null;
 const projectWeight = (p) => {
+  if (childrenOf(p.id).length) return 0; // the sub-projects carry the load
   const sw = sizeOf(p.size)?.weight ?? 1;
   const a = activePhases(p);
   const pw = a.length ? Math.max(...a.map((x) => Number(x.weight) || 1)) : (settings().unknownPhaseWeight ?? 1);
@@ -1091,9 +1145,9 @@ function renderOverview() {
   const tplNames = st.phases.map((x) => x.name);
   const phaseNames = [...tplNames, ...Object.keys(phaseCounts).filter((n) => !tplNames.includes(n)).sort((a, b) => phaseCounts[b] - phaseCounts[a])];
   const phaseRows = phaseNames.map((n) => ({ label: n, value: phaseCounts[n] || 0, click: { action: 'goto-projects', attrs: `data-phase="${esc(n)}"` } }));
-  phaseRows.push({ label: 'ללא שלב פעיל', value: noPhase.length, cls: 'muted', click: { action: 'goto-projects', attrs: 'data-flag="noPhase"' } });
+  phaseRows.push({ label: 'ללא אבני דרך', value: noPhase.length, cls: 'muted', click: { action: 'goto-projects', attrs: 'data-flag="noPhase"' } });
   const doneAll = act.filter(allPhasesDone).length;
-  if (doneAll) phaseRows.push({ label: 'כל השלבים הושלמו', value: doneAll, cls: 'good', click: { action: 'goto-projects', attrs: 'data-phase="__done"' } });
+  if (doneAll) phaseRows.push({ label: 'כל אבני הדרך הושלמו', value: doneAll, cls: 'good', click: { action: 'goto-projects', attrs: 'data-phase="__done"' } });
 
   // health distribution
   const healthRows = [
@@ -1159,7 +1213,7 @@ function renderOverview() {
   <div class="panel" style="margin-bottom:14px">
     <div class="panel-head"><h2 class="panel-title">השלמת נתונים</h2><span class="panel-sub">לחיצה פותחת את הרשימה המסוננת</span></div>
     <div class="todo-grid">
-      <button type="button" class="todo-card ${noPhase.length ? '' : 'done'}" data-action="goto-projects" data-flag="noPhase"><strong>${noPhase.length}</strong><span>פרויקטים ללא שלב</span></button>
+      <button type="button" class="todo-card ${noPhase.length ? '' : 'done'}" data-action="goto-projects" data-flag="noPhase"><strong>${noPhase.length}</strong><span>ללא אבני דרך</span></button>
       <button type="button" class="todo-card ${noTeam.length ? '' : 'done'}" data-action="goto-projects" data-flag="noTeam"><strong>${noTeam.length}</strong><span>ללא צוות</span></button>
       <button type="button" class="todo-card ${noLead.length ? '' : 'done'}" data-action="goto-projects" data-flag="noLead"><strong>${noLead.length}</strong><span>ללא מוביל פרויקט</span></button>
       <button type="button" class="todo-card ${review.length ? '' : 'done'}" data-action="goto-projects" data-flag="review"><strong>${review.length}</strong><span>ממתינים לאימות פרטים</span></button>
@@ -1286,7 +1340,7 @@ function projectRow(p) {
     <td>${esc(cname(p.clientId, ''))}</td>
     <td>${menuChip(tname(p.teamId), `data-action="menu" data-menu="team" data-id="${p.id}"`, p.teamId ? '' : 'dim')}</td>
     <td>${menuChip(cname(p.leadId, 'ללא מוביל'), `data-action="menu" data-menu="lead" data-id="${p.id}"`, p.leadId ? '' : 'dim')}</td>
-    <td>${menuChip(phaseLabel(p), `data-action="menu" data-menu="phase" data-id="${p.id}"`, activePhases(p).length ? 'accent' : allPhasesDone(p) ? 'green' : 'dim')}</td>
+    <td>${(() => { const pr = phaseProgress(p); return menuChip(phaseLabel(p) + (pr.total ? ` · ${pr.done}/${pr.total}` : ''), `data-action="goto-journey" data-id="${p.id}" title="מחושב מאבני הדרך — לחיצה פותחת את מהלך הפרויקט"`, activePhases(p).length ? 'accent' : allPhasesDone(p) ? 'green' : 'dim'); })()}</td>
     <td>${healthChip(p.health, { cls: 'btn-chip', attrs: `data-action="menu" data-menu="health" data-id="${p.id}" role="button" tabindex="0"` })}</td>
     <td><div class="cell-note" title="${esc(p.statusNote)}">${esc(p.statusNote || '')}</div><div class="cell-sub ${stale ? (d == null ? 'never' : 'stale') : ''}">${d == null ? 'לא עודכן אף פעם' : (d === 0 ? 'היום' : `לפני ${d} ימים`)}</div></td>
     <td class="num muted">${fmtDate(p.startDate)}</td>
@@ -1317,7 +1371,7 @@ function phasesTemplateEditor() {
   const st = settings(); const ro = !isManager();
   return `<div class="panel">
     <div class="panel-head"><h2 class="panel-title">תבנית שלבי פרויקט</h2><span class="panel-sub">ברירת המחדל לפרויקט חדש</span></div>
-    <div class="inline-note" style="margin-bottom:10px">כל פרויקט מקבל עותק של התבנית, ובכרטיס הפרויקט מתאימים את השלבים לחוזה. שינוי כאן לא משנה פרויקטים קיימים.</div>
+    <div class="inline-note" style="margin-bottom:10px">השלבים הם המגירות של מהלך הפרויקט; מה שבתוכן הן אבני הדרך (מהחוזה או מהתבנית), ומצב השלב מחושב מהן. שם ומשקל כאן חלים על כל הפרויקטים; המשקל משמש לניקוד העומס.</div>
     <div class="set-list">${st.phases.map((ph, i) => `<div class="set-row with-weight">
       <input type="text" id="phase-name-${ph.id}" value="${esc(ph.name)}" data-phase-name="${ph.id}" ${ro ? 'disabled' : ''}>
       <input type="number" step="0.1" min="0" id="phase-w-${ph.id}" value="${ph.weight}" data-phase-weight="${ph.id}" title="משקל" ${ro ? 'disabled' : ''}>
@@ -1583,10 +1637,10 @@ function renderMilestoneTypes() {
       <span class="count-note">${rows.length} סוגים · ${rows.reduce((n, t) => n + (Number(t.usage) || 0), 0)} אבני דרך</span>
     </div>
     <div class="panel">
-      <div class="mt-head"><span>שם אחיד</span><span>שלב</span><span class="num">שימוש</span><span>כינויים בחוזים</span><span></span></div>
+      <div class="mt-head"><span>שם אחיד</span><span>שלב · סוג</span><span class="num">שימוש</span><span>כינויים בחוזים</span><span></span></div>
       ${rows.slice(0, limit).map((t) => `<div class="mt-row">
         <input type="text" id="mtn-${t.id}" value="${esc(S.ui.drafts['mtn-' + t.id] ?? t.name)}" data-bind="milestone_types:${t.id}:name" aria-label="שם אחיד">
-        ${selectHtml('mtp-' + t.id, t.phase || '', phases.map((x) => ({ value: x.id, label: x.name })), { blank: 'ללא שלב', attrs: `data-bind="milestone_types:${t.id}:phase"` })}
+        <span style="display:flex;gap:4px;min-width:0">${selectHtml('mtp-' + t.id, t.phase || '', phases.map((x) => ({ value: x.id, label: x.name })), { blank: 'ללא שלב', attrs: `data-bind="milestone_types:${t.id}:phase" style="flex:1;min-width:0"` })}${selectHtml('mtk-' + t.id, t.kind || 'work', [{ value: 'work', label: 'עבודה' }, { value: 'billing', label: 'חיוב בלבד' }], { attrs: `data-bind="milestone_types:${t.id}:kind" title="אבן דרך של עבודה מופיעה במהלך הפרויקט; חיוב בלבד (מקדמה, תשלום) מוסתרת מהעובדים" style="flex:0 0 auto"` })}</span>
         <span class="num muted">${Number(t.usage) || 0}</span>
         <span class="mt-aliases" title="${esc((t.aliases || []).join(' · '))}">${esc((t.aliases || []).filter((a) => a !== t.name).slice(0, 3).join(' · '))}${(t.aliases || []).length > 3 ? ` <small>+${(t.aliases || []).length - 3}</small>` : ''}</span>
         ${menuChip('מזג לתוך…', `data-action="menu" data-menu="mtmerge" data-id="${t.id}"`, 'dim')}
@@ -2076,7 +2130,7 @@ ICON.check = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-
 ICON.flag = '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 2.5h1.5v15H4zM6.5 3h9l-2.2 3.5 2.2 3.5h-9z"/></svg>';
 
 S.tasks = {}; S.taskComments = {}; S.notifications = [];
-Object.assign(S.ui, { msOpen: {}, ttab: 'mine', tproject: '', tfilter: { q: '', assignee: '', project: '', status: '', priority: '', done: false }, bell: false, mentions: {}, mentionMenu: null });
+Object.assign(S.ui, { msOpen: {}, stgOpen: {}, showBilling: {}, ttab: 'mine', tproject: '', tfilter: { q: '', assignee: '', project: '', status: '', priority: '', done: false }, bell: false, mentions: {}, mentionMenu: null });
 
 const isMember = () => ['owner', 'manager', 'team_lead', 'staff'].includes(myRole());
 const canWriteTasks = () => isMember();
@@ -2965,7 +3019,7 @@ function drawerProject(id) {
         <div class="field-row" style="margin-bottom:10px">
           ${field('מצב', selectHtml('p-state', p.state, Object.entries(STATES).map(([value, label]) => ({ value, label })), { attrs: `data-bind="projects:${p.id}:state"` }))}
           ${field('גודל', selectHtml('p-size', p.size || 'm', st.sizes.map((x) => ({ value: x.id, label: x.name })), { attrs: `data-bind="projects:${p.id}:size"` }))}
-          ${field('שלב נוכחי', `<div style="padding-top:5px">${menuChip(phaseLabel(p), `data-action="menu" data-menu="phase" data-id="${p.id}"`, activePhases(p).length ? 'accent' : allPhasesDone(p) ? 'green' : 'dim')}</div>`)}
+          ${field('שלב נוכחי', `<div style="padding-top:5px">${menuChip(phaseLabel(p), `data-action="goto-journey" data-id="${p.id}"`, activePhases(p).length ? 'accent' : allPhasesDone(p) ? 'green' : 'dim')}</div>`, 'מחושב מאבני הדרך')}
         </div>
         <div class="field"><label>רמזור</label>
           <div class="health-picker">${Object.entries(HEALTH).map(([k, h]) => `<span class="chip ${h.cls} ${p.health === k ? 'on' : ''}" data-action="set-health" data-id="${p.id}" data-value="${k}" role="button" tabindex="0">${h.icon}${h.label}</span>`).join('')}
@@ -2979,9 +3033,7 @@ function drawerProject(id) {
       </div>
     </div>
 
-    ${phasesSection(p)}
-
-    ${milestonesSection(p)}
+    ${journeySection(p)}
 
     ${subProjectsSection(p)}
 
@@ -3045,36 +3097,6 @@ function drawerProject(id) {
     ${isManager() ? confirmButton('delete-doc', `data-col="projects" data-id="${p.id}"`, 'מחק פרויקט') : ''}
   </div>`;
 }
-function phasesSection(p) {
-  const ph = projectPhases(p);
-  const prog = phaseProgress(p);
-  const tplLeft = settings().phases.filter((x) => !ph.some((y) => y.name === x.name));
-  const loaded = !!S.milestonesLoaded[p.id]; const nMs = loaded ? milestonesOf(p.id).length : 0;
-  const fit = fitPhases(p); const fits = samePhaseIds(fit, ph);
-  const typeIds = phaseIdsForType(p.type); const cIds = loaded ? contractPhases(p.id) : [];
-  const why = (x) => { const inType = typeIds.includes(x.id); const n = loaded ? contractPhaseCount(p.id, x.id) : 0; if (n) return { txt: `${n} בחוזה`, cls: '' }; if (!settings().phases.some((t) => t.id === x.id)) return { txt: 'מותאם', cls: 'dim' }; if (!inType) return { txt: p.type ? 'לא בסוג' : '', cls: 'warn' }; return { txt: loaded && nMs ? 'לא בחוזה' : '', cls: 'dim' }; };
-  return `<div class="section">
-    <h3 class="section-title">שלבי הפרויקט לפי הסוג והחוזה <small>${prog.total ? `${prog.done} מתוך ${prog.total} הושלמו` : ''}</small></h3>
-    ${prog.total ? `<div class="progress"><div style="width:${Math.round((prog.done / prog.total) * 100)}%"></div></div>` : ''}
-    ${!fits && canWriteProjects() ? `<div class="inline-note fit-note">השלבים לא תואמים את ${p.type ? `הסוג "${esc(p.type)}"` : 'הסוג'}${cIds.length ? ' ואת החוזה' : ''}: ${esc(fit.map((x) => x.name).join(' › '))}. <button type="button" class="btn small" data-action="phase-fit" data-id="${p.id}">התאם לסוג ולחוזה</button></div>` : ''}
-    <div class="phase-list">${ph.length ? ph.map((x, i) => { const w = why(x); return `<div class="phase-row ${x.state}">
-      <button type="button" class="phase-state" data-action="phase-cycle" data-id="${p.id}" data-phase="${x.id}" title="${PHASE_STATES[x.state].label} — לחיצה משנה ל: ${PHASE_STATES[PHASE_STATES[x.state].next].label}">${ICON[PHASE_STATES[x.state].icon]}</button>
-      <input type="text" id="pph-${p.id}-${x.id}" value="${esc(S.ui.drafts['pph-' + p.id + '-' + x.id] ?? x.name)}" data-pphase="${p.id}:${x.id}" aria-label="שם השלב">
-      <span class="phase-status-label">${PHASE_STATES[x.state].label}${w.txt ? ` <span class="ph-why ${w.cls}">· ${w.txt}</span>` : ''}</span>
-      <div class="set-tools">
-        <button class="icon-btn" data-action="phase-move-p" data-id="${p.id}" data-phase="${x.id}" data-dir="-1" title="הזז למעלה" ${i === 0 ? 'disabled' : ''}>▲</button>
-        <button class="icon-btn" data-action="phase-move-p" data-id="${p.id}" data-phase="${x.id}" data-dir="1" title="הזז למטה" ${i === ph.length - 1 ? 'disabled' : ''}>▼</button>
-        <button class="icon-btn" data-action="phase-remove-p" data-id="${p.id}" data-phase="${x.id}" title="הסר שלב">${ICON.x}</button>
-      </div>
-    </div>`; }).join('') : '<div class="inline-note">אין שלבים בפרויקט הזה. הוסיפו מהתבנית או שלב מותאם.</div>'}</div>
-    <div class="add-row" style="flex-wrap:wrap">
-      ${selectHtml('ph-add-tpl-' + p.id, '', tplLeft.map((x) => ({ value: x.id, label: x.name })), { blank: tplLeft.length ? 'הוסף שלב מהתבנית…' : 'כל שלבי התבנית כבר בפרויקט', attrs: `data-phase-add-tpl="${p.id}" style="flex:1;min-width:160px" ${tplLeft.length ? '' : 'disabled'}` })}
-      <input type="text" id="ph-add-custom-${p.id}" placeholder="שלב מותאם לחוזה…" style="flex:1;min-width:160px">
-      <button class="btn small" data-action="phase-add-custom" data-id="${p.id}">הוסף</button>
-    </div>
-    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost small" data-action="phase-fit" data-id="${p.id}" ${fits ? 'disabled' : ''}>התאם לסוג ולחוזה</button><button class="btn ghost small" data-action="phase-reset" data-id="${p.id}">אפס לתבנית של הסוג</button></div>
-  </div>`;
-}
 /* contract milestones as a work list: status, due date, checklist and tasks per milestone. Names follow the contracts (DataWave sync / unified types).
    No money here — fees live in milestone_fees (managers only, for billing later). Status/checklist: every member; structure (add/rename/remove): team leads and up. */
 const MS_STATE = { todo: { label: 'טרם התחיל', icon: 'phTodo', next: 'active' }, active: { label: 'בתהליך', icon: 'phActive', next: 'done' }, done: { label: 'הושלם', icon: 'phDone', next: 'todo' } };
@@ -3084,60 +3106,98 @@ const milestonesOf = (pid) => Object.values(S.project_milestones).filter((m) => 
 const msTypeName = (m) => (m.typeId && S.milestone_types[m.typeId]?.name) || m.name;
 const msChecklist = (m) => (Array.isArray(m.checklist) ? m.checklist : []);
 const tasksOfMilestone = (mid) => TK().filter((t) => t.milestoneId === mid);
-function milestonesSection(p) {
+function milestoneRow(p, m, ro) {
+  const st = MS_STATE[m.state] || MS_STATE.todo;
+  const open = !!S.ui.msOpen[m.id];
+  const cl = msChecklist(m); const clDone = cl.filter((c) => c.done).length;
+  const tks = tasksOfMilestone(m.id); const tOpen = tks.filter(isOpenTask);
+  const due = m.dueDate ? dueInfo({ dueDate: m.dueDate, status: m.state === 'done' ? 'done' : 'todo' }) : { label: '', cls: '' };
+  const tname_ = msTypeName(m);
+  const ctx = [m.contract, m.section].filter((x, i, arr) => x && arr.indexOf(x) === i && !MS_CONTRACTS.slice(0, 1).includes(x)).join(' › ');
+  return `<div class="msr ${m.state} ${open ? 'open' : ''}" id="msr-${m.id}">
+    <div class="msr-head">
+      <button type="button" class="phase-state" data-action="ms-state" data-id="${m.id}" title="${st.label} — לחיצה משנה ל: ${MS_STATE[st.next].label}" ${ro ? 'disabled' : ''}>${ICON[st.icon]}</button>
+      <div class="msr-name" data-action="ms-toggle" data-id="${m.id}">${esc(tname_)}${tname_ !== m.name ? `<small title="הניסוח בחוזה">${esc(m.name)}</small>` : ''}${ctx ? `<small class="msr-ctx" title="חוזה / מקטע">${esc(ctx)}</small>` : ''}</div>
+      <div class="msr-meta">${tOpen.length ? `<span title="משימות פתוחות">${tOpen.length} משימות</span>` : ''}${cl.length ? `<span title="צ'קליסט">${clDone}/${cl.length} ✓</span>` : ''}${due.label ? `<span class="due ${due.cls}">${esc(due.label)}</span>` : ''}</div>
+      <button type="button" class="icon-btn msr-caret" data-action="ms-toggle" data-id="${m.id}" title="${open ? 'סגור' : 'פתח'}">${open ? '▴' : '▾'}</button>
+    </div>
+    ${open ? `<div class="msr-body">
+      <div class="field-row">
+        ${field('יעד לסיום', `<input type="date" id="msd-${m.id}" value="${dateInput(m.dueDate)}" data-bind="project_milestones:${m.id}:dueDate" ${ro ? 'disabled' : ''}>`)}
+        ${canEditMilestones() ? field('שם', `<input type="text" id="msn-${m.id}" value="${esc(S.ui.drafts['msn-' + m.id] ?? m.name)}" data-bind="project_milestones:${m.id}:name" ${m.source === 'datawave' ? 'title="שם שנשאב מהחוזה — שינוי כאן לא משנה את החוזה"' : ''}>`) : ''}
+      </div>
+      <div class="field"><label>צ'קליסט</label>
+        ${cl.length ? `<div class="progress"><div style="width:${Math.round((clDone / cl.length) * 100)}%"></div></div>` : ''}
+        <div class="checklist">${cl.map((c) => `<div class="check-row ${c.done ? 'done' : ''}"><label><input type="checkbox" ${c.done ? 'checked' : ''} data-mscheck="${m.id}:${c.id}" ${ro ? 'disabled' : ''}><span>${esc(c.text)}</span></label>${ro ? '' : `<button class="icon-btn" data-action="ms-check-remove" data-id="${m.id}" data-item="${c.id}" title="הסר">${ICON.x}</button>`}</div>`).join('')}</div>
+        ${ro ? '' : `<div class="add-row"><input type="text" id="mscheck-add-${m.id}" placeholder="פריט לבדיקה… (Enter)" data-mscheckadd="${m.id}"><button class="btn small" data-action="ms-check-add" data-id="${m.id}">${ICON.plus}</button></div>`}
+      </div>
+      <div class="field"><label>משימות באבן הדרך <small class="muted">${tks.length ? `${tOpen.length} פתוחות · ${tks.length - tOpen.length} בוצעו` : ''}</small></label>
+        ${tOpen.length ? sortTasks(tOpen).map((t) => taskItem(t, { hideProject: true })).join('') : '<div class="inline-note">אין משימות פתוחות.</div>'}
+        ${canWriteTasks() ? quickAdd('mstask-add-' + m.id, 'משימה חדשה באבן הדרך… (Enter)', `data-scope="milestone" data-project="${p.id}" data-milestone="${m.id}"`) : ''}
+      </div>
+      ${field('הערות', textArea('msnote-' + m.id, m.notes, `rows="2" data-bind="project_milestones:${m.id}:notes" ${ro ? 'disabled' : ''}`))}
+      ${canEditMilestones() ? `<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap">
+        ${selectHtml('msst-' + m.id, msStage(m) === STAGE_NONE ? '' : msStage(m), settings().phases.map((x) => ({ value: x.id, label: x.name })), { blank: 'ללא שלב', attrs: `data-msstage="${m.id}" style="max-width:200px" title="השלב של אבן הדרך"` })}
+        <button class="btn ghost small" data-action="ms-del" data-id="${m.id}">הסר אבן דרך</button></div>` : ''}
+    </div>` : ''}
+  </div>`;
+}
+/* one work milestone per stage of the project's type — the starting list for a project without a contract breakdown */
+function createTemplateMilestones(pid) {
+  const p = S.projects[pid]; if (!p) return;
+  const have = new Set(milestonesOf(pid).map(msStage));
+  let sortOrder = Math.max(0, ...milestonesOf(pid).map((m) => Number(m.sortOrder) || 0));
+  phasesForType(p.type).forEach((ph) => {
+    if (have.has(ph.id)) return;
+    const typeId = S.milestone_types['mt_tpl_' + ph.id] ? 'mt_tpl_' + ph.id : null;
+    createDoc('project_milestones', uid('ms'), { projectId: pid, contract: '', section: '', name: ph.name, phase: ph.id, state: 'todo', sortOrder: ++sortOrder, source: 'template', typeId, dueDate: null, notes: '', checklist: [], doneAt: null });
+  });
+}
+/* the project's journey: stages (from the type's template and the contract), each holding its work milestones; stage state is derived.
+   Nobody marks a stage — people mark milestones. A parent project shows its sub-projects' progress per stage and marks nothing itself. */
+function journeySection(p) {
   if (!isMember()) return '';
   if (!S.milestonesLoaded[p.id]) {
     if (!S.milestonesLoading[p.id]) { S.milestonesLoading[p.id] = true; fetchMilestones(p.id).then(() => { S.milestonesLoading[p.id] = false; if (S.ui.drawer?.kind === 'project' && S.ui.drawer.id === p.id) render(); }); }
-    return `<div class="section"><h3 class="section-title">אבני דרך לפי החוזה</h3><div class="inline-note">טוען…</div></div>`;
+    return `<div class="section" id="journey"><h3 class="section-title">מהלך הפרויקט</h3><div class="inline-note">טוען…</div></div>`;
   }
-  const ms = milestonesOf(p.id);
-  const done = ms.filter((m) => m.state === 'done').length;
-  const groups = [];
-  ms.forEach((m) => { const key = (m.contract || '') + '‖' + (m.section || ''); let g = groups.find((x) => x.key === key); if (!g) { g = { key, contract: m.contract || '', section: m.section || '', rows: [] }; groups.push(g); } g.rows.push(m); });
-  const groupLabel = (g) => esc([g.contract, g.section].filter((x, i, a) => x && a.indexOf(x) === i).join(' › '));
   const ro = !isMember();
-  const row = (m) => {
-    const st = MS_STATE[m.state] || MS_STATE.todo;
-    const open = !!S.ui.msOpen[m.id];
-    const cl = msChecklist(m); const clDone = cl.filter((c) => c.done).length;
-    const tks = tasksOfMilestone(m.id); const tOpen = tks.filter(isOpenTask);
-    const due = m.dueDate ? dueInfo({ dueDate: m.dueDate, status: m.state === 'done' ? 'done' : 'todo' }) : { label: '', cls: '' };
-    const tname_ = msTypeName(m);
-    return `<div class="msr ${m.state} ${open ? 'open' : ''}" id="msr-${m.id}">
-      <div class="msr-head">
-        <button type="button" class="phase-state" data-action="ms-state" data-id="${m.id}" title="${st.label} — לחיצה משנה ל: ${MS_STATE[st.next].label}" ${ro ? 'disabled' : ''}>${ICON[st.icon]}</button>
-        <div class="msr-name" data-action="ms-toggle" data-id="${m.id}">${esc(tname_)}${tname_ !== m.name ? `<small title="הניסוח בחוזה">${esc(m.name)}</small>` : ''}</div>
-        <div class="msr-meta">${tOpen.length ? `<span title="משימות פתוחות">${tOpen.length} משימות</span>` : ''}${cl.length ? `<span title="צ'קליסט">${clDone}/${cl.length} ✓</span>` : ''}${due.label ? `<span class="due ${due.cls}">${esc(due.label)}</span>` : ''}</div>
-        <button type="button" class="icon-btn msr-caret" data-action="ms-toggle" data-id="${m.id}" title="${open ? 'סגור' : 'פתח'}">${open ? '▴' : '▾'}</button>
+  const kids = childrenOf(p.id);
+  const all = milestonesOf(p.id);
+  const work = all.filter(msIsWork); const billing = all.filter((m) => !msIsWork(m));
+  const stages = projectStages(p);
+  const prog = phaseProgress(p);
+  const cur = stageOf(p);
+  const sections = [...new Set(all.map((m) => m.section).filter(Boolean))];
+  const canSplit = canWriteProjects() && !kids.length && sections.length > 1;
+  const stageBlock = (sg) => {
+    const rows = work.filter((m) => msStage(m) === sg.id).sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
+    const key = p.id + ':' + sg.id;
+    const open = S.ui.stgOpen[key] ?? (sg.state !== 'done');
+    const kidBits = kids.length ? kids.map((k) => { const q = (stageProgressOf(k)[sg.id]) || emptyProg(); return q.total ? `<button type="button" class="chip ${q.done === q.total ? 'green' : q.done || q.active ? 'accent' : 'dim'}" data-action="open-project" data-id="${k.id}" title="${esc(k.name)}">${esc(k.name)} ${q.done}/${q.total}</button>` : ''; }).join('') : '';
+    return `<div class="stg ${sg.state} ${sg.current ? 'current' : ''}">
+      <div class="stg-head" data-action="stg-toggle" data-key="${esc(key)}" data-open="${open ? 1 : 0}">
+        <span class="phase-state" aria-hidden="true">${ICON[PHASE_STATES[sg.state].icon]}</span>
+        <span class="stg-name">${esc(sg.name)}</span>
+        <span class="stg-count">${sg.total ? `${sg.done}/${sg.total}` : (kids.length ? '' : 'אין אבני דרך')}</span>
+        ${sg.current ? '<span class="chip accent" style="padding:1px 7px">נוכחי</span>' : ''}
+        <span class="stg-caret">${open ? '▴' : '▾'}</span>
       </div>
-      ${open ? `<div class="msr-body">
-        <div class="field-row">
-          ${field('יעד לסיום', `<input type="date" id="msd-${m.id}" value="${dateInput(m.dueDate)}" data-bind="project_milestones:${m.id}:dueDate" ${ro ? 'disabled' : ''}>`)}
-          ${canEditMilestones() ? field('שם (לפי החוזה)', `<input type="text" id="msn-${m.id}" value="${esc(S.ui.drafts['msn-' + m.id] ?? m.name)}" data-bind="project_milestones:${m.id}:name" ${m.source === 'manual' ? '' : 'title="שם שנשאב מהחוזה — שינוי כאן לא משנה את החוזה"'}>`) : ''}
-        </div>
-        <div class="field"><label>צ'קליסט</label>
-          ${cl.length ? `<div class="progress"><div style="width:${Math.round((clDone / cl.length) * 100)}%"></div></div>` : ''}
-          <div class="checklist">${cl.map((c) => `<div class="check-row ${c.done ? 'done' : ''}"><label><input type="checkbox" ${c.done ? 'checked' : ''} data-mscheck="${m.id}:${c.id}" ${ro ? 'disabled' : ''}><span>${esc(c.text)}</span></label>${ro ? '' : `<button class="icon-btn" data-action="ms-check-remove" data-id="${m.id}" data-item="${c.id}" title="הסר">${ICON.x}</button>`}</div>`).join('')}</div>
-          ${ro ? '' : `<div class="add-row"><input type="text" id="mscheck-add-${m.id}" placeholder="פריט לבדיקה… (Enter)" data-mscheckadd="${m.id}"><button class="btn small" data-action="ms-check-add" data-id="${m.id}">${ICON.plus}</button></div>`}
-        </div>
-        <div class="field"><label>משימות באבן הדרך <small class="muted">${tks.length ? `${tOpen.length} פתוחות · ${tks.length - tOpen.length} בוצעו` : ''}</small></label>
-          ${tOpen.length ? sortTasks(tOpen).map((t) => taskItem(t, { hideProject: true })).join('') : '<div class="inline-note">אין משימות פתוחות.</div>'}
-          ${canWriteTasks() ? quickAdd('mstask-add-' + m.id, 'משימה חדשה באבן הדרך… (Enter)', `data-scope="milestone" data-project="${p.id}" data-milestone="${m.id}"`) : ''}
-        </div>
-        ${field('הערות', textArea('msnote-' + m.id, m.notes, `rows="2" data-bind="project_milestones:${m.id}:notes" ${ro ? 'disabled' : ''}`))}
-        ${canEditMilestones() ? `<div style="display:flex;justify-content:flex-end"><button class="btn ghost small" data-action="ms-del" data-id="${m.id}">הסר אבן דרך</button></div>` : ''}
+      ${open ? `<div class="stg-body">
+        ${kidBits ? `<div class="chips-sub" style="margin-bottom:6px">${kidBits}</div>` : ''}
+        ${rows.map((m) => milestoneRow(p, m, ro)).join('')}
+        ${canEditMilestones() ? `<div class="add-row ms-add"><input type="text" id="ms-add-${p.id}-${sg.id}" placeholder="אבן דרך חדשה בשלב… (Enter)" data-msadd="${p.id}" data-stage="${sg.id}" list="dl-mstypes"><button class="btn small" data-action="ms-add" data-id="${p.id}" data-stage="${sg.id}">${ICON.plus}</button></div>` : ''}
       </div>` : ''}
     </div>`;
   };
-  return `<div class="section">
-    <h3 class="section-title">אבני דרך לפי החוזה <small>${ms.length ? `${done} מתוך ${ms.length} הושלמו` : ''}</small></h3>
-    ${ms.length ? `<div class="progress"><div style="width:${Math.round((done / ms.length) * 100)}%"></div></div>
-    <div class="ms-list">${groups.map((g) => `${groups.length > 1 ? `<div class="ms-group">${groupLabel(g)}</div>` : ''}${g.rows.map(row).join('')}`).join('')}</div>` : `<div class="inline-note">${canEditMilestones() ? 'אין עדיין אבני דרך לפרויקט. הוסיפו לפי החוזה:' : 'אין עדיין אבני דרך לפרויקט.'}</div>`}
-    ${canEditMilestones() ? `<div class="add-row" style="margin-top:10px;flex-wrap:wrap">
-      ${selectHtml('ms-add-kind-' + p.id, MS_CONTRACTS[0], MS_CONTRACTS.map((c) => ({ value: c, label: c })), { attrs: 'style="flex:0 0 auto"' })}
-      <input type="text" id="ms-add-name-${p.id}" placeholder="אבן דרך לפי החוזה… (Enter)" data-msadd="${p.id}" style="flex:1;min-width:160px" list="dl-mstypes">
-      <button class="btn small" data-action="ms-add" data-id="${p.id}">${ICON.plus} הוסף</button>
-    </div>` : ''}
+  return `<div class="section" id="journey">
+    <h3 class="section-title">מהלך הפרויקט <small>${prog.total ? `${prog.done} מתוך ${prog.total} אבני דרך הושלמו` : ''}</small></h3>
+    ${prog.total ? `<div class="progress"><div style="width:${Math.round((prog.done / prog.total) * 100)}%"></div></div>` : ''}
+    ${!work.length && !kids.length ? `<div class="inline-note" style="margin-bottom:8px">${canEditMilestones() ? `עדיין אין אבני דרך. <button class="btn small" data-action="ms-template" data-id="${p.id}">צור אבני דרך לפי הסוג${p.type ? ` (${esc(p.type)})` : ''}</button> או הוסיפו בכל שלב למטה.` : 'עדיין אין אבני דרך לפרויקט.'}</div>` : ''}
+    ${canSplit ? `<div class="inline-note fit-note">החוזה מחולק ל-${sections.length} מקטעים (${esc(sections.slice(0, 4).join(', '))}${sections.length > 4 ? '…' : ''}). <button type="button" class="btn small" data-action="split-sections" data-id="${p.id}">פצל לתת-פרויקטים</button></div>` : ''}
+    <div class="stg-list">${stages.map(stageBlock).join('')}</div>
+    ${billing.length && isManager() ? `<div class="inline-note" style="margin-top:8px">${billing.length} אבני דרך לחיוב בלבד (מקדמות, תשלומים) מוסתרות מרשימת העבודה. ${S.ui.showBilling[p.id] ? `<button type="button" class="btn ghost small" data-action="toggle-billing" data-id="${p.id}">הסתר</button><div class="muted" style="margin-top:4px">${billing.map((m) => esc(msTypeName(m))).join(' · ')}</div>` : `<button type="button" class="btn ghost small" data-action="toggle-billing" data-id="${p.id}">הצג</button>`}</div>` : ''}
+    ${cur === STAGE_DONE && !kids.length ? '<div class="inline-note" style="margin-top:8px">כל אבני הדרך הושלמו. אם הפרויקט ממשיך (למשל פיקוח), הוסיפו אבן דרך בשלב המתאים.</div>' : ''}
   </div>`;
 }
 /* sub-projects: a project can sit under a parent (e.g. a floor of a building) */
@@ -3479,13 +3539,6 @@ function menuFor(kind, id, anchor) {
   } else if (kind === 'lead') {
     const p = S.projects[id];
     openMenu(anchor, { search: true, placeholder: 'חיפוש עובד…', items: [{ label: 'ללא מוביל', value: '', selected: !p.leadId }, ...employees().map((e) => ({ label: e.name, sub: tname(e.teamId, ''), value: e.id, selected: p.leadId === e.id }))], onPick: (it) => patchDoc('projects', id, { leadId: it.value || null }) });
-  } else if (kind === 'phase') {
-    const p = S.projects[id];
-    const ph = projectPhases(p);
-    openMenu(anchor, {
-      items: [...ph.map((x) => ({ label: x.name, value: x.id, icon: `<span class="chip ${x.state === 'active' ? 'accent' : x.state === 'done' ? 'green' : 'dim'}" style="padding:1px 6px">${ICON[PHASE_STATES[x.state].icon]}</span>`, sub: PHASE_STATES[x.state].label, selected: x.state === 'active' })), { label: 'ללא שלב פעיל', value: '', selected: !activePhases(p).length }],
-      onPick: (it) => advanceToPhase(id, it.value),
-    });
   } else if (kind === 'health') {
     const p = S.projects[id];
     openMenu(anchor, { items: [...Object.entries(HEALTH).map(([k, h]) => ({ label: h.label, value: k, icon: `<span class="chip ${h.cls}" style="padding:2px 6px">${h.icon}</span>`, selected: p.health === k })), { label: 'ללא רמזור', value: '', selected: !p.health }], onPick: (it) => patchDoc('projects', id, { health: it.value || null }) });
@@ -3498,14 +3551,6 @@ function menuFor(kind, id, anchor) {
       patchDoc('commissions', id, patch);
     } });
   }
-}
-function setPhases(pid, phases) { return patchDoc('projects', pid, { phases }); }
-function advanceToPhase(pid, phaseId) {
-  const p = S.projects[pid]; const ph = projectPhases(p).map((x) => Object.assign({}, x));
-  if (!phaseId) { ph.forEach((x) => { if (x.state === 'active') x.state = 'todo'; }); return setPhases(pid, ph); }
-  const idx = ph.findIndex((x) => x.id === phaseId);
-  ph.forEach((x, i) => { x.state = i < idx ? 'done' : i === idx ? 'active' : 'todo'; });
-  return setPhases(pid, ph);
 }
 async function assignEmployeeToTeam(cid, teamId) {
   await patchDoc('contacts', cid, { teamId: teamId || null });
@@ -3567,8 +3612,8 @@ function bindHandler(el) {
   delete S.ui.drafts[el.id];
   if (key === 'name' && !String(v).trim()) { render(); return; }
   patchDoc(col, id, { [key]: v });
-  // a project's phases follow its type as long as nobody has started marking them
-  if (col === 'projects' && key === 'type') { const p = S.projects[id]; if (p && phasesUntouched(p)) { const fit = fitPhases(p); if (!samePhaseIds(fit, projectPhases(p))) patchDoc('projects', id, { phases: fit }); } }
+  // a project that has no milestones yet gets one per stage of the type it is given
+  if (col === 'projects' && key === 'type' && v) { const p = S.projects[id]; if (p && S.milestonesLoaded[id] && !milestonesOf(id).some(msIsWork) && canEditMilestones()) createTemplateMilestones(id); }
 }
 document.addEventListener('input', (e) => {
   const el = e.target;
@@ -3580,7 +3625,7 @@ document.addEventListener('input', (e) => {
   if (el.id === 'tf-q') { S.ui.tfilter.q = el.value; render(); return; }
   if (el.dataset.comment) { S.ui.drafts[el.id] = el.value; mentionTyping(el); return; }
   if (el.id === 'import-text') { S.ui.importState.text = el.value; return; }
-  if ((el.dataset.bind || el.dataset.pphase) && (el.tagName === 'TEXTAREA' || el.type === 'text')) S.ui.drafts[el.id] = el.value;
+  if (el.dataset.bind && (el.tagName === 'TEXTAREA' || el.type === 'text')) S.ui.drafts[el.id] = el.value;
   if (el.id === 'p-statusNote') { S.ui.drafts[el.id] = el.value; const b = document.querySelector('[data-action="update-status"]'); if (b) b.textContent = 'שמור ועדכן סטטוס'; }
 });
 document.addEventListener('change', (e) => {
@@ -3597,8 +3642,7 @@ document.addEventListener('change', (e) => {
   if (el.dataset.check) { const [tid, cid] = el.dataset.check.split(':'); const t = S.tasks[tid]; if (!t || !canWriteTasks()) return; patchDoc('tasks', tid, { checklist: checklistOf(t).map((c) => c.id === cid ? Object.assign({}, c, { done: el.checked }) : c) }); return; }
   if (el.dataset.action === 'toggle-person') { const p = S.projects[el.dataset.id]; if (!p || !canWriteProjects()) { render(); return; } const cur = p.clientPersonIds || []; patchDoc('projects', p.id, { clientPersonIds: el.checked ? [...new Set([...cur, el.dataset.person])] : cur.filter((x) => x !== el.dataset.person) }); return; }
   // settings
-  if (el.dataset.pphase) { const [pid, phid] = el.dataset.pphase.split(':'); const name = el.value.trim(); delete S.ui.drafts[el.id]; if (!name) { render(); return; } setPhases(pid, projectPhases(S.projects[pid]).map((x) => x.id === phid ? Object.assign({}, x, { name }) : x)); return; }
-  if (el.dataset.phaseAddTpl) { const pid = el.dataset.phaseAddTpl; const tpl = settings().phases.find((x) => x.id === el.value); if (!tpl) return; const ph = projectPhases(S.projects[pid]); setPhases(pid, [...ph, { id: ph.some((x) => x.id === tpl.id) ? uid('ph') : tpl.id, name: tpl.name, weight: tpl.weight, state: 'todo' }]); return; }
+  if (el.dataset.msstage) { const m = S.project_milestones[el.dataset.msstage]; if (!m || !canEditMilestones()) return; const t = m.typeId ? S.milestone_types[m.typeId] : null; const stage = el.value || null; if (t && t.phase !== stage) patchDoc('project_milestones', m.id, { phase: stage, typeId: null }); else patchDoc('project_milestones', m.id, { phase: stage }); return; }
   if (el.dataset.setList) { const key = el.dataset.setList; const i = Number(el.dataset.index); renameListValue(key, settings()[key][i], el.value.trim()); return; }
   if (el.dataset.teamName) { const v = el.value.trim(); if (v) patchDoc('teams', el.dataset.teamName, { name: v }); return; }
   if (el.dataset.teamLead) { const tid = el.dataset.teamLead; const lead = el.value || null; patchDoc('teams', tid, { leadId: lead }); if (lead && S.contacts[lead] && S.contacts[lead].teamId !== tid) patchDoc('contacts', lead, { teamId: tid }); return; }
@@ -3628,14 +3672,13 @@ document.addEventListener('keydown', (e) => {
     if (el.dataset.comment && S.ui.menu?.mention) { e.preventDefault(); const first = document.querySelector('#menu .menu-item'); if (first) first.click(); return; }
     if (el.dataset.comment && (e.ctrlKey || e.metaKey)) { e.preventDefault(); sendComment(el.dataset.comment); return; }
     if (el.dataset.quick) { e.preventDefault(); document.querySelector(`[data-action="task-quick-add"][data-input="${el.id}"]`)?.click(); return; }
-    if (el.dataset.msadd) { e.preventDefault(); document.querySelector(`[data-action="ms-add"][data-id="${el.dataset.msadd}"]`)?.click(); return; }
+    if (el.dataset.msadd) { e.preventDefault(); document.querySelector(`[data-action="ms-add"][data-id="${el.dataset.msadd}"][data-stage="${el.dataset.stage || ''}"]`)?.click(); return; }
     if (el.dataset.mscheckadd) { e.preventDefault(); document.querySelector(`[data-action="ms-check-add"][data-id="${el.dataset.mscheckadd}"]`)?.click(); return; }
     if (el.id?.startsWith('check-add-')) { e.preventDefault(); document.querySelector(`[data-action="check-add"][data-id="${el.id.slice(10)}"]`)?.click(); return; }
     if (el.id === 'add-team') { document.querySelector('[data-action="add-team"]')?.click(); return; }
     if (el.id === 'add-phase') { document.querySelector('[data-action="add-phase"]')?.click(); return; }
-    if (el.id?.startsWith('ph-add-custom-')) { document.querySelector(`[data-action="phase-add-custom"][data-id="${el.id.slice(14)}"]`)?.click(); return; }
+    
     if (el.id?.startsWith('add-')) { document.querySelector(`[data-action="set-list-add"][data-list="${el.id.slice(4)}"]`)?.click(); return; }
-    if (el.tagName === 'INPUT' && el.dataset.pphase) el.blur();
     if (el.tagName === 'INPUT' && el.dataset.bind) el.blur();
   }
   if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('.chip[role="button"]')) { e.preventDefault(); e.target.click(); }
@@ -3671,15 +3714,31 @@ document.addEventListener('click', async (e) => {
     // ----- milestones (manual) & sub-projects -----
     case 'ms-add': {
       if (!canEditMilestones()) { toast('הוספת אבני דרך שמורה לראשי צוותים ומנהלים'); break; }
-      const nameEl = document.getElementById('ms-add-name-' + ds.id); const kind = document.getElementById('ms-add-kind-' + ds.id)?.value || MS_CONTRACTS[0];
+      const stage = ds.stage || '';
+      const nameEl = document.getElementById(`ms-add-${ds.id}-${stage}`);
       const name = (nameEl?.value || '').trim(); if (!name) { nameEl?.focus(); break; }
-      const type = list('milestone_types').find((t) => norm(t.name) === norm(name) || (t.aliases || []).some((a) => norm(a) === norm(name)));
+      const type = list('milestone_types').find((t) => (norm(t.name) === norm(name) || (t.aliases || []).some((a) => norm(a) === norm(name))) && (!t.phase || t.phase === stage || !stage));
       const sortOrder = Math.max(0, ...milestonesOf(ds.id).map((m) => Number(m.sortOrder) || 0)) + 1;
       nameEl.value = '';
       const id = uid('ms');
-      await createDoc('project_milestones', id, { projectId: ds.id, contract: kind, section: '', name, phase: type?.phase || null, state: 'todo', sortOrder, source: 'manual', typeId: type?.id || null, dueDate: null, notes: '', checklist: [], doneAt: null });
-      S.ui.msOpen[id] = true; render();
-      setTimeout(() => document.getElementById('ms-add-name-' + ds.id)?.focus(), 30); break;
+      await createDoc('project_milestones', id, { projectId: ds.id, contract: '', section: '', name, phase: stage || null, state: 'todo', sortOrder, source: 'manual', typeId: type?.id || null, dueDate: null, notes: '', checklist: [], doneAt: null });
+      setTimeout(() => document.getElementById(`ms-add-${ds.id}-${stage}`)?.focus(), 30); break;
+    }
+    case 'ms-template': { if (!canEditMilestones()) break; createTemplateMilestones(ds.id); break; }
+    case 'stg-toggle': { S.ui.stgOpen[ds.key] = ds.open !== '1'; render(); break; }
+    case 'toggle-billing': S.ui.showBilling[ds.id] = !S.ui.showBilling[ds.id]; render(); break;
+    case 'goto-journey': { if (S.ui.drawer?.kind !== 'project') openDrawer('project', ds.id); setTimeout(() => document.getElementById('journey')?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 60); break; }
+    case 'split-sections': {
+      if (!canWriteProjects()) { toast('אין לך הרשאת עריכה'); break; }
+      const par = S.projects[ds.id]; if (!par) break;
+      const secs = [...new Set(milestonesOf(par.id).map((m) => m.section).filter(Boolean))];
+      secs.forEach((sec, i) => {
+        const id = uid('p'); const n = childrenOf(par.id).length + 1;
+        createDoc('projects', id, { name: sec, number: par.number ? `${par.number}.${n}` : '', parentId: par.id, clientId: par.clientId || null, clientPersonIds: par.clientPersonIds || [], teamId: par.teamId || null, leadId: par.leadId || null, memberIds: par.memberIds || [], pmId: par.pmId || null, contractorIds: [], consultantIds: [], supplierIds: [], partnerIds: [], type: par.type || '', typeDetail: par.typeDetail || '', address: par.address || '', city: par.city || '', clientContactName: '', clientContactPhone: '', state: par.state, phases: null, health: null, statusNote: '', statusUpdatedAt: null, size: par.size || 'm', startDate: par.startDate || todayStr(), dueDate: par.dueDate || null, notes: '', needsReview: false, internal: false, sortIndex: (par.sortIndex || 0) + n });
+        milestonesOf(par.id).filter((m) => m.section === sec).forEach((m) => patchDoc('project_milestones', m.id, { projectId: id }));
+        S.milestonesLoaded[id] = true;
+      });
+      toast(`${secs.length} תת-פרויקטים נוצרו — לחצו "שמור" כדי לאשר`); break;
     }
     case 'ms-state': { e.stopPropagation(); const m = S.project_milestones[ds.id]; if (!m || !isMember()) break; const next = MS_STATE[m.state]?.next || 'active'; patchDoc('project_milestones', ds.id, { state: next, doneAt: next === 'done' ? nowIso() : null }); break; }
     case 'ms-toggle': { e.stopPropagation(); S.ui.msOpen[ds.id] = !S.ui.msOpen[ds.id]; render(); break; }
@@ -3692,6 +3751,7 @@ document.addEventListener('click', async (e) => {
       const n = childrenOf(par.id).length + 1;
       const id = uid('p');
       await createDoc('projects', id, { name: `${par.name} — חלק ${n}`, number: par.number ? `${par.number}.${n}` : '', parentId: par.id, clientId: par.clientId || null, clientPersonIds: par.clientPersonIds || [], teamId: par.teamId || null, leadId: par.leadId || null, memberIds: par.memberIds || [], pmId: par.pmId || null, contractorIds: [], consultantIds: [], supplierIds: [], partnerIds: [], type: par.type || '', typeDetail: par.typeDetail || '', address: par.address || '', city: par.city || '', clientContactName: '', clientContactPhone: '', state: 'active', phases: null, health: null, statusNote: '', statusUpdatedAt: null, size: par.size || 'm', startDate: todayStr(), dueDate: null, notes: '', needsReview: false, internal: false, sortIndex: (par.sortIndex || 0) + n });
+      S.milestonesLoaded[id] = true; if (canEditMilestones()) createTemplateMilestones(id);
       openDrawer('project', id); setTimeout(() => { const i = document.getElementById('p-name'); if (i) { i.focus(); i.select(); } }, 40); break;
     }
     // ----- tasks -----
@@ -3742,12 +3802,6 @@ document.addEventListener('click', async (e) => {
     case 'close-drawer': closeDrawer(); break;
     case 'menu': e.stopPropagation(); menuFor(ds.menu, ds.id, t); break;
     case 'set-health': patchDoc('projects', ds.id, { health: ds.value || null }); break;
-    case 'phase-cycle': { const ph = projectPhases(S.projects[ds.id]).map((x) => x.id === ds.phase ? Object.assign({}, x, { state: PHASE_STATES[x.state].next }) : x); setPhases(ds.id, ph); break; }
-    case 'phase-move-p': { const ph = [...projectPhases(S.projects[ds.id])]; const i = ph.findIndex((x) => x.id === ds.phase); const j = i + Number(ds.dir); if (i < 0 || j < 0 || j >= ph.length) break; [ph[i], ph[j]] = [ph[j], ph[i]]; setPhases(ds.id, ph); break; }
-    case 'phase-remove-p': setPhases(ds.id, projectPhases(S.projects[ds.id]).filter((x) => x.id !== ds.phase)); break;
-    case 'phase-add-custom': { const i = document.getElementById('ph-add-custom-' + ds.id); const name = i?.value.trim(); if (!name) break; setPhases(ds.id, [...projectPhases(S.projects[ds.id]), { id: uid('ph'), name, weight: 1, state: 'todo' }]); break; }
-    case 'phase-reset': { const p = S.projects[ds.id]; if (!p) break; setPhases(ds.id, phasesForType(p.type).map((x) => ({ id: x.id, name: x.name, weight: x.weight, state: 'todo' }))); toast('השלבים אופסו לתבנית של הסוג'); break; }
-    case 'phase-fit': { const p = S.projects[ds.id]; if (!p) break; const fit = fitPhases(p); if (samePhaseIds(fit, projectPhases(p))) { toast('השלבים כבר תואמים'); break; } setPhases(ds.id, fit); toast('השלבים הותאמו לסוג ולחוזה — לחצו "שמור"'); break; }
     case 'team-add-member': { e.stopPropagation(); openMenu(t, { search: true, placeholder: 'חיפוש עובד/ת…', emptyText: 'אין עובדים נוספים', items: employees().filter((c) => c.teamId !== ds.id).map((c) => ({ label: c.name, sub: c.teamId ? tname(c.teamId) : (c.role || 'ללא צוות'), value: c.id })), onPick: (it) => assignEmployeeToTeam(it.value, ds.id) }); break; }
     case 'team-remove-member': patchDoc('contacts', ds.id, { teamId: null }); break;
     case 'update-status': {
