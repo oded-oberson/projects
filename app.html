@@ -396,24 +396,85 @@
   .phase-row.done .phase-state { border-color: var(--good); color: var(--good); background: var(--good-soft); }
   .phase-row.done input { color: var(--ink-3); text-decoration: line-through; }
   .phase-status-label { font-size: 12.5px; color: var(--ink-3); white-space: nowrap; min-width: 62px; }
-  /* ---------- the project journey: stages holding milestones ---------- */
+  /* ---------- the project journey: a stepper + stages holding milestones ----------
+     stage colours: done ✓ green · in work yellow · late red · stuck orange · not started grey */
+  :root { --stg-done: var(--go); --stg-active: #f2c230; --stg-active-ink: #5d4300; --stg-late: #d3302f; --stg-stuck: #ef8a2a; --stg-todo: #d9d9d9; }
+  .stepper { display: flex; align-items: flex-start; margin: 2px 0 6px; padding: 8px 0 4px; overflow: hidden; }
+  .step { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; position: relative; text-align: center; }
+  .step::before { content: ""; position: absolute; top: 15px; inset-inline-start: 50%; width: 100%; height: 2px; background: var(--stg-todo); z-index: 0; }
+  .step:last-child::before { display: none; }
+  .step.done::before { background: var(--stg-done); }
+  .step-dot { position: relative; z-index: 1; width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--stg-todo); background: var(--surface); color: var(--ink-3); font: 500 12.5px/1 var(--font-num); display: inline-flex; align-items: center; justify-content: center; padding: 0; cursor: default; transition: transform .12s ease, box-shadow .12s ease; }
+  .step-dot svg { width: 16px; height: 16px; }
+  .stepper.editable .step-dot { cursor: pointer; }
+  .stepper.editable .step-dot:hover { transform: scale(1.08); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .step.done .step-dot { background: var(--stg-done); border-color: var(--stg-done); color: #fff; }
+  .step.active .step-dot { background: var(--stg-active); border-color: var(--stg-active); color: var(--stg-active-ink); box-shadow: 0 0 0 4px rgba(242, 194, 48, .28); }
+  .step.late .step-dot { background: var(--stg-late); border-color: var(--stg-late); color: #fff; box-shadow: 0 0 0 4px rgba(211, 48, 47, .22); font-weight: 700; }
+  .step.stuck .step-dot { background: var(--stg-stuck); border-color: var(--stg-stuck); color: #fff; box-shadow: 0 0 0 4px rgba(239, 138, 42, .25); }
+  .step-label { font-size: 12px; line-height: 1.2; color: var(--ink-3); max-width: 100%; padding: 0 3px; overflow-wrap: anywhere; }
+  .step.current .step-label { color: var(--ink); font-weight: 600; }
+  .step.done .step-label { color: var(--ink-2); }
+  .step-sub { font-size: 11px; line-height: 1.2; color: var(--ink-3); padding: 0 3px; }
+  .step.late .step-sub { color: var(--stg-late); font-weight: 600; }
+  .step.stuck .step-sub { color: #a85b12; font-weight: 600; }
+  .stage-confirm { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 10px; margin-bottom: 8px; border: 1px solid var(--warn); background: var(--warn-soft); font-size: 13px; }
+  @media (max-width: 720px) {
+    .step-dot { width: 26px; height: 26px; font-size: 11.5px; }
+    .step::before { top: 13px; }
+    .step-label { font-size: 10.5px; }
+    .step-sub { display: none; }
+  }
+  /* the stage list */
   .stg-list { display: grid; gap: 6px; }
   .stg { border: 1px solid var(--line); background: var(--surface); }
   .stg.current { border-color: var(--ink); }
   .stg-head { display: flex; align-items: center; gap: 10px; padding: 8px 10px; cursor: pointer; user-select: none; }
   .stg-head:hover { background: var(--surface-2); }
-  .stg-head .phase-state { cursor: default; }
-  .stg.done .stg-head .phase-state { border-color: var(--good); color: var(--good); background: var(--good-soft); }
-  .stg.active .stg-head .phase-state, .stg.current .stg-head .phase-state { border-color: var(--ink); color: var(--ink); }
+  .stg-dot { flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--stg-todo); background: var(--surface); color: var(--ink-3); font: 500 11.5px/1 var(--font-num); display: inline-flex; align-items: center; justify-content: center; }
+  .stg-dot svg { width: 14px; height: 14px; }
+  .stg-dot.done { background: var(--stg-done); border-color: var(--stg-done); color: #fff; }
+  .stg-dot.active { background: var(--stg-active); border-color: var(--stg-active); color: var(--stg-active-ink); }
+  .stg-dot.late { background: var(--stg-late); border-color: var(--stg-late); color: #fff; font-weight: 700; }
+  .stg-dot.stuck { background: var(--stg-stuck); border-color: var(--stg-stuck); color: #fff; }
   .stg-name { font-weight: 500; flex: 1; min-width: 0; }
   .stg.done .stg-name { color: var(--ink-3); }
-  .stg-count { font-family: var(--font-num); font-variant-numeric: tabular-nums; color: var(--ink-3); font-size: 13px; white-space: nowrap; }
+  .stg-meta { display: inline-flex; gap: 10px; font-family: var(--font-num); font-variant-numeric: tabular-nums; color: var(--ink-3); font-size: 12.5px; white-space: nowrap; }
+  .stg-meta .late { color: var(--stg-late); font-weight: 600; }
+  .stg-meta .stuck { color: #a85b12; font-weight: 600; }
   .stg-caret { color: var(--ink-3); font-size: 12px; }
-  .stg-body { padding: 4px 10px 10px; border-top: 1px dashed var(--line); }
+  .stg-body { padding: 8px 10px 10px; border-top: 1px dashed var(--line); }
   .stg-body .msr { border-inline-start: 0; }
+  .stg-tools { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .stg-tools .field { margin: 0; }
+  .stg-tools input[type=date] { height: 32px; font-size: 13px; }
+  .stg-foot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
   .stg-body .ms-add { margin-top: 6px; }
   .stg-body .ms-add input { flex: 1; min-width: 120px; }
+  .stg-empty { font-size: 12.5px; color: var(--ink-3); padding: 2px 0 4px; }
   .msr-ctx { display: block; font-size: 11.5px; color: var(--ink-3); }
+  /* stage list editor (team leads and up) */
+  .stage-editor { border: 1px dashed var(--line-2); padding: 10px; margin-bottom: 10px; background: var(--surface-2); }
+  .stage-editor .se-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 4px 0; }
+  .stage-editor .se-row .se-btns { display: inline-flex; gap: 2px; }
+  .stage-editor .se-row .icon-btn { width: 26px; height: 26px; }
+  .stage-editor .se-row input { height: 30px; font-size: 13.5px; }
+  .stage-editor .se-add { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+  .stage-editor .se-add select, .stage-editor .se-add input { height: 32px; font-size: 13px; }
+  .mini-steps { display: inline-flex; gap: 3px; margin-inline-start: 8px; vertical-align: middle; }
+  .mini-steps i { width: 7px; height: 7px; border-radius: 50%; background: var(--stg-todo); display: inline-block; }
+  .mini-steps i.done { background: var(--stg-done); }
+  .mini-steps i.active { background: var(--stg-active); }
+  .mini-steps i.late { background: var(--stg-late); }
+  .mini-steps i.stuck { background: var(--stg-stuck); }
+  .stage-cell { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+  .stage-cell .mini-steps { margin-inline-start: 6px; }
+  .icon-btn:disabled { opacity: .3; cursor: default; }
+  .stage-editor .se-add select { flex: 1 1 160px; max-width: 240px; width: auto; }
+  .stage-editor .se-add input { flex: 1 1 140px; max-width: 220px; width: auto; }
+  .chip.stg-active { background: var(--stg-active); color: var(--stg-active-ink); border-color: var(--stg-active); }
+  .chip.stg-late { background: var(--stg-late); color: #fff; border-color: var(--stg-late); }
+  .chip.stg-stuck { background: var(--stg-stuck); color: #fff; border-color: var(--stg-stuck); }
   .ph-why { font-size: 11.5px; color: var(--ink-3); }
   .ph-why.warn { color: var(--warn-ink); }
   .ph-why.dim { color: var(--ink-3); opacity: .8; }
@@ -733,6 +794,9 @@ const ICON = {
   phActive: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 1 0 14z" fill="currentColor" stroke="none"/></svg>',
   phDone: '<svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="8"/><path d="M6.5 10.2l2.3 2.3 4.7-4.8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   star: '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2.5l2.3 4.9 5.3.7-3.9 3.7.9 5.3L10 14.5l-4.6 2.6.9-5.3L2.4 8.1l5.3-.7z"/></svg>',
+  check: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 10.5l3.6 3.5L15.5 6"/></svg>',
+  up: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5-5 5 5"/></svg>',
+  down: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l5 5 5-5"/></svg>',
 };
 const PHASE_STATES = { todo: { label: 'טרם התחיל', icon: 'phTodo', next: 'active' }, active: { label: 'בתהליך', icon: 'phActive', next: 'done' }, done: { label: 'הושלם', icon: 'phDone', next: 'todo' } };
 
@@ -839,12 +903,15 @@ function phaseIdsForType(type) {
 const phasesForType = (type) => { const ids = phaseIdsForType(type); return settings().phases.filter((x) => ids.includes(x.id)); };
 const stageDefs = () => settings().phases;
 const stageDef = (id) => stageDefs().find((x) => x.id === id) || null;
-const stageName = (id) => (id === STAGE_NONE ? 'ללא שלב' : (stageDef(id)?.name || id || ''));
+const isCustomStage = (id) => /^cs_/.test(id || '');
+const stageName = (id, p) => (id === STAGE_NONE ? 'ללא שלב' : ((p && Array.isArray(p.stages) && p.stages.find((s) => s.id === id)?.name) || stageDef(id)?.name || id || ''));
 const stageOrderIndex = (id) => { const i = stageDefs().findIndex((x) => x.id === id); return i >= 0 ? i : (id === STAGE_NONE ? 999 : 500); };
 const emptyProg = () => ({ done: 0, active: 0, total: 0 });
 /* the milestone's stage: the unified type's stage, else the milestone's own */
 const msStage = (m) => (m.typeId && S.milestone_types[m.typeId]?.phase) || m.phase || STAGE_NONE;
 const msIsWork = (m) => ((m.typeId && S.milestone_types[m.typeId]?.kind) || 'work') === 'work';
+/* the stage's own milestone: the row that carries the stage's state and target date (source template/stage); never listed as a work item */
+const msIsStageRow = (m) => m.source === 'template' || m.source === 'stage';
 /* progress per stage from loaded milestones (exact) — used inside the project card */
 function progressFromMilestones(pid) {
   const prog = {}; const all = emptyProg();
@@ -855,16 +922,37 @@ function progressFromMilestones(pid) {
   });
   prog._ = all; return prog;
 }
+/* the project's stage list, in order: its own list (settings for this project) or the type's template, plus stages its milestones use */
+const ownStageIds = (p) => (Array.isArray(p.stages) && p.stages.length ? p.stages.map((s) => s.id) : phaseIdsForType(p.type));
+function stageList(p, prog) {
+  const own = ownStageIds(p);
+  const pr = prog || stageProgressOf(p);
+  const extra = Object.keys(pr).filter((k) => k !== '_' && k !== STAGE_NONE && pr[k].total > 0 && !own.includes(k)).sort((a, b) => stageOrderIndex(a) - stageOrderIndex(b) || a.localeCompare(b));
+  return mergeStages(own, extra);
+}
+/* stages used by milestones but missing from the list: template stages slot in at their template position, the rest go to the end
+   (the same rule as recompute_project_stage in the database) */
+function mergeStages(base, extra) {
+  const ord = [...base]; const tplIdx = (id) => stageDefs().findIndex((x) => x.id === id);
+  extra.forEach((e) => {
+    const ti = tplIdx(e);
+    if (ti < 0) { ord.push(e); return; }
+    let at = 0;
+    ord.forEach((id, i) => { const k = tplIdx(id); if (k >= 0 && k < ti) at = i + 1; });
+    ord.splice(at, 0, e);
+  });
+  return ord;
+}
 /* the rule (same as recompute_project_stage in the database): the last stage where work has started; if it is complete → the next stage that
    has milestones; nothing started → the first stage with milestones; everything done → '__done'; no work milestones → null */
-function deriveStage(prog) {
+function deriveStage(prog, ord) {
   const all = prog._ || emptyProg();
   if (!all.total) return null;
   if (all.done === all.total) return STAGE_DONE;
-  const ids = Object.keys(prog).filter((k) => k !== '_').sort((a, b) => stageOrderIndex(a) - stageOrderIndex(b));
+  const ids = ord.filter((id) => id !== STAGE_NONE);
   let lastProg = -1, lpFull = false, firstWith = -1, firstOpen = -1;
   ids.forEach((id, i) => {
-    const q = prog[id]; if (id === STAGE_NONE || !q.total) return;
+    const q = prog[id]; if (!q || !q.total) return;
     if (firstWith < 0) firstWith = i;
     if (q.done < q.total && firstOpen < 0) firstOpen = i;
     if (q.done > 0 || q.active > 0) { lastProg = i; lpFull = q.done === q.total; }
@@ -872,7 +960,7 @@ function deriveStage(prog) {
   let i = -1;
   if (lastProg < 0) i = firstWith;
   else if (!lpFull) i = lastProg;
-  else { i = ids.findIndex((id, k) => k > lastProg && id !== STAGE_NONE && prog[id].total > 0); if (i < 0) i = firstOpen; }
+  else { i = ids.findIndex((id, k) => k > lastProg && prog[id]?.total > 0); if (i < 0) i = firstOpen; }
   return i >= 0 ? ids[i] : (prog[STAGE_NONE]?.total ? STAGE_NONE : null);
 }
 /* progress per stage as the lists see it: the server-kept value, plus the sub-projects' for a parent; the open card uses the loaded milestones */
@@ -886,24 +974,98 @@ function stageProgressOf(p) {
   if (!acc._) acc._ = emptyProg();
   return acc;
 }
-const stageOf = (p) => (childrenOf(p.id).length || S.milestonesLoaded[p.id] ? deriveStage(stageProgressOf(p)) : (p.stage || null));
-const currentStage = (p) => { const id = stageOf(p); return id && id !== STAGE_DONE ? (stageDef(id) || { id, name: stageName(id), weight: settings().unknownPhaseWeight ?? 1 }) : null; };
+const stageOf = (p) => { if (childrenOf(p.id).length || S.milestonesLoaded[p.id]) { const pr = stageProgressOf(p); return deriveStage(pr, stageList(p, pr)); } return p.stage || null; };
+const currentStage = (p) => { const id = stageOf(p); return id && id !== STAGE_DONE && id !== STAGE_NONE ? (stageDef(id) || { id, name: stageName(id, p), weight: settings().unknownPhaseWeight ?? 1 }) : null; };
 const activePhases = (p) => { const s = currentStage(p); return s ? [s] : []; };
 const allPhasesDone = (p) => stageOf(p) === STAGE_DONE;
-const phaseLabel = (p) => { const s = currentStage(p); if (s) return s.name; return allPhasesDone(p) ? 'כל אבני הדרך הושלמו' : 'אין אבני דרך'; };
+const phaseLabel = (p) => { const s = currentStage(p); if (s) return s.name; return allPhasesDone(p) ? 'הפרויקט הושלם' : 'טרם התחיל'; };
 const hasActivePhaseNamed = (p, name) => currentStage(p)?.name === name;
 const phaseProgress = (p) => { const t = stageProgressOf(p)._ || emptyProg(); return { done: t.done, total: t.total }; };
-/* the stages a project shows: its type's template stages ∪ the stages its milestones use, in template order; each with derived state and counts */
+/* stage health colours: done ✓ green · active yellow · late red (target date passed) · stuck orange (no movement for staleDays) · todo grey */
+const STAGE_STATES = {
+  done: { label: 'הושלם', cls: 'done' }, active: { label: 'בעבודה', cls: 'active' }, late: { label: 'באיחור', cls: 'late' },
+  stuck: { label: 'תקוע', cls: 'stuck' }, todo: { label: 'טרם התחיל', cls: 'todo' },
+};
+/* the stage rows of a project, in its order, each with its derived state, counts, target date and last movement. Stages before the current
+   one count as passed (✓) even without milestones; a parent project aggregates its sub-projects. */
 function projectStages(p) {
-  const prog = stageProgressOf(p); const cur = stageOf(p);
-  const ids = [...new Set([...phaseIdsForType(p.type), ...Object.keys(prog).filter((k) => k !== '_' && prog[k].total > 0)])].sort((a, b) => stageOrderIndex(a) - stageOrderIndex(b));
-  return ids.map((id) => {
+  const prog = stageProgressOf(p); const ord = stageList(p, prog); const cur = deriveStage(prog, ord);
+  const loaded = !!S.milestonesLoaded[p.id];
+  const ms = loaded ? milestonesOf(p.id).filter(msIsWork) : [];
+  const ci = cur === STAGE_DONE ? ord.length : ord.indexOf(cur);
+  const today = todayStr(); const staleDays = settings().staleDays || 14;
+  return ord.map((id, i) => {
     const q = prog[id] || emptyProg();
-    const state = q.total && q.done === q.total ? 'done' : (id === cur || q.done > 0 || q.active > 0) ? 'active' : 'todo';
-    return { id, name: stageName(id), weight: stageDef(id)?.weight ?? 1, state, done: q.done, total: q.total, active: q.active, current: id === cur };
+    const rows = ms.filter((m) => msStage(m) === id);
+    const stageRow = rows.find(msIsStageRow) || null;
+    const real = rows.filter((m) => !msIsStageRow(m));
+    let state;
+    if (i < ci) state = 'done';
+    else if (i > ci || ci < 0) state = (q.total && q.done === q.total) ? 'done' : 'todo';
+    else state = 'active';
+    const target = (loaded ? stageRow?.dueDate : q.target) || null;
+    let lastChange = null;
+    if (state === 'active') {
+      const stamps = [p.statusUpdatedAt, q.last, ...rows.map((m) => m.updatedAt), ...rows.map((m) => m.doneAt), ...TK().filter((t) => t.milestoneId && rows.some((m) => m.id === t.milestoneId)).map((t) => t.updatedAt)].filter(Boolean).sort();
+      lastChange = stamps.length ? stamps[stamps.length - 1] : null;
+      if (target && target < today) state = 'late';
+      else { const d = daysSince(lastChange); if (d != null && d > staleDays) state = 'stuck'; }
+    }
+    return { id, name: stageName(id, p), weight: stageDef(id)?.weight ?? 1, state, current: i === ci, index: i, done: q.done, total: q.total, active: q.active,
+      realDone: real.filter((m) => m.state === 'done').length, realTotal: real.length, real, stageRow, target, lastChange, custom: isCustomStage(id) };
   });
 }
 const projectPhases = (p) => projectStages(p);
+/* the current stage row (or null) — the lists colour it by its state */
+const currentStageRow = (p) => projectStages(p).find((x) => x.current) || null;
+const stageStateLabel = (sg) => { if (!sg) return ''; const d = sg.lastChange ? daysSince(sg.lastChange) : null; return sg.state === 'late' ? `באיחור — יעד ${fmtDate(sg.target)}` : sg.state === 'stuck' ? `תקוע — ללא תנועה ${d} ימים` : sg.target ? `יעד ${fmtDate(sg.target)}` : STAGE_STATES[sg.state]?.label || ''; };
+/* the journey in one glance: a dot per stage (done · current by its colour · not started) */
+function miniStepper(p) {
+  const st = projectStages(p); if (!st.length) return '';
+  return `<span class="mini-steps" aria-hidden="true">${st.map((sg) => `<i class="${sg.state}" title="${esc(sg.name)}"></i>`).join('')}</span>`;
+}
+function stageChip(p) {
+  const cur = currentStageRow(p);
+  const label = cur ? cur.name : phaseLabel(p);
+  const cls = cur ? { active: 'stg-active', late: 'stg-late', stuck: 'stg-stuck' }[cur.state] || '' : (allPhasesDone(p) ? 'green' : 'dim');
+  return `<span class="stage-cell">${menuChip(label, `data-action="goto-journey" data-id="${p.id}" title="${esc(cur ? stageStateLabel(cur) : '')} — לחיצה פותחת את מהלך הפרויקט"`, cls)}${miniStepper(p)}</span>`;
+}
+/* the stage's own milestone, created on demand (state carried on the stage row itself) */
+function ensureStageRow(p, id, state = 'todo') {
+  const rows = milestonesOf(p.id).filter((m) => msIsWork(m) && msStage(m) === id);
+  const have = rows.find(msIsStageRow);
+  if (have) return have;
+  const mid = uid('ms');
+  const sortOrder = Math.max(0, ...milestonesOf(p.id).map((m) => Number(m.sortOrder) || 0)) + 1;
+  createDoc('project_milestones', mid, { projectId: p.id, contract: '', section: '', name: stageName(id, p), phase: id, state, sortOrder, source: 'stage', typeId: S.milestone_types['mt_tpl_' + id] ? 'mt_tpl_' + id : null, dueDate: null, notes: '', checklist: [], doneAt: state === 'done' ? nowIso() : null });
+  return S.project_milestones[mid];
+}
+/* "we are here": stages before become done, the chosen one active (its own row), later ones back to not started */
+function setCurrentStage(p, id) {
+  const ord = stageList(p); const target = ord.indexOf(id); if (target < 0) return;
+  const rows = milestonesOf(p.id).filter(msIsWork);
+  batchEdits(() => ord.forEach((sid, i) => {
+    const mine = rows.filter((m) => msStage(m) === sid);
+    if (i < target) { mine.forEach((m) => { if (m.state !== 'done') patchDoc('project_milestones', m.id, { state: 'done', doneAt: nowIso() }); }); }
+    else if (i === target) {
+      const own = ensureStageRow(p, sid, 'active');
+      if (own.state !== 'active') patchDoc('project_milestones', own.id, { state: 'active', doneAt: null });
+    } else { mine.forEach((m) => { if (m.state !== 'todo') patchDoc('project_milestones', m.id, { state: 'todo', doneAt: null }); }); }
+  }));
+}
+/* the current stage is finished: everything in it done; the next stage (if any) becomes current */
+function finishStage(p, id) {
+  const ord = stageList(p); const i = ord.indexOf(id); if (i < 0) return;
+  const next = ord.slice(i + 1).find((x) => x !== STAGE_NONE);
+  if (next) { setCurrentStage(p, next); return; }
+  batchEdits(() => { milestonesOf(p.id).filter((m) => msIsWork(m) && msStage(m) === id && m.state !== 'done').forEach((m) => patchDoc('project_milestones', m.id, { state: 'done', doneAt: nowIso() })); ensureStageRow(p, id, 'done'); });
+}
+/* a new project / sub-project starts its journey at the first stage */
+function startJourney(pid) {
+  const p = S.projects[pid]; if (!p) return;
+  if (milestonesOf(pid).some(msIsWork)) return;
+  const first = stageList(p)[0]; if (first) ensureStageRow(p, first, 'active');
+}
 const buildPhaseName = () => settings().phases.find((x) => x.id === 'build')?.name || 'ביצוע';
 const sizeOf = (id) => settings().sizes.find((s) => s.id === id) || null;
 const employees = () => C().filter((c) => c.type === 'employee' && c.active !== false).sort(byName);
@@ -1010,7 +1172,11 @@ function nav(view) {
 }
 
 /* ===================== render root ===================== */
+/* several edits in one go (e.g. moving a project to a stage touches many milestones) → one render at the end */
+let renderHold = 0;
+function batchEdits(fn) { renderHold++; try { fn(); } finally { renderHold--; } if (!renderHold) render(); }
 function render() {
+  if (renderHold > 0) return;
   const focus = saveFocus();
   const page = document.getElementById('page');
   const signedIn = S.auth.status === 'ready';
@@ -1042,10 +1208,13 @@ function renderUserBox() {
 /* every render rebuilds the page and the drawer from scratch — keep the person's place: the drawer's scroll position (as long as it is the
    same drawer), the page scroll, and the focused field with its caret */
 const drawerKey = () => (S.ui.drawer ? S.ui.drawer.kind + ':' + S.ui.drawer.id : null);
+/* controls the person is in the middle of using (a quick-add box, a kind select) are not in the state; keep what they typed across a re-render */
+const ctlDefault = (el) => (el.tagName === 'SELECT' ? ([...el.options].find((o) => o.defaultSelected) || el.options[0])?.value ?? '' : (el.defaultValue ?? ''));
 function saveFocus() {
   const el = document.activeElement;
   const body = document.querySelector('.drawer-body');
-  const f = { id: el && el.id && el !== document.body ? el.id : null, start: el?.selectionStart, end: el?.selectionEnd, scroll: body ? body.scrollTop : null, drawer: drawerKey(), page: window.scrollY };
+  const f = { id: el && el.id && el !== document.body ? el.id : null, start: el?.selectionStart, end: el?.selectionEnd, scroll: body ? body.scrollTop : null, drawer: document.querySelector('.drawer')?.dataset.key || null, page: window.scrollY, values: {} };
+  document.querySelectorAll('input[id], textarea[id], select[id]').forEach((c) => { if (c.type === 'checkbox' || c.type === 'radio' || c.type === 'file' || c.type === 'password') return; if (c.value !== ctlDefault(c)) f.values[c.id] = c.value; });
   return f;
 }
 function restoreFocus(f) {
@@ -1053,6 +1222,7 @@ function restoreFocus(f) {
   const body = document.querySelector('.drawer-body');
   if (body && f.scroll != null && f.drawer === drawerKey()) body.scrollTop = f.scroll;
   if (f.page != null && f.page > 0 && Math.abs(window.scrollY - f.page) > 1) window.scrollTo({ top: f.page });
+  Object.entries(f.values || {}).forEach(([id, v]) => { const c = document.getElementById(id); if (c && c.value === ctlDefault(c) && c.value !== v) { try { c.value = v; } catch (e) { /* not settable */ } } });
   if (!f.id) return;
   const el = document.getElementById(f.id);
   if (!el) return;
@@ -1069,7 +1239,8 @@ function renderSync() {
   if (S.dbState === 'connecting') t = 'מתחבר…';
   else if (S.dbState === 'error') { cls += ' err'; t = 'שגיאת חיבור'; }
   else if (S.ui.saving > 0) { cls += ' saving'; t = 'שומר…'; }
-  else if (hasPending()) { cls += ' pending'; t = 'לא נשמר'; }
+  else if (hasPending() && S.ui.autoSaveFailed) { cls += ' pending'; t = 'לא נשמר'; }
+  else if (hasPending()) { cls += ' saving'; t = 'שומר…'; }
   else if (S.ui.savedFlash) { cls += ' on'; t = 'נשמר'; }
   else { cls += ' on'; t = 'מסונכרן'; }
   dot.className = cls; txt.textContent = t;
@@ -1137,6 +1308,8 @@ function renderOverview() {
   const inBuild = act.filter((p) => hasActivePhaseNamed(p, buildPhaseName()));
   const openComm = K().filter((k) => k.status !== 'paid');
   const openSum = sum(openComm, (k) => k.amount);
+  const stageRows = act.map((p) => currentStageRow(p));
+  const lateStage = act.filter((p, i) => stageRows[i]?.state === 'late'), stuckStage = act.filter((p, i) => stageRows[i]?.state === 'stuck');
   const noPhase = act.filter((p) => !activePhases(p).length && !allPhasesDone(p)), noTeam = act.filter((p) => !p.teamId), noLead = act.filter((p) => !p.leadId), review = act.filter((p) => p.needsReview);
 
   // phase distribution
@@ -1145,9 +1318,9 @@ function renderOverview() {
   const tplNames = st.phases.map((x) => x.name);
   const phaseNames = [...tplNames, ...Object.keys(phaseCounts).filter((n) => !tplNames.includes(n)).sort((a, b) => phaseCounts[b] - phaseCounts[a])];
   const phaseRows = phaseNames.map((n) => ({ label: n, value: phaseCounts[n] || 0, click: { action: 'goto-projects', attrs: `data-phase="${esc(n)}"` } }));
-  phaseRows.push({ label: 'ללא אבני דרך', value: noPhase.length, cls: 'muted', click: { action: 'goto-projects', attrs: 'data-flag="noPhase"' } });
+  phaseRows.push({ label: 'טרם התחילו', value: noPhase.length, cls: 'muted', click: { action: 'goto-projects', attrs: 'data-flag="noPhase"' } });
   const doneAll = act.filter(allPhasesDone).length;
-  if (doneAll) phaseRows.push({ label: 'כל אבני הדרך הושלמו', value: doneAll, cls: 'good', click: { action: 'goto-projects', attrs: 'data-phase="__done"' } });
+  if (doneAll) phaseRows.push({ label: 'הושלמו', value: doneAll, cls: 'good', click: { action: 'goto-projects', attrs: 'data-phase="__done"' } });
 
   // health distribution
   const healthRows = [
@@ -1205,6 +1378,7 @@ function renderOverview() {
     ${tile('המשימות שלי', myOpenTasks().length, myOpenTasks().filter(isOverdue).length ? `${myOpenTasks().filter(isOverdue).length} באיחור` : (myOpenTasks().filter((t) => dueInfo(t).key === 'today').length ? `${myOpenTasks().filter((t) => dueInfo(t).key === 'today').length} להיום` : 'אין באיחור'), { cls: myOpenTasks().some(isOverdue) ? 'warn' : '', click: { action: 'goto-tasks', attrs: 'data-tab="mine"' } })}
     ${isManager() ? tile('משימות באיחור במשרד', TK().filter(isOverdue).length, `${TK().filter(isOpenTask).length} פתוחות בסך הכול`, { cls: TK().some(isOverdue) ? 'crit' : '', click: { action: 'goto-tasks', attrs: 'data-tab="all"' } }) : ''}
     ${tile('ללא עדכון סטטוס', stale.length, never.length === stale.length ? 'לא עודכנו אף פעם' : `מעל ${st.staleDays} ימים · ${never.length} אף פעם`, { cls: stale.length ? 'warn' : '', click: { action: 'goto-projects', attrs: 'data-flag="stale"' } })}
+    ${tile('שלבים באיחור', lateStage.length, `${stuckStage.length} תקועים ללא תנועה`, { cls: lateStage.length ? 'crit' : (stuckStage.length ? 'warn' : ''), click: { action: 'goto-projects', attrs: lateStage.length ? 'data-flag="late"' : 'data-flag="stuck"' } })}
     ${isManager() ? tile('עמלות פתוחות', fmtMoney(openSum) || '0 ₪', `${openComm.length} שורות · ${K().filter((k) => k.status === 'paid').length} שולמו`, { click: { action: 'nav', attrs: 'data-view="commissions"' } }) : ''}
     ${tile('לקוחות פעילים', Object.keys(clientMap).length, `${C().filter((c) => c.type === 'supplier').length} ספקים · ${C().filter((c) => c.type === 'contractor').length} קבלנים במאגר`, { click: { action: 'nav', attrs: 'data-view="contacts"' } })}
   </div>
@@ -1213,7 +1387,7 @@ function renderOverview() {
   <div class="panel" style="margin-bottom:14px">
     <div class="panel-head"><h2 class="panel-title">השלמת נתונים</h2><span class="panel-sub">לחיצה פותחת את הרשימה המסוננת</span></div>
     <div class="todo-grid">
-      <button type="button" class="todo-card ${noPhase.length ? '' : 'done'}" data-action="goto-projects" data-flag="noPhase"><strong>${noPhase.length}</strong><span>ללא אבני דרך</span></button>
+      <button type="button" class="todo-card ${noPhase.length ? '' : 'done'}" data-action="goto-projects" data-flag="noPhase"><strong>${noPhase.length}</strong><span>ללא שלב נוכחי</span></button>
       <button type="button" class="todo-card ${noTeam.length ? '' : 'done'}" data-action="goto-projects" data-flag="noTeam"><strong>${noTeam.length}</strong><span>ללא צוות</span></button>
       <button type="button" class="todo-card ${noLead.length ? '' : 'done'}" data-action="goto-projects" data-flag="noLead"><strong>${noLead.length}</strong><span>ללא מוביל פרויקט</span></button>
       <button type="button" class="todo-card ${review.length ? '' : 'done'}" data-action="goto-projects" data-flag="review"><strong>${review.length}</strong><span>ממתינים לאימות פרטים</span></button>
@@ -1280,6 +1454,7 @@ function visibleProjects() {
     if (f.flag === 'noLead' && p.leadId) return false;
     if (f.flag === 'review' && !p.needsReview) return false;
     if (f.flag === 'stale' && !isStale(p)) return false;
+    if ((f.flag === 'late' || f.flag === 'stuck') && currentStageRow(p)?.state !== f.flag) return false;
     if (q) {
       const hay = norm([p.name, p.number, p.city, p.address, p.type, p.typeDetail, cname(p.clientId, ''), cname(p.leadId, ''), tname(p.teamId, ''), p.statusNote].join(' '));
       if (!hay.includes(q)) return false;
@@ -1306,7 +1481,7 @@ function renderProjects() {
   const ps = visibleProjects();
   const emp = employees();
   const th = (key, label, cls = '') => `<th class="sortable ${cls}" data-action="sort" data-key="${key}">${label}${S.ui.sort.key === key ? `<span class="arrow">${S.ui.sort.dir > 0 ? '▲' : '▼'}</span>` : ''}</th>`;
-  const flagLabel = { noPhase: 'ללא שלב', noTeam: 'ללא צוות', noLead: 'ללא מוביל', review: 'ממתינים לאימות', stale: 'ללא עדכון סטטוס' }[f.flag];
+  const flagLabel = { noPhase: 'טרם התחילו', noTeam: 'ללא צוות', noLead: 'ללא מוביל', review: 'ממתינים לאימות', stale: 'ללא עדכון סטטוס', late: 'שלב באיחור', stuck: 'שלב תקוע' }[f.flag];
   return `
   <div class="view-head">
     <div><h1 class="view-title">פרויקטים</h1><div class="view-sub">${canWriteProjects() ? 'לחיצה על שורה פותחת את כרטיס הפרויקט. לחיצה על צוות, מוביל, שלב או רמזור מעדכנת ישירות.' : 'לחיצה על שורה פותחת את כרטיס הפרויקט (צפייה בלבד).'}</div></div>
@@ -1340,7 +1515,7 @@ function projectRow(p) {
     <td>${esc(cname(p.clientId, ''))}</td>
     <td>${menuChip(tname(p.teamId), `data-action="menu" data-menu="team" data-id="${p.id}"`, p.teamId ? '' : 'dim')}</td>
     <td>${menuChip(cname(p.leadId, 'ללא מוביל'), `data-action="menu" data-menu="lead" data-id="${p.id}"`, p.leadId ? '' : 'dim')}</td>
-    <td>${(() => { const pr = phaseProgress(p); return menuChip(phaseLabel(p) + (pr.total ? ` · ${pr.done}/${pr.total}` : ''), `data-action="goto-journey" data-id="${p.id}" title="מחושב מאבני הדרך — לחיצה פותחת את מהלך הפרויקט"`, activePhases(p).length ? 'accent' : allPhasesDone(p) ? 'green' : 'dim'); })()}</td>
+    <td>${stageChip(p)}</td>
     <td>${healthChip(p.health, { cls: 'btn-chip', attrs: `data-action="menu" data-menu="health" data-id="${p.id}" role="button" tabindex="0"` })}</td>
     <td><div class="cell-note" title="${esc(p.statusNote)}">${esc(p.statusNote || '')}</div><div class="cell-sub ${stale ? (d == null ? 'never' : 'stale') : ''}">${d == null ? 'לא עודכן אף פעם' : (d === 0 ? 'היום' : `לפני ${d} ימים`)}</div></td>
     <td class="num muted">${fmtDate(p.startDate)}</td>
@@ -1887,7 +2062,14 @@ function snapshot(col, id) {
   const cur = col === 'settings' ? S.settings : S[col][id];
   S.pending.snaps[k] = cur ? JSON.parse(JSON.stringify(cur)) : null;
 }
-function stage(op) { op.drawer = S.ui.drawer ? (S.ui.drawer.kind + ':' + S.ui.drawer.id) : null; S.pending.ops.push(op); }
+/* edits save themselves: every change is staged and written a moment later (one write per row). Only when a write fails does the
+   "not saved" bar appear, with save-again / discard. Irreversible actions (delete, merge, split) ask first instead. */
+let autoCommitTimer = null;
+function scheduleAutoCommit(delay = 450) {
+  clearTimeout(autoCommitTimer);
+  autoCommitTimer = setTimeout(async () => { if (!hasPending() || S.ui.committing || S.ui.autoSaveFailed) return; const ok = await commitPending(); if (ok && hasPending()) scheduleAutoCommit(150); }, delay);
+}
+function stage(op) { op.drawer = S.ui.drawer ? (S.ui.drawer.kind + ':' + S.ui.drawer.id) : null; S.pending.ops.push(op); scheduleAutoCommit(); }
 function patchDoc(col, id, patch) {
   const doc = S[col][id]; if (!doc) return Promise.resolve(false);
   snapshot(col, id);
@@ -1955,11 +2137,13 @@ async function commitPending() {
     } catch (e) { console.error(e); toast('השמירה נכשלה: ' + friendlyError(e)); ok = false; break; }
   }
   S.ui.committing = false; S.ui.saving--;
-  if (ok) { S.ui.drafts = {}; flashSaved(); if (S.ui.confirmClose) { S.ui.confirmClose = false; closeDrawer(true); return ok; } }
+  S.ui.autoSaveFailed = !ok;
+  if (ok) { flashSaved(); if (S.ui.confirmClose) { S.ui.confirmClose = false; closeDrawer(true); return ok; } renderSync(); renderPendingBar(); const bar = document.querySelector('.drawer-save'); if (bar) bar.remove(); return ok; }
   render();
   return ok;
 }
 function discardPending() {
+  S.ui.autoSaveFailed = false;
   const keys = [];
   S.pending.ops.forEach((o) => { const k = pendingKey(o.col, o.id); if (!keys.includes(k)) keys.push(k); });
   keys.reverse().forEach((k) => {
@@ -1982,13 +2166,13 @@ function applyPendingTo(col) {
 }
 function renderPendingBar() {
   let el = document.getElementById('savebar');
-  const show = hasPending() && !S.ui.drawer && S.auth.status === 'ready';
+  const show = hasPending() && S.ui.autoSaveFailed && !S.ui.drawer && S.auth.status === 'ready';
   if (!show) { if (el) el.remove(); return; }
   if (!el) { el = document.createElement('div'); el.id = 'savebar'; el.className = 'savebar'; document.body.appendChild(el); }
   const n = pendingCount();
-  el.innerHTML = `<span>${n === 1 ? 'שינוי אחד לא נשמר' : n + ' שינויים לא נשמרו'}</span><button class="btn primary small" data-action="pending-save" ${S.ui.committing ? 'disabled' : ''}>${S.ui.committing ? 'שומר…' : 'שמור'}</button><button class="btn small" data-action="pending-discard" ${S.ui.committing ? 'disabled' : ''}>בטל</button>`;
+  el.innerHTML = `<span>${n === 1 ? 'שינוי אחד לא נשמר' : n + ' שינויים לא נשמרו'}</span><button class="btn primary small" data-action="pending-save" ${S.ui.committing ? 'disabled' : ''}>${S.ui.committing ? 'שומר…' : 'שמור שוב'}</button><button class="btn small" data-action="pending-discard" ${S.ui.committing ? 'disabled' : ''}>בטל</button>`;
 }
-window.addEventListener('beforeunload', (e) => { if (hasPending()) { e.preventDefault(); e.returnValue = ''; } });
+window.addEventListener('beforeunload', (e) => { if (hasPending() && (S.ui.autoSaveFailed || S.ui.committing)) { e.preventDefault(); e.returnValue = ''; } });
 
 /* ===================== auth ===================== */
 async function refreshProfile() {
@@ -2130,7 +2314,7 @@ ICON.check = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-
 ICON.flag = '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 2.5h1.5v15H4zM6.5 3h9l-2.2 3.5 2.2 3.5h-9z"/></svg>';
 
 S.tasks = {}; S.taskComments = {}; S.notifications = [];
-Object.assign(S.ui, { msOpen: {}, stgOpen: {}, showBilling: {}, ttab: 'mine', tproject: '', tfilter: { q: '', assignee: '', project: '', status: '', priority: '', done: false }, bell: false, mentions: {}, mentionMenu: null });
+Object.assign(S.ui, { msOpen: {}, stgOpen: {}, showBilling: {}, msAddOpen: {}, stageEdit: {}, stageConfirm: null, ttab: 'mine', tproject: '', tfilter: { q: '', assignee: '', project: '', status: '', priority: '', done: false }, bell: false, mentions: {}, mentionMenu: null });
 
 const isMember = () => ['owner', 'manager', 'team_lead', 'staff'].includes(myRole());
 const canWriteTasks = () => isMember();
@@ -2899,7 +3083,7 @@ async function fieldAction(a, ds, t, e) {
     }
     case 'open-visit': { openDrawer('visit', ds.id); if (ds.item) setTimeout(() => document.getElementById('vi-' + ds.item)?.scrollIntoView({ block: 'center' }), 60); return true; }
     case 'visit-status': { if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } patchDoc('site_visits', ds.id, { status: ds.value, finalizedAt: ds.value === 'final' ? nowIso() : null }); if (ds.value === 'final') toast('הדוח סומן כסופי'); return true; }
-    case 'delete-visit': { const v = S.site_visits[ds.id]; if (!v) return true; const its = itemsOf(ds.id), fls = filesOf({ visitId: ds.id }); fls.forEach((f) => deleteDoc('files', f.id)); its.forEach((it) => deleteDoc('visit_items', it.id)); await deleteDoc('site_visits', ds.id); closeDrawer(true); toast('נמחק — לחצו "שמור" כדי לאשר'); return true; }
+    case 'delete-visit': { const v = S.site_visits[ds.id]; if (!v) return true; const its = itemsOf(ds.id), fls = filesOf({ visitId: ds.id }); fls.forEach((f) => deleteDoc('files', f.id)); its.forEach((it) => deleteDoc('visit_items', it.id)); await deleteDoc('site_visits', ds.id); closeDrawer(true); toast('הביקור נמחק'); return true; }
     case 'vi-add': {
       if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; }
       const inp = document.getElementById('vi-add-' + ds.id); const body = (inp?.value || '').trim(); const kind = document.getElementById('vi-kind-' + ds.id)?.value;
@@ -2919,7 +3103,7 @@ async function fieldAction(a, ds, t, e) {
     case 'report-print': window.print(); return true;
     case 'rec-start': if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } await startRecording(ds.id); return true;
     case 'rec-stop': stopRecording(); return true;
-    case 'transcribe': { if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } if (hasPending()) { toast('שמרו את השינויים לפני התמלול'); return true; } await transcribeFile(ds.id, 'start'); return true; }
+    case 'transcribe': { if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } if (hasPending()) { const ok = await commitPending(); if (!ok) { toast('השמירה נכשלה — נסו שוב'); return true; } } await transcribeFile(ds.id, 'start'); return true; }
     case 'report-pdf': await makeReportPdf(ds.id); return true;
     default: return false;
   }
@@ -2943,8 +3127,8 @@ function renderOverlay() {
   let html = '';
   if (d) {
     const body = d.kind === 'project' ? drawerProject(d.id) : d.kind === 'contact' ? drawerContact(d.id) : d.kind === 'import' ? drawerImport() : d.kind === 'task' ? drawerTask(d.id) : d.kind === 'visit' ? drawerVisit(d.id) : drawerCommission(d.id);
-    const pend = hasPending() ? `<div class="drawer-save"><span>${pendingCount() === 1 ? 'שינוי אחד לא נשמר' : pendingCount() + ' שינויים לא נשמרו'}</span><button class="btn primary small" data-action="pending-save" ${S.ui.committing ? 'disabled' : ''}>${S.ui.committing ? 'שומר…' : 'שמור'}</button><button class="btn small" data-action="pending-discard" ${S.ui.committing ? 'disabled' : ''}>בטל</button></div>` : '';
-    html += `<div class="scrim" data-action="close-drawer"></div><aside class="drawer" role="dialog" aria-modal="true">${body}${pend}</aside>`;
+    const pend = hasPending() && S.ui.autoSaveFailed ? `<div class="drawer-save"><span>${pendingCount() === 1 ? 'שינוי אחד לא נשמר' : pendingCount() + ' שינויים לא נשמרו'} — אין חיבור?</span><button class="btn primary small" data-action="pending-save" ${S.ui.committing ? 'disabled' : ''}>${S.ui.committing ? 'שומר…' : 'שמור שוב'}</button><button class="btn small" data-action="pending-discard" ${S.ui.committing ? 'disabled' : ''}>בטל</button></div>` : '';
+    html += `<div class="scrim" data-action="close-drawer"></div><aside class="drawer" role="dialog" aria-modal="true" data-key="${esc(drawerKey())}">${body}${pend}</aside>`;
   }
   if (S.ui.confirmMergeTypes) { const m = S.ui.confirmMergeTypes; const f = S.milestone_types[m.from], t = S.milestone_types[m.into]; html += `<div class="scrim" style="z-index:45" data-action="mt-merge-cancel"></div><div class="modal"><h3 style="margin:0 0 8px">איחוד סוגי אבני דרך</h3><p>${Number(f?.usage) || 0} אבני דרך מהסוג <strong>${esc(f?.name || '')}</strong> יעברו לסוג <strong>${esc(t?.name || '')}</strong>, והכינויים יאוחדו. הפעולה נשמרת מיד.</p><div style="display:flex;gap:8px"><button class="btn primary" data-action="mt-merge-confirm">אחד</button><button class="btn" data-action="mt-merge-cancel">בטל</button></div></div>`; }
   if (S.ui.confirmClose) html += `<div class="scrim" style="z-index:45" data-action="close-keep"></div><div class="modal"><h3 style="margin:0 0 8px">שינויים שלא נשמרו</h3><p>יש ${pendingCount() === 1 ? 'שינוי אחד' : pendingCount() + ' שינויים'} שעדיין לא נשמרו. מה לעשות?</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-action="close-save">שמור וסגור</button><button class="btn" data-action="close-discard">בטל את השינויים</button><button class="btn ghost" data-action="close-keep">המשך עריכה</button></div></div>`;
@@ -2955,7 +3139,8 @@ function renderOverlay() {
 }
 function openDrawer(kind, id) { S.ui.menu = null; S.ui.confirm = null; S.ui.drawer = { kind, id }; render(); }
 function closeDrawer(force) {
-  if (!force && drawerHasPending()) { S.ui.confirmClose = true; S.ui.menu = null; render(); return; }
+  if (!force && drawerHasPending() && S.ui.autoSaveFailed) { S.ui.confirmClose = true; S.ui.menu = null; render(); return; }
+  if (!force && drawerHasPending() && !S.ui.committing) scheduleAutoCommit(0); // the pending edits save in the background
   S.ui.drawer = null; S.ui.menu = null; S.ui.confirm = null; S.ui.confirmClose = false; S.ui.drafts = {}; render();
 }
 
@@ -3014,12 +3199,13 @@ function drawerProject(id) {
     <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
   </div>
   <div class="drawer-body">
+    ${journeyStrip(p)}
     <div class="section">
       <div class="status-box">
         <div class="field-row" style="margin-bottom:10px">
           ${field('מצב', selectHtml('p-state', p.state, Object.entries(STATES).map(([value, label]) => ({ value, label })), { attrs: `data-bind="projects:${p.id}:state"` }))}
           ${field('גודל', selectHtml('p-size', p.size || 'm', st.sizes.map((x) => ({ value: x.id, label: x.name })), { attrs: `data-bind="projects:${p.id}:size"` }))}
-          ${field('שלב נוכחי', `<div style="padding-top:5px">${menuChip(phaseLabel(p), `data-action="goto-journey" data-id="${p.id}"`, activePhases(p).length ? 'accent' : allPhasesDone(p) ? 'green' : 'dim')}</div>`, 'מחושב מאבני הדרך')}
+          ${field('שלב נוכחי', `<div style="padding-top:5px">${(() => { const c = S.milestonesLoaded[p.id] ? currentStageRow(p) : null; return menuChip(c ? c.name : phaseLabel(p), `data-action="goto-journey" data-id="${p.id}"`, c ? ({ active: 'stg-active', late: 'stg-late', stuck: 'stg-stuck' }[c.state] || '') : (allPhasesDone(p) ? 'green' : 'dim')); })()}</div>`, 'לחיצה: לשלבים ואבני הדרך')}
         </div>
         <div class="field"><label>רמזור</label>
           <div class="health-picker">${Object.entries(HEALTH).map(([k, h]) => `<span class="chip ${h.cls} ${p.health === k ? 'on' : ''}" data-action="set-health" data-id="${p.id}" data-value="${k}" role="button" tabindex="0">${h.icon}${h.label}</span>`).join('')}
@@ -3114,14 +3300,16 @@ function milestoneRow(p, m, ro) {
   const due = m.dueDate ? dueInfo({ dueDate: m.dueDate, status: m.state === 'done' ? 'done' : 'todo' }) : { label: '', cls: '' };
   const tname_ = msTypeName(m);
   const ctx = [m.contract, m.section].filter((x, i, arr) => x && arr.indexOf(x) === i && !MS_CONTRACTS.slice(0, 1).includes(x)).join(' › ');
+  const hint = [tname_ !== m.name ? `בחוזה: ${m.name}` : '', ctx].filter(Boolean).join(' · ');
   return `<div class="msr ${m.state} ${open ? 'open' : ''}" id="msr-${m.id}">
     <div class="msr-head">
       <button type="button" class="phase-state" data-action="ms-state" data-id="${m.id}" title="${st.label} — לחיצה משנה ל: ${MS_STATE[st.next].label}" ${ro ? 'disabled' : ''}>${ICON[st.icon]}</button>
-      <div class="msr-name" data-action="ms-toggle" data-id="${m.id}">${esc(tname_)}${tname_ !== m.name ? `<small title="הניסוח בחוזה">${esc(m.name)}</small>` : ''}${ctx ? `<small class="msr-ctx" title="חוזה / מקטע">${esc(ctx)}</small>` : ''}</div>
+      <div class="msr-name" data-action="ms-toggle" data-id="${m.id}" ${hint ? `title="${esc(hint)}"` : ''}>${esc(tname_)}</div>
       <div class="msr-meta">${tOpen.length ? `<span title="משימות פתוחות">${tOpen.length} משימות</span>` : ''}${cl.length ? `<span title="צ'קליסט">${clDone}/${cl.length} ✓</span>` : ''}${due.label ? `<span class="due ${due.cls}">${esc(due.label)}</span>` : ''}</div>
       <button type="button" class="icon-btn msr-caret" data-action="ms-toggle" data-id="${m.id}" title="${open ? 'סגור' : 'פתח'}">${open ? '▴' : '▾'}</button>
     </div>
     ${open ? `<div class="msr-body">
+      ${hint ? `<div class="inline-note" style="margin-bottom:8px">${esc(hint)}</div>` : ''}
       <div class="field-row">
         ${field('יעד לסיום', `<input type="date" id="msd-${m.id}" value="${dateInput(m.dueDate)}" data-bind="project_milestones:${m.id}:dueDate" ${ro ? 'disabled' : ''}>`)}
         ${canEditMilestones() ? field('שם', `<input type="text" id="msn-${m.id}" value="${esc(S.ui.drafts['msn-' + m.id] ?? m.name)}" data-bind="project_milestones:${m.id}:name" ${m.source === 'datawave' ? 'title="שם שנשאב מהחוזה — שינוי כאן לא משנה את החוזה"' : ''}>`) : ''}
@@ -3137,67 +3325,124 @@ function milestoneRow(p, m, ro) {
       </div>
       ${field('הערות', textArea('msnote-' + m.id, m.notes, `rows="2" data-bind="project_milestones:${m.id}:notes" ${ro ? 'disabled' : ''}`))}
       ${canEditMilestones() ? `<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap">
-        ${selectHtml('msst-' + m.id, msStage(m) === STAGE_NONE ? '' : msStage(m), settings().phases.map((x) => ({ value: x.id, label: x.name })), { blank: 'ללא שלב', attrs: `data-msstage="${m.id}" style="max-width:200px" title="השלב של אבן הדרך"` })}
+        ${selectHtml('msst-' + m.id, msStage(m) === STAGE_NONE ? '' : msStage(m), stageList(p).map((id) => ({ value: id, label: stageName(id, p) })), { blank: 'ללא שלב', attrs: `data-msstage="${m.id}" style="max-width:200px" title="השלב של אבן הדרך"` })}
         <button class="btn ghost small" data-action="ms-del" data-id="${m.id}">הסר אבן דרך</button></div>` : ''}
     </div>` : ''}
   </div>`;
 }
-/* one work milestone per stage of the project's type — the starting list for a project without a contract breakdown */
-function createTemplateMilestones(pid) {
-  const p = S.projects[pid]; if (!p) return;
-  const have = new Set(milestonesOf(pid).map(msStage));
-  let sortOrder = Math.max(0, ...milestonesOf(pid).map((m) => Number(m.sortOrder) || 0));
-  phasesForType(p.type).forEach((ph) => {
-    if (have.has(ph.id)) return;
-    const typeId = S.milestone_types['mt_tpl_' + ph.id] ? 'mt_tpl_' + ph.id : null;
-    createDoc('project_milestones', uid('ms'), { projectId: pid, contract: '', section: '', name: ph.name, phase: ph.id, state: 'todo', sortOrder: ++sortOrder, source: 'template', typeId, dueDate: null, notes: '', checklist: [], doneAt: null });
-  });
+/* kept for older callers: a project that gets a type starts its journey at the first stage */
+const createTemplateMilestones = (pid) => startJourney(pid);
+/* ---------- the stepper: the whole journey in one line ---------- */
+const stepIcon = (sg, i) => (sg.state === 'done' ? ICON.check : sg.state === 'late' ? '!' : sg.state === 'stuck' ? '‖' : String(i + 1));
+function stepper(p, stages) {
+  const st = stages || projectStages(p); if (!st.length) return '';
+  const can = canEditMilestones();
+  const c = S.ui.stageConfirm;
+  return `<div class="stepper ${can ? 'editable' : ''}" role="list" aria-label="שלבי הפרויקט">${st.map((sg, i) => `<div class="step ${sg.state} ${sg.current ? 'current' : ''}" role="listitem">
+      <button type="button" class="step-dot" data-action="${can && !sg.current ? 'stage-set' : 'stage-open'}" data-id="${p.id}" data-stage="${sg.id}" title="${esc(sg.name)} · ${esc(stageStateLabel(sg) || STAGE_STATES[sg.state].label)}${can && !sg.current ? ' — לחיצה: אנחנו בשלב הזה' : ''}">${stepIcon(sg, i)}</button>
+      <span class="step-label">${esc(sg.name)}</span>
+      ${sg.current && (sg.target || sg.state === 'stuck') ? `<span class="step-sub">${esc(sg.state === 'stuck' ? `ללא תנועה ${daysSince(sg.lastChange)} ימים` : (sg.state === 'late' ? 'באיחור · ' : 'יעד ') + fmtDate(sg.target))}</span>` : ''}
+    </div>`).join('')}</div>
+    ${c && c.pid === p.id ? `<div class="stage-confirm">לחזור לשלב «${esc(stageName(c.id, p))}»? השלבים שאחריו יסומנו כלא התחילו. <button type="button" class="btn small primary" data-action="stage-confirm-back">כן, חזור</button><button type="button" class="btn small" data-action="stage-confirm-cancel">בטל</button></div>` : ''}`;
 }
-/* the project's journey: stages (from the type's template and the contract), each holding its work milestones; stage state is derived.
-   Nobody marks a stage — people mark milestones. A parent project shows its sub-projects' progress per stage and marks nothing itself. */
+/* ---------- stage list editor (team leads and up) ---------- */
+function stageEditor(p) {
+  const own = ownStageIds(p);
+  const prog = stageProgressOf(p);
+  const inUse = (id) => (prog[id]?.total || 0) > 0 && milestonesOf(p.id).some((m) => msIsWork(m) && msStage(m) === id && !msIsStageRow(m));
+  const free = settings().phases.filter((x) => !own.includes(x.id));
+  return `<div class="stage-editor" id="stage-editor">
+    <div class="inline-note" style="margin-bottom:6px">השלבים של הפרויקט הזה. שלב שיש בו אבני דרך אי אפשר להסיר — העבירו אותן קודם לשלב אחר.</div>
+    ${own.map((id, i) => `<div class="se-row">
+      <span class="se-btns"><button type="button" class="icon-btn" data-action="stage-move" data-id="${p.id}" data-stage="${id}" data-dir="-1" title="למעלה" ${i === 0 ? 'disabled' : ''}>${ICON.up}</button><button type="button" class="icon-btn" data-action="stage-move" data-id="${p.id}" data-stage="${id}" data-dir="1" title="למטה" ${i === own.length - 1 ? 'disabled' : ''}>${ICON.down}</button></span>
+      ${isCustomStage(id) ? `<input type="text" value="${esc(stageName(id, p))}" data-stgname="${p.id}:${id}" aria-label="שם השלב">` : `<span>${esc(stageName(id, p))}</span>`}
+      <button type="button" class="icon-btn" data-action="stage-remove" data-id="${p.id}" data-stage="${id}" title="${inUse(id) ? 'יש בשלב אבני דרך' : 'הסר שלב'}" ${inUse(id) ? 'disabled' : ''}>${ICON.x}</button>
+    </div>`).join('')}
+    <div class="se-add">
+      ${selectHtml('stage-add-' + p.id, '', [...free.map((x) => ({ value: x.id, label: x.name })), { value: '__custom', label: 'שלב מותאם…' }], { blank: 'הוסף שלב…' })}
+      <input type="text" id="stage-add-name-${p.id}" placeholder="שם השלב" style="display:none">
+      <button type="button" class="btn small" data-action="stage-add" data-id="${p.id}">${ICON.plus} הוסף</button>
+      <span style="flex:1"></span>
+      ${Array.isArray(p.stages) && p.stages.length ? `<button type="button" class="btn ghost small" data-action="stage-reset" data-id="${p.id}">חזרה לשלבי הסוג</button>` : ''}
+      <button type="button" class="btn small primary" data-action="stage-edit" data-id="${p.id}">סיום עריכה</button>
+    </div>
+  </div>`;
+}
+/* ---------- the project's journey: stepper + stages, each holding its work milestones ----------
+   Stage state is derived from the milestones (and kept on the server); the stage's own row carries "we are here" and the target date.
+   A parent project shows its sub-projects' progress per stage and marks nothing itself. */
+function ensureMilestonesLoaded(p) {
+  if (S.milestonesLoaded[p.id] || S.milestonesLoading[p.id]) return;
+  S.milestonesLoading[p.id] = true; fetchMilestones(p.id).then(() => { S.milestonesLoading[p.id] = false; if (S.ui.drawer?.kind === 'project' && S.ui.drawer.id === p.id) render(); });
+}
+/* the strip at the top of the card: the stepper, the "go back?" confirmation and the "not started yet" hint */
+function journeyStrip(p) {
+  if (!isMember()) return '';
+  ensureMilestonesLoaded(p);
+  if (!S.milestonesLoaded[p.id]) return `<div class="section journey-strip"><div class="stepper" aria-busy="true">${ownStageIds(p).map((id) => `<div class="step todo"><span class="step-dot"></span><span class="step-label">${esc(stageName(id, p))}</span></div>`).join('')}</div></div>`;
+  const stages = projectStages(p); const cur = stages.find((x) => x.current) || null; const can = canEditMilestones(); const kids = childrenOf(p.id);
+  return `<div class="section journey-strip">
+    ${stepper(p, stages)}
+    ${!cur && !allPhasesDone(p) && can && stages.length && !kids.length ? `<div class="inline-note">הפרויקט עדיין לא התחיל. לחצו על שלב בפס כדי לסמן איפה אתם, או <button type="button" class="btn small" data-action="stage-set" data-id="${p.id}" data-stage="${stages[0].id}">התחל ב«${esc(stages[0].name)}»</button></div>` : ''}
+    ${allPhasesDone(p) && !kids.length ? '<div class="inline-note">כל השלבים הושלמו. אם הפרויקט ממשיך (למשל פיקוח), לחצו על השלב המתאים בפס.</div>' : ''}
+  </div>`;
+}
 function journeySection(p) {
   if (!isMember()) return '';
-  if (!S.milestonesLoaded[p.id]) {
-    if (!S.milestonesLoading[p.id]) { S.milestonesLoading[p.id] = true; fetchMilestones(p.id).then(() => { S.milestonesLoading[p.id] = false; if (S.ui.drawer?.kind === 'project' && S.ui.drawer.id === p.id) render(); }); }
-    return `<div class="section" id="journey"><h3 class="section-title">מהלך הפרויקט</h3><div class="inline-note">טוען…</div></div>`;
-  }
+  ensureMilestonesLoaded(p);
+  if (!S.milestonesLoaded[p.id]) return `<div class="section" id="journey"><h3 class="section-title">שלבים ואבני דרך</h3><div class="inline-note">טוען…</div></div>`;
   const ro = !isMember();
+  const can = canEditMilestones();
   const kids = childrenOf(p.id);
   const all = milestonesOf(p.id);
   const work = all.filter(msIsWork); const billing = all.filter((m) => !msIsWork(m));
   const stages = projectStages(p);
-  const prog = phaseProgress(p);
-  const cur = stageOf(p);
+  const cur = stages.find((x) => x.current) || null;
+  const realAll = work.filter((m) => !msIsStageRow(m)); const realDone = realAll.filter((m) => m.state === 'done').length;
+  const loose = realAll.filter((m) => msStage(m) === STAGE_NONE);
   const sections = [...new Set(all.map((m) => m.section).filter(Boolean))];
   const canSplit = canWriteProjects() && !kids.length && sections.length > 1;
+  const editing = !!S.ui.stageEdit[p.id];
   const stageBlock = (sg) => {
-    const rows = work.filter((m) => msStage(m) === sg.id).sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
     const key = p.id + ':' + sg.id;
-    const open = S.ui.stgOpen[key] ?? (sg.state !== 'done');
+    const open = S.ui.stgOpen[key] ?? sg.current;
+    const next = stages[sg.index + 1] || null;
     const kidBits = kids.length ? kids.map((k) => { const q = (stageProgressOf(k)[sg.id]) || emptyProg(); return q.total ? `<button type="button" class="chip ${q.done === q.total ? 'green' : q.done || q.active ? 'accent' : 'dim'}" data-action="open-project" data-id="${k.id}" title="${esc(k.name)}">${esc(k.name)} ${q.done}/${q.total}</button>` : ''; }).join('') : '';
-    return `<div class="stg ${sg.state} ${sg.current ? 'current' : ''}">
+    const meta = [
+      sg.realTotal ? `<span title="אבני דרך">${sg.realDone}/${sg.realTotal}</span>` : '',
+      sg.state === 'late' ? `<span class="late">באיחור · יעד ${fmtDate(sg.target)}</span>` : sg.state === 'stuck' ? `<span class="stuck">ללא תנועה ${daysSince(sg.lastChange)} ימים</span>` : sg.target && sg.state !== 'done' ? `<span>יעד ${fmtDate(sg.target)}</span>` : '',
+    ].filter(Boolean).join('');
+    const addOpen = !!S.ui.msAddOpen[key];
+    return `<div class="stg ${sg.state} ${sg.current ? 'current' : ''}" id="stg-${esc(key)}">
       <div class="stg-head" data-action="stg-toggle" data-key="${esc(key)}" data-open="${open ? 1 : 0}">
-        <span class="phase-state" aria-hidden="true">${ICON[PHASE_STATES[sg.state].icon]}</span>
+        <span class="stg-dot ${sg.state}" aria-hidden="true">${stepIcon(sg, sg.index)}</span>
         <span class="stg-name">${esc(sg.name)}</span>
-        <span class="stg-count">${sg.total ? `${sg.done}/${sg.total}` : (kids.length ? '' : 'אין אבני דרך')}</span>
-        ${sg.current ? '<span class="chip accent" style="padding:1px 7px">נוכחי</span>' : ''}
+        <span class="stg-meta">${meta}</span>
         <span class="stg-caret">${open ? '▴' : '▾'}</span>
       </div>
       ${open ? `<div class="stg-body">
         ${kidBits ? `<div class="chips-sub" style="margin-bottom:6px">${kidBits}</div>` : ''}
-        ${rows.map((m) => milestoneRow(p, m, ro)).join('')}
-        ${canEditMilestones() ? `<div class="add-row ms-add"><input type="text" id="ms-add-${p.id}-${sg.id}" placeholder="אבן דרך חדשה בשלב… (Enter)" data-msadd="${p.id}" data-stage="${sg.id}" list="dl-mstypes"><button class="btn small" data-action="ms-add" data-id="${p.id}" data-stage="${sg.id}">${ICON.plus}</button></div>` : ''}
+        ${can && !kids.length ? `<div class="stg-tools">
+          ${field('יעד לסיום השלב', `<input type="date" id="stgt-${esc(key)}" value="${dateInput(sg.target)}" data-stgtarget="${p.id}:${sg.id}">`)}
+          ${sg.current ? `<button type="button" class="btn small primary" data-action="stage-finish" data-id="${p.id}" data-stage="${sg.id}">${ICON.check} ${next ? `סיימנו — הלאה ל«${esc(next.name)}»` : 'סיימנו את הפרויקט'}</button>` : ''}
+        </div>` : ''}
+        ${sg.real.map((m) => milestoneRow(p, m, ro)).join('')}
+        ${!sg.real.length && !kidBits ? `<div class="stg-empty">${sg.state === 'done' ? 'השלב הושלם.' : 'אין אבני דרך בשלב — אפשר לעבוד גם בלי.'}</div>` : ''}
+        ${can ? `<div class="stg-foot">${addOpen ? `<div class="add-row ms-add" style="flex:1"><input type="text" id="ms-add-${p.id}-${sg.id}" placeholder="אבן דרך חדשה בשלב… (Enter)" data-msadd="${p.id}" data-stage="${sg.id}" list="dl-mstypes"><button class="btn small" data-action="ms-add" data-id="${p.id}" data-stage="${sg.id}">${ICON.plus}</button></div>` : `<button type="button" class="btn ghost small" data-action="ms-add-open" data-key="${esc(key)}" data-id="${p.id}" data-stage="${sg.id}">${ICON.plus} אבן דרך</button>`}</div>` : ''}
       </div>` : ''}
     </div>`;
   };
+  const looseBlock = loose.length ? `<div class="stg todo"><div class="stg-head" data-action="stg-toggle" data-key="${esc(p.id + ':_none')}" data-open="${(S.ui.stgOpen[p.id + ':_none'] ?? false) ? 1 : 0}">
+      <span class="stg-dot" aria-hidden="true">?</span><span class="stg-name">ללא שלב</span><span class="stg-meta"><span>${loose.filter((m) => m.state === 'done').length}/${loose.length}</span></span><span class="stg-caret">${(S.ui.stgOpen[p.id + ':_none'] ?? false) ? '▴' : '▾'}</span></div>
+      ${(S.ui.stgOpen[p.id + ':_none'] ?? false) ? `<div class="stg-body"><div class="inline-note" style="margin-bottom:6px">אבני דרך מהחוזה שעדיין לא שויכו לשלב — פתחו אבן דרך ובחרו לה שלב.</div>${loose.map((m) => milestoneRow(p, m, ro)).join('')}</div>` : ''}
+    </div>` : '';
   return `<div class="section" id="journey">
-    <h3 class="section-title">מהלך הפרויקט <small>${prog.total ? `${prog.done} מתוך ${prog.total} אבני דרך הושלמו` : ''}</small></h3>
-    ${prog.total ? `<div class="progress"><div style="width:${Math.round((prog.done / prog.total) * 100)}%"></div></div>` : ''}
-    ${!work.length && !kids.length ? `<div class="inline-note" style="margin-bottom:8px">${canEditMilestones() ? `עדיין אין אבני דרך. <button class="btn small" data-action="ms-template" data-id="${p.id}">צור אבני דרך לפי הסוג${p.type ? ` (${esc(p.type)})` : ''}</button> או הוסיפו בכל שלב למטה.` : 'עדיין אין אבני דרך לפרויקט.'}</div>` : ''}
-    ${canSplit ? `<div class="inline-note fit-note">החוזה מחולק ל-${sections.length} מקטעים (${esc(sections.slice(0, 4).join(', '))}${sections.length > 4 ? '…' : ''}). <button type="button" class="btn small" data-action="split-sections" data-id="${p.id}">פצל לתת-פרויקטים</button></div>` : ''}
-    <div class="stg-list">${stages.map(stageBlock).join('')}</div>
+    <h3 class="section-title">שלבים ואבני דרך <small>${cur ? `שלב ${cur.index + 1} מתוך ${stages.length}${realAll.length ? ` · ${realDone}/${realAll.length} אבני דרך` : ''}` : (allPhasesDone(p) ? 'הפרויקט הושלם' : 'טרם התחיל')}</small>
+      ${can && !kids.length ? `<button type="button" class="btn ghost small" style="float:left" data-action="stage-edit" data-id="${p.id}">${editing ? 'סיום עריכה' : 'ערוך שלבים'}</button>` : ''}</h3>
+    ${editing ? stageEditor(p) : ''}
+    ${canSplit ? `<div class="inline-note fit-note">החוזה מחולק ל-${sections.length} מקטעים (${esc(sections.slice(0, 4).join(', '))}${sections.length > 4 ? '…' : ''}). ${S.ui.confirm === 'split:' + p.id ? `<span class="confirm-inline"><span class="inline-note">ליצור ${sections.length} תת-פרויקטים ולהעביר אליהם את אבני הדרך?</span><button type="button" class="btn small primary" data-action="split-sections" data-id="${p.id}" data-confirmed="1">כן, פצל</button><button type="button" class="btn small" data-action="cancel-confirm">בטל</button></span>` : `<button type="button" class="btn small" data-action="split-sections" data-id="${p.id}">פצל לתת-פרויקטים</button>`}</div>` : ''}
+    <div class="stg-list">${stages.map(stageBlock).join('')}${looseBlock}</div>
     ${billing.length && isManager() ? `<div class="inline-note" style="margin-top:8px">${billing.length} אבני דרך לחיוב בלבד (מקדמות, תשלומים) מוסתרות מרשימת העבודה. ${S.ui.showBilling[p.id] ? `<button type="button" class="btn ghost small" data-action="toggle-billing" data-id="${p.id}">הסתר</button><div class="muted" style="margin-top:4px">${billing.map((m) => esc(msTypeName(m))).join(' · ')}</div>` : `<button type="button" class="btn ghost small" data-action="toggle-billing" data-id="${p.id}">הצג</button>`}</div>` : ''}
-    ${cur === STAGE_DONE && !kids.length ? '<div class="inline-note" style="margin-top:8px">כל אבני הדרך הושלמו. אם הפרויקט ממשיך (למשל פיקוח), הוסיפו אבן דרך בשלב המתאים.</div>' : ''}
   </div>`;
 }
 /* sub-projects: a project can sit under a parent (e.g. a floor of a building) */
@@ -3459,9 +3704,17 @@ function drawerCommission(id) {
 }
 
 /* ===================== popover menu / picker ===================== */
+/* a re-render (auto-save, realtime) replaces the anchor element — remember how to find its successor so the menu stays open */
+function anchorSelector(el) {
+  if (!el) return null;
+  if (el.id) return '#' + CSS.escape(el.id);
+  const d = el.dataset || {};
+  const bits = ['action', 'menu', 'id', 'field', 'col', 'doc'].filter((k) => d[k] != null).map((k) => `[data-${k}="${CSS.escape(d[k])}"]`);
+  return bits.length ? bits.join('') : null;
+}
 function openMenu(anchor, cfg) {
   const r = anchor.getBoundingClientRect();
-  S.ui.menu = Object.assign({ anchor, rect: { top: r.top, bottom: r.bottom, left: r.left, right: r.right }, q: '' }, cfg);
+  S.ui.menu = Object.assign({ anchor, anchorSel: anchorSelector(anchor), rect: { top: r.top, bottom: r.bottom, left: r.left, right: r.right }, q: '' }, cfg);
   renderMenu();
   const inp = document.getElementById('menu-q');
   if (inp) inp.focus({ preventScroll: true });
@@ -3477,7 +3730,8 @@ function positionMenu() {
 }
 function followAnchor() {
   const m = S.ui.menu; if (!m) return;
-  const a = m.anchor;
+  let a = m.anchor;
+  if (a && !a.isConnected && m.anchorSel) { a = document.querySelector(m.anchorSel); if (a) m.anchor = a; }
   if (!a || !a.isConnected) { closeMenu(); return; }
   const r = a.getBoundingClientRect();
   if (r.bottom < 0 || r.top > window.innerHeight || r.right < 0 || r.left > window.innerWidth) { closeMenu(); return; }
@@ -3642,6 +3896,9 @@ document.addEventListener('change', (e) => {
   if (el.dataset.check) { const [tid, cid] = el.dataset.check.split(':'); const t = S.tasks[tid]; if (!t || !canWriteTasks()) return; patchDoc('tasks', tid, { checklist: checklistOf(t).map((c) => c.id === cid ? Object.assign({}, c, { done: el.checked }) : c) }); return; }
   if (el.dataset.action === 'toggle-person') { const p = S.projects[el.dataset.id]; if (!p || !canWriteProjects()) { render(); return; } const cur = p.clientPersonIds || []; patchDoc('projects', p.id, { clientPersonIds: el.checked ? [...new Set([...cur, el.dataset.person])] : cur.filter((x) => x !== el.dataset.person) }); return; }
   // settings
+  if (el.dataset.stgtarget) { const [pid, sid] = el.dataset.stgtarget.split(':'); const p = S.projects[pid]; if (!p || !canEditMilestones()) return; const row = ensureStageRow(p, sid, 'todo'); patchDoc('project_milestones', row.id, { dueDate: el.value || null }); return; }
+  if (el.dataset.stgname) { const [pid, sid] = el.dataset.stgname.split(':'); const p = S.projects[pid]; if (!p || !canEditMilestones()) return; const name = el.value.trim(); if (!name) return; patchDoc('projects', pid, { stages: ownStageIds(p).map((id) => ({ id, name: id === sid ? name : stageName(id, p) })) }); milestonesOf(pid).filter((m) => msIsStageRow(m) && msStage(m) === sid).forEach((m) => patchDoc('project_milestones', m.id, { name })); return; }
+  if (el.id && el.id.startsWith('stage-add-') && !el.id.startsWith('stage-add-name-')) { const inp = document.getElementById(el.id.replace('stage-add-', 'stage-add-name-')); if (inp) { inp.style.display = el.value === '__custom' ? '' : 'none'; if (el.value === '__custom') inp.focus(); } return; }
   if (el.dataset.msstage) { const m = S.project_milestones[el.dataset.msstage]; if (!m || !canEditMilestones()) return; const t = m.typeId ? S.milestone_types[m.typeId] : null; const stage = el.value || null; if (t && t.phase !== stage) patchDoc('project_milestones', m.id, { phase: stage, typeId: null }); else patchDoc('project_milestones', m.id, { phase: stage }); return; }
   if (el.dataset.setList) { const key = el.dataset.setList; const i = Number(el.dataset.index); renameListValue(key, settings()[key][i], el.value.trim()); return; }
   if (el.dataset.teamName) { const v = el.value.trim(); if (v) patchDoc('teams', el.dataset.teamName, { name: v }); return; }
@@ -3701,9 +3958,9 @@ document.addEventListener('click', async (e) => {
   if (t.tagName === 'A') e.preventDefault();
   if (await fieldAction(a, ds, t, e)) return;
   switch (a) {
-    case 'pending-save': await commitPending(); break;
+    case 'pending-save': S.ui.autoSaveFailed = false; await commitPending(); break;
     case 'pending-discard': discardPending(); break;
-    case 'close-save': { const ok = await commitPending(); if (ok) closeDrawer(true); break; }
+    case 'close-save': { S.ui.autoSaveFailed = false; const ok = await commitPending(); if (ok) closeDrawer(true); break; }
     case 'close-discard': discardPending(); closeDrawer(true); break;
     case 'close-keep': S.ui.confirmClose = false; render(); break;
     case 'nav': nav(ds.view); break;
@@ -3724,12 +3981,63 @@ document.addEventListener('click', async (e) => {
       await createDoc('project_milestones', id, { projectId: ds.id, contract: '', section: '', name, phase: stage || null, state: 'todo', sortOrder, source: 'manual', typeId: type?.id || null, dueDate: null, notes: '', checklist: [], doneAt: null });
       setTimeout(() => document.getElementById(`ms-add-${ds.id}-${stage}`)?.focus(), 30); break;
     }
-    case 'ms-template': { if (!canEditMilestones()) break; createTemplateMilestones(ds.id); break; }
+    case 'ms-template': { if (!canEditMilestones()) break; startJourney(ds.id); break; }
     case 'stg-toggle': { S.ui.stgOpen[ds.key] = ds.open !== '1'; render(); break; }
+    case 'ms-add-open': { S.ui.msAddOpen[ds.key] = true; S.ui.stgOpen[ds.key] = true; render(); setTimeout(() => document.getElementById(`ms-add-${ds.id}-${ds.stage}`)?.focus(), 30); break; }
+    // ----- stages: "we are here", finish, edit the list -----
+    case 'stage-open': { const key = ds.id + ':' + ds.stage; S.ui.stgOpen[key] = true; render(); setTimeout(() => document.getElementById('stg-' + key)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 40); break; }
+    case 'stage-set': {
+      if (!canEditMilestones()) { toast('מעבר בין שלבים שמור לראשי צוותים ומנהלים'); break; }
+      const p = S.projects[ds.id]; if (!p) break;
+      const st = projectStages(p); const target = st.find((x) => x.id === ds.stage); const cur = st.find((x) => x.current);
+      if (!target) break;
+      if (cur && target.index < cur.index && !ds.confirmed) { S.ui.stageConfirm = { pid: p.id, id: ds.stage }; render(); break; }
+      S.ui.stageConfirm = null;
+      setCurrentStage(p, ds.stage);
+      S.ui.stgOpen[p.id + ':' + ds.stage] = true;
+      if (cur) S.ui.stgOpen[p.id + ':' + cur.id] = false;
+      render(); toast(`השלב הנוכחי: ${stageName(ds.stage, p)}`); break;
+    }
+    case 'stage-confirm-back': { const c = S.ui.stageConfirm; if (!c) break; S.ui.stageConfirm = null; const p = S.projects[c.pid]; if (!p) break; const cur = projectStages(p).find((x) => x.current); setCurrentStage(p, c.id); S.ui.stgOpen[p.id + ':' + c.id] = true; if (cur) S.ui.stgOpen[p.id + ':' + cur.id] = false; render(); break; }
+    case 'stage-confirm-cancel': S.ui.stageConfirm = null; render(); break;
+    case 'stage-finish': {
+      if (!canEditMilestones()) break;
+      const p = S.projects[ds.id]; if (!p) break;
+      const st = projectStages(p); const i = st.findIndex((x) => x.id === ds.stage); const next = st[i + 1] || null;
+      finishStage(p, ds.stage);
+      S.ui.stgOpen[p.id + ':' + ds.stage] = false; if (next) S.ui.stgOpen[p.id + ':' + next.id] = true;
+      render(); toast(next ? `השלב הושלם. השלב הנוכחי: ${next.name}` : 'כל השלבים הושלמו'); break;
+    }
+    case 'stage-edit': { if (!canEditMilestones()) break; S.ui.stageEdit[ds.id] = !S.ui.stageEdit[ds.id]; S.ui.stageConfirm = null; render(); break; }
+    case 'stage-move': {
+      const p = S.projects[ds.id]; if (!p || !canEditMilestones()) break;
+      const ids = ownStageIds(p); const i = ids.indexOf(ds.stage); const j = i + Number(ds.dir); if (i < 0 || j < 0 || j >= ids.length) break;
+      const list = ids.map((id) => ({ id, name: stageName(id, p) })); [list[i], list[j]] = [list[j], list[i]];
+      patchDoc('projects', p.id, { stages: list }); break;
+    }
+    case 'stage-remove': {
+      const p = S.projects[ds.id]; if (!p || !canEditMilestones()) break;
+      const rows = milestonesOf(p.id).filter((m) => msIsWork(m) && msStage(m) === ds.stage);
+      if (rows.some((m) => !msIsStageRow(m))) { toast('יש בשלב אבני דרך — העבירו אותן קודם'); break; }
+      batchEdits(() => { rows.forEach((m) => deleteDoc('project_milestones', m.id)); patchDoc('projects', p.id, { stages: ownStageIds(p).filter((id) => id !== ds.stage).map((id) => ({ id, name: stageName(id, p) })) }); });
+      break;
+    }
+    case 'stage-add': {
+      const p = S.projects[ds.id]; if (!p || !canEditMilestones()) break;
+      const sel = document.getElementById('stage-add-' + p.id); const v = sel?.value || '';
+      if (!v) { sel?.focus(); break; }
+      const list = ownStageIds(p).map((id) => ({ id, name: stageName(id, p) }));
+      if (v === '__custom') { const inp = document.getElementById('stage-add-name-' + p.id); const name = (inp?.value || '').trim(); if (!name) { if (inp) { inp.style.display = ''; inp.focus(); } break; } list.push({ id: uid('cs'), name }); }
+      else if (!list.some((x) => x.id === v)) { const def = stageDef(v); const at = settings().phases.findIndex((x) => x.id === v); let pos = list.length; for (let k = list.length - 1; k >= 0; k--) { const idx = settings().phases.findIndex((x) => x.id === list[k].id); if (idx >= 0 && idx < at) { pos = k + 1; break; } if (idx >= 0 && idx > at) pos = k; } list.splice(pos, 0, { id: v, name: def?.name || v }); }
+      patchDoc('projects', p.id, { stages: list }); break;
+    }
+    case 'stage-reset': { const p = S.projects[ds.id]; if (!p || !canEditMilestones()) break; patchDoc('projects', p.id, { stages: null }); break; }
     case 'toggle-billing': S.ui.showBilling[ds.id] = !S.ui.showBilling[ds.id]; render(); break;
     case 'goto-journey': { if (S.ui.drawer?.kind !== 'project') openDrawer('project', ds.id); setTimeout(() => document.getElementById('journey')?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 60); break; }
     case 'split-sections': {
       if (!canWriteProjects()) { toast('אין לך הרשאת עריכה'); break; }
+      if (!ds.confirmed) { S.ui.confirm = 'split:' + ds.id; render(); break; }
+      S.ui.confirm = null;
       const par = S.projects[ds.id]; if (!par) break;
       const secs = [...new Set(milestonesOf(par.id).map((m) => m.section).filter(Boolean))];
       secs.forEach((sec, i) => {
@@ -3738,7 +4046,7 @@ document.addEventListener('click', async (e) => {
         milestonesOf(par.id).filter((m) => m.section === sec).forEach((m) => patchDoc('project_milestones', m.id, { projectId: id }));
         S.milestonesLoaded[id] = true;
       });
-      toast(`${secs.length} תת-פרויקטים נוצרו — לחצו "שמור" כדי לאשר`); break;
+      toast(`${secs.length} תת-פרויקטים נוצרו`); break;
     }
     case 'ms-state': { e.stopPropagation(); const m = S.project_milestones[ds.id]; if (!m || !isMember()) break; const next = MS_STATE[m.state]?.next || 'active'; patchDoc('project_milestones', ds.id, { state: next, doneAt: next === 'done' ? nowIso() : null }); break; }
     case 'ms-toggle': { e.stopPropagation(); S.ui.msOpen[ds.id] = !S.ui.msOpen[ds.id]; render(); break; }
@@ -3751,7 +4059,7 @@ document.addEventListener('click', async (e) => {
       const n = childrenOf(par.id).length + 1;
       const id = uid('p');
       await createDoc('projects', id, { name: `${par.name} — חלק ${n}`, number: par.number ? `${par.number}.${n}` : '', parentId: par.id, clientId: par.clientId || null, clientPersonIds: par.clientPersonIds || [], teamId: par.teamId || null, leadId: par.leadId || null, memberIds: par.memberIds || [], pmId: par.pmId || null, contractorIds: [], consultantIds: [], supplierIds: [], partnerIds: [], type: par.type || '', typeDetail: par.typeDetail || '', address: par.address || '', city: par.city || '', clientContactName: '', clientContactPhone: '', state: 'active', phases: null, health: null, statusNote: '', statusUpdatedAt: null, size: par.size || 'm', startDate: todayStr(), dueDate: null, notes: '', needsReview: false, internal: false, sortIndex: (par.sortIndex || 0) + n });
-      S.milestonesLoaded[id] = true; if (canEditMilestones()) createTemplateMilestones(id);
+      S.milestonesLoaded[id] = true; if (canEditMilestones()) startJourney(id);
       openDrawer('project', id); setTimeout(() => { const i = document.getElementById('p-name'); if (i) { i.focus(); i.select(); } }, 40); break;
     }
     // ----- tasks -----
@@ -3852,7 +4160,7 @@ document.addEventListener('click', async (e) => {
       S.ui.confirm = null;
       if (ds.col === 'projects') { commissionsOf(ds.id).forEach((k) => deleteDoc('commissions', k.id)); }
       await deleteDoc(ds.col, ds.id);
-      closeDrawer(true); toast('נמחק — לחצו "שמור" כדי לאשר'); break;
+      closeDrawer(true); toast('נמחק'); break;
     }
     case 'cancel-confirm': S.ui.confirm = null; render(); break;
     case 'export': exportExcel(); break;
