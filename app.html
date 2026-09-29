@@ -91,7 +91,7 @@
   .brand .logo { width: 152px; }
   .brand:hover .logo { color: var(--ink-2); }
   .brand-office { display: none; }
-  .brand-go { font-family: var(--font-num); font-weight: 400; font-size: 11.5px; letter-spacing: .24em; color: var(--go); margin-inline-start: 9px; line-height: 1; margin-bottom: 1px; }
+  .brand-go { font-family: var(--font-num); font-weight: 400; font-size: 16px; letter-spacing: .16em; color: var(--go); margin-inline-start: 5px; line-height: 1; margin-bottom: 1px; }
   .brand-title { font-family: var(--font-display); font-weight: 200; font-size: 22px; line-height: 1.2; color: var(--ink); letter-spacing: .02em; }
   .nav { display: flex; gap: 4px; flex-wrap: wrap; margin-inline-start: auto; }
   .nav button {
@@ -302,20 +302,20 @@
   .linked a:hover { text-decoration: underline; }
   .comm-row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--line); font-size: 13.5px; }
   .comm-row:last-child { border-bottom: 0; }
-  /* fee milestones (drawer, managers only) */
-  .ms-wrap { overflow-x: auto; margin-top: 8px; }
-  .ms-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-  .ms-table th, .ms-table td { padding: 5px 6px; border-bottom: 1px dashed var(--line); position: static; background: transparent; vertical-align: middle; }
-  .ms-table th { font-size: 11.5px; color: var(--ink-3); letter-spacing: .04em; border-bottom: 1px solid var(--rule); }
-  .ms-table th.num, .ms-table td.num { text-align: end; font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .ms-table tr.ms-group td { padding-top: 12px; color: var(--ink-2); border-bottom: 0; font-size: 12px; letter-spacing: .03em; }
-  .ms-table tr.ms-total td { border-top: 1px solid var(--rule); border-bottom: 0; color: var(--ink-2); }
-  .ms-table tr:last-child td { border-bottom: 0; }
-  .ms-table .chip { font-size: 11px; padding: 1px 6px; }
-  .ms-table td.dim { color: var(--ink-3); white-space: nowrap; }
-  .ms-table .ms-in { padding: 3px 6px; font-size: 12.5px; width: 100%; min-width: 90px; }
-  .ms-table .ms-in.num { max-width: 110px; text-align: end; }
-  .ms-table tr.ms-manual td { vertical-align: top; }
+  /* contract milestones (work list) */
+  .ms-list { display: grid; gap: 6px; margin-top: 8px; }
+  .ms-group { font-size: 12px; color: var(--ink-2); letter-spacing: .03em; padding: 10px 0 2px; }
+  .msr { border: 1px solid var(--line); background: var(--surface); }
+  .msr.open { border-color: var(--line-2); }
+  .msr-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 8px; align-items: center; padding: 7px 10px; }
+  .msr-name { cursor: pointer; min-width: 0; }
+  .msr-name small { display: block; color: var(--ink-3); font-size: 11.5px; }
+  .msr.done .msr-name { color: var(--ink-3); text-decoration: line-through; }
+  .msr-meta { display: inline-flex; gap: 10px; font-size: 12.5px; color: var(--ink-3); white-space: nowrap; }
+  .msr-caret { width: 26px; height: 26px; }
+  .msr-body { border-top: 1px dashed var(--line); padding: 10px 12px 12px; background: var(--surface-2); }
+  .msr-body .task-item { padding: 6px 0; }
+  @media (max-width: 720px) { .msr-meta { display: none; } }
   /* milestone types (settings) */
   .mt-head, .mt-row { display: grid; grid-template-columns: minmax(180px, 1.4fr) 150px 60px minmax(160px, 1.6fr) auto; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--line); }
   .mt-head { font-size: 11.5px; color: var(--ink-3); letter-spacing: .05em; border-bottom: 1px solid var(--rule); }
@@ -466,7 +466,7 @@
   .auth-brand { margin-bottom: 28px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
   .auth-brand .logo { width: min(300px, 80%); }
   .auth-brand .brand-office { display: block; font-size: 12.5px; letter-spacing: .14em; color: var(--ink-2); }
-  .auth-brand .brand-go { font-family: var(--font-num); font-weight: 400; font-size: 20px; letter-spacing: .28em; line-height: 1; color: var(--go); margin-inline-start: .35em; padding-inline-start: 0; margin-bottom: 2px; border: 0; }
+  .auth-brand .brand-go { font-family: var(--font-num); font-weight: 400; font-size: 30px; letter-spacing: .16em; line-height: 1; color: var(--go); margin-inline-start: .18em; padding-inline-start: 0; margin-bottom: 2px; border: 0; }
   .auth-brand .brand-row { display: flex; align-items: flex-end; justify-content: center; direction: ltr; width: 100%; }
   .auth-brand .brand-title { font-size: 20px; }
   .auth-title { font-family: var(--font-display); font-weight: 400; font-size: 20px; margin: 0 0 8px; letter-spacing: .02em; }
@@ -520,6 +520,17 @@
   .ph-add { width: 96px; height: 96px; border: 1px dashed var(--line-2); display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--ink-2); cursor: pointer; font-size: 12px; text-align: center; padding: 4px; }
   .ph-add:hover { border-color: var(--ink); color: var(--ink); }
   .ph-add svg { width: 22px; height: 22px; }
+  .rec-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+  .rec-row:last-of-type { border-bottom: 0; }
+  .rec-main { min-width: 0; }
+  .rec-main audio { width: 100%; max-width: 420px; height: 34px; display: block; }
+  .rec-side { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .rec-transcript { grid-column: 1 / -1; font-size: 13px; }
+  .rec-transcript summary { cursor: pointer; color: var(--ink-2); }
+  .rec-transcript pre { white-space: pre-wrap; font: inherit; background: var(--surface-2); padding: 10px 12px; max-height: 320px; overflow-y: auto; margin: 6px 0 0; }
+  .rec-timer { font-family: var(--font-num); font-variant-numeric: tabular-nums; margin-inline-start: 6px; }
+  .crit-text { color: var(--crit-ink); font-size: 12.5px; }
+  .chip.red { background: var(--crit-soft); color: var(--crit-ink); border-color: transparent; }
   .lightbox { position: fixed; inset: 0; z-index: 48; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 24px; cursor: zoom-out; }
   .lightbox img { max-width: 100%; max-height: calc(100% - 40px); object-fit: contain; box-shadow: var(--shadow); background: #fff; }
   .lightbox-cap { color: #fff; font-size: 13px; text-align: center; }
@@ -536,7 +547,7 @@
   .rp-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--rule); padding-bottom: 12px; margin-bottom: 12px; }
   .rp-brand { display: flex; align-items: flex-end; direction: ltr; }
   .rp-brand .logo { width: 150px; }
-  .rp-go { font-family: var(--font-num); font-weight: 400; font-size: 11px; letter-spacing: .24em; color: var(--go); margin-left: 8px; margin-bottom: 1px; }
+  .rp-go { font-family: var(--font-num); font-weight: 400; font-size: 16px; letter-spacing: .16em; color: var(--go); margin-left: 5px; margin-bottom: 1px; }
   .rp-titles { text-align: start; }
   .rp-title { font-family: var(--font-display); font-weight: 200; font-size: 26px; line-height: 1.1; letter-spacing: .01em; }
   .rp-title span { color: var(--ink-2); }
@@ -1523,7 +1534,7 @@ const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_v
 
 S.auth = { status: 'loading', session: null, profile: null, notice: '', error: '' };
 S.profiles = {}; S.invitations = {}; S.audit = [];
-S.project_milestones = {}; S.milestonesLoaded = {}; S.milestonesLoading = {}; // fee milestones per project (DataWave + manual) — managers only, loaded when a project drawer opens
+S.milestone_types = {}; S.project_milestones = {}; S.milestonesLoaded = {}; S.milestonesLoading = {}; // contract milestones per project (DataWave + manual), loaded when a project drawer opens
 const me = () => S.auth.profile;
 const myRole = () => me()?.role || 'anon';
 const isManager = () => ['owner', 'manager'].includes(myRole());
@@ -1572,7 +1583,7 @@ async function fetchProfiles() {
   S.invitations = {}; (inv || []).forEach((r) => { const o = fromRow(r); S.invitations[o.email] = o; });
 }
 async function fetchMilestones(projectId) {
-  if (!isManager()) { S.milestonesLoaded[projectId] = true; return; }
+  if (!isMember()) { S.milestonesLoaded[projectId] = true; return; }
   const { data, error } = await sb.from('project_milestones').select('*').eq('project_id', projectId).order('sort_order');
   if (error) { console.warn(error); S.milestonesLoaded[projectId] = true; return; }
   Object.keys(S.project_milestones).forEach((id) => { if (S.project_milestones[id].projectId === projectId) delete S.project_milestones[id]; });
@@ -1890,7 +1901,7 @@ ICON.check = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-
 ICON.flag = '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 2.5h1.5v15H4zM6.5 3h9l-2.2 3.5 2.2 3.5h-9z"/></svg>';
 
 S.tasks = {}; S.taskComments = {}; S.notifications = [];
-Object.assign(S.ui, { ttab: 'mine', tproject: '', tfilter: { q: '', assignee: '', project: '', status: '', priority: '', done: false }, bell: false, mentions: {}, mentionMenu: null });
+Object.assign(S.ui, { msOpen: {}, ttab: 'mine', tproject: '', tfilter: { q: '', assignee: '', project: '', status: '', priority: '', done: false }, bell: false, mentions: {}, mentionMenu: null });
 
 const isMember = () => ['owner', 'manager', 'team_lead', 'staff'].includes(myRole());
 const canWriteTasks = () => isMember();
@@ -1936,7 +1947,7 @@ async function fetchNotifications() {
 }
 function newTask(overrides = {}) {
   const id = uid('t');
-  const body = Object.assign({ title: '', description: '', projectId: null, phaseId: null, assigneeId: null, createdBy: me()?.id || null, status: 'todo', waitingOn: '', priority: 'normal', dueDate: null, checklist: [], doneAt: null, sortIndex: TK().length + 1 }, overrides);
+  const body = Object.assign({ title: '', description: '', projectId: null, phaseId: null, assigneeId: null, milestoneId: null, createdBy: me()?.id || null, status: 'todo', waitingOn: '', priority: 'normal', dueDate: null, checklist: [], doneAt: null, sortIndex: TK().length + 1 }, overrides);
   return createDoc('tasks', id, body).then((ok) => (ok ? id : null));
 }
 function setTaskStatus(id, status, waitingOn) {
@@ -1975,7 +1986,8 @@ function taskItem(t, opts = {}) {
   const due = dueInfo(t);
   const p = t.projectId ? S.projects[t.projectId] : null;
   const cl = checklistOf(t);
-  const meta = [opts.hideProject ? '' : (p ? p.name : (t.projectId ? 'פרויקט שנמחק' : 'משימה משרדית')), opts.hideAssignee ? '' : uname(t.assigneeId, 'ללא אחראי'), t.status === 'waiting' && t.waitingOn ? 'ממתין ל' + t.waitingOn : ''].filter(Boolean).join(' · ');
+  const ms_ = t.milestoneId ? S.project_milestones[t.milestoneId] : null;
+  const meta = [opts.hideProject ? '' : (p ? p.name : (t.projectId ? 'פרויקט שנמחק' : 'משימה משרדית')), ms_ && !opts.hideMilestone ? msTypeName(ms_) : '', opts.hideAssignee ? '' : uname(t.assigneeId, 'ללא אחראי'), t.status === 'waiting' && t.waitingOn ? 'ממתין ל' + t.waitingOn : ''].filter(Boolean).join(' · ');
   return `<div class="task-item ${t.status === 'done' ? 'is-done' : ''}" data-action="open-task" data-id="${t.id}">
     <button type="button" class="task-check ${t.status}" data-action="task-toggle-done" data-id="${t.id}" title="${t.status === 'done' ? 'החזר לביצוע' : 'סמן כבוצע'}" aria-label="${t.status === 'done' ? 'החזר לביצוע' : 'סמן כבוצע'}">${t.status === 'done' ? ICON.check : ''}</button>
     <div class="li-body">
@@ -2073,6 +2085,7 @@ function drawerTask(id) {
   const t = S.tasks[id];
   if (!t) return `<div class="drawer-head"><h2 class="drawer-title">המשימה נמחקה</h2><button class="icon-btn" data-action="close-drawer">${ICON.x}</button></div>`;
   const p = t.projectId ? S.projects[t.projectId] : null;
+  if (p && isMember() && !S.milestonesLoaded[p.id] && !S.milestonesLoading[p.id]) { S.milestonesLoading[p.id] = true; fetchMilestones(p.id).then(() => { S.milestonesLoading[p.id] = false; if (S.ui.drawer?.kind === 'task' && S.ui.drawer.id === id) render(); }); }
   const phases = p ? projectPhases(p) : [];
   const cl = checklistOf(t);
   const comments = S.taskComments[id];
@@ -2099,7 +2112,7 @@ function drawerTask(id) {
       </div>
       <div class="field-row">
         ${field('פרויקט', `<div style="padding-top:4px">${menuChip(p ? p.name : 'משימה משרדית', `data-action="menu" data-menu="tproject" data-id="${id}"`, p ? '' : 'dim')}</div>`)}
-        ${p ? field('שלב', selectHtml('t-phase', t.phaseId || '', phases.map((x) => ({ value: x.id, label: x.name })), { blank: 'ללא שלב', attrs: `data-bind="tasks:${id}:phaseId" ${dis}` })) : ''}
+        ${p ? field('אבן דרך', selectHtml('t-milestone', t.milestoneId || '', milestonesOf(p.id).map((m) => ({ value: m.id, label: msTypeName(m) })), { blank: 'ללא אבן דרך', attrs: `data-bind="tasks:${id}:milestoneId" ${dis}` })) : ''}
       </div>
       ${field('תיאור', textArea('t-description', t.description, `rows="3" data-bind="tasks:${id}:description" placeholder="פרטים, קישורים, מה בדיוק צריך לקרות" ${dis}`))}
     </div>
@@ -2277,7 +2290,8 @@ async function uploadFiles(fileList, ctx) {
   const up = S.ui.uploads; up.active += files.length; renderUploadNote();
   for (const file of files) {
     const isImg = /^image\//.test(file.type) || /\.(jpe?g|png|heic|heif|webp)$/i.test(file.name);
-    const isVid = /^video\//.test(file.type) || /\.(mp4|mov|m4v|webm)$/i.test(file.name);
+    const isAud = /^audio\//.test(file.type) || /\.(m4a|mp3|wav|aac|ogg|opus|caf)$/i.test(file.name);
+    const isVid = !isAud && (/^video\//.test(file.type) || /\.(mp4|mov|m4v|webm)$/i.test(file.name));
     const id = uid('f');
     let blob = file, ext = (file.name.split('.').pop() || 'bin').toLowerCase(), mime = file.type || 'application/octet-stream', w = null, h = null;
     if (isImg) { const s = await shrinkImage(file); if (s) { blob = s.blob; ext = 'jpg'; mime = 'image/jpeg'; w = s.w; h = s.h; } }
@@ -2285,7 +2299,7 @@ async function uploadFiles(fileList, ctx) {
     try {
       const { error } = await sb.storage.from(FILE_BUCKET).upload(path, blob, { contentType: mime, upsert: false });
       if (error) throw error;
-      const ok = await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: ctx.projectId, visitId: ctx.visitId || null, itemId: ctx.itemId || null, kind: isImg ? 'image' : isVid ? 'video' : 'file', mime, size: blob.size, width: w, height: h, caption: '', takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : null, uploadedBy: me()?.id || null });
+      const ok = await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: ctx.projectId, visitId: ctx.visitId || null, itemId: ctx.itemId || null, kind: isImg ? 'image' : isAud ? 'audio' : isVid ? 'video' : 'file', mime, size: blob.size, width: w, height: h, caption: ctx.caption || '', takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : null, uploadedBy: me()?.id || null, durationSec: ctx.durationSec || null, transcript: '', transcribeStatus: '', transcribeError: '' });
       if (!ok) throw new Error('row');
       up.done++;
     } catch (e) { console.warn('upload failed', e); up.failed++; toast('העלאה נכשלה: ' + friendlyError(e)); }
@@ -2327,7 +2341,7 @@ function itemRow(v, it, opts = {}) {
   return `<div class="vi-row ${it.status === 'closed' ? 'closed' : ''}" id="vi-${it.id}">
     <div class="vi-head">
       <span class="vi-no">${esc(itemNo(v, it))}</span>
-      ${ro ? `<span class="chip ${k.cls}">${k.label}</span>` : menuChip(k.label, `data-action="menu" data-menu="vikind" data-id="${it.id}"`, k.cls)}
+      ${ro ? `<span class="chip ${k.cls}">${k.label}</span>` : menuChip(k.label, `data-action="menu" data-menu="vikind" data-id="${it.id}"`, k.cls)}${it.source === 'ai' ? '<span class="chip dim" title="הוצע אוטומטית מהתמלול — לבדוק ולתקן">AI</span>' : ''}
       <input type="text" class="vi-loc" id="vil-${it.id}" value="${esc(S.ui.drafts['vil-' + it.id] ?? (it.location || ''))}" data-bind="visit_items:${it.id}:location" placeholder="מיקום (קומה / אזור / חדר)" ${dis}>
       ${statusChip}
       ${ro ? '' : `<button type="button" class="icon-btn" data-action="vi-del" data-id="${it.id}" title="מחק">${ICON.x}</button>`}
@@ -2429,6 +2443,7 @@ function drawerVisit(id) {
       ${field(K.summary, textArea('v-summary', v.summary, `rows="3" data-bind="site_visits:${id}:summary" placeholder="${esc(v.kind === 'meeting' ? 'נושאים שנדונו, רקע, סיכום כללי' : 'התקדמות העבודות, מצב כללי, נקודות לתשומת לב')}" ${dis}`))}
       <div class="field"><label>תמונות כלליות</label>${photoStrip({ visitId: id, itemId: null }, { projectId: v.projectId, visitId: id })}<span class="inline-note" data-upload-note hidden></span></div>
     </div>
+    ${recordingsSection(v)}
     <div class="section">
       <h3 class="section-title">${K.items} <small>${items.length ? `${items.length}${open ? ` · ${open} פתוחים` : ''}` : ''}</small></h3>
       <div class="vi-list">${items.map((it) => itemRow(v, it)).join('') || `<div class="inline-note">${v.kind === 'meeting' ? 'עדיין אין החלטות. הוסיפו את הראשונה.' : 'עדיין אין ממצאים. הוסיפו את הראשון — או צלמו ליקוי.'}</div>`}</div>
@@ -2559,6 +2574,71 @@ async function makeReportPdf(visitId) {
 }
 function downloadBlob(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000); }
 
+/* ---------- recordings & transcription ---------- */
+const fmtDur = (sec) => { const n = Math.round(Number(sec) || 0); return `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}`; };
+function recordingsSection(v) {
+  const files = filesOf({ visitId: v.id }).filter((f) => f.kind === 'audio');
+  const rec = S.ui.rec && S.ui.rec.visitId === v.id ? S.ui.rec : null;
+  const ro = !canWriteField();
+  const can = typeof MediaRecorder !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+  const st = (f) => f.transcribeStatus === 'done' ? '<span class="chip green">תומלל</span>' : f.transcribeStatus === 'running' ? '<span class="chip accent">מתמלל…</span>' : f.transcribeStatus === 'error' ? `<span class="chip red" title="${esc(f.transcribeError || '')}">שגיאה</span>` : '';
+  return `<div class="section">
+    <h3 class="section-title">הקלטה, תמלול וסיכום אוטומטי <small>${files.length ? files.length + ' הקלטות' : ''}</small></h3>
+    ${files.map((f) => `<div class="rec-row">
+      <div class="rec-main"><audio controls preload="none" src="${esc(fileUrl(f))}"></audio><div class="li-sub">${esc([f.caption || 'הקלטה', f.durationSec ? fmtDur(f.durationSec) : '', f.size ? Math.round(f.size / 1024) + ' KB' : '', fmtDateTime(f.createdAt)].filter(Boolean).join(' · '))}${f.transcribeError && f.transcribeStatus !== 'running' ? `<div class="crit-text">${esc(f.transcribeError)}</div>` : ''}</div></div>
+      <div class="rec-side">${st(f)}${ro ? '' : (f.transcribeStatus === 'running' ? '' : `<button class="btn small ${f.transcribeStatus === 'done' ? 'ghost' : 'primary'}" data-action="transcribe" data-id="${f.id}">${f.transcribeStatus === 'done' ? 'תמלל שוב' : 'תמלל וסכם'}</button>`)}${ro ? '' : `<button type="button" class="icon-btn" data-action="file-del" data-id="${f.id}" title="מחק הקלטה">${ICON.x}</button>`}</div>
+      ${f.transcript ? `<details class="rec-transcript"><summary>תמלול (${f.transcript.length.toLocaleString('he-IL')} תווים)</summary><pre>${esc(f.transcript)}</pre></details>` : ''}
+    </div>`).join('')}
+    ${ro ? '' : `<div class="add-row" style="flex-wrap:wrap;align-items:center">
+      ${rec ? `<button class="btn primary small" data-action="rec-stop" data-id="${v.id}">■ עצור הקלטה <span class="rec-timer" id="rec-timer">${fmtDur((Date.now() - rec.startedAt) / 1000)}</span></button>` : (can ? `<button class="btn small" data-action="rec-start" data-id="${v.id}">● הקלט ${v.kind === 'meeting' ? 'את הפגישה' : 'הערות קוליות'}</button>` : '')}
+      <label class="btn small" title="קובץ הקלטה מהטלפון"><input type="file" accept="audio/*" hidden data-upload="${esc(JSON.stringify({ projectId: v.projectId, visitId: v.id, caption: 'הקלטה מיובאת' }))}">${ICON.plus} ייבוא הקלטה</label>
+      <span class="inline-note">${rec ? 'מקליט… השאירו את המסך דלוק.' : 'ההקלטה נשמרת בתיק הפרויקט; "תמלל וסכם" מפיק תמלול, סיכום ו' + (v.kind === 'meeting' ? 'החלטות' : 'ממצאים') + ' מוצעים (מסומנים AI) לבדיקה.'}</span>
+    </div>`}
+  </div>`;
+}
+async function startRecording(visitId) {
+  if (S.ui.rec) return;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const type = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg;codecs=opus'].find((t) => MediaRecorder.isTypeSupported(t)) || '';
+    const recorder = new MediaRecorder(stream, type ? { mimeType: type, audioBitsPerSecond: 64000 } : undefined);
+    const chunks = [];
+    recorder.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+    recorder.onstop = () => {
+      const r = S.ui.rec; S.ui.rec = null; clearInterval(r && r.timer);
+      stream.getTracks().forEach((t) => t.stop());
+      const mime = recorder.mimeType || type || 'audio/webm';
+      const ext = /mp4/.test(mime) ? 'm4a' : /ogg/.test(mime) ? 'ogg' : 'webm';
+      const blob = new Blob(chunks, { type: mime });
+      const v = S.site_visits[visitId];
+      if (blob.size < 1000 || !v) { toast('ההקלטה ריקה'); render(); return; }
+      const file = new File([blob], `recording-${todayStr()}.${ext}`, { type: mime, lastModified: Date.now() });
+      uploadFiles([file], { projectId: v.projectId, visitId, caption: 'הקלטה ' + fmtDateTime(nowIso()), durationSec: r ? Math.round((Date.now() - r.startedAt) / 1000) : null });
+      render();
+    };
+    recorder.start(1000);
+    S.ui.rec = { visitId, recorder, startedAt: Date.now(), timer: setInterval(() => { const el = document.getElementById('rec-timer'); if (el && S.ui.rec) el.textContent = fmtDur((Date.now() - S.ui.rec.startedAt) / 1000); }, 1000) };
+    render();
+  } catch (e) { console.warn(e); toast(/NotAllowed|Permission/i.test(String(e)) ? 'אין הרשאה למיקרופון' : 'ההקלטה לא נתמכת בדפדפן הזה'); }
+}
+function stopRecording() { const r = S.ui.rec; if (r && r.recorder && r.recorder.state !== 'inactive') r.recorder.stop(); else { S.ui.rec = null; render(); } }
+async function transcribeFile(fileId, action = 'start') {
+  const f = S.files[fileId]; if (!f) return;
+  if (action === 'start') { f.transcribeStatus = 'running'; f.transcribeError = ''; render(); }
+  try {
+    const { data, error } = await sb.functions.invoke('transcribe', { body: { fileId, action } });
+    if (error) throw new Error((error.context && error.context.status) ? await error.context.json().then((j) => j.error || error.message).catch(() => error.message) : error.message);
+    if (data && data.error) throw new Error(data.error);
+    if (data && data.status === 'running') { clearTimeout(S.ui.transcribePoll); S.ui.transcribePoll = setTimeout(() => transcribeFile(fileId, 'poll'), 12000); return; }
+    await Promise.all([fetchTable('files'), fetchTable('visit_items'), fetchTable('site_visits')]);
+    render();
+    if (data && data.status === 'done') toast(data.items ? `התמלול הושלם — ${data.items} פריטים מוצעים נוספו לבדיקה` : 'התמלול הושלם' + (data.summarized ? ' והסיכום נכתב' : ''));
+  } catch (e) {
+    console.warn(e); const ff = S.files[fileId]; if (ff) { ff.transcribeStatus = 'error'; ff.transcribeError = String(e.message || e); }
+    toast('התמלול נכשל: ' + friendlyError(e)); render();
+  }
+}
+
 /* ---------- menus & actions ---------- */
 function fieldMenu(kind, id, anchor) {
   if (!['vikind', 'viresp'].includes(kind)) return false;
@@ -2608,6 +2688,9 @@ async function fieldAction(a, ds, t, e) {
     case 'open-report': { S.ui.reportId = ds.id; S.ui.returnDrawer = S.ui.drawer; S.ui.drawer = null; nav('report'); return true; }
     case 'report-back': { const back = S.ui.returnDrawer; S.ui.returnDrawer = null; S.ui.view = 'field'; if (back) S.ui.drawer = back; try { history.replaceState(null, '', '#field'); } catch (err) { /* ignore */ } render(); return true; }
     case 'report-print': window.print(); return true;
+    case 'rec-start': if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } await startRecording(ds.id); return true;
+    case 'rec-stop': stopRecording(); return true;
+    case 'transcribe': { if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } if (hasPending()) { toast('שמרו את השינויים לפני התמלול'); return true; } await transcribeFile(ds.id, 'start'); return true; }
     case 'report-pdf': await makeReportPdf(ds.id); return true;
     default: return false;
   }
@@ -2638,7 +2721,7 @@ function renderOverlay() {
   if (S.ui.confirmClose) html += `<div class="scrim" style="z-index:45" data-action="close-keep"></div><div class="modal"><h3 style="margin:0 0 8px">שינויים שלא נשמרו</h3><p>יש ${pendingCount() === 1 ? 'שינוי אחד' : pendingCount() + ' שינויים'} שעדיין לא נשמרו. מה לעשות?</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-action="close-save">שמור וסגור</button><button class="btn" data-action="close-discard">בטל את השינויים</button><button class="btn ghost" data-action="close-keep">המשך עריכה</button></div></div>`;
   if (S.ui.confirmMerge) { const m = S.ui.confirmMerge; html += `<div class="scrim" style="z-index:45" data-action="merge-cancel"></div><div class="modal"><h3 style="margin:0 0 8px">מיזוג רשומות</h3><p>כל הקישורים של <strong>${esc(cname(m.from))}</strong> יעברו אל <strong>${esc(cname(m.into))}</strong>, והרשומה הראשונה תימחק. פרטים חסרים ברשומה היעד יושלמו מהרשומה שנמחקת.</p><div style="display:flex;gap:8px;justify-content:flex-start"><button class="btn primary" data-action="merge-confirm">מזג</button><button class="btn" data-action="merge-cancel">בטל</button></div></div>`; }
   html += renderLightbox();
-  ov.innerHTML = html + `<datalist id="dl-roles">${settings().teamRoles.map((r) => `<option value="${esc(r)}">`).join('')}</datalist><datalist id="dl-waiting">${['לקוח', 'יועץ', 'קבלן', 'ספק', 'עירייה / ועדה', 'מנהל פרויקט'].map((r) => `<option value="${r}">`).join('')}</datalist>`;
+  ov.innerHTML = html + `<datalist id="dl-roles">${settings().teamRoles.map((r) => `<option value="${esc(r)}">`).join('')}</datalist><datalist id="dl-mstypes">${list('milestone_types').sort((a, b) => (Number(b.usage) || 0) - (Number(a.usage) || 0)).slice(0, 120).map((t) => `<option value="${esc(t.name)}">`).join('')}</datalist><datalist id="dl-waiting">${['לקוח', 'יועץ', 'קבלן', 'ספק', 'עירייה / ועדה', 'מנהל פרויקט'].map((r) => `<option value="${r}">`).join('')}</datalist>`;
   renderMenu();
 }
 function openDrawer(kind, id) { S.ui.menu = null; S.ui.confirm = null; S.ui.drawer = { kind, id }; render(); }
@@ -2812,51 +2895,69 @@ function phasesSection(p) {
     <div style="margin-top:8px"><button class="btn ghost small" data-action="phase-reset" data-id="${p.id}">אפס לתבנית של המשרד</button></div>
   </div>`;
 }
-/* fee milestones per contract — DataWave rows are read-only; manual rows (additions to the contract, change orders) are editable. Managers only; RLS hides the table from everyone else */
-const MS_STATE = { todo: { label: 'טרם', cls: 'dim', next: 'active' }, active: { label: 'חלקי', cls: 'accent', next: 'done' }, done: { label: 'הוגש', cls: 'green', next: 'todo' } };
-const MS_CONTRACTS = ['תוספת לחוזה', 'שינויים', 'חוזה'];
+/* contract milestones as a work list: status, due date, checklist and tasks per milestone. Names follow the contracts (DataWave sync / unified types).
+   No money here — fees live in milestone_fees (managers only, for billing later). Status/checklist: every member; structure (add/rename/remove): team leads and up. */
+const MS_STATE = { todo: { label: 'טרם התחיל', icon: 'phTodo', next: 'active' }, active: { label: 'בתהליך', icon: 'phActive', next: 'done' }, done: { label: 'הושלם', icon: 'phDone', next: 'todo' } };
+const MS_CONTRACTS = ['חוזה', 'תוספת לחוזה', 'שינויים'];
+const canEditMilestones = () => ['owner', 'manager', 'team_lead'].includes(myRole());
 const milestonesOf = (pid) => Object.values(S.project_milestones).filter((m) => m.projectId === pid).sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0) || (a.createdAt || '').localeCompare(b.createdAt || ''));
 const msTypeName = (m) => (m.typeId && S.milestone_types[m.typeId]?.name) || m.name;
+const msChecklist = (m) => (Array.isArray(m.checklist) ? m.checklist : []);
+const tasksOfMilestone = (mid) => TK().filter((t) => t.milestoneId === mid);
 function milestonesSection(p) {
-  if (!isManager()) return '';
+  if (!isMember()) return '';
   if (!S.milestonesLoaded[p.id]) {
     if (!S.milestonesLoading[p.id]) { S.milestonesLoading[p.id] = true; fetchMilestones(p.id).then(() => { S.milestonesLoading[p.id] = false; if (S.ui.drawer?.kind === 'project' && S.ui.drawer.id === p.id) render(); }); }
-    return `<div class="section"><h3 class="section-title">אבני דרך ושכר טרחה לפי החוזה <small>מנהלים בלבד</small></h3><div class="inline-note">טוען…</div></div>`;
+    return `<div class="section"><h3 class="section-title">אבני דרך לפי החוזה</h3><div class="inline-note">טוען…</div></div>`;
   }
   const ms = milestonesOf(p.id);
-  const phName = (id) => (id && (settings().phases.find((x) => x.id === id) || projectPhases(p).find((x) => x.id === id))?.name) || '';
-  const total = (arr, k) => arr.reduce((s, m) => s + (Number(m[k]) || 0), 0);
+  const done = ms.filter((m) => m.state === 'done').length;
   const groups = [];
   ms.forEach((m) => { const key = (m.contract || '') + '‖' + (m.section || ''); let g = groups.find((x) => x.key === key); if (!g) { g = { key, contract: m.contract || '', section: m.section || '', rows: [] }; groups.push(g); } g.rows.push(m); });
-  const amt = total(ms, 'amount'), billed = total(ms, 'billed'), rec = total(ms, 'receipts');
-  const stateChip = (m) => { const st = MS_STATE[m.state] || MS_STATE.todo; return m.source === 'manual' ? `<span class="chip ${st.cls} btn-chip" data-action="ms-state" data-id="${m.id}" role="button" tabindex="0" title="לחיצה משנה">${st.label}</span>` : `<span class="chip ${st.cls}">${st.label}</span>`; };
   const groupLabel = (g) => esc([g.contract, g.section].filter((x, i, a) => x && a.indexOf(x) === i).join(' › '));
-  const nameCell = (m) => {
-    if (m.source === 'manual') return `<input type="text" class="ms-in" id="msn-${m.id}" value="${esc(S.ui.drafts['msn-' + m.id] ?? m.name)}" data-bind="project_milestones:${m.id}:name" aria-label="שם">`;
-    const t = msTypeName(m);
-    return `${esc(t)}${t !== m.name ? `<div class="cell-sub" title="השם בחוזה">${esc(m.name)}</div>` : ''}${m.dueDate ? `<div class="cell-sub">עד ${fmtDate(m.dueDate)}</div>` : ''}`;
+  const ro = !isMember();
+  const row = (m) => {
+    const st = MS_STATE[m.state] || MS_STATE.todo;
+    const open = !!S.ui.msOpen[m.id];
+    const cl = msChecklist(m); const clDone = cl.filter((c) => c.done).length;
+    const tks = tasksOfMilestone(m.id); const tOpen = tks.filter(isOpenTask);
+    const due = m.dueDate ? dueInfo({ dueDate: m.dueDate, status: m.state === 'done' ? 'done' : 'todo' }) : { label: '', cls: '' };
+    const tname_ = msTypeName(m);
+    return `<div class="msr ${m.state} ${open ? 'open' : ''}" id="msr-${m.id}">
+      <div class="msr-head">
+        <button type="button" class="phase-state" data-action="ms-state" data-id="${m.id}" title="${st.label} — לחיצה משנה ל: ${MS_STATE[st.next].label}" ${ro ? 'disabled' : ''}>${ICON[st.icon]}</button>
+        <div class="msr-name" data-action="ms-toggle" data-id="${m.id}">${esc(tname_)}${tname_ !== m.name ? `<small title="הניסוח בחוזה">${esc(m.name)}</small>` : ''}</div>
+        <div class="msr-meta">${tOpen.length ? `<span title="משימות פתוחות">${tOpen.length} משימות</span>` : ''}${cl.length ? `<span title="צ'קליסט">${clDone}/${cl.length} ✓</span>` : ''}${due.label ? `<span class="due ${due.cls}">${esc(due.label)}</span>` : ''}</div>
+        <button type="button" class="icon-btn msr-caret" data-action="ms-toggle" data-id="${m.id}" title="${open ? 'סגור' : 'פתח'}">${open ? '▴' : '▾'}</button>
+      </div>
+      ${open ? `<div class="msr-body">
+        <div class="field-row">
+          ${field('יעד לסיום', `<input type="date" id="msd-${m.id}" value="${dateInput(m.dueDate)}" data-bind="project_milestones:${m.id}:dueDate" ${ro ? 'disabled' : ''}>`)}
+          ${canEditMilestones() ? field('שם (לפי החוזה)', `<input type="text" id="msn-${m.id}" value="${esc(S.ui.drafts['msn-' + m.id] ?? m.name)}" data-bind="project_milestones:${m.id}:name" ${m.source === 'manual' ? '' : 'title="שם שנשאב מהחוזה — שינוי כאן לא משנה את החוזה"'}>`) : ''}
+        </div>
+        <div class="field"><label>צ'קליסט</label>
+          ${cl.length ? `<div class="progress"><div style="width:${Math.round((clDone / cl.length) * 100)}%"></div></div>` : ''}
+          <div class="checklist">${cl.map((c) => `<div class="check-row ${c.done ? 'done' : ''}"><label><input type="checkbox" ${c.done ? 'checked' : ''} data-mscheck="${m.id}:${c.id}" ${ro ? 'disabled' : ''}><span>${esc(c.text)}</span></label>${ro ? '' : `<button class="icon-btn" data-action="ms-check-remove" data-id="${m.id}" data-item="${c.id}" title="הסר">${ICON.x}</button>`}</div>`).join('')}</div>
+          ${ro ? '' : `<div class="add-row"><input type="text" id="mscheck-add-${m.id}" placeholder="פריט לבדיקה… (Enter)" data-mscheckadd="${m.id}"><button class="btn small" data-action="ms-check-add" data-id="${m.id}">${ICON.plus}</button></div>`}
+        </div>
+        <div class="field"><label>משימות באבן הדרך <small class="muted">${tks.length ? `${tOpen.length} פתוחות · ${tks.length - tOpen.length} בוצעו` : ''}</small></label>
+          ${tOpen.length ? sortTasks(tOpen).map((t) => taskItem(t, { hideProject: true })).join('') : '<div class="inline-note">אין משימות פתוחות.</div>'}
+          ${canWriteTasks() ? quickAdd('mstask-add-' + m.id, 'משימה חדשה באבן הדרך… (Enter)', `data-scope="milestone" data-project="${p.id}" data-milestone="${m.id}"`) : ''}
+        </div>
+        ${field('הערות', textArea('msnote-' + m.id, m.notes, `rows="2" data-bind="project_milestones:${m.id}:notes" ${ro ? 'disabled' : ''}`))}
+        ${canEditMilestones() ? `<div style="display:flex;justify-content:flex-end"><button class="btn ghost small" data-action="ms-del" data-id="${m.id}">הסר אבן דרך</button></div>` : ''}
+      </div>` : ''}
+    </div>`;
   };
-  const row = (m) => m.source === 'manual'
-    ? `<tr class="ms-manual"><td>${nameCell(m)}${`<input type="date" class="ms-in" id="msd-${m.id}" value="${dateInput(m.dueDate)}" data-bind="project_milestones:${m.id}:dueDate" title="לביצוע עד" style="margin-top:4px">`}</td><td class="num"></td><td class="num"><input type="number" class="ms-in num" id="msa-${m.id}" value="${m.amount ?? ''}" data-bind="project_milestones:${m.id}:amount" min="0" step="1" aria-label="סכום"></td><td class="num"><input type="number" class="ms-in num" id="msb-${m.id}" value="${m.billed ?? ''}" data-bind="project_milestones:${m.id}:billed" min="0" step="1" aria-label="הוגש"></td><td>${stateChip(m)}</td><td class="dim"><button type="button" class="icon-btn" data-action="ms-del" data-id="${m.id}" title="מחק">${ICON.x}</button></td></tr>`
-    : `<tr><td>${nameCell(m)}</td><td class="num">${m.pct != null ? Math.round(Number(m.pct)) + '%' : ''}</td><td class="num">${fmtMoney(m.amount)}</td><td class="num">${fmtMoney(m.billed)}</td><td>${stateChip(m)}</td><td class="dim">${esc(phName(m.phase))}</td></tr>`;
-  const synced = ms.find((m) => m.source !== 'manual')?.syncedAt;
   return `<div class="section">
-    <h3 class="section-title">אבני דרך ושכר טרחה לפי החוזה <small>${ms.length ? `${fmtMoney(billed)} הוגש מתוך ${fmtMoney(amt)} · ` : ''}מנהלים בלבד</small></h3>
-    ${ms.length ? `<div class="progress"><div style="width:${amt ? Math.round((billed / amt) * 100) : 0}%"></div></div>
-    <div class="ms-wrap"><table class="ms-table">
-      <thead><tr><th>אבן דרך</th><th class="num">%</th><th class="num">סכום</th><th class="num">הוגש</th><th>מצב</th><th>שלב</th></tr></thead>
-      <tbody>${groups.map((g) => `${groups.length > 1 ? `<tr class="ms-group"><td colspan="6">${groupLabel(g)}</td></tr>` : ''}
-        ${g.rows.map(row).join('')}
-        ${g.rows.length > 1 ? `<tr class="ms-total"><td>סה"כ</td><td></td><td class="num">${fmtMoney(total(g.rows, 'amount'))}</td><td class="num">${fmtMoney(total(g.rows, 'billed'))}</td><td colspan="2"></td></tr>` : ''}`).join('')}
-      </tbody>
-    </table></div>
-    <div class="inline-note" style="margin-top:8px">תקבולים: ${fmtMoney(rec)} · יתרה לחיוב: ${fmtMoney(amt - billed)}${synced ? ` · מקור: DataWave, עודכן ${fmtDate(synced)}` : ''}</div>` : '<div class="inline-note">אין עדיין אבני דרך לפרויקט. אפשר להוסיף תוספת לחוזה או שינוי:</div>'}
-    <div class="add-row" style="margin-top:10px;flex-wrap:wrap">
+    <h3 class="section-title">אבני דרך לפי החוזה <small>${ms.length ? `${done} מתוך ${ms.length} הושלמו` : ''}</small></h3>
+    ${ms.length ? `<div class="progress"><div style="width:${Math.round((done / ms.length) * 100)}%"></div></div>
+    <div class="ms-list">${groups.map((g) => `${groups.length > 1 ? `<div class="ms-group">${groupLabel(g)}</div>` : ''}${g.rows.map(row).join('')}`).join('')}</div>` : `<div class="inline-note">${canEditMilestones() ? 'אין עדיין אבני דרך לפרויקט. הוסיפו לפי החוזה:' : 'אין עדיין אבני דרך לפרויקט.'}</div>`}
+    ${canEditMilestones() ? `<div class="add-row" style="margin-top:10px;flex-wrap:wrap">
       ${selectHtml('ms-add-kind-' + p.id, MS_CONTRACTS[0], MS_CONTRACTS.map((c) => ({ value: c, label: c })), { attrs: 'style="flex:0 0 auto"' })}
-      <input type="text" id="ms-add-name-${p.id}" placeholder="תיאור התוספת / השינוי… (Enter)" data-msadd="${p.id}" style="flex:1;min-width:160px">
-      <input type="number" id="ms-add-amount-${p.id}" placeholder="סכום ₪" min="0" step="1" style="width:110px" data-msadd="${p.id}">
+      <input type="text" id="ms-add-name-${p.id}" placeholder="אבן דרך לפי החוזה… (Enter)" data-msadd="${p.id}" style="flex:1;min-width:160px" list="dl-mstypes">
       <button class="btn small" data-action="ms-add" data-id="${p.id}">${ICON.plus} הוסף</button>
-    </div>
+    </div>` : ''}
   </div>`;
 }
 /* sub-projects: a project can sit under a parent (e.g. a floor of a building) */
@@ -3239,12 +3340,13 @@ function bindHandler(el) {
   if (col === 'contacts' && !canWriteContact(S.contacts[id]?.type)) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'tasks' && !canWriteTasks()) { toast('אין לך הרשאת עריכה'); render(); return; }
   if ((col === 'site_visits' || col === 'visit_items') && !canWriteField()) { toast('אין לך הרשאת עריכה'); render(); return; }
-  if ((col === 'project_milestones' || col === 'milestone_types') && !isManager()) { toast('אין לך הרשאת עריכה'); render(); return; }
+  if (col === 'project_milestones' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
+  if (col === 'milestone_types' && !isManager()) { toast('אין לך הרשאת עריכה'); render(); return; }
   let v;
   if (el.type === 'checkbox') v = el.checked;
   else if (el.type === 'number') v = el.value === '' ? null : Number(el.value);
   else v = el.value;
-  if (['teamId', 'leadId', 'phase', 'clientId', 'projectId', 'supplierId', 'startDate', 'dueDate', 'expectedDate', 'invoiceDate', 'paidDate', 'assigneeId', 'phaseId', 'parentId', 'responsibleId', 'nextVisit', 'typeId', 'phase'].includes(key) && v === '') v = null;
+  if (['teamId', 'leadId', 'phase', 'clientId', 'projectId', 'supplierId', 'startDate', 'dueDate', 'expectedDate', 'invoiceDate', 'paidDate', 'assigneeId', 'phaseId', 'parentId', 'responsibleId', 'nextVisit', 'typeId', 'phase', 'milestoneId'].includes(key) && v === '') v = null;
   delete S.ui.drafts[el.id];
   if (key === 'name' && !String(v).trim()) { render(); return; }
   patchDoc(col, id, { [key]: v });
@@ -3272,6 +3374,7 @@ document.addEventListener('change', (e) => {
   if (el.dataset.userRole) { const pid = el.dataset.userRole; const role = el.value; patchDoc('profiles', pid, { role }).then((ok) => { if (ok) toast('התפקיד עודכן'); }); return; }
   if (id === 'k-supplier') { S.ui.kfilter.supplier = el.value; render(); return; }
   if (id.startsWith('tf-')) { const k = id.slice(3); S.ui.tfilter[k] = el.type === 'checkbox' ? el.checked : el.value; render(); return; }
+  if (el.dataset.mscheck) { const [mid, cid] = el.dataset.mscheck.split(':'); const m = S.project_milestones[mid]; if (!m || !isMember()) return; patchDoc('project_milestones', mid, { checklist: msChecklist(m).map((c) => c.id === cid ? Object.assign({}, c, { done: el.checked }) : c) }); return; }
   if (el.dataset.check) { const [tid, cid] = el.dataset.check.split(':'); const t = S.tasks[tid]; if (!t || !canWriteTasks()) return; patchDoc('tasks', tid, { checklist: checklistOf(t).map((c) => c.id === cid ? Object.assign({}, c, { done: el.checked }) : c) }); return; }
   if (el.dataset.action === 'toggle-person') { const p = S.projects[el.dataset.id]; if (!p || !canWriteProjects()) { render(); return; } const cur = p.clientPersonIds || []; patchDoc('projects', p.id, { clientPersonIds: el.checked ? [...new Set([...cur, el.dataset.person])] : cur.filter((x) => x !== el.dataset.person) }); return; }
   // settings
@@ -3298,6 +3401,7 @@ document.addEventListener('keydown', (e) => {
     if (el.dataset.comment && (e.ctrlKey || e.metaKey)) { e.preventDefault(); sendComment(el.dataset.comment); return; }
     if (el.dataset.quick) { e.preventDefault(); document.querySelector(`[data-action="task-quick-add"][data-input="${el.id}"]`)?.click(); return; }
     if (el.dataset.msadd) { e.preventDefault(); document.querySelector(`[data-action="ms-add"][data-id="${el.dataset.msadd}"]`)?.click(); return; }
+    if (el.dataset.mscheckadd) { e.preventDefault(); document.querySelector(`[data-action="ms-check-add"][data-id="${el.dataset.mscheckadd}"]`)?.click(); return; }
     if (el.id?.startsWith('check-add-')) { e.preventDefault(); document.querySelector(`[data-action="check-add"][data-id="${el.id.slice(10)}"]`)?.click(); return; }
     if (el.id === 'add-team') { document.querySelector('[data-action="add-team"]')?.click(); return; }
     if (el.id === 'add-phase') { document.querySelector('[data-action="add-phase"]')?.click(); return; }
@@ -3338,17 +3442,22 @@ document.addEventListener('click', async (e) => {
     case 'mt-merge-cancel': S.ui.confirmMergeTypes = null; render(); break;
     // ----- milestones (manual) & sub-projects -----
     case 'ms-add': {
-      if (!isManager()) break;
-      const nameEl = document.getElementById('ms-add-name-' + ds.id); const amtEl = document.getElementById('ms-add-amount-' + ds.id); const kind = document.getElementById('ms-add-kind-' + ds.id)?.value || MS_CONTRACTS[0];
+      if (!canEditMilestones()) { toast('הוספת אבני דרך שמורה לראשי צוותים ומנהלים'); break; }
+      const nameEl = document.getElementById('ms-add-name-' + ds.id); const kind = document.getElementById('ms-add-kind-' + ds.id)?.value || MS_CONTRACTS[0];
       const name = (nameEl?.value || '').trim(); if (!name) { nameEl?.focus(); break; }
-      const amount = amtEl && amtEl.value !== '' ? Number(amtEl.value) : null;
+      const type = list('milestone_types').find((t) => norm(t.name) === norm(name) || (t.aliases || []).some((a) => norm(a) === norm(name)));
       const sortOrder = Math.max(0, ...milestonesOf(ds.id).map((m) => Number(m.sortOrder) || 0)) + 1;
-      nameEl.value = ''; if (amtEl) amtEl.value = '';
-      await createDoc('project_milestones', uid('ms'), { projectId: ds.id, contract: kind, section: '', name, pct: null, amount, billed: 0, receipts: 0, openInv: 0, balance: amount, subAmount: 0, subExp: 0, subBalance: 0, phase: null, state: 'todo', sortOrder, source: 'manual', typeId: null, dueDate: null, notes: '' });
+      nameEl.value = '';
+      const id = uid('ms');
+      await createDoc('project_milestones', id, { projectId: ds.id, contract: kind, section: '', name, phase: type?.phase || null, state: 'todo', sortOrder, source: 'manual', typeId: type?.id || null, dueDate: null, notes: '', checklist: [], doneAt: null });
+      S.ui.msOpen[id] = true; render();
       setTimeout(() => document.getElementById('ms-add-name-' + ds.id)?.focus(), 30); break;
     }
-    case 'ms-state': { e.stopPropagation(); const m = S.project_milestones[ds.id]; if (!m || !isManager()) break; patchDoc('project_milestones', ds.id, { state: MS_STATE[m.state]?.next || 'active' }); break; }
-    case 'ms-del': { if (!isManager()) break; await deleteDoc('project_milestones', ds.id); break; }
+    case 'ms-state': { e.stopPropagation(); const m = S.project_milestones[ds.id]; if (!m || !isMember()) break; const next = MS_STATE[m.state]?.next || 'active'; patchDoc('project_milestones', ds.id, { state: next, doneAt: next === 'done' ? nowIso() : null }); break; }
+    case 'ms-toggle': { e.stopPropagation(); S.ui.msOpen[ds.id] = !S.ui.msOpen[ds.id]; render(); break; }
+    case 'ms-check-add': { const inp = document.getElementById('mscheck-add-' + ds.id); const text = (inp?.value || '').trim(); const m = S.project_milestones[ds.id]; if (!text || !m || !isMember()) break; inp.value = ''; await patchDoc('project_milestones', ds.id, { checklist: [...msChecklist(m), { id: uid('c'), text, done: false }] }); setTimeout(() => document.getElementById('mscheck-add-' + ds.id)?.focus(), 30); break; }
+    case 'ms-check-remove': { const m = S.project_milestones[ds.id]; if (!m || !isMember()) break; patchDoc('project_milestones', ds.id, { checklist: msChecklist(m).filter((c) => c.id !== ds.item) }); break; }
+    case 'ms-del': { if (!canEditMilestones()) break; tasksOfMilestone(ds.id).forEach((t) => patchDoc('tasks', t.id, { milestoneId: null })); await deleteDoc('project_milestones', ds.id); break; }
     case 'new-subproject': {
       if (!canWriteProjects()) { toast('אין לך הרשאת עריכה'); break; }
       const par = S.projects[ds.id]; if (!par) break;
@@ -3369,7 +3478,7 @@ document.addEventListener('click', async (e) => {
     case 'task-quick-add': {
       if (!canWriteTasks()) { toast('אין לך הרשאת עריכה'); break; }
       const inp = document.getElementById(ds.input); const title = (inp?.value || '').trim(); if (!title) { inp?.focus(); break; }
-      const ov = { title }; if (ds.scope === 'mine') ov.assigneeId = me().id; if (ds.scope === 'project') ov.projectId = ds.project || null;
+      const ov = { title }; if (ds.scope === 'mine') ov.assigneeId = me().id; if (ds.scope === 'project') ov.projectId = ds.project || null; if (ds.scope === 'milestone') { ov.projectId = ds.project || null; ov.milestoneId = ds.milestone || null; }
       inp.value = ''; await newTask(ov); setTimeout(() => document.getElementById(ds.input)?.focus(), 30); break;
     }
     case 'new-task': {
