@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://pdbgmmzjghxophcdxchg.supabase.co" crossorigin>
 <link rel="preconnect" href="https://use.typekit.net" crossorigin>
 <link rel="preconnect" href="https://oberson-arch.com" crossorigin>
-<link rel="preload" as="image" href="logo-draw.v4.webp">
+<link rel="preload" as="image" href="logo-draw.v5.webp">
 <link rel="stylesheet" href="https://use.typekit.net/iqp8fqo.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
@@ -26,9 +26,11 @@
   #boot { position: fixed; inset: 0; z-index: 1000; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 24px; transition: opacity .5s ease; }
   #boot.out { opacity: 0; pointer-events: none; }
   #boot-brand { display: flex; align-items: baseline; justify-content: center; direction: ltr; }
-  #boot-logo { position: relative; width: min(300px, 50vw); aspect-ratio: 823 / 139; background: url(logo-draw.v4.webp) no-repeat 0 0 / 400% auto; }
-  /* OBERSON GO: once the logo is fully drawn, GO appears after it in the geometric face, cap height matched, Pantone Green C */
-  #boot-go { font-family: "futura-pt", "Narkiss Block", Arial, sans-serif; font-weight: 300; font-size: min(65px, 10.85vw); letter-spacing: .06em; line-height: 1; margin-left: .12em; color: #00ab4e; opacity: 0; transition: opacity .35s ease; }
+  #boot-brand { --lw: min(300px, 52vw); }
+  #boot-logo { position: relative; width: var(--lw); margin-right: calc(var(--lw) * .306); aspect-ratio: 823 / 139; background: url(logo-draw.v5.webp) no-repeat 0 0 / 400% auto; }
+  /* OBERSON GO: once the logo is fully drawn, the GO that is part of the wordmark (same stroke, G touching the N) appears in Pantone Green C;
+     positioned on the vector logo's bounds inside the sprite frame (x 0.36%–99.64%, y 1.91%–97.36%) */
+  #boot-go { position: absolute; left: 99.64%; top: 1.91%; height: 95.45%; width: auto; color: #00ab4e; opacity: 0; transition: opacity .35s ease; overflow: visible; }
   #boot.full #boot-go { opacity: 1; }
   #boot.leaving #boot-go { opacity: 0; }
   #boot-logo.static { background: url(logo.svg) no-repeat center / contain !important; }
@@ -45,17 +47,17 @@
 </head>
 <body>
 <div id="boot" role="status" aria-live="polite">
-  <div id="boot-brand"><div id="boot-logo" role="img" aria-label="OBERSON GO"></div><span id="boot-go" aria-hidden="true">GO</span></div>
+  <div id="boot-brand"><div id="boot-logo" role="img" aria-label="OBERSON GO"><svg id="boot-go" viewBox="999.6 0 306.4 162.4" aria-hidden="true"><g class="logo-go" fill="none" stroke="currentColor" stroke-width="10.7"><path d="M1147.25 81.2A71.15 75.85 0 1 1 1130.60 32.44"/><path d="M1076.10 81.2H1152.60"/><ellipse cx="1229.10" cy="81.2" rx="71.15" ry="75.85"/></g></svg></div></div>
   <div id="boot-pct">0%</div>
   <div id="boot-bar"><i></i></div>
   <div id="boot-msg">טוען את המערכת…</div>
 </div>
 <script>
-// Loader (v3.9 — OBERSON GO wordmark, GO in Pantone Green C at logo height; PWA manifest + service worker; the application page comes from app.html on this origin or, as a
+// Loader (v4.0 — OBERSON GO wordmark with the GO drawn into it; PWA manifest + service worker; the application page comes from app.html on this origin or, as a
 // fallback, from ordered text blocks in Supabase (public.site_blocks / page = 'app') — see site_meta below): draws the boot screen, fetches the page, injects it into this document, and keeps reporting
 // progress that the application itself sends through window.__boot until its first real render.
 // The logo is drawn frame by frame as a direct function of the displayed percentage (sprite grid
-// logo-draw.v4.webp (versioned name so the page and the sprite never mismatch in caches): 105 frames in 4 columns, blank -> full logo, 1.5x resolution with vector-crisp
+// logo-draw.v5.webp (versioned name so the page and the sprite never mismatch in caches): 105 frames in 4 columns, blank -> full logo, 1.5x resolution with vector-crisp
 // edges); on exit the same frames run backwards so the logo un-draws before the curtain lifts.
 (() => {
   const SB_URL = 'https://pdbgmmzjghxophcdxchg.supabase.co';
@@ -75,7 +77,7 @@
   const drawImg = new Image();
   drawImg.onload = () => { logoOk = true; };
   drawImg.onerror = () => { logoEl.classList.add('static'); };
-  drawImg.src = 'logo-draw.v4.webp';
+  drawImg.src = 'logo-draw.v5.webp';
   const framePos = (i, s) => { const k = Math.max(0, Math.min(s.n - 1, i)); return ((k % s.cols) / (s.cols - 1) * 100) + '% ' + (Math.floor(k / s.cols) / (s.rows - 1) * 100) + '%'; };
   const paint = () => {
     const v = Math.round(shown);
