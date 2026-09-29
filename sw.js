@@ -1,9 +1,9 @@
-/* OBERSONLINE — service worker (v3)
+/* OBERSON GO — service worker (v4)
    Shell files (this page, the boot sprite, icons, manifest) are cached on install and served cache-first.
    The application page itself is fetched by the loader from Supabase (site_blocks) — those requests are served
    network-first and the last good copy is kept per page range, so the app still opens when offline or when
    Supabase is briefly unreachable. Data requests (rest/v1 for other tables, auth, realtime, storage) are never cached. */
-const VERSION = 'online-shell-v3';
+const VERSION = 'go-shell-v4';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './logo-draw.v4.webp', './logo.svg', './icon-192.png', './icon-512.png', './icon-512-maskable.png', './apple-touch-icon.png'];
 const BLOCKS = 'go-blocks-v1';
 

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>OBERSONLINE</title>
+<title>OBERSON GO</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23fff'/%3E%3Ccircle cx='16' cy='16' r='11.5' fill='none' stroke='%23000' stroke-width='3'/%3E%3C/svg%3E">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link rel="preconnect" href="https://use.typekit.net" crossorigin>
@@ -47,8 +47,7 @@
     --font-ui: "Narkiss Block", "futura-pt", "Heebo", "Segoe UI", Arial, sans-serif;
     --font-display: "Narkiss Block", "futura-pt", "Heebo", Arial, sans-serif;
     --font-num: "futura-pt", "Narkiss Block", "Heebo", Arial, sans-serif;
-    --go: #e10600;
-    --online: #12b76a; /* the ON of the wordmark and the LINE that follows it: OBERSONLINE */
+    --go: #00ab4e; /* Pantone Green C — the GO that continues the wordmark */
   }
 
   * { box-sizing: border-box; }
@@ -92,9 +91,8 @@
   .brand .logo { width: 152px; }
   .brand:hover .logo { color: var(--ink-2); }
   .brand-office { display: none; }
-  /* the wordmark reads OBERSONLINE: the drawn logo (OBERS black, ON green) followed by a small black LINE in the geometric face, sitting on the logo's baseline */
-  .logo-on { color: var(--online); }
-  .brand-line { font-family: var(--font-num); font-weight: 400; font-size: 16px; letter-spacing: .16em; color: var(--ink); margin-inline-start: 6px; line-height: 1; }
+  /* OBERSON GO: the drawn wordmark continued by GO in the geometric face, cap height matched to the logo, Pantone Green C, on the logo's baseline */
+  .brand-go { font-family: var(--font-num); font-weight: 300; font-size: 33px; letter-spacing: .06em; color: var(--go); margin-inline-start: .12em; line-height: 1; }
   .brand-title { font-family: var(--font-display); font-weight: 200; font-size: 22px; line-height: 1.2; color: var(--ink); letter-spacing: .02em; }
   .nav { display: flex; gap: 4px; flex-wrap: wrap; margin-inline-start: auto; }
   .nav button {
@@ -399,6 +397,13 @@
   .phase-row.done .phase-state { border-color: var(--good); color: var(--good); background: var(--good-soft); }
   .phase-row.done input { color: var(--ink-3); text-decoration: line-through; }
   .phase-status-label { font-size: 12.5px; color: var(--ink-3); white-space: nowrap; min-width: 62px; }
+  .ph-why { font-size: 11.5px; color: var(--ink-3); }
+  .ph-why.warn { color: var(--warn-ink); }
+  .ph-why.dim { color: var(--ink-3); opacity: .8; }
+  .fit-note { margin-bottom: 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; border-inline-start: 2px solid var(--warn); padding-inline-start: 8px; }
+  .ptm th.num, .ptm td.num { text-align: center; }
+  .ptm td.num input { width: 16px; height: 16px; margin: 0; }
+  .ptm small.muted { color: var(--ink-3); font-weight: 400; margin-inline-start: 6px; }
   .progress { height: 4px; background: var(--surface-2); border-radius: 0; overflow: hidden; margin: 2px 0 12px; }
   .progress > div { height: 100%; background: var(--ink); border-radius: 0; transition: width .25s ease; }
   @media (max-width: 720px) {
@@ -488,10 +493,10 @@
   .auth-wrap { min-height: calc(100vh - 40px); display: flex; align-items: center; justify-content: center; padding: 20px 0; }
   .auth-card { width: min(440px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 0; padding: 40px 36px 32px; }
   .auth-brand { margin-bottom: 28px; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
-  .auth-brand .logo { width: min(300px, 80%); }
+  .auth-brand .logo { width: 64%; }
   .auth-brand .brand-office { display: block; font-size: 12.5px; letter-spacing: .14em; color: var(--ink-2); }
-  .auth-brand .brand-line { font-size: 30px; margin-inline-start: 10px; }
-  .auth-brand .brand-row { display: flex; align-items: baseline; justify-content: center; direction: ltr; width: 100%; }
+  .auth-brand .brand-go { font-size: 13.9cqw; margin-inline-start: .12em; }
+  .auth-brand .brand-row { display: flex; align-items: baseline; justify-content: center; direction: ltr; width: 100%; container-type: inline-size; }
   .auth-brand .brand-title { font-size: 20px; }
   .auth-title { font-family: var(--font-display); font-weight: 400; font-size: 20px; margin: 0 0 8px; letter-spacing: .02em; }
   .auth-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--rule); margin-bottom: 18px; }
@@ -571,7 +576,7 @@
   .rp-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--rule); padding-bottom: 12px; margin-bottom: 12px; }
   .rp-brand { display: flex; align-items: baseline; direction: ltr; }
   .rp-brand .logo { width: 150px; }
-  .rp-line { font-family: var(--font-num); font-weight: 400; font-size: 16px; letter-spacing: .16em; color: var(--ink); margin-left: 6px; line-height: 1; }
+  .rp-go { font-family: var(--font-num); font-weight: 300; font-size: 32.5px; letter-spacing: .06em; color: var(--go); margin-left: .12em; line-height: 1; }
   .rp-titles { text-align: start; }
   .rp-title { font-family: var(--font-display); font-weight: 200; font-size: 26px; line-height: 1.1; letter-spacing: .01em; }
   .rp-title span { color: var(--ink-2); }
@@ -645,6 +650,7 @@
     .masthead-inner { gap: 8px; padding-inline: 16px; }
     .brand { padding: 10px 0; }
     .brand .logo { width: 118px; }
+    .brand-go { font-size: 25.6px; }
     .nav { width: 100%; margin-inline-start: 0; overflow-x: auto; flex-wrap: nowrap; }
     .nav button { padding: 8px 9px 11px; }
     .head-tools { margin-inline-start: auto; gap: 6px; min-width: 0; }
@@ -664,11 +670,11 @@
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><clipPath id="clip-obers" clipPathUnits="userSpaceOnUse"><rect x="-2" y="-2" width="717" height="167"/></clipPath><clipPath id="clip-on" clipPathUnits="userSpaceOnUse"><rect x="715" y="-2" width="290" height="167"/></clipPath><path id="logo-path" fill="currentColor" fill-rule="evenodd" d="M76.4 161.8C75.7 161.8 73.8 161.6 72.2 161.4C52.9 159.3 35.2 150.3 22 135.9C13.4 126.7 7.1 115.5 3.7 103.7C-1.9 84.1 0 63.1 8.9 45.2C19.5 24.1 38.9 8.6 61.7 2.8C68.7 1.1 73.3 0.5 82.2 0.5C91.2 0.5 95.8 1.1 103.1 2.9C117.5 6.6 130.3 14.1 140.9 25C145.3 29.5 149.2 34.5 152.7 40.3L153.1 41.1L153.1 20.8L153.2 0.4L207.8 0.4C243 0.4 263.1 0.5 264.4 0.6C274.4 1.8 284 6.4 290.8 13.6C291.6 14.4 292.2 15 292.3 15C292.3 15 292.4 11.7 292.4 7.7L292.4 0.4L413.7 0.4C497.8 0.4 535.6 0.5 537.1 0.7C553.8 2.5 568.1 14 573.3 29.9C581.9 56 564.3 83.2 537.1 86.2C535.8 86.3 529.9 86.4 522.6 86.4C514.9 86.4 510.3 86.5 510.3 86.6C510.4 86.8 527.5 101.4 548.5 119.1L586.6 151.4L629.1 151.4C656.9 151.4 672.5 151.4 674.1 151.2C678.4 150.8 682 149.7 685.7 147.8C694.8 143 700.8 134.3 702.1 124.1C702.5 121 702.2 113.7 701.6 111.1C700.3 105 697.6 100 693.2 95.5C688.7 91.1 684 88.5 677.4 87C675.4 86.6 675.2 86.6 645.8 86.4C614 86.3 615.2 86.3 610.8 85.2C605.2 83.8 599.3 81 594.7 77.5C592.9 76.1 589.2 72.5 587.7 70.6C581.4 62.8 578.1 53.4 578.1 43.4C578.1 33.8 581.1 24.8 587.1 17.1C588.4 15.2 592.1 11.6 594 10C600.4 4.8 608.5 1.5 616.8 0.6C618.5 0.5 656.8 0.4 750.8 0.5L882.5 0.5L935.3 75.9C976 134.1 988.2 151.3 988.6 151.4L989.1 151.5L989.1 76.9L989.1 2.4L994.3 2.4L999.6 2.4L999.6 82.2L999.6 161.9L991 161.9L982.5 161.9L929.7 86.4C900.6 44.9 876.7 11 876.6 11C876.4 11.1 876.3 31 876.3 85.4L876.2 159.8L871 159.8L865.7 159.8L865.7 140.5L865.7 121.1L864.6 122.9C858.8 132.6 850.2 141.6 841.1 147.8C829.8 155.5 817.7 159.9 803.7 161.6C800 162 788.6 161.9 784.6 161.4C763.1 158.8 744.1 148.3 730.8 131.7C713.7 110.4 708.5 82.1 717 56.1C722.1 40.5 732.1 26.5 745.4 16.6C747.6 15 752.1 12 753 11.5C753.3 11.4 753.5 11.2 753.5 11.1C753.5 11 723.1 11 685.4 11L617.2 11.1L615.1 11.5C608.6 13 603.3 15.7 598.8 19.9C593.3 25.2 589.9 31.8 588.9 39.4C588.5 42.5 588.5 44.4 588.9 47.4C590.6 60.5 599.8 71.1 612.3 74.6C616.5 75.8 614.9 75.8 647 75.9C678.9 76.1 677.2 76 681.6 77.1C696 80.7 707.7 92.3 711.5 106.7C712.6 110.7 712.8 112.8 712.8 118.8C712.8 126.3 712.2 130 710.2 135.2C704.5 150 691.2 160.1 675.5 161.7C674 161.9 658 161.9 627.9 161.9L582.5 161.9L539.5 125.5L496.5 89L496.4 82.5L496.3 76L516.2 75.9C536 75.8 536.2 75.8 538.5 75.3C552 72.5 562.1 62.2 564.5 48.8C565 45.9 565 41 564.5 38.1C562.1 24.6 551.9 14.3 538.3 11.5L535.9 11L419.5 11L303 11L303 43.4L303 75.8L367.7 75.9L432.4 75.9L432.4 81.2L432.4 86.4L367.7 86.5L303 86.6L303 118.9L303 151.3L367.7 151.4L432.4 151.4L432.4 156.7L432.4 161.9L362.4 161.9L292.4 161.9L292.4 154.7C292.4 150.6 292.3 147.4 292.3 147.4C292.3 147.4 291.3 148.3 290.1 149.5C283.7 155.7 276.3 159.6 267.2 161.4L264.8 161.8L209 161.9L153.2 162L153.1 141.7L153 121.5L151.4 124.1C138.6 144.4 117.4 158 94 161.2C88.9 161.9 81.6 162.1 76.4 161.8ZM87 151.2C102.6 150.2 116.5 144.6 128.4 134.7C131 132.4 135.8 127.6 137.9 124.9C144.5 116.5 149.3 106.7 151.5 96.5C152.8 90.8 153 88.4 153 81.3C153 73.3 152.7 70.2 150.9 63.4C144.5 38.8 124.8 19.3 100.1 13.1C93.9 11.6 89.5 11.1 82.2 11.1C74.8 11.1 70.4 11.6 64.2 13.1C58.6 14.5 52.4 17 47.5 19.7C29.8 29.6 17.1 46.4 12.8 65.9C11.5 71.6 11.3 74 11.3 81.2C11.3 88.3 11.5 90.8 12.8 96.4C15.2 107.4 20.4 117.7 27.6 126.2C42.3 143.7 63.8 152.7 87 151.2ZM262.4 151.2C268.4 150.7 274 148.6 278.7 145.3C281 143.7 284.6 140 286.2 137.8C292.9 128.3 294.1 116.4 289.5 105.7C285 95.4 274.9 88.1 263.4 86.7C262.2 86.5 246.2 86.4 216.2 86.4L170.7 86.4L170.7 81.2L170.7 75.9L217.2 75.9L263.7 75.8L265.9 75.3C272.8 73.8 278 71 282.7 66.3C286.5 62.5 289 58.6 290.6 53.5C291.8 49.9 292.2 47.3 292.2 43.4C292.2 39.6 291.8 37 290.6 33.4C289 28.4 286.5 24.4 282.7 20.6C278 15.9 272.6 13 265.8 11.5L263.5 11L213.7 11L163.9 10.9L163.9 81.2L163.9 151.4L212.1 151.4C239 151.4 261.2 151.3 262.4 151.2ZM802.6 151C829.6 148.1 852.4 130.3 861.5 105C865.5 94.1 866.7 82.4 865 70.8C861.2 44.8 842.3 22.6 817 14.4C810.4 12.3 804.5 11.3 797 11C772 10.2 749 21.9 735.3 42.5C729.1 51.9 725.4 62 724 73.5C723.5 77.5 723.5 84.9 724 88.9C726 105.1 732.9 119.4 744.2 130.7C756.6 143.1 772.9 150.3 790.5 151.3C792.9 151.4 800.4 151.2 802.6 151ZM292.3 71.9C292.3 71.9 291.2 72.9 290 74.1C287.6 76.4 284.3 79 282.2 80.2C281.5 80.6 281 81 280.9 81.1C280.8 81.2 281.7 81.8 282.8 82.5C285.3 84.1 288.4 86.6 290.5 88.8L292.3 90.5L292.3 81.3C292.3 76.2 292.3 72 292.3 71.9ZM865.7 11C865.6 11 858.8 11 850.6 11L835.6 11L837.8 12.4C845.8 17.3 853.2 23.9 859.2 31.5C860.5 33.2 864 38.3 865 40L865.6 41.1L865.7 26.1C865.7 17.8 865.7 11.1 865.7 11Z"/></defs><symbol id="logo-mark" viewBox="0 0 1000 162.4"><use href="#logo-path" clip-path="url(#clip-obers)"/><use href="#logo-path" class="logo-on" clip-path="url(#clip-on)"/></symbol></svg>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="logo-mark" viewBox="0 0 1000 162.4"><path fill="currentColor" fill-rule="evenodd" d="M76.4 161.8C75.7 161.8 73.8 161.6 72.2 161.4C52.9 159.3 35.2 150.3 22 135.9C13.4 126.7 7.1 115.5 3.7 103.7C-1.9 84.1 0 63.1 8.9 45.2C19.5 24.1 38.9 8.6 61.7 2.8C68.7 1.1 73.3 0.5 82.2 0.5C91.2 0.5 95.8 1.1 103.1 2.9C117.5 6.6 130.3 14.1 140.9 25C145.3 29.5 149.2 34.5 152.7 40.3L153.1 41.1L153.1 20.8L153.2 0.4L207.8 0.4C243 0.4 263.1 0.5 264.4 0.6C274.4 1.8 284 6.4 290.8 13.6C291.6 14.4 292.2 15 292.3 15C292.3 15 292.4 11.7 292.4 7.7L292.4 0.4L413.7 0.4C497.8 0.4 535.6 0.5 537.1 0.7C553.8 2.5 568.1 14 573.3 29.9C581.9 56 564.3 83.2 537.1 86.2C535.8 86.3 529.9 86.4 522.6 86.4C514.9 86.4 510.3 86.5 510.3 86.6C510.4 86.8 527.5 101.4 548.5 119.1L586.6 151.4L629.1 151.4C656.9 151.4 672.5 151.4 674.1 151.2C678.4 150.8 682 149.7 685.7 147.8C694.8 143 700.8 134.3 702.1 124.1C702.5 121 702.2 113.7 701.6 111.1C700.3 105 697.6 100 693.2 95.5C688.7 91.1 684 88.5 677.4 87C675.4 86.6 675.2 86.6 645.8 86.4C614 86.3 615.2 86.3 610.8 85.2C605.2 83.8 599.3 81 594.7 77.5C592.9 76.1 589.2 72.5 587.7 70.6C581.4 62.8 578.1 53.4 578.1 43.4C578.1 33.8 581.1 24.8 587.1 17.1C588.4 15.2 592.1 11.6 594 10C600.4 4.8 608.5 1.5 616.8 0.6C618.5 0.5 656.8 0.4 750.8 0.5L882.5 0.5L935.3 75.9C976 134.1 988.2 151.3 988.6 151.4L989.1 151.5L989.1 76.9L989.1 2.4L994.3 2.4L999.6 2.4L999.6 82.2L999.6 161.9L991 161.9L982.5 161.9L929.7 86.4C900.6 44.9 876.7 11 876.6 11C876.4 11.1 876.3 31 876.3 85.4L876.2 159.8L871 159.8L865.7 159.8L865.7 140.5L865.7 121.1L864.6 122.9C858.8 132.6 850.2 141.6 841.1 147.8C829.8 155.5 817.7 159.9 803.7 161.6C800 162 788.6 161.9 784.6 161.4C763.1 158.8 744.1 148.3 730.8 131.7C713.7 110.4 708.5 82.1 717 56.1C722.1 40.5 732.1 26.5 745.4 16.6C747.6 15 752.1 12 753 11.5C753.3 11.4 753.5 11.2 753.5 11.1C753.5 11 723.1 11 685.4 11L617.2 11.1L615.1 11.5C608.6 13 603.3 15.7 598.8 19.9C593.3 25.2 589.9 31.8 588.9 39.4C588.5 42.5 588.5 44.4 588.9 47.4C590.6 60.5 599.8 71.1 612.3 74.6C616.5 75.8 614.9 75.8 647 75.9C678.9 76.1 677.2 76 681.6 77.1C696 80.7 707.7 92.3 711.5 106.7C712.6 110.7 712.8 112.8 712.8 118.8C712.8 126.3 712.2 130 710.2 135.2C704.5 150 691.2 160.1 675.5 161.7C674 161.9 658 161.9 627.9 161.9L582.5 161.9L539.5 125.5L496.5 89L496.4 82.5L496.3 76L516.2 75.9C536 75.8 536.2 75.8 538.5 75.3C552 72.5 562.1 62.2 564.5 48.8C565 45.9 565 41 564.5 38.1C562.1 24.6 551.9 14.3 538.3 11.5L535.9 11L419.5 11L303 11L303 43.4L303 75.8L367.7 75.9L432.4 75.9L432.4 81.2L432.4 86.4L367.7 86.5L303 86.6L303 118.9L303 151.3L367.7 151.4L432.4 151.4L432.4 156.7L432.4 161.9L362.4 161.9L292.4 161.9L292.4 154.7C292.4 150.6 292.3 147.4 292.3 147.4C292.3 147.4 291.3 148.3 290.1 149.5C283.7 155.7 276.3 159.6 267.2 161.4L264.8 161.8L209 161.9L153.2 162L153.1 141.7L153 121.5L151.4 124.1C138.6 144.4 117.4 158 94 161.2C88.9 161.9 81.6 162.1 76.4 161.8ZM87 151.2C102.6 150.2 116.5 144.6 128.4 134.7C131 132.4 135.8 127.6 137.9 124.9C144.5 116.5 149.3 106.7 151.5 96.5C152.8 90.8 153 88.4 153 81.3C153 73.3 152.7 70.2 150.9 63.4C144.5 38.8 124.8 19.3 100.1 13.1C93.9 11.6 89.5 11.1 82.2 11.1C74.8 11.1 70.4 11.6 64.2 13.1C58.6 14.5 52.4 17 47.5 19.7C29.8 29.6 17.1 46.4 12.8 65.9C11.5 71.6 11.3 74 11.3 81.2C11.3 88.3 11.5 90.8 12.8 96.4C15.2 107.4 20.4 117.7 27.6 126.2C42.3 143.7 63.8 152.7 87 151.2ZM262.4 151.2C268.4 150.7 274 148.6 278.7 145.3C281 143.7 284.6 140 286.2 137.8C292.9 128.3 294.1 116.4 289.5 105.7C285 95.4 274.9 88.1 263.4 86.7C262.2 86.5 246.2 86.4 216.2 86.4L170.7 86.4L170.7 81.2L170.7 75.9L217.2 75.9L263.7 75.8L265.9 75.3C272.8 73.8 278 71 282.7 66.3C286.5 62.5 289 58.6 290.6 53.5C291.8 49.9 292.2 47.3 292.2 43.4C292.2 39.6 291.8 37 290.6 33.4C289 28.4 286.5 24.4 282.7 20.6C278 15.9 272.6 13 265.8 11.5L263.5 11L213.7 11L163.9 10.9L163.9 81.2L163.9 151.4L212.1 151.4C239 151.4 261.2 151.3 262.4 151.2ZM802.6 151C829.6 148.1 852.4 130.3 861.5 105C865.5 94.1 866.7 82.4 865 70.8C861.2 44.8 842.3 22.6 817 14.4C810.4 12.3 804.5 11.3 797 11C772 10.2 749 21.9 735.3 42.5C729.1 51.9 725.4 62 724 73.5C723.5 77.5 723.5 84.9 724 88.9C726 105.1 732.9 119.4 744.2 130.7C756.6 143.1 772.9 150.3 790.5 151.3C792.9 151.4 800.4 151.2 802.6 151ZM292.3 71.9C292.3 71.9 291.2 72.9 290 74.1C287.6 76.4 284.3 79 282.2 80.2C281.5 80.6 281 81 280.9 81.1C280.8 81.2 281.7 81.8 282.8 82.5C285.3 84.1 288.4 86.6 290.5 88.8L292.3 90.5L292.3 81.3C292.3 76.2 292.3 72 292.3 71.9ZM865.7 11C865.6 11 858.8 11 850.6 11L835.6 11L837.8 12.4C845.8 17.3 853.2 23.9 859.2 31.5C860.5 33.2 864 38.3 865 40L865.6 41.1L865.7 26.1C865.7 17.8 865.7 11.1 865.7 11Z"/></symbol></svg>
 <div id="app">
   <header class="masthead" id="masthead" hidden>
     <div class="masthead-inner">
-      <button type="button" class="brand" data-action="nav" data-view="overview" title="OBERSONLINE"><svg class="logo" aria-label="OBERSONLINE"><use href="#logo-mark"/></svg><span class="brand-line" aria-hidden="true">LINE</span><span class="brand-office" id="brand-office">OBERSON</span></button>
+      <button type="button" class="brand" data-action="nav" data-view="overview" title="OBERSON GO"><svg class="logo" aria-label="OBERSON GO"><use href="#logo-mark"/></svg><span class="brand-go" aria-hidden="true">GO</span><span class="brand-office" id="brand-office">OBERSON</span></button>
       <nav class="nav" id="nav" aria-label="ניווט ראשי"></nav>
       <div class="head-tools">
         <span id="bell" class="bell"></span>
@@ -802,13 +808,48 @@ const contact = (id) => (id && S.contacts[id]) || null;
 const cname = (id, fallback = '—') => contact(id)?.name || fallback;
 const team = (id) => (id && S.teams[id]) || null;
 const tname = (id, fallback = 'ללא צוות') => team(id)?.name || fallback;
-/* per-project phases: p.phases = [{id, name, weight, state: todo|active|done}]; a project without the array uses the template */
+/* per-project phases: p.phases = [{id, name, weight, state: todo|active|done}]; a project without the array uses the template for its type.
+   Which template phases apply is decided by the project type (settings.phasesByType; by default a permit phase exists only for
+   private houses and residential neighbourhoods) and by the contract: a phase that has milestones in the contract is always in. */
+const PERMIT_TYPES = ['בית פרטי', 'מגורים'];
+const TYPE_ONLY_PHASES = { permit: PERMIT_TYPES }; // default rule: phase id → the only types that get it
+function phaseIdsForType(type) {
+  const tpl = settings().phases; const map = settings().phasesByType || {};
+  if (type && Array.isArray(map[type])) return tpl.filter((x) => map[type].includes(x.id)).map((x) => x.id);
+  return tpl.filter((x) => !TYPE_ONLY_PHASES[x.id] || !type || TYPE_ONLY_PHASES[x.id].includes(type)).map((x) => x.id);
+}
+const phasesForType = (type) => { const ids = phaseIdsForType(type); return settings().phases.filter((x) => ids.includes(x.id)); };
+/* phases the contract asks for: the phase of every milestone type used by the project's milestones (loaded per project) */
+function contractPhases(pid) {
+  const out = new Set();
+  Object.values(S.project_milestones).forEach((m) => { if (m.projectId !== pid) return; const ph = (m.typeId && S.milestone_types[m.typeId]?.phase) || m.phase; if (ph) out.add(ph); });
+  return [...out];
+}
+const contractPhaseCount = (pid, phaseId) => Object.values(S.project_milestones).filter((m) => m.projectId === pid && (((m.typeId && S.milestone_types[m.typeId]?.phase) || m.phase) === phaseId)).length;
 function projectPhases(p) {
   if (Array.isArray(p.phases)) return p.phases;
-  const tpl = settings().phases;
+  const tpl = phasesForType(p.type);
   const idx = p.phase ? tpl.findIndex((x) => x.id === p.phase) : -1;
   return tpl.map((x, i) => ({ id: x.id, name: x.name, weight: x.weight, state: idx < 0 ? 'todo' : i < idx ? 'done' : i === idx ? 'active' : 'todo' }));
 }
+/* the phase list a project should have: its type's template ∪ the contract's phases; existing states, names and custom phases are kept,
+   a template phase that neither the type nor the contract needs is dropped, missing ones are added in template order */
+function fitPhases(p) {
+  const tpl = settings().phases; const order = new Map(tpl.map((t, i) => [t.id, i]));
+  const want = new Set(phaseIdsForType(p.type)); contractPhases(p.id).forEach((id) => want.add(id));
+  const cur = projectPhases(p);
+  const out = cur.filter((x) => want.has(x.id) || !order.has(x.id));
+  tpl.forEach((t) => {
+    if (!want.has(t.id) || out.some((x) => x.id === t.id)) return;
+    const item = { id: t.id, name: t.name, weight: t.weight, state: 'todo' };
+    let at = 0;
+    for (let i = 0; i < out.length; i++) { const oi = order.get(out[i].id); if (oi != null && oi < order.get(t.id)) at = i + 1; }
+    out.splice(at, 0, item);
+  });
+  return out;
+}
+const phasesUntouched = (p) => projectPhases(p).every((x) => x.state === 'todo');
+const samePhaseIds = (a, b) => a.length === b.length && a.every((x, i) => x.id === b[i].id);
 const activePhases = (p) => projectPhases(p).filter((x) => x.state === 'active');
 const allPhasesDone = (p) => { const ph = projectPhases(p); return ph.length > 0 && ph.every((x) => x.state === 'done'); };
 const phaseLabel = (p) => { const a = activePhases(p); if (a.length) return a.map((x) => x.name).join(' + '); return allPhasesDone(p) ? 'כל השלבים הושלמו' : 'ללא שלב פעיל'; };
@@ -948,15 +989,21 @@ function renderUserBox() {
   const p = me();
   el.innerHTML = p ? `<span class="user-name" title="${esc(p.email)}">${esc(p.fullName || p.email)}</span><span class="chip dim" style="font-size:11px">${esc(ROLE_LABELS[p.role] || p.role)}</span><button class="btn ghost small" data-action="logout" title="התנתקות">יציאה</button>` : '';
 }
+/* every render rebuilds the page and the drawer from scratch — keep the person's place: the drawer's scroll position (as long as it is the
+   same drawer), the page scroll, and the focused field with its caret */
+const drawerKey = () => (S.ui.drawer ? S.ui.drawer.kind + ':' + S.ui.drawer.id : null);
 function saveFocus() {
   const el = document.activeElement;
-  if (!el || !el.id || el === document.body) return null;
-  return { id: el.id, start: el.selectionStart, end: el.selectionEnd, scroll: document.querySelector('.drawer-body')?.scrollTop };
+  const body = document.querySelector('.drawer-body');
+  const f = { id: el && el.id && el !== document.body ? el.id : null, start: el?.selectionStart, end: el?.selectionEnd, scroll: body ? body.scrollTop : null, drawer: drawerKey(), page: window.scrollY };
+  return f;
 }
 function restoreFocus(f) {
-  const body = document.querySelector('.drawer-body');
-  if (f && body && f.scroll != null) body.scrollTop = f.scroll;
   if (!f) return;
+  const body = document.querySelector('.drawer-body');
+  if (body && f.scroll != null && f.drawer === drawerKey()) body.scrollTop = f.scroll;
+  if (f.page != null && f.page > 0 && Math.abs(window.scrollY - f.page) > 1) window.scrollTo({ top: f.page });
+  if (!f.id) return;
   const el = document.getElementById(f.id);
   if (!el) return;
   el.focus({ preventScroll: true });
@@ -1286,6 +1333,23 @@ function phasesTemplateEditor() {
     </div>`).join('')}</div>
     ${ro ? '' : `<div class="add-row"><input type="text" id="add-phase" placeholder="שלב חדש…"><button class="btn small" data-action="add-phase">הוסף שלב</button></div>`}
     <div class="field" style="margin-top:14px"><label>משקל לפרויקט ללא שלב</label><input type="number" step="0.1" min="0" id="set-unknown-weight" value="${st.unknownPhaseWeight ?? 1}" style="max-width:120px" ${ro ? 'disabled' : ''}></div>
+  </div>
+  ${phasesByTypeEditor()}`;
+}
+/* which template phases each project type gets (e.g. a permit phase only for private houses and residential neighbourhoods) */
+function phasesByTypeEditor() {
+  const st = settings(); const ro = !isManager();
+  const types = st.types || [];
+  return `<div class="panel" style="margin-top:14px">
+    <div class="panel-head"><h2 class="panel-title">שלבים לפי סוג פרויקט</h2><span class="panel-sub">אילו שלבים מהתבנית מקבל כל סוג · החוזה יכול להוסיף שלב (אבן דרך שממופה לשלב)</span></div>
+    <div class="table-wrap"><table class="matrix ptm">
+      <thead><tr><th>סוג</th>${st.phases.map((ph) => `<th class="num" title="${esc(ph.name)}">${esc(ph.name)}</th>`).join('')}</tr></thead>
+      <tbody>${types.map((t) => { const ids = phaseIdsForType(t); const explicit = Array.isArray((st.phasesByType || {})[t]); return `<tr>
+        <td><strong>${esc(t)}</strong>${explicit ? '' : ' <small class="muted">ברירת מחדל</small>'}</td>
+        ${st.phases.map((ph) => `<td class="num"><input type="checkbox" data-ptm="${esc(t)}:${ph.id}" ${ids.includes(ph.id) ? 'checked' : ''} ${ro ? 'disabled' : ''} aria-label="${esc(t)} — ${esc(ph.name)}"></td>`).join('')}
+      </tr>`; }).join('')}</tbody>
+    </table></div>
+    <div class="inline-note" style="margin-top:8px">ברירת המחדל: כל השלבים לכל סוג, למעט "${esc(st.phases.find((x) => x.id === 'permit')?.name || 'היתר')}" שקיים רק ב${PERMIT_TYPES.join(' ו')}. פרויקט חדש מקבל את שלבי הסוג שלו; בפרויקט קיים לוחצים "התאם לסוג ולחוזה" בכרטיס הפרויקט. פרויקט ללא סוג מקבל את כל השלבים.</div>
   </div>`;
 }
 const CONTACT_PAGE = 250; // rows rendered before "show more" — keeps the person registry (1000+ rows) snappy
@@ -1956,7 +2020,7 @@ function renderAuth() {
   const err = a.error ? `<div class="banner" style="margin-top:12px">${esc(a.error)}</div>` : '';
   const note = a.notice ? `<div class="banner info" style="margin-top:12px">${esc(a.notice)}</div>` : '';
   const busy = a.busy ? 'disabled' : '';
-  const brand = `<div class="auth-brand"><div class="brand-row"><svg class="logo" aria-label="OBERSONLINE"><use href="#logo-mark"/></svg><span class="brand-line" aria-hidden="true">LINE</span></div><div class="brand-office">OBERSONLINE · משימות, לקוחות ופרויקטים</div></div>`;
+  const brand = `<div class="auth-brand"><div class="brand-row"><svg class="logo" aria-label="OBERSON GO"><use href="#logo-mark"/></svg><span class="brand-go" aria-hidden="true">GO</span></div><div class="brand-office">OBERSON GO · משימות, לקוחות ופרויקטים</div></div>`;
   if (a.status === 'loading') return `<div class="auth-wrap"><div class="auth-card">${brand}<div class="loading">מתחבר…</div></div></div>`;
   if (a.status === 'pending' || a.status === 'nopro') return `<div class="auth-wrap"><div class="auth-card">${brand}
     <h2 class="auth-title">החשבון ממתין לאישור</h2>
@@ -2590,7 +2654,7 @@ function reportBlocks(v) {
   const blocks = [];
   const b = (cls, html) => blocks.push(`<div class="rp-b ${cls}">${html}</div>`);
   const kv = (k, val) => `<div class="rp-kv"><span>${k}</span><strong>${esc(val || '—')}</strong></div>`;
-  b('rp-header', `<div class="rp-brand"><svg class="logo" aria-label="OBERSONLINE"><use href="#logo-mark"/></svg><span class="rp-line">LINE</span></div>
+  b('rp-header', `<div class="rp-brand"><svg class="logo" aria-label="OBERSON GO"><use href="#logo-mark"/></svg><span class="rp-go">GO</span></div>
     <div class="rp-titles"><div class="rp-title">${esc(K.report)} <span>מס' ${v.seq}</span></div><div class="rp-project">${esc(p.name)}${p.number ? ` <small>פרויקט ${esc(p.number)}</small>` : ''}</div></div>`);
   b('rp-meta', `${kv('תאריך', fmtDate(v.visitDate) + (v.visitTime ? ' · ' + v.visitTime : ''))}${kv('כתובת', [p.address, p.city].filter(Boolean).join(', '))}${kv('לקוח', cname(p.clientId, ''))}${kv('נערך על ידי', uname(v.authorId, ''))}${kv(K.people, v.attendees)}${v.nextVisit ? kv('ביקור הבא', fmtDate(v.nextVisit)) : ''}`);
   if (v.summary) b('rp-section', `<h3>${esc(K.summary)}</h3><p>${esc(v.summary).replace(/\n/g, '<br>')}</p>`);
@@ -2989,25 +3053,30 @@ function phasesSection(p) {
   const ph = projectPhases(p);
   const prog = phaseProgress(p);
   const tplLeft = settings().phases.filter((x) => !ph.some((y) => y.name === x.name));
+  const loaded = !!S.milestonesLoaded[p.id]; const nMs = loaded ? milestonesOf(p.id).length : 0;
+  const fit = fitPhases(p); const fits = samePhaseIds(fit, ph);
+  const typeIds = phaseIdsForType(p.type); const cIds = loaded ? contractPhases(p.id) : [];
+  const why = (x) => { const inType = typeIds.includes(x.id); const n = loaded ? contractPhaseCount(p.id, x.id) : 0; if (n) return { txt: `${n} בחוזה`, cls: '' }; if (!settings().phases.some((t) => t.id === x.id)) return { txt: 'מותאם', cls: 'dim' }; if (!inType) return { txt: p.type ? 'לא בסוג' : '', cls: 'warn' }; return { txt: loaded && nMs ? 'לא בחוזה' : '', cls: 'dim' }; };
   return `<div class="section">
-    <h3 class="section-title">שלבי הפרויקט לפי החוזה <small>${prog.total ? `${prog.done} מתוך ${prog.total} הושלמו` : ''}</small></h3>
+    <h3 class="section-title">שלבי הפרויקט לפי הסוג והחוזה <small>${prog.total ? `${prog.done} מתוך ${prog.total} הושלמו` : ''}</small></h3>
     ${prog.total ? `<div class="progress"><div style="width:${Math.round((prog.done / prog.total) * 100)}%"></div></div>` : ''}
-    <div class="phase-list">${ph.length ? ph.map((x, i) => `<div class="phase-row ${x.state}">
+    ${!fits && canWriteProjects() ? `<div class="inline-note fit-note">השלבים לא תואמים את ${p.type ? `הסוג "${esc(p.type)}"` : 'הסוג'}${cIds.length ? ' ואת החוזה' : ''}: ${esc(fit.map((x) => x.name).join(' › '))}. <button type="button" class="btn small" data-action="phase-fit" data-id="${p.id}">התאם לסוג ולחוזה</button></div>` : ''}
+    <div class="phase-list">${ph.length ? ph.map((x, i) => { const w = why(x); return `<div class="phase-row ${x.state}">
       <button type="button" class="phase-state" data-action="phase-cycle" data-id="${p.id}" data-phase="${x.id}" title="${PHASE_STATES[x.state].label} — לחיצה משנה ל: ${PHASE_STATES[PHASE_STATES[x.state].next].label}">${ICON[PHASE_STATES[x.state].icon]}</button>
       <input type="text" id="pph-${p.id}-${x.id}" value="${esc(S.ui.drafts['pph-' + p.id + '-' + x.id] ?? x.name)}" data-pphase="${p.id}:${x.id}" aria-label="שם השלב">
-      <span class="phase-status-label">${PHASE_STATES[x.state].label}</span>
+      <span class="phase-status-label">${PHASE_STATES[x.state].label}${w.txt ? ` <span class="ph-why ${w.cls}">· ${w.txt}</span>` : ''}</span>
       <div class="set-tools">
         <button class="icon-btn" data-action="phase-move-p" data-id="${p.id}" data-phase="${x.id}" data-dir="-1" title="הזז למעלה" ${i === 0 ? 'disabled' : ''}>▲</button>
         <button class="icon-btn" data-action="phase-move-p" data-id="${p.id}" data-phase="${x.id}" data-dir="1" title="הזז למטה" ${i === ph.length - 1 ? 'disabled' : ''}>▼</button>
         <button class="icon-btn" data-action="phase-remove-p" data-id="${p.id}" data-phase="${x.id}" title="הסר שלב">${ICON.x}</button>
       </div>
-    </div>`).join('') : '<div class="inline-note">אין שלבים בפרויקט הזה. הוסיפו מהתבנית או שלב מותאם.</div>'}</div>
+    </div>`; }).join('') : '<div class="inline-note">אין שלבים בפרויקט הזה. הוסיפו מהתבנית או שלב מותאם.</div>'}</div>
     <div class="add-row" style="flex-wrap:wrap">
       ${selectHtml('ph-add-tpl-' + p.id, '', tplLeft.map((x) => ({ value: x.id, label: x.name })), { blank: tplLeft.length ? 'הוסף שלב מהתבנית…' : 'כל שלבי התבנית כבר בפרויקט', attrs: `data-phase-add-tpl="${p.id}" style="flex:1;min-width:160px" ${tplLeft.length ? '' : 'disabled'}` })}
       <input type="text" id="ph-add-custom-${p.id}" placeholder="שלב מותאם לחוזה…" style="flex:1;min-width:160px">
       <button class="btn small" data-action="phase-add-custom" data-id="${p.id}">הוסף</button>
     </div>
-    <div style="margin-top:8px"><button class="btn ghost small" data-action="phase-reset" data-id="${p.id}">אפס לתבנית של המשרד</button></div>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost small" data-action="phase-fit" data-id="${p.id}" ${fits ? 'disabled' : ''}>התאם לסוג ולחוזה</button><button class="btn ghost small" data-action="phase-reset" data-id="${p.id}">אפס לתבנית של הסוג</button></div>
   </div>`;
 }
 /* contract milestones as a work list: status, due date, checklist and tasks per milestone. Names follow the contracts (DataWave sync / unified types).
@@ -3502,6 +3571,8 @@ function bindHandler(el) {
   delete S.ui.drafts[el.id];
   if (key === 'name' && !String(v).trim()) { render(); return; }
   patchDoc(col, id, { [key]: v });
+  // a project's phases follow its type as long as nobody has started marking them
+  if (col === 'projects' && key === 'type') { const p = S.projects[id]; if (p && phasesUntouched(p)) { const fit = fitPhases(p); if (!samePhaseIds(fit, projectPhases(p))) patchDoc('projects', id, { phases: fit }); } }
 }
 document.addEventListener('input', (e) => {
   const el = e.target;
@@ -3535,6 +3606,13 @@ document.addEventListener('change', (e) => {
   if (el.dataset.setList) { const key = el.dataset.setList; const i = Number(el.dataset.index); renameListValue(key, settings()[key][i], el.value.trim()); return; }
   if (el.dataset.teamName) { const v = el.value.trim(); if (v) patchDoc('teams', el.dataset.teamName, { name: v }); return; }
   if (el.dataset.teamLead) { const tid = el.dataset.teamLead; const lead = el.value || null; patchDoc('teams', tid, { leadId: lead }); if (lead && S.contacts[lead] && S.contacts[lead].teamId !== tid) patchDoc('contacts', lead, { teamId: tid }); return; }
+  if (el.dataset.ptm) { // phases-by-type matrix: the first toggle for a type makes its row explicit (copied from the current default), then the phase is added/removed
+    if (!isManager()) { render(); return; }
+    const i = el.dataset.ptm.lastIndexOf(':'); const type = el.dataset.ptm.slice(0, i); const phId = el.dataset.ptm.slice(i + 1);
+    const cur = phaseIdsForType(type).filter((x) => x !== phId); if (el.checked) cur.push(phId);
+    const order = settings().phases.map((x) => x.id);
+    patchSettings({ phasesByType: Object.assign({}, settings().phasesByType || {}, { [type]: order.filter((x) => cur.includes(x)) }) }); return;
+  }
   if (el.dataset.phaseName) { const phases = settings().phases.map((p) => p.id === el.dataset.phaseName ? Object.assign({}, p, { name: el.value.trim() || p.name }) : p); patchSettings({ phases }); return; }
   if (el.dataset.phaseWeight) { const phases = settings().phases.map((p) => p.id === el.dataset.phaseWeight ? Object.assign({}, p, { weight: Number(el.value) || 0 }) : p); patchSettings({ phases }); return; }
   if (el.dataset.sizeName) { const sizes = settings().sizes.map((s) => s.id === el.dataset.sizeName ? Object.assign({}, s, { name: el.value.trim() || s.name }) : s); patchSettings({ sizes }); return; }
@@ -3672,7 +3750,8 @@ document.addEventListener('click', async (e) => {
     case 'phase-move-p': { const ph = [...projectPhases(S.projects[ds.id])]; const i = ph.findIndex((x) => x.id === ds.phase); const j = i + Number(ds.dir); if (i < 0 || j < 0 || j >= ph.length) break; [ph[i], ph[j]] = [ph[j], ph[i]]; setPhases(ds.id, ph); break; }
     case 'phase-remove-p': setPhases(ds.id, projectPhases(S.projects[ds.id]).filter((x) => x.id !== ds.phase)); break;
     case 'phase-add-custom': { const i = document.getElementById('ph-add-custom-' + ds.id); const name = i?.value.trim(); if (!name) break; setPhases(ds.id, [...projectPhases(S.projects[ds.id]), { id: uid('ph'), name, weight: 1, state: 'todo' }]); break; }
-    case 'phase-reset': setPhases(ds.id, settings().phases.map((x) => ({ id: x.id, name: x.name, weight: x.weight, state: 'todo' }))); toast('השלבים אופסו לתבנית של המשרד'); break;
+    case 'phase-reset': { const p = S.projects[ds.id]; if (!p) break; setPhases(ds.id, phasesForType(p.type).map((x) => ({ id: x.id, name: x.name, weight: x.weight, state: 'todo' }))); toast('השלבים אופסו לתבנית של הסוג'); break; }
+    case 'phase-fit': { const p = S.projects[ds.id]; if (!p) break; const fit = fitPhases(p); if (samePhaseIds(fit, projectPhases(p))) { toast('השלבים כבר תואמים'); break; } setPhases(ds.id, fit); toast('השלבים הותאמו לסוג ולחוזה — לחצו "שמור"'); break; }
     case 'team-add-member': { e.stopPropagation(); openMenu(t, { search: true, placeholder: 'חיפוש עובד/ת…', emptyText: 'אין עובדים נוספים', items: employees().filter((c) => c.teamId !== ds.id).map((c) => ({ label: c.name, sub: c.teamId ? tname(c.teamId) : (c.role || 'ללא צוות'), value: c.id })), onPick: (it) => assignEmployeeToTeam(it.value, ds.id) }); break; }
     case 'team-remove-member': patchDoc('contacts', ds.id, { teamId: null }); break;
     case 'update-status': {
@@ -3684,7 +3763,7 @@ document.addEventListener('click', async (e) => {
       if (!canWriteProjects()) { toast('אין לך הרשאת עריכה'); break; }
       const id = uid('p');
       const f = S.ui.filters;
-      await createDoc('projects', id, { number: '', name: 'פרויקט חדש', type: '', typeDetail: '', address: '', city: '', clientId: null, clientContactName: '', clientContactPhone: '', teamId: f.team || null, leadId: f.lead || null, memberIds: [], pmId: null, contractorIds: [], consultantIds: [], supplierIds: [], partnerIds: [], state: 'active', phases: settings().phases.map((x) => ({ id: x.id, name: x.name, weight: x.weight, state: 'todo' })), health: null, statusNote: '', statusUpdatedAt: null, size: 'm', startDate: nowIso().slice(0, 10), dueDate: null, notes: '', needsReview: false, internal: false, sortIndex: P().length + 1 });
+      await createDoc('projects', id, { number: '', name: 'פרויקט חדש', type: '', typeDetail: '', address: '', city: '', clientId: null, clientContactName: '', clientContactPhone: '', teamId: f.team || null, leadId: f.lead || null, memberIds: [], pmId: null, contractorIds: [], consultantIds: [], supplierIds: [], partnerIds: [], state: 'active', phases: null, health: null, statusNote: '', statusUpdatedAt: null, size: 'm', startDate: nowIso().slice(0, 10), dueDate: null, notes: '', needsReview: false, internal: false, sortIndex: P().length + 1 });
       Object.assign(f, { q: '', flag: '', state: 'active' });
       openDrawer('project', id);
       setTimeout(() => { const i = document.getElementById('p-name'); if (i) { i.focus(); i.select(); } }, 30);
@@ -3846,7 +3925,7 @@ async function exportExcel() {
   if (isManager()) sheets.splice(2, 0, { name: 'עמלות', rows: kRows, widths: [36, 26, 12, 14, 12, 12, 12, 40] });
   const data = xlsxBuild(sheets);
   const stamp = new Date().toISOString().slice(0, 10);
-  try { downloadBytes(`OBERSONLINE ${stamp}.xlsx`, data); toast('הקובץ ירד'); }
+  try { downloadBytes(`OBERSON GO ${stamp}.xlsx`, data); toast('הקובץ ירד'); }
   catch (err) { toast('הייצוא נכשל: ' + (err?.message || '')); }
 }
 
