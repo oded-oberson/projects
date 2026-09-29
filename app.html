@@ -807,7 +807,7 @@ const tname = (id, fallback = 'ללא צוות') => team(id)?.name || fallback;
 /* per-project phases: p.phases = [{id, name, weight, state: todo|active|done}]; a project without the array uses the template for its type.
    Which template phases apply is decided by the project type (settings.phasesByType; by default a permit phase exists only for
    private houses and residential neighbourhoods) and by the contract: a phase that has milestones in the contract is always in. */
-const PERMIT_TYPES = ['בית פרטי', 'מגורים'];
+const PERMIT_TYPES = ['בית פרטי', 'מגורים', 'התחדשות עירונית']; // types whose contracts usually include a permit; per project the contract decides
 const TYPE_ONLY_PHASES = { permit: PERMIT_TYPES }; // default rule: phase id → the only types that get it
 function phaseIdsForType(type) {
   const tpl = settings().phases; const map = settings().phasesByType || {};
