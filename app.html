@@ -673,6 +673,43 @@
   .ph-add { width: 96px; height: 96px; border: 1px dashed var(--line-2); display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--ink-2); cursor: pointer; font-size: 12px; text-align: center; padding: 4px; }
   .ph-add:hover { border-color: var(--ink); color: var(--ink); }
   .ph-add svg { width: 22px; height: 22px; }
+  .ph.armed { outline: 2px solid var(--crit-ink, #b3261e); }
+  .ph-confirm { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: rgba(255,255,255,.92); }
+  .ph-confirm .btn { padding: 2px 8px; }
+  /* ---------- files: rows, project slots (presentation / plan sets), task attachments ---------- */
+  .file-list { display: flex; flex-direction: column; }
+  .file-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); cursor: pointer; min-width: 0; }
+  .file-row:last-child { border-bottom: 0; }
+  .file-row.current { background: var(--surface-2, rgba(0,0,0,.025)); padding-inline: 8px; margin-inline: -8px; border-bottom: 0; }
+  .file-row .li-title { font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: ltr; text-align: end; unicode-bidi: plaintext; }
+  .file-row .icon-btn { opacity: .55; }
+  .file-row:hover .icon-btn { opacity: 1; }
+  .file-ic { flex: none; width: 40px; height: 40px; border: 1px solid var(--line); background: var(--surface-2, #fafafa); display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; color: var(--ink-3); font-size: 9px; letter-spacing: .04em; text-transform: uppercase; overflow: hidden; }
+  .file-ic svg { width: 16px; height: 16px; }
+  .file-ic img { width: 100%; height: 100%; object-fit: cover; }
+  .file-ic.pdf { color: var(--crit-ink, #b3261e); }
+  .upload-ctl { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .upload-ctl label.btn { cursor: pointer; }
+  .slot { padding: 10px 0 12px; border-top: 1px solid var(--line); }
+  .slot:first-of-type { border-top: 0; padding-top: 4px; }
+  .slot-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+  .slot-name { font-size: 13px; letter-spacing: .04em; color: var(--ink-2); }
+  .slot .add-row { margin-top: 8px; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .file-list.older { margin-top: 8px; border-top: 1px dashed var(--line); }
+  .set-block { border: 1px solid var(--line); margin-top: 6px; }
+  .set-block.latest { border-color: var(--line-2); }
+  .set-head { display: flex; align-items: center; gap: 10px; padding: 8px 10px; cursor: pointer; min-width: 0; }
+  .set-no { font-family: var(--font-num); font-variant-numeric: tabular-nums; color: var(--ink-2); white-space: nowrap; }
+  .set-meta { flex: 1; min-width: 0; color: var(--ink-3); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .set-body { padding: 4px 10px 10px; border-top: 1px solid var(--line); }
+  .set-body .status-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .set-tools { justify-content: space-between; }
+  .set-list.older { margin-top: 8px; }
+  .set-cell { margin-top: 4px; }
+  .set-chip small { font-size: 11px; opacity: .8; }
+  .set-body .status-row { margin-bottom: 4px; }
+  .set-body .status-row .chip.green.on { background: var(--good-ink); border-color: var(--good-ink); color: #fff; }
+  .set-body .status-row .chip.yellow.on { background: var(--warn-ink); border-color: var(--warn-ink); color: #fff; }
   .rec-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--line); }
   .rec-row:last-of-type { border-bottom: 0; }
   .rec-main { min-width: 0; }
@@ -1682,7 +1719,7 @@ function projectRow(p) {
     <td>${esc(cname(p.clientId, ''))}</td>
     <td>${menuChip(tname(p.teamId), `data-action="menu" data-menu="team" data-id="${p.id}"`, p.teamId ? '' : 'dim')}</td>
     <td>${menuChip(cname(p.leadId, 'ללא מוביל'), `data-action="menu" data-menu="lead" data-id="${p.id}"`, p.leadId ? '' : 'dim')}</td>
-    <td>${stageChip(p)}</td>
+    <td>${stageChip(p)}${latestSet(p.id) ? `<div class="set-cell">${latestSetChip(p)}</div>` : ''}</td>
     <td>${healthChip(p.health, { cls: 'btn-chip', attrs: `data-action="menu" data-menu="health" data-id="${p.id}" role="button" tabindex="0"` })}</td>
     <td><div class="cell-note" title="${esc(p.statusNote)}">${esc(p.statusNote || '')}</div><div class="cell-sub ${stale ? (d == null ? 'never' : 'stale') : ''}">${d == null ? 'לא עודכן אף פעם' : (d === 0 ? 'היום' : `לפני ${d} ימים`)}</div></td>
     <td class="num muted">${fmtDate(p.startDate)}</td>
@@ -2105,7 +2142,7 @@ const snake = (k) => k.replace(/[A-Z]/g, (m) => '_' + m.toLowerCase());
 const camel = (k) => k.replace(/_([a-z])/g, (m, c) => c.toUpperCase());
 const toRow = (obj) => { const o = {}; Object.entries(obj).forEach(([k, v]) => { if (k === 'updatedAt' || k === 'createdAt' || k === 'updatedBy') return; o[snake(k)] = v; }); return o; };
 const fromRow = (row) => { const o = {}; Object.entries(row).forEach(([k, v]) => { o[camel(k)] = v; }); return o; };
-const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels', 'work_schedules', 'requests'];
+const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels', 'work_schedules', 'requests', 'plan_sets'];
 
 S.auth = { status: 'loading', session: null, profile: null, notice: '', error: '' };
 S.profiles = {}; S.invitations = {}; S.audit = [];
@@ -2113,6 +2150,7 @@ S.milestone_types = {}; S.project_milestones = {}; S.milestonesLoaded = {}; S.mi
 S.employee_levels = {}; // manual experience levels (team leads and up; RLS hides the table from staff)
 S.work_schedules = {}; // fixed working days / hours / remote days per employee (contact id)
 S.requests = {}; // requests & updates: meetings, leave, sickness, late arrival (RLS: own + approvers)
+S.plan_sets = {}; // plan sets issued per project (סט תוכניות): status review / approval / tender / execution; the set's files are files.set_id
 const me = () => S.auth.profile;
 const myRole = () => me()?.role || 'anon';
 const isManager = () => ['owner', 'manager'].includes(myRole());
@@ -2207,7 +2245,7 @@ function subscribeRealtime() {
     }, 250);
   };
   rtChannel = sb.channel('office-live');
-  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests'].forEach((table) => {
+  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests', 'plan_sets'].forEach((table) => {
     rtChannel.on('postgres_changes', { event: '*', schema: 'public', table }, () => scheduleRefetch(table));
   });
   rtChannel.subscribe();
@@ -2709,6 +2747,7 @@ function drawerTask(id) {
       <div class="checklist">${cl.map((c) => `<div class="check-row ${c.done ? 'done' : ''}"><label><input type="checkbox" ${c.done ? 'checked' : ''} data-check="${id}:${c.id}" ${dis}><span>${esc(c.text)}</span></label>${ro ? '' : `<button class="icon-btn" data-action="check-remove" data-id="${id}" data-item="${c.id}" title="הסר">${ICON.x}</button>`}</div>`).join('')}</div>
       ${ro ? '' : `<div class="add-row"><input type="text" id="check-add-${id}" placeholder="פריט חדש… (Enter)"><button class="btn small" data-action="check-add" data-id="${id}">${ICON.plus} הוסף</button></div>`}
     </div>
+    ${taskFilesSection(t)}
     <div class="section">
       <h3 class="section-title">תגובות ופעילות <small>${comments ? comments.filter((c) => c.kind === 'comment').length + ' תגובות' : ''}</small></h3>
       <div class="comments">${!comments ? '<div class="inline-note">טוען…</div>' : comments.length ? comments.map((c) => c.kind === 'system'
@@ -2884,14 +2923,16 @@ async function uploadFiles(fileList, ctx) {
     const isImg = /^image\//.test(file.type) || /\.(jpe?g|png|heic|heif|webp)$/i.test(file.name);
     const isAud = /^audio\//.test(file.type) || /\.(m4a|mp3|wav|aac|ogg|opus|caf)$/i.test(file.name);
     const isVid = !isAud && (/^video\//.test(file.type) || /\.(mp4|mov|m4v|webm)$/i.test(file.name));
+    const isPdf = !isImg && !isAud && !isVid && (file.type === 'application/pdf' || /\.pdf$/i.test(file.name));
     const id = uid('f');
-    let blob = file, ext = (file.name.split('.').pop() || 'bin').toLowerCase(), mime = file.type || 'application/octet-stream', w = null, h = null;
+    let blob = file, ext = (file.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 8) || 'bin', mime = file.type || 'application/octet-stream', w = null, h = null;
     if (isImg) { const s = await shrinkImage(file); if (s) { blob = s.blob; ext = 'jpg'; mime = 'image/jpeg'; w = s.w; h = s.h; } }
-    const path = `${ctx.projectId}/${ctx.visitId || 'general'}/${id}.${ext}`;
+    // folder per context: project / visit | set | task | presentation | general; a task without a project lives under tasks/
+    const path = `${ctx.projectId || 'tasks'}/${ctx.visitId || ctx.setId || ctx.taskId || ctx.slot || 'general'}/${id}.${ext}`;
     try {
       const { error } = await sb.storage.from(FILE_BUCKET).upload(path, blob, { contentType: mime, upsert: false });
       if (error) throw error;
-      const ok = await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: ctx.projectId, visitId: ctx.visitId || null, itemId: ctx.itemId || null, kind: isImg ? 'image' : isAud ? 'audio' : isVid ? 'video' : 'file', mime, size: blob.size, width: w, height: h, caption: ctx.caption || '', takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : null, uploadedBy: me()?.id || null, durationSec: ctx.durationSec || null, transcript: '', transcribeStatus: '', transcribeError: '' });
+      const ok = await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: ctx.projectId || null, visitId: ctx.visitId || null, itemId: ctx.itemId || null, taskId: ctx.taskId || null, slot: ctx.slot || null, setId: ctx.setId || null, kind: isImg ? 'image' : isAud ? 'audio' : isVid ? 'video' : isPdf ? 'pdf' : 'file', mime, size: blob.size, width: w, height: h, caption: ctx.caption || ((isImg || isAud) && (ctx.visitId || ctx.itemId) ? '' : file.name) /* visit photos stay caption-less; documents keep their file name */, takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : null, uploadedBy: me()?.id || null, durationSec: ctx.durationSec || null, transcript: '', transcribeStatus: '', transcribeError: '' });
       if (!ok) throw new Error('row');
       up.done++;
     } catch (e) { console.warn('upload failed', e); up.failed++; toast('העלאה נכשלה: ' + friendlyError(e)); }
@@ -2916,7 +2957,11 @@ function photoStrip(where, ctx, opts = {}) {
   const tiles = files.map((f) => {
     const url = fileUrl(f);
     const inner = f.kind === 'image' ? (url ? `<img src="${esc(url)}" alt="${esc(f.caption || '')}" loading="lazy">` : '<span class="ph-wait">…</span>') : `<span class="ph-file">${f.kind === 'video' ? ICON.video : ICON.doc}<small>${esc(f.kind === 'video' ? 'וידאו' : (f.path.split('.').pop() || 'קובץ'))}</small></span>`;
-    return `<figure class="ph" data-action="file-open" data-id="${f.id}" title="${esc(f.caption || '')}">${inner}${ro ? '' : `<button type="button" class="ph-del" data-action="file-del" data-id="${f.id}" title="מחק">${ICON.x}</button>`}</figure>`;
+    const armed = S.ui.confirm === 'file:' + f.id;
+    const del = ro || !canDeleteFile(f) ? '' : armed
+      ? `<span class="ph-confirm"><button type="button" class="btn small danger" data-action="file-del" data-id="${f.id}" data-confirmed="1">מחק</button><button type="button" class="btn small" data-action="cancel-confirm">בטל</button></span>`
+      : `<button type="button" class="ph-del" data-action="file-del" data-id="${f.id}" title="מחק">${ICON.x}</button>`;
+    return `<figure class="ph ${armed ? 'armed' : ''}" data-action="file-open" data-id="${f.id}" title="${esc(f.caption || '')}">${inner}${del}</figure>`;
   }).join('');
   const key = (ctx.itemId || ctx.visitId || ctx.projectId);
   const add = ro ? '' : `<label class="ph-add" title="צילום"><input type="file" accept="image/*" capture="environment" multiple hidden data-upload="${esc(JSON.stringify(ctx))}">${ICON.camera}<span>צלם</span></label>
@@ -3276,7 +3321,13 @@ async function fieldAction(a, ds, t, e) {
     case 'vi-del': { const it = S.visit_items[ds.id]; if (!it) return true; await deleteDoc('visit_items', ds.id); filesOf({ itemId: ds.id }).forEach((f) => deleteFile(f.id)); return true; }
     case 'vi-toggle': { e.stopPropagation(); if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } const it = S.visit_items[ds.id]; if (!it) return true; patchDoc('visit_items', ds.id, { status: it.status === 'closed' ? 'open' : 'closed', closedVisitId: it.status === 'closed' ? null : (S.ui.drawer?.kind === 'visit' && S.ui.drawer.id !== it.visitId ? S.ui.drawer.id : null) }); return true; }
     case 'vi-close-carried': { if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } patchDoc('visit_items', ds.id, { status: 'closed', closedVisitId: ds.visit }); toast('סומן כטופל'); return true; }
-    case 'file-del': { e.stopPropagation(); if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } await deleteFile(ds.id); return true; }
+    case 'file-del': { // irreversible → the button asks once ("מחק / בטל") before the file goes
+      e.stopPropagation();
+      const f = S.files[ds.id]; if (!f) return true;
+      if (!canDeleteFile(f)) { toast('מחיקת קובץ: מי שהעלה אותו, ראשי צוותים ומנהלים'); return true; }
+      if (!ds.confirmed) { S.ui.confirm = 'file:' + ds.id; render(); return true; }
+      S.ui.confirm = null; await deleteFile(ds.id); return true;
+    }
     case 'file-open': { e.stopPropagation(); const f = S.files[ds.id]; if (!f) return true; const url = fileUrl(f); if (!url) { toast('טוען את הקובץ…'); return true; } if (f.kind === 'image') { S.ui.lightbox = ds.id; render(); } else window.open(url, '_blank', 'noopener'); return true; }
     case 'lightbox-close': S.ui.lightbox = null; render(); return true;
     case 'open-report': { S.ui.reportId = ds.id; S.ui.returnDrawer = S.ui.drawer; S.ui.drawer = null; nav('report'); return true; }
@@ -3482,6 +3533,180 @@ function drawerRequest(id) {
   </div>
   <div class="drawer-foot"><span class="inline-note">${r.handledAt ? `טופל ${fmtDateTime(r.handledAt)} · ${esc(uname(r.handledBy))}` : ''}</span>${mine && r.status === 'open' ? `<button class="btn small" data-action="req-cancel" data-id="${r.id}">בטל את הבקשה</button>` : ''}</div>`;
 }
+/* ===================== files: task attachments, the project's current presentation, issued plan sets ===================== */
+/* A plan set (סט תוכניות) is a row in plan_sets — running number, status, issue date, note — and its files are files.set_id.
+   The presentation is files.slot = 'presentation': the newest upload is the current one, older ones stay as versions.
+   Every member uploads and changes a set's status; deleting a file or a set: the person who added it, team leads and managers. */
+const SET_STATUS = {
+  review: { label: 'עיון', cls: 'dim', hint: 'סט לעיון — טיוטה לבדיקה' },
+  approval: { label: 'אישור', cls: 'yellow', hint: 'סט לאישור הלקוח / הרשויות' },
+  tender: { label: 'מכרז', cls: 'accent', hint: 'סט מכרז — לקבלת הצעות מחיר' },
+  execution: { label: 'ביצוע', cls: 'green', hint: 'סט לביצוע — יצא לשטח' },
+};
+const SET_ORDER = ['review', 'approval', 'tender', 'execution'];
+const PS = () => list('plan_sets');
+const setsOf = (pid) => PS().filter((s) => s.projectId === pid).sort((a, b) => (b.issuedAt || '').localeCompare(a.issuedAt || '') || (Number(b.seq) || 0) - (Number(a.seq) || 0));
+const latestSet = (pid) => setsOf(pid)[0] || null;
+const setFiles = (sid) => filesOf({ setId: sid });
+const presentationsOf = (pid) => filesOf({ projectId: pid, slot: 'presentation' }).reverse(); // newest first
+const taskFiles = (tid) => filesOf({ taskId: tid });
+const generalFiles = (pid) => FL().filter((f) => f.projectId === pid && !f.visitId && !f.itemId && !f.taskId && !f.slot && !f.setId && f.kind !== 'audio').sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+const canDeleteFile = (f) => !!f && isMember() && (isManager() || myRole() === 'team_lead' || f.uploadedBy === me()?.id);
+const canDeleteSet = (s) => !!s && isMember() && (isManager() || myRole() === 'team_lead' || s.createdBy === me()?.id);
+const fileExt = (f) => ((f.path || f.caption || '').split('.').pop() || '').toLowerCase().slice(0, 5);
+const fileName = (f) => f.caption || (f.path || '').split('/').pop() || 'קובץ';
+const fmtSize = (n) => { n = Number(n) || 0; return n >= 1048576 ? (n / 1048576).toFixed(n >= 10485760 ? 0 : 1) + ' MB' : n >= 1024 ? Math.round(n / 1024) + ' KB' : n ? n + ' B' : ''; };
+Object.assign(S.ui, { setOpen: {}, filesOpen: {} });
+
+/* ---------- pieces ---------- */
+function fileIcon(f) {
+  const url = f.kind === 'image' ? fileUrl(f) : '';
+  if (f.kind === 'image' && url) return `<span class="file-ic"><img src="${esc(url)}" alt="" loading="lazy"></span>`;
+  return `<span class="file-ic ${f.kind}">${f.kind === 'image' ? ICON.camera : f.kind === 'video' ? ICON.video : ICON.doc}<small>${esc(fileExt(f))}</small></span>`;
+}
+function fileRow(f, opts = {}) {
+  const armed = S.ui.confirm === 'file:' + f.id;
+  const del = !canDeleteFile(f) ? '' : armed
+    ? `<span class="confirm-inline"><button type="button" class="btn small danger" data-action="file-del" data-id="${f.id}" data-confirmed="1">מחק</button><button type="button" class="btn small" data-action="cancel-confirm">בטל</button></span>`
+    : `<button type="button" class="icon-btn" data-action="file-del" data-id="${f.id}" title="מחק">${ICON.x}</button>`;
+  const meta = [fmtSize(f.size) ? `<span class="ltr">${esc(fmtSize(f.size))}</span>` : '', esc(fmtDate(f.createdAt)), esc(uname(f.uploadedBy, ''))].filter(Boolean).join(' · ');
+  return `<div class="file-row ${opts.cls || ''}" data-action="file-open" data-id="${f.id}" title="${esc(fileName(f))}">
+    ${fileIcon(f)}
+    <div class="li-body"><div class="li-title">${opts.tag ? `<span class="tag internal">${esc(opts.tag)}</span> ` : ''}${esc(fileName(f))}</div><div class="li-sub">${meta}</div></div>
+    ${del}
+  </div>`;
+}
+/* an "add files" control: a plain file picker; on phones the camera is one tap away as well */
+function uploadControl(ctx, opts = {}) {
+  if (!isMember()) return '';
+  const data = esc(JSON.stringify(ctx));
+  const accept = opts.accept ? `accept="${opts.accept}"` : '';
+  return `<span class="upload-ctl">
+    <label class="btn small ${opts.primary ? 'primary' : ''}" title="${esc(opts.title || 'העלאת קבצים')}"><input type="file" ${accept} multiple hidden data-upload="${data}">${ICON.plus} ${esc(opts.label || 'העלה קבצים')}</label>
+    ${opts.camera ? `<label class="btn small ghost" title="צילום"><input type="file" accept="image/*" capture="environment" multiple hidden data-upload="${data}">${ICON.camera} צלם</label>` : ''}
+    <span class="inline-note" data-upload-note hidden></span>
+  </span>`;
+}
+function setChip(s, opts = {}) {
+  const st = SET_STATUS[s.status] || SET_STATUS.review;
+  const attrs = opts.edit && isMember() ? `data-action="menu" data-menu="setstatus" data-id="${s.id}" title="${esc(st.hint)} — לחיצה משנה" role="button" tabindex="0"` : `title="${esc(st.hint)}"`;
+  return `<span class="chip ${st.cls} ${opts.edit && isMember() ? 'btn-chip' : ''} set-chip" ${attrs}>${esc(st.label)}</span>`;
+}
+/* "מכרז · 8.9" — the latest set at a glance (projects list, status box) */
+function latestSetChip(p, opts = {}) {
+  const s = latestSet(p.id);
+  if (!s) return opts.empty ? `<span class="chip dim" data-action="goto-files" data-id="${p.id}" role="button" tabindex="0" title="עדיין לא יצא סט תוכניות">ללא סט</span>` : '';
+  const st = SET_STATUS[s.status] || SET_STATUS.review;
+  return `<span class="chip ${st.cls} btn-chip set-chip" data-action="goto-files" data-id="${p.id}" role="button" tabindex="0" title="סט ${s.seq} · ${esc(st.hint)}${s.note ? ' · ' + esc(s.note) : ''} — לחיצה פותחת את הקבצים">${esc(st.label)} <small>· ${esc(fmtDate(s.issuedAt))}</small></span>`;
+}
+function setBlock(s, opts = {}) {
+  const files = setFiles(s.id);
+  const open = (s.id in S.ui.setOpen) ? !!S.ui.setOpen[s.id] : !!opts.latest; // the latest set starts open, older ones closed
+  const armed = S.ui.confirm === 'set:' + s.id;
+  const st = SET_STATUS[s.status] || SET_STATUS.review;
+  return `<div class="set-block ${open ? 'open' : ''} ${opts.latest ? 'latest' : ''}" id="set-${s.id}">
+    <div class="set-head" data-action="set-toggle" data-id="${s.id}">
+      <span class="set-no">סט ${esc(String(s.seq || ''))}</span>
+      ${setChip(s, { edit: true })}
+      <span class="set-meta">${esc(fmtDate(s.issuedAt))}${files.length ? ` · ${files.length} קבצים` : ' · ללא קבצים'}${s.note ? ` · ${esc(s.note)}` : ''}</span>
+      <button type="button" class="icon-btn msr-caret" data-action="set-toggle" data-id="${s.id}" title="${open ? 'סגור' : 'פתח'}">${open ? '▴' : '▾'}</button>
+    </div>
+    ${open ? `<div class="set-body">
+      <div class="field-row">
+        ${field('יצא בתאריך', `<input type="date" id="set-date-${s.id}" value="${dateInput(s.issuedAt)}" data-bind="plan_sets:${s.id}:issuedAt" ${isMember() ? '' : 'disabled'}>`)}
+        ${field('הערה', textInput('set-note-' + s.id, s.note, `data-bind="plan_sets:${s.id}:note" placeholder="למשל: סט היתר, הופץ ליועצים" ${isMember() ? '' : 'disabled'}`))}
+      </div>
+      <div class="field"><label>סטטוס</label><div class="status-row">${SET_ORDER.map((k) => `<span class="chip ${SET_STATUS[k].cls} ${s.status === k ? 'on' : ''} ${isMember() ? 'btn-chip' : ''}" ${isMember() ? `data-action="set-status" data-id="${s.id}" data-value="${k}" role="button" tabindex="0"` : ''} title="${esc(SET_STATUS[k].hint)}">${SET_STATUS[k].label}</span>`).join('')}</div></div>
+      <div class="file-list">${files.length ? files.map((f) => fileRow(f)).join('') : '<div class="inline-note">עדיין לא הועלו קבצים לסט — PDF, DWG, ZIP…</div>'}</div>
+      <div class="add-row set-tools">${uploadControl({ projectId: s.projectId, setId: s.id, slot: 'planset' }, { label: 'הוסף קבצים לסט', primary: !files.length })}
+        ${canDeleteSet(s) ? (armed ? `<span class="confirm-inline"><span class="inline-note">למחוק את הסט וכל קבציו?</span><button type="button" class="btn small danger" data-action="set-del" data-id="${s.id}" data-confirmed="1">כן, מחק</button><button type="button" class="btn small" data-action="cancel-confirm">בטל</button></span>` : `<button type="button" class="btn small ghost" data-action="set-del" data-id="${s.id}">מחק סט</button>`) : ''}
+      </div>
+    </div>` : ''}
+  </div>`;
+}
+function projectFilesSection(p) {
+  const pres = presentationsOf(p.id); const cur = pres[0]; const older = pres.slice(1);
+  const sets = setsOf(p.id); const latest = sets[0]; const rest = sets.slice(1);
+  const other = generalFiles(p.id);
+  const oldOpen = !!S.ui.filesOpen['pres:' + p.id], restOpen = !!S.ui.filesOpen['sets:' + p.id], otherOpen = !!S.ui.filesOpen['other:' + p.id];
+  return `<div class="section" id="files-section">
+    <h3 class="section-title">קבצים <small>${[cur ? 'פרזנטציה' : '', latest ? `סט ${latest.seq} · ${SET_STATUS[latest.status]?.label || ''}` : '', other.length ? other.length + ' נוספים' : ''].filter(Boolean).join(' · ')}</small></h3>
+    <div class="slot">
+      <div class="slot-head"><span class="slot-name">פרזנטציה עדכנית</span>${cur ? '' : '<span class="inline-note">עדיין לא הועלתה</span>'}</div>
+      ${cur ? fileRow(cur, { cls: 'current' }) : ''}
+      <div class="add-row">${uploadControl({ projectId: p.id, slot: 'presentation' }, { label: cur ? 'העלה גרסה חדשה' : 'העלה פרזנטציה', primary: !cur, accept: '.pdf,.pptx,.ppt,.key,image/*' })}
+        ${older.length ? `<button type="button" class="btn small ghost" data-action="files-toggle" data-key="pres:${p.id}">גרסאות קודמות (${older.length}) ${oldOpen ? '▴' : '▾'}</button>` : ''}</div>
+      ${oldOpen && older.length ? `<div class="file-list older">${older.map((f, i) => fileRow(f, { tag: 'גרסה ' + (older.length - i) })).join('')}</div>` : ''}
+    </div>
+    <div class="slot">
+      <div class="slot-head"><span class="slot-name">סט תוכניות אחרון</span>${latest ? '' : '<span class="inline-note">עדיין לא יצא סט</span>'}</div>
+      ${latest ? setBlock(latest, { latest: true }) : ''}
+      <div class="add-row">${isMember() ? `<button type="button" class="btn small ${latest ? '' : 'primary'}" data-action="set-new" data-id="${p.id}">${ICON.plus} סט חדש</button>` : ''}
+        ${rest.length ? `<button type="button" class="btn small ghost" data-action="files-toggle" data-key="sets:${p.id}">סטים קודמים (${rest.length}) ${restOpen ? '▴' : '▾'}</button>` : ''}</div>
+      ${restOpen && rest.length ? `<div class="set-list older">${rest.map((s) => setBlock(s)).join('')}</div>` : ''}
+    </div>
+    <div class="slot">
+      <div class="slot-head"><span class="slot-name">קבצים נוספים</span>${other.length ? `<button type="button" class="btn small ghost" data-action="files-toggle" data-key="other:${p.id}">${other.length} קבצים ${otherOpen ? '▴' : '▾'}</button>` : ''}</div>
+      ${otherOpen && other.length ? `<div class="file-list">${other.map((f) => fileRow(f)).join('')}</div>` : ''}
+      <div class="add-row">${uploadControl({ projectId: p.id }, { label: 'העלה קבצים', camera: true })}</div>
+    </div>
+  </div>`;
+}
+function taskFilesSection(t) {
+  const files = taskFiles(t.id);
+  return `<div class="section">
+    <h3 class="section-title">קבצים <small>${files.length ? files.length : ''}</small></h3>
+    ${files.length ? `<div class="file-list">${files.map((f) => fileRow(f)).join('')}</div>` : ''}
+    <div class="add-row">${uploadControl({ projectId: t.projectId || null, taskId: t.id }, { label: 'העלה קבצים', camera: true })}</div>
+  </div>`;
+}
+
+/* ---------- data ---------- */
+async function newPlanSet(pid) {
+  const p = S.projects[pid]; if (!p || !isMember()) return null;
+  const prev = latestSet(pid);
+  const seq = Math.max(0, ...setsOf(pid).map((s) => Number(s.seq) || 0)) + 1;
+  const id = uid('ps');
+  const ok = await createDoc('plan_sets', id, { projectId: pid, seq, status: prev ? prev.status : 'review', issuedAt: todayStr(), note: '', createdBy: me()?.id || null });
+  return ok ? id : null;
+}
+async function deletePlanSet(id) {
+  const s = S.plan_sets[id]; if (!s) return;
+  setFiles(id).forEach((f) => deleteFile(f.id));
+  await deleteDoc('plan_sets', id);
+}
+
+/* ---------- menus & actions ---------- */
+function filesMenu(kind, id, anchor) {
+  if (kind !== 'setstatus') return false;
+  if (!isMember()) { toast('אין לך הרשאת עריכה'); return true; }
+  const s = S.plan_sets[id]; if (!s) return true;
+  openMenu(anchor, { items: SET_ORDER.map((k) => ({ label: SET_STATUS[k].label, sub: SET_STATUS[k].hint, value: k, selected: s.status === k })), onPick: (it) => patchDoc('plan_sets', id, { status: it.value }) });
+  return true;
+}
+async function filesAction(a, ds, t, e) {
+  switch (a) {
+    case 'goto-files': { e.stopPropagation(); if (S.ui.drawer?.kind !== 'project' || S.ui.drawer.id !== ds.id) openDrawer('project', ds.id); setTimeout(() => document.getElementById('files-section')?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 80); return true; }
+    case 'files-toggle': S.ui.filesOpen[ds.key] = !S.ui.filesOpen[ds.key]; render(); return true;
+    case 'set-toggle': { e.stopPropagation(); const s = S.plan_sets[ds.id]; if (!s) return true; const latest = latestSet(s.projectId); const key = ds.id; const cur = key in S.ui.setOpen ? S.ui.setOpen[key] : (latest && latest.id === key); S.ui.setOpen[key] = !cur; render(); return true; }
+    case 'set-new': {
+      if (!isMember()) { toast('אין לך הרשאת עריכה'); return true; }
+      const id = await newPlanSet(ds.id); if (!id) return true; // the newest set opens by itself (latest = open by default)
+      render();
+      setTimeout(() => document.getElementById('set-' + id)?.scrollIntoView({ block: 'nearest' }), 60);
+      return true;
+    }
+    case 'set-status': { e.stopPropagation(); if (!isMember()) { toast('אין לך הרשאת עריכה'); return true; } patchDoc('plan_sets', ds.id, { status: ds.value }); return true; }
+    case 'set-del': {
+      e.stopPropagation();
+      const s = S.plan_sets[ds.id]; if (!s) return true;
+      if (!canDeleteSet(s)) { toast('מחיקת סט: מי שיצר אותו, ראשי צוותים ומנהלים'); return true; }
+      if (!ds.confirmed) { S.ui.confirm = 'set:' + ds.id; render(); return true; }
+      S.ui.confirm = null; await deletePlanSet(ds.id); toast('הסט נמחק'); return true;
+    }
+    default: return false;
+  }
+}
 /* ===================== overlay: drawer + menu ===================== */
 function renderOverlay() {
   const ov = document.getElementById('overlay');
@@ -3569,6 +3794,7 @@ function drawerProject(id) {
           ${field('מצב', selectHtml('p-state', p.state, Object.entries(STATES).map(([value, label]) => ({ value, label })), { attrs: `data-bind="projects:${p.id}:state"` }))}
           ${field('גודל', selectHtml('p-size', p.size || 'm', st.sizes.map((x) => ({ value: x.id, label: x.name })), { attrs: `data-bind="projects:${p.id}:size"` }))}
           ${field('שלב נוכחי', `<div style="padding-top:5px">${(() => { const c = S.milestonesLoaded[p.id] ? currentStageRow(p) : null; return menuChip(c ? c.name : phaseLabel(p), `data-action="goto-journey" data-id="${p.id}"`, c ? ({ active: 'stg-active', late: 'stg-late', stuck: 'stg-stuck' }[c.state] || '') : (allPhasesDone(p) ? 'green' : 'dim')); })()}</div>`, 'לחיצה: לשלבים ואבני הדרך')}
+          ${field('סט תוכניות אחרון', `<div style="padding-top:5px">${latestSetChip(p, { empty: true })}</div>`, 'לחיצה: לקבצים')}
         </div>
         <div class="field"><label>רמזור</label>
           <div class="health-picker">${Object.entries(HEALTH).map(([k, h]) => `<span class="chip ${h.cls} ${p.health === k ? 'on' : ''}" data-action="set-health" data-id="${p.id}" data-value="${k}" role="button" tabindex="0">${h.icon}${h.label}</span>`).join('')}
@@ -3583,6 +3809,8 @@ function drawerProject(id) {
     </div>
 
     ${journeySection(p)}
+
+    ${projectFilesSection(p)}
 
     ${subProjectsSection(p)}
 
@@ -4149,6 +4377,7 @@ function renderMenu() {
 }
 function menuFor(kind, id, anchor) {
   if (fieldMenu(kind, id, anchor)) return;
+  if (filesMenu(kind, id, anchor)) return;
   if (kind === 'mtmerge') {
     if (!isManager()) return;
     const t = S.milestone_types[id]; if (!t) return;
@@ -4244,6 +4473,8 @@ function bindHandler(el) {
   if ((col === 'site_visits' || col === 'visit_items') && !canWriteField()) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'project_milestones' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'milestone_types' && !isManager()) { toast('אין לך הרשאת עריכה'); render(); return; }
+  if (col === 'plan_sets' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
+  if (col === 'plan_sets' && key === 'issuedAt' && !el.value) { render(); return; } // a set always has an issue date
   if (col === 'employee_levels') { // the row may not exist yet: create it on first edit; an empty level means "back to automatic"
     if (!canEditLevel(S.contacts[id])) { toast('אין לך הרשאת עריכה'); render(); return; }
     delete S.ui.drafts[el.id];
@@ -4362,6 +4593,7 @@ document.addEventListener('click', async (e) => {
   const a = t.dataset.action; const ds = t.dataset;
   if (t.tagName === 'A' && t.target !== '_blank') e.preventDefault(); // external links (target=_blank) keep their default: open in a new tab
   if (await fieldAction(a, ds, t, e)) return;
+  if (await filesAction(a, ds, t, e)) return;
   switch (a) {
     case 'ext': break; // an external link inside a clickable row: the browser opens it, the row stays closed
     case 'copy-text': { try { await navigator.clipboard.writeText(ds.text || ''); toast('הועתק: ' + (ds.text || '')); } catch (err) { toast('לא הצלחתי להעתיק'); } break; }
