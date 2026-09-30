@@ -196,6 +196,22 @@
   .chips-sub { margin: -6px 0 14px; padding-top: 10px; border-top: 1px solid var(--line); }
   .chips-sub .chip { font-size: 12px; padding: 2px 8px; }
   .chips-sub .chip small, .chips .chip small { color: var(--ink-3); font-size: 11px; }
+  /* social links: "Network handle" chips; the network name is the label, no logos */
+  .chip.social { padding: 0; overflow: hidden; }
+  .chip.social a { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px; color: inherit; text-decoration: none; min-width: 0; }
+  .chip.social a:hover { color: var(--ink); background: var(--surface-2, rgba(0,0,0,.03)); }
+  .chip.social .net { font-weight: 500; letter-spacing: .01em; }
+  .chip.social .ltr { color: var(--ink-3); max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+  .chip.social .x { margin: 0 4px 0 6px; }
+  .social-field .add-row { margin-top: 6px; }
+  .social-field .add-row input { direction: ltr; text-align: left; font-size: 13px; }
+  /* English publishing name under the Hebrew one */
+  .en { direction: ltr; unicode-bidi: isolate; display: inline-block; letter-spacing: .02em; color: var(--ink-2); }
+  .drawer-en { margin-top: 2px; font-size: 15px; }
+  .drawer-en .en { color: var(--ink); }
+  .en.copy { cursor: copy; border-bottom: 1px dashed var(--line-2); }
+  .en.copy:hover { border-bottom-color: var(--ink); }
+  .cell-sub .en { color: var(--ink-3); }
   .table-more { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px; border-top: 1px solid var(--line); font-size: 13px; }
 
   /* ---------- filters ---------- */
@@ -461,6 +477,37 @@
   .stage-editor .se-row input { height: 30px; font-size: 13.5px; }
   .stage-editor .se-add { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
   .stage-editor .se-add select, .stage-editor .se-add input { height: 32px; font-size: 13px; }
+  /* working days editor */
+  .sched { display: grid; gap: 4px; }
+  .sched-row { display: grid; grid-template-columns: 110px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 4px 0; border-bottom: 1px dashed var(--line); }
+  .sched-row:last-child { border-bottom: 0; }
+  .sched-row.off { color: var(--ink-3); }
+  .sched-row .switch { margin: 0; }
+  .sched-hours { display: inline-flex; align-items: center; gap: 6px; }
+  .sched-hours input[type=time] { height: 32px; width: 104px; font-size: 13.5px; padding: 0 6px; }
+  .seg { display: inline-flex; border: 1px solid var(--line-2); }
+  .seg button { border: 0; background: var(--surface); color: var(--ink-3); padding: 5px 10px; font: inherit; font-size: 12.5px; cursor: pointer; }
+  .seg button + button { border-inline-start: 1px solid var(--line-2); }
+  .seg button.on { background: var(--ink); color: var(--accent-ink); }
+  .seg button:disabled { cursor: default; opacity: .6; }
+  .seg button.on:disabled { opacity: 1; }
+  .today-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .today-grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  #btn-request.has { border-color: var(--warn); box-shadow: inset 0 0 0 1px var(--warn); }
+  .req-kinds { display: grid; gap: 8px; }
+  .req-kind { display: flex; flex-direction: column; gap: 3px; align-items: flex-start; text-align: start; border: 1px solid var(--line-2); background: var(--surface); padding: 12px 14px; font: inherit; cursor: pointer; }
+  .req-kind:hover { border-color: var(--ink); }
+  .req-kind strong { font-weight: 500; font-size: 15px; }
+  .req-kind span { color: var(--ink-3); font-size: 12.5px; }
+  .req-row .li-side time { display: block; }
+  .today-col h4 { margin: 0 0 6px; font-size: 13px; color: var(--ink-3); font-weight: 500; }
+  .today-col .chips-sub { display: flex; flex-wrap: wrap; gap: 4px; }
+  @media (max-width: 720px) {
+    .sched-row { grid-template-columns: 96px minmax(0, 1fr); }
+    .sched-row .seg { grid-column: 2; justify-self: start; }
+    .sched-hours input[type=time] { width: 92px; }
+    .today-grid { grid-template-columns: 1fr; }
+  }
   .mini-steps { display: inline-flex; gap: 3px; margin-inline-start: 8px; vertical-align: middle; }
   .mini-steps i { width: 7px; height: 7px; border-radius: 50%; background: var(--stg-todo); display: inline-block; }
   .mini-steps i.done { background: var(--stg-done); }
@@ -729,7 +776,8 @@
     .nav { width: 100%; margin-inline-start: 0; overflow-x: auto; flex-wrap: nowrap; }
     .nav button { padding: 8px 9px 11px; }
     .head-tools { margin-inline-start: auto; gap: 6px; min-width: 0; }
-    #sync-text, #btn-export .btn-text, #user-box .chip { display: none; }
+    #sync-text, #btn-export .btn-text, #btn-request .btn-text, #user-box .chip { display: none; }
+    .today-grid.four { grid-template-columns: 1fr; }
     .user-name { max-width: 90px; }
     #btn-export { padding: 5px 8px; }
     .page { padding-inline: 16px; padding-top: 20px; }
@@ -752,6 +800,7 @@
       <button type="button" class="brand" data-action="nav" data-view="overview" title="OBERSON GO"><svg class="logo" aria-label="OBERSON GO"><use href="#logo-mark"/></svg><span class="brand-office" id="brand-office">OBERSON</span></button>
       <nav class="nav" id="nav" aria-label="ניווט ראשי"></nav>
       <div class="head-tools">
+        <button class="btn small" id="btn-request" data-action="new-request" hidden title="בקשה או עדכון: פגישה, חופשה, מחלה, איחור"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg><span class="btn-text">בקשה</span></button>
         <span id="bell" class="bell"></span>
         <span id="user-box"></span>
         <span class="sync" id="sync"><span class="sync-dot"></span><span id="sync-text">מתחבר…</span></span>
@@ -820,6 +869,70 @@ const CTYPES = {
 };
 const ORG_TYPES = ['client', 'supplier', 'contractor', 'consultant', 'pm', 'partner'];
 const CAT_LIST = { supplier: 'supplierCategories', consultant: 'consultantTypes', partner: 'partnerTypes' };
+/* ----- social links (contacts.socials: { network: url }) — one paste box, the network is recognised from the address ----- */
+const SOCIALS = [
+  { id: 'instagram', label: 'Instagram', hosts: ['instagram.com', 'instagr.am'], handle: true, base: 'https://www.instagram.com/' },
+  { id: 'facebook', label: 'Facebook', hosts: ['facebook.com', 'fb.com', 'fb.me'], base: 'https://www.facebook.com/' },
+  { id: 'linkedin', label: 'LinkedIn', hosts: ['linkedin.com', 'lnkd.in'], base: 'https://www.linkedin.com/in/' },
+  { id: 'tiktok', label: 'TikTok', hosts: ['tiktok.com'], handle: true, base: 'https://www.tiktok.com/@' },
+  { id: 'pinterest', label: 'Pinterest', hosts: ['pinterest.com', 'pinterest.co.il', 'pin.it'], base: 'https://www.pinterest.com/' },
+  { id: 'youtube', label: 'YouTube', hosts: ['youtube.com', 'youtu.be'], base: 'https://www.youtube.com/' },
+  { id: 'x', label: 'X', hosts: ['x.com', 'twitter.com'], handle: true, base: 'https://x.com/' },
+  { id: 'website', label: 'אתר', hosts: [], base: '' },
+];
+const socialsOf = (c) => (c && c.socials && typeof c.socials === 'object' && !Array.isArray(c.socials) ? c.socials : {});
+const socialNet = (id) => SOCIALS.find((n) => n.id === id) || SOCIALS[SOCIALS.length - 1];
+/* a full address, a bare domain, or an @handle (Instagram unless the network is given) → { id, url } or null */
+function parseSocial(raw, net) {
+  let s = String(raw || '').trim(); if (!s || /\s/.test(s)) return null;
+  if (/^@[\w.\-]+$/.test(s) || (net && net !== 'website' && /^[\w.\-]+$/.test(s) && !s.includes('.'))) { // an @handle (Instagram unless a network is given)
+    const n = socialNet(net || 'instagram'); if (n.id === 'website') return null;
+    return { id: n.id, url: n.base + s.replace(/^@/, '') };
+  }
+  if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(s)) s = 'https://' + s;
+  let url; try { url = new URL(s); } catch (e) { return null; }
+  if (!/^https?:$/.test(url.protocol)) return null;
+  const host = url.hostname.replace(/^www\./, '').toLowerCase(); if (!host.includes('.')) return null;
+  const n = SOCIALS.find((x) => x.hosts.some((h) => host === h || host.endsWith('.' + h)));
+  return { id: n ? n.id : 'website', url: url.href };
+}
+/* short label for a chip: @handle for handle networks, the page name for the rest */
+function socialLabel(id, url) {
+  const n = socialNet(id);
+  try {
+    const u = new URL(url); const segs = u.pathname.split('/').filter(Boolean);
+    if (n.handle && segs[0]) return '@' + segs[0].replace(/^@/, '');
+    if (id === 'linkedin' && ['in', 'company', 'school'].includes(segs[0]) && segs[1]) return segs[1];
+    if (id === 'website') return u.hostname.replace(/^www\./, '');
+    return segs.length ? decodeURIComponent(segs[segs.length - 1]) : u.hostname.replace(/^www\./, '');
+  } catch (e) { return url; }
+}
+/* chips with links; with edit, each chip has an × and a paste box follows */
+function socialChips(c, edit) {
+  const s = socialsOf(c);
+  return SOCIALS.filter((n) => s[n.id]).map((n) => `<span class="chip social" data-net="${n.id}"><a href="${esc(s[n.id])}" target="_blank" rel="noopener" data-action="ext" title="${esc(s[n.id])}"><span class="net">${esc(n.label)}</span><span class="ltr">${esc(socialLabel(n.id, s[n.id]))}</span></a>${edit ? `<button type="button" class="x" data-action="social-remove" data-id="${c.id}" data-net="${n.id}" title="הסר">${ICON.x}</button>` : ''}</span>`).join('');
+}
+function socialSection(c, edit) {
+  const chips = socialChips(c, edit);
+  if (!chips && !edit) return '';
+  return `<div class="field social-field"><label>רשתות חברתיות ואתר</label>
+    ${chips ? `<div class="chips">${chips}</div>` : ''}
+    ${edit ? `<div class="add-row"><input type="text" id="social-add-${c.id}" dir="ltr" placeholder="instagram.com/…  ·  @name  ·  facebook / linkedin / website" data-socialadd="${c.id}" autocomplete="off"><button class="btn small" data-action="social-add" data-id="${c.id}" title="הוסף">${ICON.plus}</button></div><span class="inline-note">הדבקה של קישור מוסיפה אותו מיד; @שם לבד = אינסטגרם.</span>` : ''}
+  </div>`;
+}
+function addSocial(cid, raw) {
+  const c = S.contacts[cid]; if (!c) return false;
+  if (!canWriteContact(c.type)) { toast('אין לך הרשאת עריכה'); return false; }
+  const parsed = parseSocial(raw);
+  if (!parsed) { toast('לא זיהיתי קישור — הדבק כתובת מלאה (למשל instagram.com/name) או @שם'); return false; }
+  const inp = document.getElementById('social-add-' + cid); if (inp) inp.value = '';
+  patchDoc('contacts', cid, { socials: Object.assign({}, socialsOf(c), { [parsed.id]: parsed.url }) });
+  setTimeout(() => document.getElementById('social-add-' + cid)?.focus(), 30);
+  return true;
+}
+/* English publishing name (social media, press) shown under the Hebrew name */
+const nameEn = (p) => String(p?.nameEn || '').trim();
+const nameEnHtml = (p, copy = false) => (nameEn(p) ? `<span class="en ${copy ? 'copy' : ''}" dir="ltr" ${copy ? `title="השם באנגלית לפרסום — לחיצה מעתיקה" data-action="copy-text" data-text="${esc(nameEn(p))}" role="button" tabindex="0"` : 'title="השם באנגלית לפרסום"'}>${esc(nameEn(p))}</span>` : '');
 const COMM_STATUS = { expected: { label: 'צפי', cls: '' }, invoiced: { label: 'הוצאה חשבונית', cls: 'yellow' }, paid: { label: 'שולם', cls: 'green' } };
 const ROLES = [
   { field: 'leadId', single: true, type: 'employee', label: 'מוביל/ת פרויקט' },
@@ -837,6 +950,7 @@ const VIEWS = [
   { id: 'projects', label: 'פרויקטים' },
   { id: 'teams', label: 'צוותים' },
   { id: 'contacts', label: 'מאגרים' },
+  { id: 'requests', label: 'בקשות' },
   { id: 'commissions', label: 'עמלות', managers: true },
   { id: 'users', label: 'משתמשים', managers: true },
   { id: 'settings', label: 'הגדרות' },
@@ -858,6 +972,9 @@ const DEFAULT_SETTINGS = {
   staleDays: 14,
   loadPerLevel: 4,
   leadCapacityShare: 0.25,
+  fullWeekHours: 42,
+  leaveLeadDays: 3,
+  partnerUserId: null,
   teamRoles: ['ראש/ת צוות', 'אדריכל/ית', 'אדריכל/ית בכיר/ה', 'מעצב/ת פנים', 'מנהל/ת פרויקטים', 'מתמחה', 'סטודנט/ית', 'מנהל/ת משרד', 'הנהלת חשבונות', 'אחר'],
 };
 
@@ -1102,7 +1219,34 @@ const loadPerLevel = () => Number(settings().loadPerLevel) || 4;
 /* a team lead runs the team, so only part of their position (25% by default) counts towards project capacity */
 const leadShare = () => { const v = settings().leadCapacityShare; const n = Number(v); return v == null || v === '' || isNaN(n) ? 0.25 : Math.min(1, Math.max(0, n)); };
 const isTeamLead = (cid) => !!cid && T().some((t) => t.leadId === cid);
-const capacityLevel = (c) => empLevel(c) * (isTeamLead(c.id) ? leadShare() : 1);
+/* ===================== working days & hours (work_schedules) =====================
+   days: { "0".."5": { from, to, where: 'office' | 'remote' } | null } — 0 = Sunday. No row → the office default (Sunday–Thursday, 08:30–17:30). */
+const DAY_NAMES = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי'];
+const DAY_SHORT = ['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳'];
+const DEFAULT_DAY = { from: '08:30', to: '17:30', where: 'office' };
+const scheduleRow = (cid) => S.work_schedules[cid] || null;
+const hasSchedule = (c) => { const r = scheduleRow(c.id); return !!r && !!r.days && Object.keys(r.days).length > 0; };
+function dayPlan(c, d) {
+  if (!hasSchedule(c)) return d <= 4 ? Object.assign({}, DEFAULT_DAY) : null;
+  const v = scheduleRow(c.id).days[String(d)]; return v && typeof v === 'object' ? v : null;
+}
+const minutesOf = (t) => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ''); return m ? Number(m[1]) * 60 + Number(m[2]) : null; };
+const hoursOf = (plan) => { if (!plan) return 0; const a = minutesOf(plan.from) ?? minutesOf(DEFAULT_DAY.from), b = minutesOf(plan.to) ?? minutesOf(DEFAULT_DAY.to); return Math.max(0, (b - a) / 60); };
+const weeklyHours = (c) => [0, 1, 2, 3, 4, 5].reduce((s, d) => s + hoursOf(dayPlan(c, d)), 0);
+const fullWeekHours = () => Number(settings().fullWeekHours) || 42;
+const fteOf = (c) => (hasSchedule(c) ? Math.min(1, weeklyHours(c) / fullWeekHours()) : 1);
+const workingDays = (c) => [0, 1, 2, 3, 4, 5].filter((d) => !!dayPlan(c, d));
+const remoteDays = (c) => [0, 1, 2, 3, 4, 5].filter((d) => dayPlan(c, d)?.where === 'remote');
+const daysLabel = (ds) => ds.map((d) => DAY_SHORT[d]).join(' ');
+const canEditSchedule = (c) => !!c && c.type === 'employee' && (isManager() || myContactId() === c.id || (myRole() === 'team_lead' && !!c.teamId && T().some((t) => t.id === c.teamId && t.leadId === myContactId())));
+/* who is where on a given date, from the fixed schedules (leave / sickness come on top later) */
+function whereToday(date = new Date()) {
+  const d = date.getDay(); const out = { office: [], remote: [], off: [] };
+  employees().forEach((c) => { const plan = d <= 5 ? dayPlan(c, d) : null; (plan ? (plan.where === 'remote' ? out.remote : out.office) : out.off).push(c); });
+  return out;
+}
+/* capacity: experience level × the team-lead share × the size of the position (weekly hours ÷ a full week) */
+const capacityLevel = (c) => empLevel(c) * (isTeamLead(c.id) ? leadShare() : 1) * fteOf(c);
 const teamMembers = (tid) => employees().filter((e) => e.teamId === tid);
 const teamCapacity = (tid) => sum(teamMembers(tid), capacityLevel);
 /* a project's load is shared equally by the people assigned to it (lead + members); with nobody assigned it stays with the team */
@@ -1192,13 +1336,15 @@ function render() {
   document.body.classList.toggle('report-view', S.ui.view === 'report');
   if (S.dbState === 'error') page.innerHTML = `<div class="banner">טעינת הנתונים נכשלה (${esc(S.error)}). <button class="btn small" data-action="reload-data">נסה שוב</button></div>`;
   else if (S.dbState === 'connecting') page.innerHTML = '<div class="loading">טוען את נתוני המשרד…</div>';
-  else page.innerHTML = { overview: renderOverview, tasks: renderTasks, field: renderField, report: renderReport, projects: renderProjects, teams: renderTeams, contacts: renderContacts, commissions: renderCommissions, users: renderUsers, settings: renderSettings }[S.ui.view]();
+  else page.innerHTML = { overview: renderOverview, tasks: renderTasks, field: renderField, report: renderReport, projects: renderProjects, teams: renderTeams, contacts: renderContacts, requests: renderRequests, commissions: renderCommissions, users: renderUsers, settings: renderSettings }[S.ui.view]();
   if (S.ui.view === 'report') paginateReport();
   renderOverlay();
   renderPendingBar();
   restoreFocus(focus);
   const exp = document.getElementById('btn-export');
   if (exp) exp.hidden = !ready();
+  const rq = document.getElementById('btn-request');
+  if (rq) { rq.hidden = !(ready() && isMember()); const n = ready() && isMember() ? pendingForMe().length : 0; rq.classList.toggle('has', n > 0); rq.title = n ? `${n} בקשות ממתינות לאישורך` : 'בקשה או עדכון: פגישה, חופשה, מחלה, איחור'; }
 }
 function renderUserBox() {
   const el = document.getElementById('user-box'); if (!el) return;
@@ -1295,6 +1441,24 @@ function textArea(id, value, attrs = '') {
 }
 
 /* ===================== overview ===================== */
+/* who is in the office / remote / off today, from the fixed working days */
+function todayPanel(date = new Date()) {
+  const dow = date.getDay(); if (dow > 5 || !employees().length) return '';
+  const wt = whereToday(date);
+  const away = awayToday(date); const awayIds = new Set(away.map((a) => a.c?.id).filter(Boolean));
+  ['office', 'remote', 'off'].forEach((k) => { wt[k] = wt[k].filter((c) => !awayIds.has(c.id)); });
+  const chips = (arr) => (arr.length ? arr.sort(byName).map((c) => `<button type="button" class="chip dim" data-action="open-contact" data-id="${c.id}">${esc(c.name)}</button>`).join('') : '<span class="muted">—</span>');
+  const awayChips = away.length ? away.map((a) => `<button type="button" class="chip ${a.req.kind === 'sick' ? 'yellow' : 'accent'}" data-action="open-request" data-id="${a.req.id}" title="${a.req.kind === 'sick' ? 'מחלה' : 'חופשה'}${a.req.endDate ? ' עד ' + fmtDate(a.req.endDate) : ''}">${esc(a.name)}</button>`).join('') : '';
+  return `<div class="panel" style="margin-bottom:14px">
+    <div class="panel-head"><h2 class="panel-title">היום במשרד <small>יום ${DAY_NAMES[dow]}</small></h2><span class="panel-sub">לפי ימי העבודה הקבועים, החופשות והעדכונים</span></div>
+    <div class="today-grid ${away.length ? 'four' : ''}">
+      <div class="today-col"><h4>במשרד · ${wt.office.length}</h4><div class="chips-sub">${chips(wt.office)}</div></div>
+      <div class="today-col"><h4>מרחוק · ${wt.remote.length}</h4><div class="chips-sub">${chips(wt.remote)}</div></div>
+      ${away.length ? `<div class="today-col"><h4>בחופשה / מחלה · ${away.length}</h4><div class="chips-sub">${awayChips}</div></div>` : ''}
+      <div class="today-col"><h4>לא עובדים היום · ${wt.off.length}</h4><div class="chips-sub">${chips(wt.off)}</div></div>
+    </div>
+  </div>`;
+}
 function renderOverview() {
   const st = settings();
   const act = activeProjects();
@@ -1378,10 +1542,13 @@ function renderOverview() {
     ${tile('המשימות שלי', myOpenTasks().length, myOpenTasks().filter(isOverdue).length ? `${myOpenTasks().filter(isOverdue).length} באיחור` : (myOpenTasks().filter((t) => dueInfo(t).key === 'today').length ? `${myOpenTasks().filter((t) => dueInfo(t).key === 'today').length} להיום` : 'אין באיחור'), { cls: myOpenTasks().some(isOverdue) ? 'warn' : '', click: { action: 'goto-tasks', attrs: 'data-tab="mine"' } })}
     ${isManager() ? tile('משימות באיחור במשרד', TK().filter(isOverdue).length, `${TK().filter(isOpenTask).length} פתוחות בסך הכול`, { cls: TK().some(isOverdue) ? 'crit' : '', click: { action: 'goto-tasks', attrs: 'data-tab="all"' } }) : ''}
     ${tile('ללא עדכון סטטוס', stale.length, never.length === stale.length ? 'לא עודכנו אף פעם' : `מעל ${st.staleDays} ימים · ${never.length} אף פעם`, { cls: stale.length ? 'warn' : '', click: { action: 'goto-projects', attrs: 'data-flag="stale"' } })}
+    ${pendingForMe().length ? tile('בקשות ממתינות לך', pendingForMe().length, 'לאישור / לקביעה', { cls: 'warn', click: { action: 'nav', attrs: 'data-view="requests"' } }) : ''}
     ${tile('שלבים באיחור', lateStage.length, `${stuckStage.length} תקועים ללא תנועה`, { cls: lateStage.length ? 'crit' : (stuckStage.length ? 'warn' : ''), click: { action: 'goto-projects', attrs: lateStage.length ? 'data-flag="late"' : 'data-flag="stuck"' } })}
     ${isManager() ? tile('עמלות פתוחות', fmtMoney(openSum) || '0 ₪', `${openComm.length} שורות · ${K().filter((k) => k.status === 'paid').length} שולמו`, { click: { action: 'nav', attrs: 'data-view="commissions"' } }) : ''}
     ${tile('לקוחות פעילים', Object.keys(clientMap).length, `${C().filter((c) => c.type === 'supplier').length} ספקים · ${C().filter((c) => c.type === 'contractor').length} קבלנים במאגר`, { click: { action: 'nav', attrs: 'data-view="contacts"' } })}
   </div>
+
+  ${todayPanel()}
 
   ${(noPhase.length || noTeam.length || noLead.length || review.length) ? `
   <div class="panel" style="margin-bottom:14px">
@@ -1456,7 +1623,7 @@ function visibleProjects() {
     if (f.flag === 'stale' && !isStale(p)) return false;
     if ((f.flag === 'late' || f.flag === 'stuck') && currentStageRow(p)?.state !== f.flag) return false;
     if (q) {
-      const hay = norm([p.name, p.number, p.city, p.address, p.type, p.typeDetail, cname(p.clientId, ''), cname(p.leadId, ''), tname(p.teamId, ''), p.statusNote].join(' '));
+      const hay = norm([p.name, p.nameEn, p.number, p.city, p.address, p.type, p.typeDetail, cname(p.clientId, ''), cname(p.leadId, ''), tname(p.teamId, ''), p.statusNote].join(' '));
       if (!hay.includes(q)) return false;
     }
     return true;
@@ -1511,7 +1678,7 @@ function projectRow(p) {
   const stale = isStale(p);
   return `<tr class="row-click" data-action="open-project" data-id="${p.id}">
     <td class="col-main"><div class="cell-main">${parentOf(p) ? `<span class="muted">${esc(parentOf(p).name)} › </span>` : ''}${esc(p.name)}${p.needsReview ? '<span class="tag" title="פרטי הפרויקט יובאו מהאקסל וטרם אומתו">לאימות</span>' : ''}${p.state !== 'active' ? `<span class="tag internal">${STATES[p.state]}</span>` : ''}${childrenOf(p.id).length ? `<span class="tag internal" title="תת-פרויקטים">${childrenOf(p.id).length} תת</span>` : ''}</div>
-        <div class="cell-sub">${esc([p.type, p.typeDetail, p.city].filter(Boolean).join(' · '))}</div></td>
+        <div class="cell-sub">${nameEn(p) ? nameEnHtml(p) + (p.type || p.typeDetail || p.city ? ' · ' : '') : ''}${esc([p.type, p.typeDetail, p.city].filter(Boolean).join(' · '))}</div></td>
     <td>${esc(cname(p.clientId, ''))}</td>
     <td>${menuChip(tname(p.teamId), `data-action="menu" data-menu="team" data-id="${p.id}"`, p.teamId ? '' : 'dim')}</td>
     <td>${menuChip(cname(p.leadId, 'ללא מוביל'), `data-action="menu" data-menu="lead" data-id="${p.id}"`, p.leadId ? '' : 'dim')}</td>
@@ -1624,7 +1791,7 @@ function renderContacts() {
   const isLists = tab === 'lists';
   const pool = isLists ? [] : visible.filter((c) => c.type === tab);
   const cat = S.ui.ccat;
-  const rows = isLists ? [] : pool.filter((c) => (!cat || contactFacet(tab, c) === cat) && (!q || norm([c.name, c.company, c.role, c.category, c.phone, c.phone2, c.email, c.emailPersonal, c.type === 'lead' ? c.notes : '', tname(c.teamId, ''), c.type === 'person' ? personOrg(c) : ''].join(' ')).includes(q))).sort(byName);
+  const rows = isLists ? [] : pool.filter((c) => (!cat || contactFacet(tab, c) === cat) && (!q || norm([c.name, c.company, c.role, c.category, c.phone, c.phone2, c.email, c.emailPersonal, c.type === 'lead' ? c.notes : '', tname(c.teamId, ''), c.type === 'person' ? personOrg(c) : '', ...Object.values(socialsOf(c))].join(' ')).includes(q))).sort(byName);
   const isEmp = tab === 'employee';
   const isPerson = tab === 'person';
   const isLead = tab === 'lead';
@@ -1698,7 +1865,7 @@ function renderUsers() {
       <div class="panel-head"><h2 class="panel-title">הזמנה מראש</h2><span class="panel-sub">מייל שנרשם מקבל את התפקיד אוטומטית</span></div>
       <div class="field-row">
         <div class="field"><label>מייל</label><input type="email" id="inv-email" dir="ltr" placeholder="name@office.com"></div>
-        <div class="field"><label>תפקיד</label>${selectHtml('inv-role', 'team_lead', Object.entries(ROLE_LABELS).filter(([k]) => ['manager', 'team_lead', 'staff'].includes(k) || (k === 'owner' && isOwner())).map(([value, label]) => ({ value, label })))}</div>
+        <div class="field"><label>תפקיד</label>${selectHtml('inv-role', 'team_lead', Object.entries(ROLE_LABELS).filter(([k]) => ['manager', 'team_lead', 'staff', 'admin'].includes(k) || (k === 'owner' && isOwner())).map(([value, label]) => ({ value, label })))}</div>
         <div class="field"><label>עובד/ת (לא חובה)</label>${selectHtml('inv-contact', '', emp.map((e) => ({ value: e.id, label: e.name })), { blank: 'זיהוי אוטומטי לפי מייל' })}</div>
       </div>
       <button class="btn primary small" data-action="invite-add">הוסף הזמנה</button>
@@ -1788,6 +1955,11 @@ function renderSettings() {
       </div>
       <div class="inline-note">קיבולת צוות = סכום רמות הניסיון × הנקודות לרמה; ראש/ת צוות מנהל/ת את הצוות ולכן נספר/ת רק בחלק מהמשרה. רמה אוטומטית לפי ותק: ${LEVEL_STEPS.map((s) => `${fmtNum(s.level, 2)} ${s.label}`).join(' · ')}; ערך ידני עד ${LEVEL_MAX} בכרטיס העובד/ת. מטריצת העומס נמצאת בצוותים.</div>` : ''}
       <div class="field" style="margin-top:14px"><label>"ללא עדכון" אחרי כמה ימים</label><input type="number" min="1" id="set-stale-days" value="${st.staleDays || 14}" style="max-width:120px" ${ro ? 'disabled' : ''}></div>
+      ${isManager() ? `<div class="field-row" style="margin-top:14px">
+        <div class="field"><label>שותף/ה מנהל/ת (מאשר/ת חופשות ארוכות)</label>${selectHtml('set-partner', st.partnerUserId || '', Object.values(S.profiles).filter((p) => ['owner', 'manager'].includes(p.role)).map((p) => ({ value: p.id, label: uname(p.id) })), { blank: 'כל הבעלים', attrs: ro ? 'disabled' : '' })}</div>
+        <div class="field"><label>חופשה עד כמה ימי עבודה מאשר/ת ראש/ת הצוות לבד</label><input type="number" min="0" id="set-leave-days" value="${leaveLeadDays()}" style="max-width:120px" ${ro ? 'disabled' : ''}></div>
+      </div>
+      <div class="inline-note">בקשות פגישה ועדכוני מחלה/איחור מגיעים למשתמשים בתפקיד "אדמיניסטרציה" (משתמשים → תפקיד); אם אין — למנהלים.</div>` : ''}
       <div class="field"><label>שם המשרד</label><input type="text" id="set-office-name" value="${esc(st.officeName || '')}" ${ro ? 'disabled' : ''}></div>
     </div>
     ${isManager() ? `<div class="panel">
@@ -1933,19 +2105,21 @@ const snake = (k) => k.replace(/[A-Z]/g, (m) => '_' + m.toLowerCase());
 const camel = (k) => k.replace(/_([a-z])/g, (m, c) => c.toUpperCase());
 const toRow = (obj) => { const o = {}; Object.entries(obj).forEach(([k, v]) => { if (k === 'updatedAt' || k === 'createdAt' || k === 'updatedBy') return; o[snake(k)] = v; }); return o; };
 const fromRow = (row) => { const o = {}; Object.entries(row).forEach(([k, v]) => { o[camel(k)] = v; }); return o; };
-const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels'];
+const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels', 'work_schedules', 'requests'];
 
 S.auth = { status: 'loading', session: null, profile: null, notice: '', error: '' };
 S.profiles = {}; S.invitations = {}; S.audit = [];
 S.milestone_types = {}; S.project_milestones = {}; S.milestonesLoaded = {}; S.milestonesLoading = {}; // contract milestones per project (DataWave + manual), loaded when a project drawer opens
 S.employee_levels = {}; // manual experience levels (team leads and up; RLS hides the table from staff)
+S.work_schedules = {}; // fixed working days / hours / remote days per employee (contact id)
+S.requests = {}; // requests & updates: meetings, leave, sickness, late arrival (RLS: own + approvers)
 const me = () => S.auth.profile;
 const myRole = () => me()?.role || 'anon';
 const isManager = () => ['owner', 'manager'].includes(myRole());
 const isOwner = () => myRole() === 'owner';
 const canWriteProjects = () => ['owner', 'manager', 'team_lead'].includes(myRole());
 const canWriteContact = (type) => isManager() || (myRole() === 'team_lead' && type !== 'employee');
-const ROLE_LABELS = { owner: 'בעלים', manager: 'מנהל/ת', team_lead: 'ראש/ת צוות', staff: 'עובד/ת', pending: 'ממתין/ה לאישור', disabled: 'חסום/ה' };
+const ROLE_LABELS = { owner: 'בעלים', manager: 'מנהל/ת', team_lead: 'ראש/ת צוות', staff: 'עובד/ת', admin: 'אדמיניסטרציה', pending: 'ממתין/ה לאישור', disabled: 'חסום/ה' };
 const ready = () => S.dbState === 'ready' && S.auth.status === 'ready';
 
 function friendlyError(e) {
@@ -2033,7 +2207,7 @@ function subscribeRealtime() {
     }, 250);
   };
   rtChannel = sb.channel('office-live');
-  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels'].forEach((table) => {
+  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests'].forEach((table) => {
     rtChannel.on('postgres_changes', { event: '*', schema: 'public', table }, () => scheduleRefetch(table));
   });
   rtChannel.subscribe();
@@ -2316,12 +2490,12 @@ ICON.flag = '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 2.5h1.5v15
 S.tasks = {}; S.taskComments = {}; S.notifications = [];
 Object.assign(S.ui, { msOpen: {}, stgOpen: {}, showBilling: {}, msAddOpen: {}, stageEdit: {}, stageConfirm: null, ttab: 'mine', tproject: '', tfilter: { q: '', assignee: '', project: '', status: '', priority: '', done: false }, bell: false, mentions: {}, mentionMenu: null });
 
-const isMember = () => ['owner', 'manager', 'team_lead', 'staff'].includes(myRole());
+const isMember = () => ['owner', 'manager', 'team_lead', 'staff', 'admin'].includes(myRole());
 const canWriteTasks = () => isMember();
 const TK = () => list('tasks');
 const profileOf = (uid) => (uid && S.profiles[uid]) || null;
 const uname = (uid, fallback = '—') => { const p = profileOf(uid); if (!p) return fallback; return p.fullName || cname(p.contactId, '') || p.email || fallback; };
-const activeUsers = () => Object.values(S.profiles).filter((p) => ['owner', 'manager', 'team_lead', 'staff'].includes(p.role)).sort((a, b) => uname(a.id).localeCompare(uname(b.id), 'he'));
+const activeUsers = () => Object.values(S.profiles).filter((p) => ['owner', 'manager', 'team_lead', 'staff', 'admin'].includes(p.role)).sort((a, b) => uname(a.id).localeCompare(uname(b.id), 'he'));
 const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const addDays = (ymd, n) => { const d = new Date(ymd + 'T00:00:00'); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const checklistOf = (t) => (Array.isArray(t.checklist) ? t.checklist : []);
@@ -2562,6 +2736,11 @@ function projectTasksSection(p) {
 /* ===================== notifications: bell ===================== */
 const BASE_TITLE = document.title;
 function notifText(n) {
+  if (n.kind === 'request' || n.kind === 'request_decided') {
+    const r = S.requests[n.requestId];
+    if (n.kind === 'request') return `<strong>${esc(uname(n.actorId, 'מישהו'))}</strong> ${r ? (r.kind === 'sick' || r.kind === 'late' ? 'עדכן/ה:' : 'מבקש/ת:') : 'שלח/ה בקשה'} <span class="notif-task">${esc(r ? reqTitle(r) : '')}</span>`;
+    return `<strong>${esc(uname(n.actorId, 'מישהו'))}</strong> ${r ? ({ approved: 'אישר/ה', rejected: 'דחה/תה', done: 'קבע/ה' }[r.status] || 'עדכן/ה') : 'ענה/תה על'} <span class="notif-task">${esc(r ? reqTitle(r) : 'בקשה')}</span>`;
+  }
   const t = S.tasks[n.taskId];
   return `<strong>${esc(uname(n.actorId, 'מישהו'))}</strong> ${NOTIF_VERB[n.kind] || ''} <span class="notif-task">${esc(t ? (t.title || 'ללא כותרת') : 'משימה שנמחקה')}</span>`;
 }
@@ -2575,7 +2754,7 @@ function renderBell() {
   el.innerHTML = `<button type="button" class="bell-btn ${unread.length ? 'has' : ''}" data-action="bell-toggle" title="התראות" aria-label="התראות">${ICON.bell}${unread.length ? `<span class="bell-count">${unread.length}</span>` : ''}</button>
   ${S.ui.bell ? `<div class="bell-pop" role="dialog" aria-label="התראות">
     <div class="bell-head"><strong>התראות</strong>${unread.length ? `<button class="btn ghost small" data-action="notif-read-all">סמן הכול כנקרא</button>` : ''}</div>
-    <div class="bell-list">${items.length ? items.map((n) => `<div class="notif ${n.readAt ? '' : 'unread'}" data-action="notif-open" data-id="${n.id}" data-task="${n.taskId || ''}"><div class="notif-body">${notifText(n)}</div><time>${fmtDateTime(n.createdAt)}</time></div>`).join('') : '<div class="inline-note" style="padding:12px">אין התראות עדיין. כשמישהו יקצה לך משימה או יתייג אותך — זה יופיע כאן.</div>'}</div>
+    <div class="bell-list">${items.length ? items.map((n) => `<div class="notif ${n.readAt ? '' : 'unread'}" data-action="notif-open" data-id="${n.id}" data-task="${n.taskId || ''}" data-request="${n.requestId || ''}"><div class="notif-body">${notifText(n)}</div><time>${fmtDateTime(n.createdAt)}</time></div>`).join('') : '<div class="inline-note" style="padding:12px">אין התראות עדיין. כשמישהו יקצה לך משימה או יתייג אותך — זה יופיע כאן.</div>'}</div>
   </div>` : ''}`;
 }
 
@@ -2955,6 +3134,7 @@ const loadScriptOnce = (src) => new Promise((res, rej) => { if ([...document.scr
 async function makeReportPdf(visitId) {
   const v = S.site_visits[visitId]; if (!v) return;
   S.ui.pdfBusy = true; render();
+  renderHold++; // no re-render (auto-save, realtime) may replace the report pages while html2canvas clones them
   try {
     await Promise.all([loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'), loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')]);
     const wrap = document.getElementById('rp-pages'); if (wrap) wrap.classList.add('pdf-mode');
@@ -2982,6 +3162,7 @@ async function makeReportPdf(visitId) {
       try { await navigator.share({ files: [file], title: name }); } catch (e) { if (e && e.name !== 'AbortError') downloadBlob(blob, name); }
     } else downloadBlob(blob, name);
   } catch (e) { console.error(e); toast('הפקת ה-PDF נכשלה: ' + friendlyError(e)); }
+  finally { renderHold--; }
   document.getElementById('rp-pages')?.classList.remove('pdf-mode');
   S.ui.pdfBusy = false; render();
 }
@@ -3120,13 +3301,194 @@ function renderLightbox() {
   const url = fileUrl(f);
   return `<div class="scrim" style="z-index:47;background:rgba(0,0,0,.82)" data-action="lightbox-close"></div><div class="lightbox" data-action="lightbox-close"><img src="${esc(url)}" alt="${esc(f.caption || '')}"><div class="lightbox-cap">${esc(f.caption || '')}${f.takenAt ? ` · ${fmtDateTime(f.takenAt)}` : ''} · <a href="${esc(url)}" target="_blank" rel="noopener" style="color:#fff">פתח</a></div></div>`;
 }
+/* ===================== requests & updates: meetings, leave, sickness, late arrival =====================
+   A request is a row in `requests`. `needs` says who has to act: 'admin' (administration schedules meetings; is told about sickness /
+   lateness), 'lead' (the requester's team lead — or the managing partner when the requester leads a team), 'partner' (the managing partner,
+   settings.partnerUserId, else the owners). Leave up to `leaveLeadDays` (3) working days needs the lead; longer leave needs lead + partner.
+   The database notifies the approvers on insert and the requester on a decision (requests_notify). */
+const REQ_KINDS = {
+  meeting: { label: 'בקשת פגישה', sub: 'האדמיניסטרציה תקבע — פנימית או חיצונית, לפרויקט / אישית / כללית', verb: 'לקבוע' },
+  leave: { label: 'בקשת חופשה', sub: 'עד 3 ימי עבודה: אישור ראש/ת הצוות. מעל: גם השותף/ה המנהל/ת', verb: 'לאשר' },
+  sick: { label: 'עדכון מחלה', sub: 'מעדכן את ראש/ת הצוות ואת האדמיניסטרציה', verb: '' },
+  late: { label: 'איחור / הגעה מאוחרת', sub: 'עדכון קצר לצוות ולאדמיניסטרציה', verb: '' },
+};
+const REQ_STATUS = { open: { label: 'ממתין', cls: 'yellow' }, approved: { label: 'אושר', cls: 'green' }, rejected: { label: 'נדחה', cls: 'red' }, done: { label: 'טופל', cls: 'green' }, cancelled: { label: 'בוטל', cls: 'dim' } };
+const REQ_SCOPES = { project: 'לפרויקט', personal: 'אישית', general: 'כללית' };
+const REQ_MEETING = { internal: 'פנימית', external: 'חיצונית' };
+const isAdminRole = () => myRole() === 'admin';
+const R = () => list('requests');
+const leaveLeadDays = () => Number(settings().leaveLeadDays) || 3;
+const partnerIds = () => { const pid = settings().partnerUserId; if (pid && S.profiles[pid]) return [pid]; return Object.values(S.profiles).filter((p) => p.role === 'owner').map((p) => p.id); };
+const leadUserOf = (requesterId) => { // the profile of the requester's team lead (null when none, or when the requester is that lead)
+  const rp = S.profiles[requesterId]; const c = rp?.contactId ? S.contacts[rp.contactId] : null; const t = c?.teamId ? S.teams[c.teamId] : null;
+  if (!t || !t.leadId) return null;
+  const lp = Object.values(S.profiles).find((p) => p.contactId === t.leadId && ['owner', 'manager', 'team_lead'].includes(p.role));
+  return lp && lp.id !== requesterId ? lp.id : null;
+};
+/* who has to act on a request, per needed role (mirror of request_approvers in the database) */
+function approversOf(req) {
+  const out = {};
+  (req.needs || []).forEach((need) => {
+    let ids = [];
+    if (need === 'lead') { const l = leadUserOf(req.requesterId); ids = l ? [l] : partnerIds(); }
+    else if (need === 'partner') ids = partnerIds();
+    else if (need === 'admin') { ids = Object.values(S.profiles).filter((p) => p.role === 'admin').map((p) => p.id); if (!ids.length) ids = Object.values(S.profiles).filter((p) => ['owner', 'manager'].includes(p.role)).map((p) => p.id); }
+    out[need] = ids.filter((id) => id !== req.requesterId);
+  });
+  return out;
+}
+const approvedRoles = (req) => (req.approvals || []).filter((a) => a.decision === 'approved').map((a) => a.role);
+const myRolesOn = (req) => { const ap = approversOf(req); return Object.keys(ap).filter((role) => ap[role].includes(me()?.id) && !approvedRoles(req).includes(role)); };
+const pendingForMe = () => R().filter((r) => r.status === 'open' && myRolesOn(r).length > 0);
+const myRequests = () => R().filter((r) => r.requesterId === me()?.id);
+/* working days between two dates for a person (their fixed schedule; Sunday–Thursday when none) */
+function workingDaysBetween(c, start, end) {
+  if (!start) return 0; const a = new Date(start + 'T00:00:00'), b = new Date((end || start) + 'T00:00:00'); if (isNaN(a) || isNaN(b) || b < a) return 0;
+  let n = 0; for (let d = new Date(a); d <= b; d.setDate(d.getDate() + 1)) { const dow = d.getDay(); if (c ? (dow <= 5 && !!dayPlan(c, dow)) : dow <= 4) n++; }
+  return n;
+}
+const reqTitle = (r) => {
+  const k = REQ_KINDS[r.kind]?.label || r.kind;
+  if (r.kind === 'meeting') return `${r.title || 'פגישה'}${r.projectId && S.projects[r.projectId] ? ' · ' + S.projects[r.projectId].name : ''}`;
+  if (r.kind === 'leave') return `חופשה ${fmtDate(r.startDate)}${r.endDate && r.endDate !== r.startDate ? ' – ' + fmtDate(r.endDate) : ''} · ${fmtNum(r.days || 0)} ימי עבודה`;
+  if (r.kind === 'sick') return `מחלה ${fmtDate(r.startDate)}${r.endDate && r.endDate !== r.startDate ? ' – ' + fmtDate(r.endDate) : ''}`;
+  if (r.kind === 'late') return `איחור ${fmtDate(r.startDate)}${r.atTime ? ' · הגעה ~' + r.atTime : ''}`;
+  return k;
+};
+const reqStatusChip = (r) => { const s = REQ_STATUS[r.status] || REQ_STATUS.open; const waiting = r.status === 'open' ? Object.entries(approversOf(r)).filter(([role]) => !approvedRoles(r).includes(role)).map(([role, ids]) => ids.map((id) => uname(id)).join('/')).filter(Boolean) : []; return `<span class="chip ${s.cls}" title="${esc(waiting.length ? 'ממתין ל: ' + waiting.join(', ') : '')}">${s.label}${waiting.length ? ' · ' + esc(waiting.join(', ')) : ''}</span>`; };
+/* ---------- submitting ---------- */
+function submitRequest(kind, f) {
+  if (!isMember()) { toast('אין לך הרשאה'); return null; }
+  const id = uid('rq'); const c = myContactId() ? S.contacts[myContactId()] : null;
+  const body = { kind, requesterId: me().id, contactId: myContactId(), projectId: f.projectId || null, scope: f.scope || null, meetingType: f.meetingType || null, title: (f.title || '').trim(), note: (f.note || '').trim(), startDate: f.startDate || null, endDate: f.endDate || f.startDate || null, days: null, atTime: f.atTime || null, status: 'open', needs: [], approvals: [], handledBy: null, handledAt: null };
+  if (kind === 'meeting') { body.needs = ['admin']; }
+  else if (kind === 'leave') { body.days = workingDaysBetween(c, body.startDate, body.endDate); body.needs = body.days > leaveLeadDays() ? ['lead', 'partner'] : ['lead']; }
+  else { body.needs = ['lead', 'admin']; body.status = 'done'; }
+  createDoc('requests', id, body);
+  return id;
+}
+/* ---------- deciding ---------- */
+function decideRequest(id, decision, note = '') {
+  const r = S.requests[id]; if (!r || r.status !== 'open') return;
+  const roles = myRolesOn(r); if (!roles.length) { toast('הבקשה לא ממתינה לך'); return; }
+  const approvals = [...(r.approvals || []), ...roles.map((role) => ({ role, userId: me().id, decision, note, at: nowIso() }))];
+  const patch = { approvals };
+  if (decision === 'rejected') { patch.status = 'rejected'; patch.handledBy = me().id; patch.handledAt = nowIso(); }
+  else {
+    const done = approvals.filter((a) => a.decision === 'approved').map((a) => a.role);
+    if ((r.needs || []).every((n) => done.includes(n))) { patch.status = r.kind === 'meeting' ? 'done' : 'approved'; patch.handledBy = me().id; patch.handledAt = nowIso(); }
+  }
+  patchDoc('requests', id, patch);
+  toast(decision === 'rejected' ? 'הבקשה נדחתה' : (patch.status ? (r.kind === 'meeting' ? 'סומן כנקבע' : 'הבקשה אושרה') : 'אישורך נרשם — ממתין לאישור נוסף'));
+}
+const cancelRequest = (id) => { const r = S.requests[id]; if (!r || r.requesterId !== me()?.id || r.status !== 'open') return; patchDoc('requests', id, { status: 'cancelled' }); };
+/* people away today (approved leave / sickness covering the date) */
+function awayToday(date = new Date()) {
+  const d = todayStr(date); const out = [];
+  R().forEach((r) => { if (!['leave', 'sick'].includes(r.kind) || !['approved', 'done'].includes(r.status) || !r.startDate) return; if (r.startDate <= d && (r.endDate || r.startDate) >= d) { const c = r.contactId ? S.contacts[r.contactId] : null; out.push({ c, req: r, name: c ? c.name : uname(r.requesterId) }); } });
+  return out;
+}
+/* ---------- the requests view ---------- */
+function requestRow(r, opts = {}) {
+  const mine = r.requesterId === me()?.id;
+  const roles = r.status === 'open' ? myRolesOn(r) : [];
+  return `<div class="list-item req-row" data-action="open-request" data-id="${r.id}">
+    <div class="li-body">
+      <div class="li-title">${esc(REQ_KINDS[r.kind]?.label || r.kind)}${!mine ? ` · <span class="muted">${esc(uname(r.requesterId))}</span>` : ''}</div>
+      <div class="li-sub">${esc(reqTitle(r))}${r.note ? ' · ' + esc(r.note.slice(0, 80)) : ''}</div>
+    </div>
+    <div class="li-side" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+      ${roles.length ? `<button type="button" class="btn small primary" data-action="req-approve" data-id="${r.id}">${r.kind === 'meeting' ? 'נקבע' : 'אשר'}</button><button type="button" class="btn small" data-action="req-reject" data-id="${r.id}">${r.kind === 'meeting' ? 'לא ניתן' : 'דחה'}</button>` : reqStatusChip(r)}
+      <time class="muted" style="font-size:12px">${fmtDate(r.createdAt)}</time>
+    </div>
+  </div>`;
+}
+function renderRequests() {
+  const tab = S.ui.rtab || (pendingForMe().length ? 'pending' : 'mine');
+  const all = R().sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+  const pend = pendingForMe(); const mine = myRequests();
+  const canAll = isManager() || isAdminRole() || myRole() === 'team_lead';
+  const rows = tab === 'pending' ? pend : tab === 'mine' ? mine : all;
+  const tabs = [['pending', `ממתינות לי${pend.length ? ` · ${pend.length}` : ''}`], ['mine', `שלי${mine.length ? ` · ${mine.length}` : ''}`], ...(canAll ? [['all', `כולן · ${all.length}`]] : [])];
+  return `<div class="view-head">
+    <div><h1 class="view-title">בקשות ועדכונים</h1><div class="view-sub">פגישות, חופשות, מחלה ואיחורים — בקשה נשלחת למי שצריך לאשר, והתשובה חוזרת בהתראה.</div></div>
+    <div class="view-actions"><button class="btn primary" data-action="new-request">${ICON.plus} בקשה חדשה</button></div>
+  </div>
+  <div class="tabs">${tabs.map(([id, label]) => `<button type="button" class="tab ${tab === id ? 'on' : ''}" data-action="rtab" data-tab="${id}">${label}</button>`).join('')}</div>
+  <div class="panel">${rows.length ? `<div class="list">${rows.map((r) => requestRow(r)).join('')}</div>` : `<div class="empty">${tab === 'pending' ? 'אין בקשות שממתינות לך.' : tab === 'mine' ? 'עדיין לא שלחת בקשות. ' : 'אין בקשות.'}${tab === 'mine' ? `<button class="btn small" data-action="new-request">${ICON.plus} בקשה חדשה</button>` : ''}</div>`}</div>`;
+}
+/* ---------- new request drawer ---------- */
+function drawerNewRequest() {
+  const f = S.ui.reqForm || (S.ui.reqForm = { kind: null, scope: 'project', meetingType: 'internal', startDate: todayStr(), endDate: todayStr(), atTime: '' });
+  const c = myContactId() ? S.contacts[myContactId()] : null;
+  const days = f.kind === 'leave' ? workingDaysBetween(c, f.startDate, f.endDate) : 0;
+  const lead = leadUserOf(me().id);
+  const chain = f.kind === 'leave' ? (days > leaveLeadDays() ? `${lead ? uname(lead) : 'השותף/ה המנהל/ת'} + ${partnerIds().map((id) => uname(id)).join(' / ')}` : (lead ? uname(lead) : partnerIds().map((id) => uname(id)).join(' / '))) : '';
+  const projOpts = activeProjects().sort(byName).map((p) => ({ value: p.id, label: projectDisplayName(p) }));
+  const body = !f.kind ? `<div class="req-kinds">${Object.entries(REQ_KINDS).map(([k, m]) => `<button type="button" class="req-kind" data-action="req-kind" data-kind="${k}"><strong>${m.label}</strong><span>${m.sub}</span></button>`).join('')}</div>`
+    : f.kind === 'meeting' ? `
+      <div class="field"><label>סוג הפגישה</label><span class="seg">${Object.entries(REQ_MEETING).map(([v, l]) => `<button type="button" class="${f.meetingType === v ? 'on' : ''}" data-action="req-set" data-key="meetingType" data-value="${v}">${l}</button>`).join('')}</span></div>
+      <div class="field"><label>בהקשר של</label><span class="seg">${Object.entries(REQ_SCOPES).map(([v, l]) => `<button type="button" class="${f.scope === v ? 'on' : ''}" data-action="req-set" data-key="scope" data-value="${v}">${l}</button>`).join('')}</span></div>
+      ${f.scope === 'project' ? field('פרויקט', selectHtml('rq-project', f.projectId || '', projOpts, { blank: 'בחר פרויקט…', attrs: 'data-req="projectId"' })) : ''}
+      ${field('נושא / עם מי', `<input type="text" id="rq-title" value="${esc(f.title || '')}" data-req="title" placeholder="למשל: פגישת תיאום עם היזם, מצגת ללקוח">`)}
+      <div class="field-row">${field('תאריך מועדף', `<input type="date" id="rq-start" value="${esc(f.startDate || '')}" data-req="startDate">`)}${field('שעה מועדפת', `<input type="time" id="rq-time" value="${esc(f.atTime || '')}" data-req="atTime">`)}</div>
+      ${field('הערות', `<textarea id="rq-note" rows="3" data-req="note" placeholder="משתתפים, מיקום, משך, גמישות בתאריך…">${esc(f.note || '')}</textarea>`)}
+      <div class="inline-note">הבקשה תגיע לאדמיניסטרציה (${approversOf({ needs: ['admin'], requesterId: me().id }).admin.map((id) => uname(id)).join(', ') || '—'}); כשתיקבע, תקבל/י התראה.</div>`
+    : f.kind === 'leave' ? `
+      <div class="field-row">${field('מתאריך', `<input type="date" id="rq-start" value="${esc(f.startDate || '')}" data-req="startDate">`)}${field('עד תאריך', `<input type="date" id="rq-end" value="${esc(f.endDate || f.startDate || '')}" data-req="endDate">`)}</div>
+      <div class="lvl-summary"><span class="chip ${days > leaveLeadDays() ? 'accent' : 'dim'}">${days} ימי עבודה</span><span class="muted">לפי ימי העבודה הקבועים שלך · לאישור: ${esc(chain)}</span></div>
+      ${field('הערות', `<textarea id="rq-note" rows="3" data-req="note" placeholder="למשל: מי מחליף/ה, מה צריך לסגור לפני">${esc(f.note || '')}</textarea>`)}`
+    : f.kind === 'sick' ? `
+      <div class="field-row">${field('מתאריך', `<input type="date" id="rq-start" value="${esc(f.startDate || '')}" data-req="startDate">`)}${field('עד תאריך (משוער)', `<input type="date" id="rq-end" value="${esc(f.endDate || f.startDate || '')}" data-req="endDate">`)}</div>
+      ${field('הערות', `<textarea id="rq-note" rows="3" data-req="note" placeholder="מה דחוף להעביר למישהו אחר?">${esc(f.note || '')}</textarea>`)}
+      <div class="inline-note">העדכון יישלח ל${lead ? esc(uname(lead)) : 'הנהלה'} ולאדמיניסטרציה. רפואה שלמה.</div>`
+    : `
+      <div class="field-row">${field('תאריך', `<input type="date" id="rq-start" value="${esc(f.startDate || '')}" data-req="startDate">`)}${field('הגעה משוערת', `<input type="time" id="rq-time" value="${esc(f.atTime || '')}" data-req="atTime">`)}</div>
+      ${field('הערות', `<input type="text" id="rq-note" value="${esc(f.note || '')}" data-req="note" placeholder="למשל: רופא, פקק, ילדים">`)}`;
+  return `
+  <div class="drawer-head">
+    <div style="flex:1;min-width:0"><h2 class="drawer-title">${f.kind ? esc(REQ_KINDS[f.kind].label) : 'בקשה או עדכון'}</h2><div class="drawer-sub">${f.kind ? `<a href="#" data-action="req-kind" data-kind="">סוג אחר</a>` : 'מה צריך?'}</div></div>
+    <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
+  </div>
+  <div class="drawer-body"><div class="section">${body}</div></div>
+  ${f.kind ? `<div class="drawer-foot"><span></span><button class="btn primary" data-action="req-submit">${f.kind === 'sick' || f.kind === 'late' ? 'שלח עדכון' : 'שלח בקשה'}</button></div>` : ''}`;
+}
+/* ---------- request drawer (details + decision) ---------- */
+function drawerRequest(id) {
+  const r = S.requests[id];
+  if (!r) return `<div class="drawer-head"><h2 class="drawer-title">הבקשה לא נמצאה</h2><button class="icon-btn" data-action="close-drawer">${ICON.x}</button></div>`;
+  const mine = r.requesterId === me()?.id; const roles = r.status === 'open' ? myRolesOn(r) : [];
+  const ap = approversOf(r);
+  const rowsInfo = [
+    ['מבקש/ת', uname(r.requesterId)], ['נשלח', fmtDateTime(r.createdAt)],
+    r.kind === 'meeting' ? ['פגישה', `${REQ_MEETING[r.meetingType] || ''} · ${REQ_SCOPES[r.scope] || ''}${r.projectId && S.projects[r.projectId] ? ' · ' + S.projects[r.projectId].name : ''}`] : null,
+    r.kind === 'meeting' ? ['נושא', r.title] : null,
+    r.startDate ? [r.kind === 'meeting' ? 'תאריך מועדף' : 'תאריכים', `${fmtDate(r.startDate)}${r.endDate && r.endDate !== r.startDate ? ' – ' + fmtDate(r.endDate) : ''}${r.atTime ? ' · ' + r.atTime : ''}`] : null,
+    r.kind === 'leave' ? ['ימי עבודה', fmtNum(r.days || 0)] : null,
+    r.note ? ['הערות', r.note] : null,
+  ].filter(Boolean);
+  const chain = (r.needs || []).map((need) => { const done = (r.approvals || []).find((a) => a.role === need); const who = (ap[need] || []).map((id) => uname(id)).join(' / ') || '—'; return `<div class="role-row"><div class="role-name">${{ lead: 'ראש/ת צוות', partner: 'שותף/ה מנהל/ת', admin: 'אדמיניסטרציה' }[need]}</div><div class="role-body">${done ? `<span class="chip ${done.decision === 'approved' ? 'green' : 'red'}">${done.decision === 'approved' ? (r.kind === 'meeting' ? 'נקבע' : 'אושר') : 'נדחה'} · ${esc(uname(done.userId))} · ${fmtDateTime(done.at)}</span>${done.note ? `<div class="muted">${esc(done.note)}</div>` : ''}` : (r.status === 'open' ? `<span class="chip yellow">ממתין · ${esc(who)}</span>` : `<span class="chip dim">${esc(who)}</span>`)}</div></div>`; }).join('');
+  return `
+  <div class="drawer-head">
+    <div style="flex:1;min-width:0"><h2 class="drawer-title">${esc(REQ_KINDS[r.kind]?.label || r.kind)}</h2><div class="drawer-sub">${esc(reqTitle(r))}</div></div>
+    <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
+  </div>
+  <div class="drawer-body">
+    <div class="section"><div style="margin-bottom:8px">${reqStatusChip(r)}</div>${rowsInfo.map(([l, v]) => `<div class="role-row"><div class="role-name">${l}</div><div class="role-body">${esc(v)}</div></div>`).join('')}</div>
+    ${r.needs?.length ? `<div class="section"><h3 class="section-title">${r.kind === 'sick' || r.kind === 'late' ? 'עודכנו' : 'אישורים'}</h3>${r.kind === 'sick' || r.kind === 'late' ? `<div class="muted">${esc(Object.values(ap).flat().map((id) => uname(id)).join(', ') || '—')}</div>` : chain}</div>` : ''}
+    ${roles.length ? `<div class="section"><h3 class="section-title">${r.kind === 'meeting' ? 'קביעת הפגישה' : 'ההחלטה שלך'}</h3>
+      ${field(r.kind === 'meeting' ? 'מתי נקבע / הערה' : 'הערה (לא חובה)', `<input type="text" id="rq-decision-note" placeholder="${r.kind === 'meeting' ? 'למשל: יום ג׳ 14.10 בשעה 10:00 אצל הלקוח' : 'למשל: לתאם עם…'}">`)}
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-action="req-approve" data-id="${r.id}" data-note="1">${r.kind === 'meeting' ? 'נקבע' : 'אשר'}</button><button class="btn" data-action="req-reject" data-id="${r.id}" data-note="1">${r.kind === 'meeting' ? 'לא ניתן לקבוע' : 'דחה'}</button></div></div>` : ''}
+  </div>
+  <div class="drawer-foot"><span class="inline-note">${r.handledAt ? `טופל ${fmtDateTime(r.handledAt)} · ${esc(uname(r.handledBy))}` : ''}</span>${mine && r.status === 'open' ? `<button class="btn small" data-action="req-cancel" data-id="${r.id}">בטל את הבקשה</button>` : ''}</div>`;
+}
 /* ===================== overlay: drawer + menu ===================== */
 function renderOverlay() {
   const ov = document.getElementById('overlay');
   const d = S.ui.drawer;
   let html = '';
   if (d) {
-    const body = d.kind === 'project' ? drawerProject(d.id) : d.kind === 'contact' ? drawerContact(d.id) : d.kind === 'import' ? drawerImport() : d.kind === 'task' ? drawerTask(d.id) : d.kind === 'visit' ? drawerVisit(d.id) : drawerCommission(d.id);
+    const body = d.kind === 'project' ? drawerProject(d.id) : d.kind === 'contact' ? drawerContact(d.id) : d.kind === 'import' ? drawerImport() : d.kind === 'task' ? drawerTask(d.id) : d.kind === 'visit' ? drawerVisit(d.id) : d.kind === 'request' ? drawerRequest(d.id) : d.kind === 'request-new' ? drawerNewRequest() : drawerCommission(d.id);
     const pend = hasPending() && S.ui.autoSaveFailed ? `<div class="drawer-save"><span>${pendingCount() === 1 ? 'שינוי אחד לא נשמר' : pendingCount() + ' שינויים לא נשמרו'} — אין חיבור?</span><button class="btn primary small" data-action="pending-save" ${S.ui.committing ? 'disabled' : ''}>${S.ui.committing ? 'שומר…' : 'שמור שוב'}</button><button class="btn small" data-action="pending-discard" ${S.ui.committing ? 'disabled' : ''}>בטל</button></div>` : '';
     html += `<div class="scrim" data-action="close-drawer"></div><aside class="drawer" role="dialog" aria-modal="true" data-key="${esc(drawerKey())}">${body}${pend}</aside>`;
   }
@@ -3194,6 +3556,7 @@ function drawerProject(id) {
   <div class="drawer-head">
     <div style="flex:1;min-width:0">
       <h2 class="drawer-title"><input type="text" id="p-name" value="${esc(S.ui.drafts['p-name'] ?? p.name)}" data-bind="projects:${p.id}:name" aria-label="שם הפרויקט"></h2>
+      ${nameEn(p) ? `<div class="drawer-en">${nameEnHtml(p, true)}</div>` : ''}
       <div class="drawer-sub">${parentOf(p) ? `<a href="#" data-action="open-project" data-id="${parentOf(p).id}" style="color:inherit">תת-פרויקט של ${esc(parentOf(p).name)}</a> · ` : ''}${esc([p.number ? 'מס\' ' + p.number : '', p.type, p.typeDetail, p.city, cname(p.clientId, '')].filter(Boolean).join(' · '))}</div>
     </div>
     <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
@@ -3261,6 +3624,7 @@ function drawerProject(id) {
         ${field('סוג', selectHtml('p-type', p.type || '', st.types.map((t) => ({ value: t, label: t })), { blank: 'בחר סוג…', attrs: `data-bind="projects:${p.id}:type"` }))}
         ${field('פירוט סוג', textInput('p-typeDetail', p.typeDetail, `data-bind="projects:${p.id}:typeDetail" placeholder="למשל: פנטהאוז, וילות"`))}
       </div>
+      ${field('שם באנגלית לפרסום', textInput('p-nameEn', p.nameEn, `data-bind="projects:${p.id}:nameEn" dir="ltr" placeholder="The name used on social media and in the press" autocomplete="off" spellcheck="false"`), 'השם שמתפרסם ברשתות ובעיתונות — מופיע מתחת לשם הפרויקט וניתן להעתקה בלחיצה')}
       <div class="field-row">
         ${field('כתובת', textInput('p-address', p.address, `data-bind="projects:${p.id}:address"`))}
         ${field('עיר', textInput('p-city', p.city, `data-bind="projects:${p.id}:city"`))}
@@ -3596,10 +3960,12 @@ function drawerContact(id) {
         ${field('כתובת', textInput('c-address', c.address, `data-bind="contacts:${c.id}:address"`))}
         ${field('טלפון נוסף', textInput('c-phone2', c.phone2, `data-bind="contacts:${c.id}:phone2" dir="ltr" style="text-align:end" inputmode="tel"`))}
       </div>`}
+      ${socialSection(c, true)}
       ${field('הערות', textArea('c-notes', c.notes, `rows="${c.type === 'lead' ? 6 : 2}" data-bind="contacts:${c.id}:notes"`))}
       <label class="switch"><input type="checkbox" id="c-active" ${c.active !== false ? 'checked' : ''} data-bind="contacts:${c.id}:active"> פעיל (מופיע ברשימות הבחירה)</label>
     </div>
     ${ORG_TYPES.includes(c.type) ? orgPeopleSection(c) : ''}
+    ${scheduleSection(c)}
     ${levelSection(c)}
     <div class="section">
       <h3 class="section-title">פרויקטים מקושרים <small>${linked.length}</small></h3>
@@ -3616,6 +3982,31 @@ function drawerContact(id) {
       ${isManager() ? `<button class="btn small" data-action="merge-contact" data-id="${c.id}" title="להעביר את כל הקישורים לרשומה אחרת ולמחוק את זו">מזג לתוך…</button>` : ''}
     </div>` : '<span></span>'}
     ${isManager() ? (linked.length ? `<span class="inline-note">מקושר/ת ל-${linked.length} פרויקטים — אפשר להשבית או למזג, לא למחוק.</span>` : confirmButton('delete-doc', `data-col="contacts" data-id="${c.id}"`, 'מחק לצמיתות')) : ''}
+  </div>`;
+}
+/* fixed working days / hours / remote days — every member sees them; managers, the team lead and the person themself edit */
+function setScheduleDay(cid, d, patch) {
+  const c = S.contacts[cid]; if (!c || !canEditSchedule(c)) { toast('אין לך הרשאת עריכה'); render(); return; }
+  const days = {};
+  [0, 1, 2, 3, 4, 5].forEach((k) => { const plan = dayPlan(c, k); days[String(k)] = plan ? Object.assign({}, plan) : null; });
+  if (patch === null) days[String(d)] = null;
+  else days[String(d)] = Object.assign({}, days[String(d)] || DEFAULT_DAY, patch);
+  const row = scheduleRow(cid);
+  if (row) patchDoc('work_schedules', cid, { days }); else createDoc('work_schedules', cid, { days, note: '' });
+}
+function scheduleSection(c) {
+  if (c.type !== 'employee' || !isMember()) return '';
+  const edit = canEditSchedule(c);
+  const wd = workingDays(c), rd = remoteDays(c), hrs = weeklyHours(c), fte = fteOf(c);
+  const rows = [0, 1, 2, 3, 4, 5].map((d) => { const plan = dayPlan(c, d); return `<div class="sched-row ${plan ? '' : 'off'}">
+      <label class="switch"><input type="checkbox" data-sched="${c.id}:${d}:on" ${plan ? 'checked' : ''} ${edit ? '' : 'disabled'}> <span>${DAY_NAMES[d]}</span></label>
+      <span class="sched-hours"><input type="time" value="${esc(plan?.from || '')}" data-sched="${c.id}:${d}:from" ${plan && edit ? '' : 'disabled'} aria-label="משעה"><span class="muted">–</span><input type="time" value="${esc(plan?.to || '')}" data-sched="${c.id}:${d}:to" ${plan && edit ? '' : 'disabled'} aria-label="עד שעה"></span>
+      <span class="seg" role="group" aria-label="מאיפה">${[['office', 'במשרד'], ['remote', 'מרחוק']].map(([w, l]) => `<button type="button" class="${plan && (plan.where || 'office') === w ? 'on' : ''}" data-action="sched-where" data-id="${c.id}" data-day="${d}" data-where="${w}" ${plan && edit ? '' : 'disabled'}>${l}</button>`).join('')}</span>
+    </div>`; }).join('');
+  return `<div class="section" id="schedule-section">
+    <h3 class="section-title">ימי ושעות עבודה <small>${hasSchedule(c) ? '' : 'ברירת מחדל של המשרד — '}${wd.length} ימים · ${fmtNum(hrs)} שעות בשבוע · היקף משרה ${Math.round(fte * 100)}%${rd.length ? ' · מרחוק: ' + daysLabel(rd) : ''}</small></h3>
+    <div class="sched">${rows}</div>
+    <div class="inline-note">${edit ? 'שינוי כאן נשמר מיד. ' : ''}היקף המשרה נספר בקיבולת הצוות; ימי העבודה משמשים לחישוב ימי חופשה ול"מי במשרד היום".${edit ? '' : ' עריכה: מנהלים, ראש/ת הצוות והעובד/ת עצמו/ה.'}</div>
   </div>`;
 }
 /* experience level + personal load of an employee — team leads and up; editable by managers and by the person's own team lead */
@@ -3656,8 +4047,9 @@ function drawerContactReadOnly(c) {
     <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
   </div>
   <div class="drawer-body">
-    <div class="section">${row('צוות', esc(tname(c.teamId, '')))}${row('תפקיד', esc(c.role))}${row(c.type === 'person' ? 'לקוח / חברה' : 'חברה', c.type === 'person' && c.parentId && S.contacts[c.parentId] ? `<a href="#" data-action="open-contact" data-id="${c.parentId}">${esc(personOrg(c))}</a>` : esc(c.company))}${row('תחום', esc(c.category))}${row('טלפון', c.phone ? `<span class="ltr">${esc(c.phone)}</span>` : '')}${row('טלפון נוסף', c.phone2 ? `<span class="ltr">${esc(c.phone2)}</span>` : '')}${row('מייל', c.email ? `<span class="ltr">${esc(c.email)}</span>` : '')}${row('כתובת', esc(c.address))}${row('הערות', esc(c.notes))}
+    <div class="section">${row('צוות', esc(tname(c.teamId, '')))}${row('תפקיד', esc(c.role))}${row(c.type === 'person' ? 'לקוח / חברה' : 'חברה', c.type === 'person' && c.parentId && S.contacts[c.parentId] ? `<a href="#" data-action="open-contact" data-id="${c.parentId}">${esc(personOrg(c))}</a>` : esc(c.company))}${row('תחום', esc(c.category))}${row('טלפון', c.phone ? `<span class="ltr">${esc(c.phone)}</span>` : '')}${row('טלפון נוסף', c.phone2 ? `<span class="ltr">${esc(c.phone2)}</span>` : '')}${row('מייל', c.email ? `<span class="ltr">${esc(c.email)}</span>` : '')}${row('כתובת', esc(c.address))}${row('רשתות ואתר', socialChips(c, false) ? `<div class="chips">${socialChips(c, false)}</div>` : '')}${row('הערות', esc(c.notes))}
       <div class="inline-note" style="margin-top:8px">עריכת ${esc(CTYPES[c.type]?.plural || '')} שמורה למנהלים.</div></div>
+    ${scheduleSection(c)}
     ${levelSection(c)}
     ${c.type !== 'employee' && c.type !== 'person' && peopleOf(c.id).length ? `<div class="section"><h3 class="section-title">אנשי קשר <small>${peopleOf(c.id).length}</small></h3><div class="list">${peopleOf(c.id).map((x) => personRow(x)).join('')}</div></div>` : ''}
     <div class="section"><h3 class="section-title">פרויקטים מקושרים <small>${linked.length}</small></h3>
@@ -3862,7 +4254,8 @@ function bindHandler(el) {
   if (el.type === 'checkbox') v = el.checked;
   else if (el.type === 'number') v = el.value === '' ? null : Number(el.value);
   else v = el.value;
-  if (['teamId', 'leadId', 'phase', 'clientId', 'projectId', 'supplierId', 'startDate', 'dueDate', 'expectedDate', 'invoiceDate', 'paidDate', 'assigneeId', 'phaseId', 'parentId', 'responsibleId', 'nextVisit', 'typeId', 'phase', 'milestoneId'].includes(key) && v === '') v = null;
+  if (['teamId', 'leadId', 'phase', 'clientId', 'projectId', 'supplierId', 'startDate', 'dueDate', 'expectedDate', 'invoiceDate', 'paidDate', 'assigneeId', 'phaseId', 'parentId', 'responsibleId', 'nextVisit', 'typeId', 'phase', 'milestoneId', 'nameEn'].includes(key) && v === '') v = null;
+  if (key === 'nameEn' && typeof v === 'string') { v = v.trim() || null; el.value = v || ''; }
   delete S.ui.drafts[el.id];
   if (key === 'name' && !String(v).trim()) { render(); return; }
   patchDoc(col, id, { [key]: v });
@@ -3896,6 +4289,8 @@ document.addEventListener('change', (e) => {
   if (el.dataset.check) { const [tid, cid] = el.dataset.check.split(':'); const t = S.tasks[tid]; if (!t || !canWriteTasks()) return; patchDoc('tasks', tid, { checklist: checklistOf(t).map((c) => c.id === cid ? Object.assign({}, c, { done: el.checked }) : c) }); return; }
   if (el.dataset.action === 'toggle-person') { const p = S.projects[el.dataset.id]; if (!p || !canWriteProjects()) { render(); return; } const cur = p.clientPersonIds || []; patchDoc('projects', p.id, { clientPersonIds: el.checked ? [...new Set([...cur, el.dataset.person])] : cur.filter((x) => x !== el.dataset.person) }); return; }
   // settings
+  if (el.dataset.req) { const f = S.ui.reqForm; if (!f) return; f[el.dataset.req] = el.value; if (el.dataset.req === 'startDate' && (!f.endDate || f.endDate < el.value)) f.endDate = el.value; if (f.kind === 'leave' || el.dataset.req === 'projectId') render(); return; }
+  if (el.dataset.sched) { const [cid, d, key] = el.dataset.sched.split(':'); if (key === 'on') setScheduleDay(cid, Number(d), el.checked ? {} : null); else if (el.value) setScheduleDay(cid, Number(d), { [key]: el.value }); return; }
   if (el.dataset.stgtarget) { const [pid, sid] = el.dataset.stgtarget.split(':'); const p = S.projects[pid]; if (!p || !canEditMilestones()) return; const row = ensureStageRow(p, sid, 'todo'); patchDoc('project_milestones', row.id, { dueDate: el.value || null }); return; }
   if (el.dataset.stgname) { const [pid, sid] = el.dataset.stgname.split(':'); const p = S.projects[pid]; if (!p || !canEditMilestones()) return; const name = el.value.trim(); if (!name) return; patchDoc('projects', pid, { stages: ownStageIds(p).map((id) => ({ id, name: id === sid ? name : stageName(id, p) })) }); milestonesOf(pid).filter((m) => msIsStageRow(m) && msStage(m) === sid).forEach((m) => patchDoc('project_milestones', m.id, { name })); return; }
   if (el.id && el.id.startsWith('stage-add-') && !el.id.startsWith('stage-add-name-')) { const inp = document.getElementById(el.id.replace('stage-add-', 'stage-add-name-')); if (inp) { inp.style.display = el.value === '__custom' ? '' : 'none'; if (el.value === '__custom') inp.focus(); } return; }
@@ -3916,6 +4311,8 @@ document.addEventListener('change', (e) => {
   if (el.dataset.sizeWeight) { const sizes = settings().sizes.map((s) => s.id === el.dataset.sizeWeight ? Object.assign({}, s, { weight: Number(el.value) || 0 }) : s); patchSettings({ sizes }); return; }
   if (id === 'set-unknown-weight') { patchSettings({ unknownPhaseWeight: Number(el.value) || 0 }); return; }
   if (id === 'set-stale-days') { patchSettings({ staleDays: Math.max(1, Number(el.value) || 14) }); return; }
+  if (id === 'set-partner') { patchSettings({ partnerUserId: el.value || null }); return; }
+  if (id === 'set-leave-days') { patchSettings({ leaveLeadDays: Math.max(0, Number(el.value) || 0) }); return; }
   if (id === 'set-load-per-level') { patchSettings({ loadPerLevel: Math.max(0.5, Number(el.value) || 4) }); return; }
   if (id === 'set-lead-share') { const n = Number(el.value); patchSettings({ leadCapacityShare: isNaN(n) ? 0.25 : Math.min(1, Math.max(0, n / 100)) }); return; }
   if (id === 'set-office-name') { patchSettings({ officeName: el.value.trim() }); return; }
@@ -3931,6 +4328,7 @@ document.addEventListener('keydown', (e) => {
     if (el.dataset.quick) { e.preventDefault(); document.querySelector(`[data-action="task-quick-add"][data-input="${el.id}"]`)?.click(); return; }
     if (el.dataset.msadd) { e.preventDefault(); document.querySelector(`[data-action="ms-add"][data-id="${el.dataset.msadd}"][data-stage="${el.dataset.stage || ''}"]`)?.click(); return; }
     if (el.dataset.mscheckadd) { e.preventDefault(); document.querySelector(`[data-action="ms-check-add"][data-id="${el.dataset.mscheckadd}"]`)?.click(); return; }
+    if (el.dataset.socialadd) { e.preventDefault(); addSocial(el.dataset.socialadd, el.value); return; }
     if (el.id?.startsWith('check-add-')) { e.preventDefault(); document.querySelector(`[data-action="check-add"][data-id="${el.id.slice(10)}"]`)?.click(); return; }
     if (el.id === 'add-team') { document.querySelector('[data-action="add-team"]')?.click(); return; }
     if (el.id === 'add-phase') { document.querySelector('[data-action="add-phase"]')?.click(); return; }
@@ -3938,7 +4336,14 @@ document.addEventListener('keydown', (e) => {
     if (el.id?.startsWith('add-')) { document.querySelector(`[data-action="set-list-add"][data-list="${el.id.slice(4)}"]`)?.click(); return; }
     if (el.tagName === 'INPUT' && el.dataset.bind) el.blur();
   }
-  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('.chip[role="button"]')) { e.preventDefault(); e.target.click(); }
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('.chip[role="button"], .en[role="button"]')) { e.preventDefault(); e.target.click(); }
+});
+/* pasting an address into the social box adds it at once — no Enter needed */
+document.addEventListener('paste', (e) => {
+  const el = e.target; if (!el?.dataset?.socialadd) return;
+  const text = (e.clipboardData || window.clipboardData)?.getData('text') || '';
+  if (!parseSocial(text)) return;
+  e.preventDefault(); addSocial(el.dataset.socialadd, text);
 });
 document.addEventListener('click', async (e) => {
   // menu interactions
@@ -3955,9 +4360,13 @@ document.addEventListener('click', async (e) => {
   const t = e.target.closest('[data-action]');
   if (!t) return;
   const a = t.dataset.action; const ds = t.dataset;
-  if (t.tagName === 'A') e.preventDefault();
+  if (t.tagName === 'A' && t.target !== '_blank') e.preventDefault(); // external links (target=_blank) keep their default: open in a new tab
   if (await fieldAction(a, ds, t, e)) return;
   switch (a) {
+    case 'ext': break; // an external link inside a clickable row: the browser opens it, the row stays closed
+    case 'copy-text': { try { await navigator.clipboard.writeText(ds.text || ''); toast('הועתק: ' + (ds.text || '')); } catch (err) { toast('לא הצלחתי להעתיק'); } break; }
+    case 'social-add': addSocial(ds.id, document.getElementById('social-add-' + ds.id)?.value || ''); break;
+    case 'social-remove': { const c = S.contacts[ds.id]; if (!c) break; if (!canWriteContact(c.type)) { toast('אין לך הרשאת עריכה'); break; } const s = Object.assign({}, socialsOf(c)); delete s[ds.net]; patchDoc('contacts', c.id, { socials: s }); break; }
     case 'pending-save': S.ui.autoSaveFailed = false; await commitPending(); break;
     case 'pending-discard': discardPending(); break;
     case 'close-save': { S.ui.autoSaveFailed = false; const ok = await commitPending(); if (ok) closeDrawer(true); break; }
@@ -4090,7 +4499,25 @@ document.addEventListener('click', async (e) => {
     case 'comment-delete': { S.taskComments[ds.task] = (S.taskComments[ds.task] || []).filter((c) => c.id !== ds.id); render(); await write(() => sb.from('task_comments').delete().eq('id', ds.id)); break; }
     case 'mention-open': { e.stopPropagation(); openMenu(t, { search: true, placeholder: 'את מי לתייג?', items: mentionCandidates(''), onPick: (it) => { const ta = document.getElementById('comment-' + ds.id); if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); if (ta.value && !/\s$/.test(ta.value)) { ta.value += ' '; } } insertMention(ds.id, it.value, 0); } }); break; }
     case 'bell-toggle': e.stopPropagation(); S.ui.bell = !S.ui.bell; renderBell(); break;
-    case 'notif-open': { e.stopPropagation(); const n = S.notifications.find((x) => String(x.id) === String(ds.id)); S.ui.bell = false; if (n && !n.readAt) markRead([n.id]); else renderBell(); if (ds.task && S.tasks[ds.task]) { openDrawer('task', ds.task); if (!S.taskComments[ds.task]) fetchComments(ds.task).then(render); } else toast('המשימה כבר לא קיימת'); break; }
+    case 'notif-open': { e.stopPropagation(); const n = S.notifications.find((x) => String(x.id) === String(ds.id)); S.ui.bell = false; if (n && !n.readAt) markRead([n.id]); else renderBell(); if (ds.request) { if (S.requests[ds.request]) openDrawer('request', ds.request); else toast('הבקשה כבר לא קיימת'); } else if (ds.task && S.tasks[ds.task]) { openDrawer('task', ds.task); if (!S.taskComments[ds.task]) fetchComments(ds.task).then(render); } else toast('המשימה כבר לא קיימת'); break; }
+    // ----- requests & updates -----
+    case 'new-request': { if (!isMember()) break; S.ui.reqForm = null; openDrawer('request-new'); break; }
+    case 'open-request': { if (S.requests[ds.id]) openDrawer('request', ds.id); break; }
+    case 'rtab': S.ui.rtab = ds.tab; render(); break;
+    case 'req-kind': { const f = S.ui.reqForm || (S.ui.reqForm = {}); f.kind = ds.kind || null; if (!f.startDate) f.startDate = todayStr(); if (!f.endDate) f.endDate = f.startDate; if (!f.scope) f.scope = 'project'; if (!f.meetingType) f.meetingType = 'internal'; render(); break; }
+    case 'req-set': { const f = S.ui.reqForm; if (!f) break; f[ds.key] = ds.value; render(); break; }
+    case 'req-submit': {
+      const f = S.ui.reqForm; if (!f || !f.kind) break;
+      if (f.kind === 'meeting' && f.scope === 'project' && !f.projectId) { toast('בחרו פרויקט'); break; }
+      if (f.kind === 'meeting' && !(f.title || '').trim()) { toast('כתבו נושא לפגישה'); document.getElementById('rq-title')?.focus(); break; }
+      if ((f.kind === 'leave' || f.kind === 'sick' || f.kind === 'late') && !f.startDate) { toast('בחרו תאריך'); break; }
+      if (f.kind === 'leave' && f.endDate && f.endDate < f.startDate) { toast('תאריך הסיום לפני ההתחלה'); break; }
+      const id = submitRequest(f.kind, f); S.ui.reqForm = null;
+      if (id) { closeDrawer(true); toast(f.kind === 'sick' || f.kind === 'late' ? 'העדכון נשלח' : 'הבקשה נשלחה'); }
+      break;
+    }
+    case 'req-approve': case 'req-reject': { e.stopPropagation(); const note = ds.note ? (document.getElementById('rq-decision-note')?.value || '') : ''; decideRequest(ds.id, a === 'req-approve' ? 'approved' : 'rejected', note.trim()); if (ds.note) closeDrawer(true); break; }
+    case 'req-cancel': { cancelRequest(ds.id); closeDrawer(true); toast('הבקשה בוטלה'); break; }
     case 'notif-read-all': e.stopPropagation(); markRead(S.notifications.filter((n) => !n.readAt).map((n) => n.id)); break;
     case 'goto-projects': {
       const f = S.ui.filters; Object.assign(f, { q: '', team: '', lead: '', phase: '', health: '', type: '', state: ds.state || 'active', flag: '' });
@@ -4171,6 +4598,7 @@ document.addEventListener('click', async (e) => {
     case 'ctab-go': S.ui.ctab = ds.tab; S.ui.ccat = ''; S.ui.climit = 0; nav('contacts'); break;
     case 'audit-load': try { await fetchAudit(); render(); } catch (err) { toast(friendlyError(err)); } break;
     case 'toggle-active': { const c = S.contacts[ds.id]; if (!c) break; const now = c.active === false; patchDoc('contacts', ds.id, { active: now }); if (!now && c.type === 'employee' && c.teamId) patchDoc('contacts', ds.id, { teamId: null }); break; }
+    case 'sched-where': { setScheduleDay(ds.id, Number(ds.day), { where: ds.where }); break; }
     case 'level-auto': { const c = S.contacts[ds.id]; if (!c || !canEditLevel(c)) break; const row = levelRow(ds.id); if (!row) break; if ((row.note || '').trim()) patchDoc('employee_levels', ds.id, { level: null }); else deleteDoc('employee_levels', ds.id); break; }
     case 'merge-contact': { e.stopPropagation(); const c = S.contacts[ds.id]; if (!c) break;
       openMenu(t, { search: true, placeholder: 'לתוך איזו רשומה למזג?', emptyText: 'אין רשומות מאותו סוג', items: C().filter((x) => x.type === c.type && x.id !== c.id).sort(byName).map((x) => ({ label: x.name, sub: x.company || x.role || x.category || '', value: x.id })), onPick: (it) => { S.ui.confirmMerge = { from: ds.id, into: it.value }; render(); } }); break; }
