@@ -509,7 +509,10 @@
   .sr-project { font-size: 12.5px; color: var(--ink-3); white-space: nowrap; }
   .sr-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
   .sr-meta .chip { font-size: 12px; }
-  .sr-with { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+  .sr-with { display: inline-flex; gap: 4px; flex-wrap: wrap; align-items: center; padding-inline-start: 6px; border-inline-start: 1px solid var(--line); }
+  .sr-with .chip.accent .x { margin-inline-start: 2px; }
+  .sr-plus { padding: 1px 6px; }
+  .sr-plus svg { width: 12px; height: 12px; }
   .sr-done { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; color: var(--ink-2); margin-inline-start: 4px; }
   .sr-other { display: inline-flex; gap: 4px; align-items: center; }
   .sr-other input { width: 72px; }
@@ -4650,6 +4653,13 @@ function sundayRow(r, opts = {}) {
   const done = r.status !== 'open';
   const armed = S.ui.confirm === 'sr:' + r.id;
   const withChips = withNames(r).map((n) => `<span class="chip dim">${esc(n)}</span>`).join('') || '<span class="chip dim">עם מי?</span>';
+  /* who is required: the base toggles (the partners and the team lead — any combination), then anyone else from the office added with + */
+  const cur = r.withIds || [];
+  const lead = r.teamId ? teamLeadId(r.teamId) : null;
+  const base = sundayPeople().filter((c) => c.id !== r.contactId).map((c) => ({ id: c.id, label: c.name.split(' ')[0], title: c.name }));
+  if (lead && lead !== r.contactId) base.push({ id: 'lead', label: 'ראש/ת צוות', title: cname(lead) });
+  const extra = cur.filter((id) => id !== 'lead' && !base.some((b) => b.id === id));
+  const withEditor = `<span class="sr-with">${base.map((b) => `<span class="chip btn-chip ${cur.includes(b.id) ? 'accent' : 'dim'}" data-action="sr-with-toggle" data-id="${r.id}" data-value="${b.id}" role="button" tabindex="0" title="${esc(b.title)}">${esc(b.label)}</span>`).join('')}${extra.map((id) => `<span class="chip accent">${esc(cname(id, '?'))}<button type="button" class="x" data-action="sr-with-toggle" data-id="${r.id}" data-value="${id}" title="הסר">${ICON.x}</button></span>`).join('')}<button type="button" class="chip btn-chip ghost sr-plus" data-action="menu" data-menu="srwith" data-id="${r.id}" title="להוסיף מישהו/י מהמשרד">${ICON.plus}</button></span>`;
   return `<div class="sr-row ${done ? 'done' : ''}" id="sr-${r.id}" data-sr="${r.id}">
     <div class="sr-main">
       ${opts.showWho ? `<span class="sr-who">${esc(cname(r.contactId, uname(r.requesterId, '')))}${r.byLead ? ' <small>(ראש/ת צוות)</small>' : ''}</span>` : ''}
@@ -4659,7 +4669,7 @@ function sundayRow(r, opts = {}) {
     </div>
     <div class="sr-meta">
       ${chip(k.short, 'srkind')}
-      ${ro ? withChips : `<span class="sr-with">${withChips}</span>${menuChip('+ עם', `data-action="menu" data-menu="srwith" data-id="${r.id}"`, 'ghost')}`}
+      ${ro ? withChips : withEditor}
       ${chip(r.projectId ? (S.projects[r.projectId]?.name || 'פרויקט') : 'ללא פרויקט', 'srproject', r.projectId ? '' : 'dim')}
       ${chip(u.label, 'srurgency', u.cls)}
       ${S.ui.sundayOther === r.id && !ro ? `<span class="sr-other"><input type="number" id="sr-other-${r.id}" data-srother="${r.id}" min="5" step="5" placeholder="דקות" value="${esc(String(r.minutes || ''))}"><button type="button" class="btn small" data-action="sr-other-set" data-id="${r.id}">אישור</button></span>` : chip(fmtMinutes(r.minutes), 'srminutes')}
@@ -4756,7 +4766,7 @@ function sundaySettingsPanel() {
   const people = sundayPeople();
   return `<div class="panel">
     <div class="panel-head"><h2 class="panel-title">ישיבות יום ראשון</h2><span class="panel-sub">השאלון נפתח ביום חמישי; ראשי הצוותים מסדרים את הרשימה</span></div>
-    <div class="field"><label>עם מי אפשר לבקש פגישה (בנוסף לראש/ת הצוות)</label><div class="chips">${people.map((c) => `<span class="chip accent">${esc(c.name)}<button class="x" data-action="sundaywith-remove" data-id="${c.id}" title="הסר">${ICON.x}</button></span>`).join('')}<button class="btn small ghost" data-action="menu" data-menu="sundaywith" data-id="x">${ICON.plus} הוסף</button></div></div>
+    <div class="field"><label>הבסיס לסימון "עם מי" (בנוסף לראש/ת הצוות; כל אחד אחר מהמשרד מתווסף בכפתור +)</label><div class="chips">${people.map((c) => `<span class="chip accent">${esc(c.name)}<button class="x" data-action="sundaywith-remove" data-id="${c.id}" title="הסר">${ICON.x}</button></span>`).join('')}<button class="btn small ghost" data-action="menu" data-menu="sundaywith" data-id="x">${ICON.plus} הוסף</button></div></div>
     <div class="inline-note">ברירת המחדל: השותפים. ראש/ת הצוות של כל עובד/ת נבחר/ת לבד לפי הצוות.</div>
   </div>`;
 }
@@ -4775,13 +4785,11 @@ function sundayMenu(kind, id, anchor) {
   else if (kind === 'srurgency') openMenu(anchor, { items: SUNDAY_URGENCY.map((u, i) => ({ label: u.label, value: i, selected: r.urgency === i })), onPick: (it) => patchDoc('sunday_requests', id, { urgency: it.value }) });
   else if (kind === 'srminutes') openMenu(anchor, { items: [...SUNDAY_MINUTES.map((m) => ({ label: fmtMinutes(m), value: m, selected: r.minutes === m })), { label: 'אחר…', value: 'other', selected: !SUNDAY_MINUTES.includes(r.minutes) }], onPick: (it) => { if (it.value === 'other') { S.ui.sundayOther = id; render(); setTimeout(() => document.getElementById('sr-other-' + id)?.focus(), 30); } else patchDoc('sunday_requests', id, { minutes: it.value }); } });
   else if (kind === 'srproject') openMenu(anchor, { search: true, placeholder: 'איזה פרויקט?', items: [{ label: 'ללא פרויקט', value: '', selected: !r.projectId }, ...activeProjects().filter((p) => !isReduced(p)).sort(byName).map((p) => ({ label: p.name, sub: [p.number, p.city].filter(Boolean).join(' · '), value: p.id, selected: r.projectId === p.id }))], onPick: (it) => patchDoc('sunday_requests', id, { projectId: it.value || null }) });
-  else if (kind === 'srwith') {
+  else if (kind === 'srwith') { // + : anyone from the office (team members included), not only the partners and the lead
     const cur = r.withIds || [];
     const lead = r.teamId ? teamLeadId(r.teamId) : null;
-    const items = [];
-    if (lead && lead !== r.contactId) items.push({ label: cname(lead) + ' — ראש/ת הצוות', value: 'lead', selected: cur.includes('lead') });
-    sundayPeople().forEach((c) => { if (c.id !== r.contactId && c.id !== lead) items.push({ label: c.name, sub: c.role || '', value: c.id, selected: cur.includes(c.id) }); });
-    openMenu(anchor, { items, onPick: (it) => patchDoc('sunday_requests', id, { withIds: cur.includes(it.value) ? cur.filter((x) => x !== it.value) : [...cur, it.value] }) });
+    const items = employees().filter((c) => c.id !== r.contactId && !cur.includes(c.id) && !(c.id === lead && cur.includes('lead'))).map((c) => ({ label: c.name, sub: [c.role, tname(c.teamId, '')].filter(Boolean).join(' · '), value: c.id }));
+    openMenu(anchor, { search: true, placeholder: 'מי עוד נדרש/ת בפגישה?', items, onPick: (it) => patchDoc('sunday_requests', id, { withIds: [...cur, it.value] }) });
   }
   return true;
 }
@@ -4803,6 +4811,11 @@ async function sundayAction(a, ds, t, e) {
       if (!canEditRequest(r)) { toast('רק מי שרשם את הנושא, ראש/ת הצוות או מנהל/ת'); return true; }
       if (!ds.confirmed) { S.ui.confirm = 'sr:' + ds.id; render(); return true; }
       S.ui.confirm = null; await deleteDoc('sunday_requests', ds.id); return true;
+    }
+    case 'sr-with-toggle': {
+      e.stopPropagation(); const r = S.sunday_requests[ds.id]; if (!r) return true;
+      if (!canEditRequest(r)) { toast('רק מי שרשם את הנושא, ראש/ת הצוות או מנהל/ת'); return true; }
+      const cur = r.withIds || []; patchDoc('sunday_requests', ds.id, { withIds: cur.includes(ds.value) ? cur.filter((x) => x !== ds.value) : [...cur, ds.value] }); return true;
     }
     case 'sr-other-set': { const r = S.sunday_requests[ds.id]; const inp = document.getElementById('sr-other-' + ds.id); const m = Math.round(Number(inp?.value)); S.ui.sundayOther = null; if (r && m > 0) patchDoc('sunday_requests', ds.id, { minutes: m }); else render(); return true; }
     case 'st-priority': { if (!leadsOf(ds.team)) { toast('ראש/ת הצוות או מנהל/ת'); return true; } const id = await ensureTeamRow(ds.sunday, ds.team); if (id) patchDoc('sunday_teams', id, { priority: Number(ds.value) }); return true; }
