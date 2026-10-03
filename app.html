@@ -493,6 +493,55 @@
   .seg button.on:disabled { opacity: 1; }
   .venue-seg { flex-wrap: wrap; }
   .venue-seg button { flex: 1 0 auto; }
+  /* ---------- daily hours ---------- */
+  .time-panel { border-color: var(--ink); margin-bottom: 14px; }
+  .te-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .te-lines { border-top: 1px solid var(--line); }
+  .te-lines.cats { margin-top: 10px; background: var(--surface-2, #fafafa); padding: 0 8px; border: 1px solid var(--line); }
+  .te-line { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .te-line.on .te-label { font-weight: 500; }
+  .te-label { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .te-label a { color: inherit; text-decoration: none; }
+  .te-label a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .te-label small { color: var(--ink-3); font-size: 11.5px; }
+  .te-note { flex: 1 1 160px; min-width: 120px; font-size: 12.5px; padding: 3px 6px; }
+  .te-note[data-missing="1"] { border-color: var(--warn-ink); }
+  .te-stepper { display: inline-flex; align-items: center; gap: 2px; }
+  .te-stepper .icon-btn { width: 28px; height: 28px; border: 1px solid var(--line-2); font-size: 16px; line-height: 1; }
+  .te-stepper .icon-btn:disabled { opacity: .35; cursor: default; }
+  .te-hours { min-width: 38px; text-align: center; font-family: var(--font-num); font-variant-numeric: tabular-nums; color: var(--ink-3); }
+  .te-hours.on { color: var(--ink); font-weight: 500; }
+  .te-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .te-total { font-size: 13px; color: var(--ink-2); }
+  .te-total strong { font-family: var(--font-num); font-size: 15px; }
+  .te-total.good strong { color: var(--good-ink, #0a7a4b); }
+  .te-total.warn { color: var(--warn-ink); }
+  .te-actions { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+  .te-nav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .te-week { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 14px; }
+  .te-wd { border: 1px solid var(--line); background: var(--surface); padding: 6px 4px; display: grid; gap: 1px; text-align: center; cursor: pointer; font: inherit; border-radius: 0; }
+  .te-wd span { font-size: 11.5px; color: var(--ink-3); }
+  .te-wd strong { font-family: var(--font-num); font-size: 15px; font-weight: 500; }
+  .te-wd small { font-size: 10.5px; color: var(--ink-3); }
+  .te-wd.cur { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+  .te-wd.done strong { color: var(--good-ink, #0a7a4b); }
+  .te-wd.missing { background: var(--warn-soft); } .te-wd.missing small { color: var(--warn-ink); }
+  .te-wd.part small { color: var(--warn-ink); }
+  .te-wd.off, .te-wd.away { color: var(--ink-3); background: transparent; }
+  .te-board { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .te-board th { font-weight: 400; color: var(--ink-3); text-align: center; padding: 4px 6px; border-bottom: 1px solid var(--ink); font-size: 11.5px; white-space: nowrap; }
+  .te-board th:first-child { text-align: start; }
+  .te-board tr.team-row th { text-align: start; color: var(--ink); font-weight: 500; padding-top: 10px; border-bottom: 1px solid var(--line); letter-spacing: .04em; }
+  .te-board td { padding: 2px 4px; text-align: center; border-bottom: 1px solid var(--line); }
+  .te-board td.who { text-align: start; white-space: nowrap; }
+  .te-board td button { border: 0; background: transparent; font: inherit; cursor: pointer; padding: 3px 6px; width: 100%; color: inherit; }
+  .te-board td.who button { text-align: start; }
+  .te-board td.done button { color: var(--good-ink, #0a7a4b); }
+  .te-board td.missing button { background: var(--warn-soft); color: var(--warn-ink); }
+  .te-board td.part button { color: var(--warn-ink); }
+  .te-board td.off, .te-board td.away { color: var(--ink-3); }
+  .te-board td.num { font-family: var(--font-num); }
+  .table-wrap { overflow-x: auto; }
   /* ---------- Sunday internal meetings ---------- */
   .sunday-panel { border-color: var(--ink); }
   .sunday-tools { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
@@ -1097,6 +1146,7 @@ const ROLES = [
 const VIEWS = [
   { id: 'overview', label: 'סקירה' },
   { id: 'tasks', label: 'משימות' },
+  { id: 'time', label: 'שעות' },
   { id: 'meetings', label: 'פגישות' },
   { id: 'field', label: 'שטח' },
   { id: 'projects', label: 'פרויקטים' },
@@ -1494,7 +1544,7 @@ function render() {
   document.body.classList.toggle('report-view', S.ui.view === 'report');
   if (S.dbState === 'error') page.innerHTML = `<div class="banner">טעינת הנתונים נכשלה (${esc(S.error)}). <button class="btn small" data-action="reload-data">נסה שוב</button></div>`;
   else if (S.dbState === 'connecting') page.innerHTML = '<div class="loading">טוען את נתוני המשרד…</div>';
-  else page.innerHTML = { overview: renderOverview, tasks: renderTasks, meetings: renderMeetings, field: renderField, report: renderReport, projects: renderProjects, project: renderProjectPage, teams: renderTeams, contacts: renderContacts, requests: renderRequests, commissions: renderCommissions, users: renderUsers, settings: renderSettings }[S.ui.view]();
+  else page.innerHTML = { overview: renderOverview, tasks: renderTasks, time: renderTime, meetings: renderMeetings, field: renderField, report: renderReport, projects: renderProjects, project: renderProjectPage, teams: renderTeams, contacts: renderContacts, requests: renderRequests, commissions: renderCommissions, users: renderUsers, settings: renderSettings }[S.ui.view]();
   if (S.ui.view === 'report') paginateReport();
   renderOverlay();
   renderPendingBar();
@@ -1695,6 +1745,7 @@ function renderOverview() {
     <div><h1 class="view-title">סקירת משרד</h1><div class="view-sub">${act.length} פרויקטים פעילים מתוך ${all.length} · ${employees().length} אנשי צוות · ${T().length} צוותים</div></div>
     <div class="view-actions">${canWriteProjects() ? `<button class="btn primary" data-action="new-project">${ICON.plus} פרויקט חדש</button>` : ''}</div>
   </div>
+  ${typeof timePanel === 'function' ? timePanel() : ''}
   <div class="tiles">
     ${tile('פרויקטים פעילים', act.length, `${inBuild.length} בביצוע`, { cls: 'hero', click: { action: 'goto-projects', attrs: 'data-state="active"' } })}
     ${tile(`${HEALTH.red.icon} דחוף`, red.length, `${yellow.length} לתשומת לב`, { cls: red.length ? 'crit' : '', click: { action: 'goto-projects', attrs: 'data-health="red"' } })}
@@ -2281,7 +2332,7 @@ const snake = (k) => k.replace(/[A-Z]/g, (m) => '_' + m.toLowerCase());
 const camel = (k) => k.replace(/_([a-z])/g, (m, c) => c.toUpperCase());
 const toRow = (obj) => { const o = {}; Object.entries(obj).forEach(([k, v]) => { if (k === 'updatedAt' || k === 'createdAt' || k === 'updatedBy') return; o[snake(k)] = v; }); return o; };
 const fromRow = (row) => { const o = {}; Object.entries(row).forEach(([k, v]) => { o[camel(k)] = v; }); return o; };
-const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams'];
+const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days'];
 
 S.auth = { status: 'loading', session: null, profile: null, notice: '', error: '' };
 S.profiles = {}; S.invitations = {}; S.audit = [];
@@ -2404,7 +2455,7 @@ function subscribeRealtime() {
     }, 250);
   };
   rtChannel = sb.channel('office-live');
-  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams'].forEach((table) => {
+  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days'].forEach((table) => {
     rtChannel.on('postgres_changes', { event: '*', schema: 'public', table }, () => scheduleRefetch(table));
   });
   rtChannel.subscribe();
@@ -2813,7 +2864,7 @@ function renderTasks() {
     const recent = addDays(todayStr(), -7);
     const doneRecent = mine.filter((t) => t.status === 'done' && (t.doneAt || t.updatedAt || '') >= recent).sort((a, b) => (b.doneAt || '').localeCompare(a.doneAt || ''));
     const delegated = sortTasks(TK().filter((t) => t.createdBy === myId && t.assigneeId !== myId && isOpenTask(t)));
-    body = `${typeof sundayPanel === 'function' ? sundayPanel() : ''}${quickAdd('task-quick', 'משימה חדשה לעצמי… (Enter)', 'data-scope="mine"')}
+    body = `${typeof timePanel === 'function' ? timePanel() : ''}${typeof sundayPanel === 'function' ? sundayPanel() : ''}${quickAdd('task-quick', 'משימה חדשה לעצמי… (Enter)', 'data-scope="mine"')}
       ${open.length ? '' : '<div class="panel"><div class="empty">אין לך משימות פתוחות. יופי — או שהגיע הזמן לפתוח אחת.</div></div>'}
       ${taskGroup('באיחור', g.overdue, { cls: 'crit' })}${taskGroup('היום', g.today, { cls: 'warn' })}${taskGroup('השבוע', g.week)}${taskGroup('בהמשך', g.later)}${taskGroup('ללא תאריך', g.none)}
       ${delegated.length ? `<details class="task-details"><summary>משימות שפתחתי לאחרים <small>${delegated.length}</small></summary>${delegated.map((t) => taskItem(t)).join('')}</details>` : ''}
@@ -2934,6 +2985,7 @@ function projectTasksSection(p) {
 /* ===================== notifications: bell ===================== */
 const BASE_TITLE = document.title;
 function notifText(n) {
+  if (typeof n.requestId === 'string' && n.requestId.startsWith('time:')) return `<strong>סוף יום:</strong> כמה שעות על מה היום? ${esc(fmtDate(n.requestId.slice(5)))} <span class="notif-task">שעות</span>`;
   if (typeof n.requestId === 'string' && n.requestId.startsWith('sunday:')) { // the Thursday reminders (kind 'due' + request_id 'sunday:ask|lead:<sunday>')
     const [, what, d] = n.requestId.split(':');
     return what === 'lead' ? `<strong>יום חמישי בערב:</strong> הרשימה של הצוות ליום ראשון ${esc(fmtDate(d))} מחכה לסידור ולסימון "מוכן" <span class="notif-task">ישיבות יום ראשון</span>` : `<strong>יום חמישי:</strong> מה צריך לעבור ביום ראשון ${esc(fmtDate(d))}, עם מי וכמה זמן? <span class="notif-task">ישיבות יום ראשון</span>`;
@@ -4842,6 +4894,227 @@ document.addEventListener('change', (e) => {
   if (el.dataset.srdone) { const r = S.sunday_requests[el.dataset.srdone]; if (!r || !leadsOf(r.teamId)) { render(); return; } patchDoc('sunday_requests', r.id, { status: el.checked ? 'done' : 'open' }); return; }
   if (el.dataset.stnote) { if (!leadsOf(el.dataset.stnote)) return; ensureTeamRow(el.dataset.sunday, el.dataset.stnote).then((id) => { if (id) patchDoc('sunday_teams', id, { note: el.value.trim() }); }); }
 });
+/* ===================== daily hours: the end-of-day questionnaire and the hours views =====================
+   At the end of each workday every employee says how the day went: hours per project in half-hour steps, plus office categories
+   (office / self-management / team management for leads / other with a note). The day's target is the person's fixed hours for that
+   weekday (work_schedules; the office default is 9). Lines are suggested — the person's projects, projects they touched today and
+   lately — hours start at 0, "כמו אתמול" copies the previous workday. Editable by the person, their team lead and managers.
+   Tables: time_entries (one row per project / category per day) and time_days (the day is closed: done | absent). */
+S.time_entries = {}; S.time_days = {};
+Object.assign(S.ui, { timeDate: null, timeWho: null });
+const TIME_CATS = { office: { label: 'משרדי', hint: 'ישיבות משרד, אדמיניסטרציה, כללי' }, self: { label: 'ניהול עצמי', hint: 'תכנון יום, לימוד, סידורים' }, team: { label: 'ניהול צוות', hint: 'ראשי צוותים: הנחיה, בדיקות, ישיבות צוות' }, other: { label: 'אחר', hint: 'יש להשלים תחום' } };
+const HOURS_STEP = 0.5, HOURS_MAX = 12;
+const TE = () => list('time_entries');
+const TD = () => list('time_days');
+const fmtHours = (h) => { const n = Math.round((Number(h) || 0) * 2) / 2; return Number.isInteger(n) ? String(n) : n.toFixed(1); };
+const profileByContact = (cid) => Object.values(S.profiles).find((p) => p.contactId === cid) || null;
+const dowOf = (ymd) => new Date(ymd + 'T00:00:00').getDay();
+const plannedHours = (c, ymd) => { const d = dowOf(ymd); return d > 5 || !c ? 0 : hoursOf(dayPlan(c, d)); };
+const dayEndOf = (c, ymd) => { const d = dowOf(ymd); const plan = d > 5 || !c ? null : dayPlan(c, d); return (plan && plan.to) || DEFAULT_DAY.to; };
+const isWorkday = (c, ymd) => plannedHours(c, ymd) > 0;
+/* away on a date: approved leave / sickness (requests) */
+const awayOn = (cid, ymd) => (typeof R === 'function' ? R() : []).some((r) => r.contactId === cid && ['leave', 'sick'].includes(r.kind) && ['approved', 'done'].includes(r.status) && r.startDate && r.startDate <= ymd && (r.endDate || r.startDate) >= ymd);
+const entriesOf = (cid, ymd) => TE().filter((e) => e.contactId === cid && e.date === ymd);
+const dayOf = (cid, ymd) => TD().find((d) => d.contactId === cid && d.date === ymd) || null;
+const dayTotal = (cid, ymd) => entriesOf(cid, ymd).reduce((s, e) => s + (Number(e.hours) || 0), 0);
+const canTouchHours = (cid) => !!cid && (isManager() || cid === myContactId() || (myRole() === 'team_lead' && !!S.contacts[cid]?.teamId && teamLeadId(S.contacts[cid].teamId) === myContactId()));
+const previousWorkday = (c, ymd) => { for (let i = 1; i <= 7; i++) { const d = addDays(ymd, -i); if (isWorkday(c, d)) return d; } return null; };
+/* the projects a person works on: project team, tasks assigned lately, hours logged lately, anything logged that day */
+function projectsOfPerson(cid, ymd) {
+  const ids = new Set();
+  const p = profileByContact(cid); const since = addDays(ymd, -14);
+  activeProjects().forEach((x) => { if (x.leadId === cid || x.pmId === cid || (x.memberIds || []).includes(cid)) ids.add(x.id); });
+  if (p) TK().forEach((t) => { if (t.projectId && t.assigneeId === p.id && (isOpenTask(t) || (t.doneAt || t.updatedAt || '') >= since)) ids.add(t.projectId); });
+  TE().forEach((e) => { if (e.contactId === cid && e.projectId && e.date >= since) ids.add(e.projectId); });
+  entriesOf(cid, ymd).forEach((e) => { if (e.projectId) ids.add(e.projectId); });
+  return [...ids].map((id) => S.projects[id]).filter(Boolean).sort(byName);
+}
+/* the days a person still has to close: today once their day has ended, and the last 7 workdays — not days they were away */
+function openDaysOf(cid, now = new Date()) {
+  const c = S.contacts[cid]; if (!c) return [];
+  const today = todayStr(now); const nowMin = now.getHours() * 60 + now.getMinutes();
+  const out = [];
+  for (let i = 7; i >= 0; i--) {
+    const d = addDays(today, -i);
+    if (!isWorkday(c, d) || awayOn(cid, d) || dayOf(cid, d)) continue;
+    if (i === 0 && nowMin < (minutesOf(dayEndOf(c, d)) ?? 1050)) continue;
+    out.push(d);
+  }
+  return out;
+}
+/* ---------- data ---------- */
+async function setHours(cid, ymd, key, hours, extra = {}) {
+  if (!canTouchHours(cid)) { toast('רק העובד/ת, ראש/ת הצוות או מנהל/ת'); return false; }
+  hours = Math.max(0, Math.min(HOURS_MAX, Math.round(hours * 2) / 2));
+  const projectId = key.startsWith('p:') ? key.slice(2) : null; const category = projectId ? 'project' : key.slice(4);
+  const have = entriesOf(cid, ymd).find((e) => (projectId ? e.projectId === projectId : e.category === category && !e.projectId));
+  if (have) { if (hours === 0 && !(extra.note || have.note)) return deleteDoc('time_entries', have.id); return patchDoc('time_entries', have.id, Object.assign({ hours }, extra)); }
+  if (hours === 0 && !extra.note) return true;
+  return createDoc('time_entries', uid('te'), Object.assign({ date: ymd, contactId: cid, userId: profileByContact(cid)?.id || me()?.id || null, projectId, category, hours, note: '' }, extra));
+}
+async function closeDay(cid, ymd, status = 'done') {
+  if (!canTouchHours(cid)) { toast('רק העובד/ת, ראש/ת הצוות או מנהל/ת'); return false; }
+  const c = S.contacts[cid]; const have = dayOf(cid, ymd);
+  const patch = { status, plannedHours: plannedHours(c, ymd), submittedAt: nowIso() };
+  if (have) return patchDoc('time_days', have.id, patch);
+  return createDoc('time_days', `${ymd}_${cid}`, Object.assign({ date: ymd, contactId: cid, userId: profileByContact(cid)?.id || me()?.id || null, note: '' }, patch));
+}
+async function copyPreviousDay(cid, ymd) {
+  const c = S.contacts[cid]; const prev = c ? previousWorkday(c, ymd) : null; if (!prev) { toast('אין יום קודם להעתיק'); return; }
+  const rows = entriesOf(cid, prev).filter((e) => Number(e.hours) > 0); if (!rows.length) { toast('ביום הקודם לא נרשמו שעות'); return; }
+  for (const e of rows) await setHours(cid, ymd, e.projectId ? 'p:' + e.projectId : 'cat:' + e.category, Number(e.hours), e.category === 'other' ? { note: e.note } : {});
+  toast(`הועתק מיום ${DAY_NAMES[dowOf(prev)]}`);
+}
+/* ---------- the day editor ---------- */
+function timeLine(cid, ymd, key, label, hours, opts = {}) {
+  const ro = !canTouchHours(cid);
+  const stepper = ro ? `<span class="te-hours">${fmtHours(hours)}</span>` : `<span class="te-stepper"><button type="button" class="icon-btn" data-action="te-step" data-cid="${cid}" data-date="${ymd}" data-key="${esc(key)}" data-delta="-0.5" title="פחות חצי שעה" ${hours <= 0 ? 'disabled' : ''}>−</button><span class="te-hours ${hours > 0 ? 'on' : ''}">${fmtHours(hours)}</span><button type="button" class="icon-btn" data-action="te-step" data-cid="${cid}" data-date="${ymd}" data-key="${esc(key)}" data-delta="0.5" title="עוד חצי שעה" ${hours >= HOURS_MAX ? 'disabled' : ''}>+</button></span>`;
+  return `<div class="te-line ${hours > 0 ? 'on' : ''} ${opts.cls || ''}" data-key="${esc(key)}">
+    <div class="te-label">${opts.project ? `<a href="#" data-action="open-project" data-id="${opts.project.id}">${esc(label)}</a>${opts.project.number ? `<small>${esc(opts.project.number)}</small>` : ''}` : `<span>${esc(label)}</span>${opts.hint ? `<small>${esc(opts.hint)}</small>` : ''}`}${opts.tag ? `<span class="tag internal">${esc(opts.tag)}</span>` : ''}</div>
+    ${opts.note !== undefined ? `<input type="text" class="te-note" id="ten-${cid}-${ymd}-${esc(key.replace(/[^a-z0-9]/gi, ''))}" value="${esc(opts.note || '')}" placeholder="${esc(opts.notePlaceholder || 'הערה')}" data-tenote="${esc(key)}" data-cid="${cid}" data-date="${ymd}" ${ro ? 'disabled' : ''} ${hours > 0 && !opts.note ? 'data-missing="1"' : ''}>` : ''}
+    ${stepper}
+  </div>`;
+}
+function timeDayEditor(cid, ymd, opts = {}) {
+  const c = S.contacts[cid]; if (!c) return '';
+  const planned = plannedHours(c, ymd); const entries = entriesOf(cid, ymd); const day = dayOf(cid, ymd); const total = dayTotal(cid, ymd);
+  const ro = !canTouchHours(cid);
+  const away = awayOn(cid, ymd);
+  const byKey = {}; entries.forEach((e) => { byKey[e.projectId ? 'p:' + e.projectId : 'cat:' + e.category] = e; });
+  const projects = projectsOfPerson(cid, ymd);
+  const touched = new Set(); const p = profileByContact(cid);
+  if (p) TK().forEach((t) => { if (t.projectId && t.assigneeId === p.id && ((t.doneAt || '').slice(0, 10) === ymd || (t.updatedAt || '').slice(0, 10) === ymd)) touched.add(t.projectId); });
+  SV().forEach((v) => { if (v.projectId && v.visitDate === ymd && (v.authorId === p?.id || (v.attendees || '').includes(c.name))) touched.add(v.projectId); });
+  const lines = projects.map((pr) => timeLine(cid, ymd, 'p:' + pr.id, pr.name, Number(byKey['p:' + pr.id]?.hours) || 0, { project: pr, tag: touched.has(pr.id) ? 'נגעת היום' : '' }));
+  const cats = Object.entries(TIME_CATS).filter(([k]) => k !== 'team' || isTeamLead(cid) || ['owner', 'manager'].includes(profileByContact(cid)?.role)).map(([k, m]) => { const e = byKey['cat:' + k]; return timeLine(cid, ymd, 'cat:' + k, m.label, Number(e?.hours) || 0, { hint: m.hint, cls: 'cat', note: k === 'other' ? (e?.note || '') : undefined, notePlaceholder: 'תחום — חובה' }); });
+  const otherMissing = entries.some((e) => e.category === 'other' && Number(e.hours) > 0 && !(e.note || '').trim());
+  const cls = total === 0 ? '' : total < planned ? 'warn' : total > planned + 2 ? 'warn' : 'good';
+  const statusChip = day ? (day.status === 'absent' ? '<span class="chip dim">היעדרות</span>' : '<span class="chip green">נרשם ✓</span>') : (away ? '<span class="chip dim">חופשה / מחלה</span>' : (planned ? '<span class="chip yellow">עדיין לא נרשם</span>' : '<span class="chip dim">לא יום עבודה</span>'));
+  return `<div class="te-day" id="te-day-${cid}-${ymd}">
+    <div class="te-head">
+      <div><strong>יום ${DAY_NAMES[dowOf(ymd)] || 'שבת'} ${esc(fmtDate(ymd))}</strong>${opts.showWho ? ` · ${esc(c.name)}` : ''} <span class="muted">${planned ? `${fmtHours(planned)} ש׳ לפי המשרה` : ''}</span></div>
+      <div class="te-status">${statusChip}</div>
+    </div>
+    <div class="te-lines">${lines.join('') || '<div class="inline-note">אין פרויקטים משויכים — הוסיפו עם +</div>'}${ro ? '' : `<div class="add-row"><button type="button" class="btn small ghost" data-action="te-add-project" data-cid="${cid}" data-date="${ymd}">${ICON.plus} פרויקט אחר</button></div>`}</div>
+    <div class="te-lines cats">${cats.join('')}</div>
+    <div class="te-foot">
+      <span class="te-total ${cls}">סה״כ <strong>${fmtHours(total)}</strong>${planned ? ` מתוך ${fmtHours(planned)} ש׳` : ' ש׳'}${total > 0 && total < planned ? ' · חסר ' + fmtHours(planned - total) : ''}${total > planned + 2 ? ' · הרבה מעבר למשרה' : ''}</span>
+      ${ro ? '' : `<span class="te-actions">
+        ${!entries.length && previousWorkday(c, ymd) && entriesOf(cid, previousWorkday(c, ymd)).length ? `<button type="button" class="btn small ghost" data-action="te-copy" data-cid="${cid}" data-date="${ymd}">כמו ${DAY_NAMES[dowOf(previousWorkday(c, ymd))]}</button>` : ''}
+        ${day?.status === 'done' ? '' : `<button type="button" class="btn small ${total > 0 ? 'primary' : ''}" data-action="te-close" data-cid="${cid}" data-date="${ymd}" data-status="done" ${total <= 0 || otherMissing ? 'disabled' : ''} title="${otherMissing ? 'ב"אחר" חסר תחום' : ''}">סיימתי להיום</button>`}
+        ${day || total > 0 ? '' : `<button type="button" class="btn small ghost" data-action="te-close" data-cid="${cid}" data-date="${ymd}" data-status="absent">לא עבדתי היום</button>`}
+        ${day ? `<button type="button" class="btn small ghost" data-action="te-reopen" data-cid="${cid}" data-date="${ymd}">${day.status === 'absent' ? 'בכל זאת עבדתי' : 'פתח מחדש'}</button>` : ''}
+      </span>`}
+    </div>
+  </div>`;
+}
+/* the end-of-day panel on the overview and on "היום שלי" */
+function timePanel() {
+  const cid = myContactId(); if (!cid || !isMember()) return '';
+  const open = openDaysOf(cid); if (!open.length) return '';
+  const d = open[open.length - 1]; const others = open.slice(0, -1);
+  return `<div class="panel time-panel" id="time-panel">
+    <div class="panel-head"><h2 class="panel-title">סיכום היום — כמה שעות על מה?</h2><span class="panel-sub">חצאי שעות · היעד לפי המשרה שלך <button class="btn ghost small" data-action="goto-time" data-date="${d}">למסך שעות</button></span></div>
+    ${timeDayEditor(cid, d)}
+    ${others.length ? `<div class="inline-note" style="margin-top:8px">ימים שעדיין לא נרשמו: ${others.map((x) => `<a href="#" data-action="goto-time" data-date="${x}">${DAY_NAMES[dowOf(x)]} ${esc(fmtDate(x))}</a>`).join(' · ')}</div>` : ''}
+  </div>`;
+}
+/* ---------- the view: שעות ---------- */
+const weekStart = (ymd) => addDays(ymd, -dowOf(ymd));
+function weekStrip(cid, ymd) {
+  const c = S.contacts[cid]; const start = weekStart(ymd);
+  return `<div class="te-week">${[0, 1, 2, 3, 4, 5].map((i) => { const d = addDays(start, i); const day = dayOf(cid, d); const planned = plannedHours(c, d); const total = dayTotal(cid, d); const away = awayOn(cid, d);
+    const st = !planned ? 'off' : away ? 'away' : day ? (day.status === 'absent' ? 'away' : 'done') : (total > 0 ? 'part' : (d < todayStr() ? 'missing' : 'future'));
+    return `<button type="button" class="te-wd ${st} ${d === ymd ? 'cur' : ''}" data-action="te-day" data-date="${d}" title="${esc(fmtDate(d))}"><span>${DAY_SHORT[i]}</span><strong>${planned ? (st === 'away' ? '—' : fmtHours(total)) : '·'}</strong><small>${{ off: 'חופשי', away: 'היעדרות', done: '✓', part: 'חלקי', missing: 'חסר', future: '' }[st]}</small></button>`; }).join('')}</div>`;
+}
+function weekSummary(cid, ymd) {
+  const start = weekStart(ymd); const end = addDays(start, 6);
+  const rows = TE().filter((e) => e.contactId === cid && e.date >= start && e.date <= end && Number(e.hours) > 0);
+  const m = {}; rows.forEach((e) => { const k = e.projectId ? 'p:' + e.projectId : 'cat:' + e.category; m[k] = (m[k] || 0) + Number(e.hours); });
+  const items = Object.entries(m).sort((a, b) => b[1] - a[1]).map(([k, h]) => ({ label: k.startsWith('p:') ? (S.projects[k.slice(2)]?.name || 'פרויקט') : (TIME_CATS[k.slice(4)]?.label || k), value: h, display: `<strong>${fmtHours(h)}</strong> ש׳`, cls: k.startsWith('p:') ? '' : 'muted' }));
+  const total = rows.reduce((s, e) => s + Number(e.hours), 0);
+  return `<div class="section"><h3 class="section-title">השבוע <small>${fmtHours(total)} ש׳</small></h3>${items.length ? bars(items) : '<div class="inline-note">עדיין לא נרשמו שעות השבוע.</div>'}</div>`;
+}
+/* who filled what this week — the lead's team, or every team for managers */
+function teamHoursBoard(ymd) {
+  const start = weekStart(ymd); const days = [0, 1, 2, 3, 4].map((i) => addDays(start, i));
+  const teams = isManager() ? T() : T().filter((t) => t.leadId === myContactId());
+  if (!teams.length) return '';
+  const cell = (c, d) => { const planned = plannedHours(c, d); if (!planned) return '<td class="off">·</td>'; if (awayOn(c.id, d)) return '<td class="away">—</td>'; const day = dayOf(c.id, d); const total = dayTotal(c.id, d); const st = day ? (day.status === 'absent' ? 'away' : 'done') : total > 0 ? 'part' : d < todayStr() ? 'missing' : 'future'; return `<td class="${st}"><button type="button" data-action="te-open" data-cid="${c.id}" data-date="${d}" title="${esc(c.name + ' · ' + fmtDate(d))}">${st === 'away' ? '—' : st === 'future' ? '' : fmtHours(total)}${st === 'done' ? ' ✓' : ''}</button></td>`; };
+  const body = teams.map((t) => { const emps = teamMembers(t.id); if (!emps.length) return ''; return `<tr class="team-row"><th colspan="${days.length + 2}">${esc(t.name)}</th></tr>${emps.map((c) => `<tr><td class="who"><button type="button" data-action="te-open" data-cid="${c.id}" data-date="${ymd}">${esc(c.name)}</button></td>${days.map((d) => cell(c, d)).join('')}<td class="num">${fmtHours(days.reduce((s, d) => s + dayTotal(c.id, d), 0))}</td></tr>`).join('')}`; }).join('');
+  const missing = teams.flatMap((t) => teamMembers(t.id)).filter((c) => days.some((d) => d < todayStr() && isWorkday(c, d) && !awayOn(c.id, d) && !dayOf(c.id, d))).length;
+  return `<div class="section" id="hours-board">
+    <h3 class="section-title">${isManager() ? 'כל הצוותים' : 'הצוות שלי'} — השבוע <small>${missing ? `${missing} עם ימים חסרים` : 'הכל נרשם'}</small>${isManager() ? ` <button class="btn ghost small" data-action="te-export" style="margin-inline-start:auto">${ICON.doc} ייצוא CSV לחודש</button>` : ''}</h3>
+    <div class="table-wrap"><table class="te-board"><thead><tr><th></th>${days.map((d) => `<th>${DAY_SHORT[dowOf(d)]} ${esc(fmtDate(d).slice(0, 5))}</th>`).join('')}<th>סה״כ</th></tr></thead><tbody>${body}</tbody></table></div>
+    <div class="inline-note">לחיצה על תא פותחת את היום של העובד/ת לעריכה. ✓ = היום נסגר · חלקי = נרשמו שעות בלי לסגור · חסר = לא נרשם · — = היעדרות.</div>
+  </div>`;
+}
+function renderTime() {
+  const myCid = myContactId();
+  const cid = (S.ui.timeWho && canTouchHours(S.ui.timeWho) ? S.ui.timeWho : null) || myCid;
+  const ymd = S.ui.timeDate || (cid ? (openDaysOf(cid).slice(-1)[0] || todayStr()) : todayStr());
+  const c = cid ? S.contacts[cid] : null;
+  const canPick = isManager() || myRole() === 'team_lead';
+  return `
+  <div class="view-head">
+    <div><h1 class="view-title">שעות</h1><div class="view-sub">רישום יומי לפי פרויקט בחצאי שעות — היעד הוא שעות המשרה של כל אחד · ${myCid ? `<a href="#" data-action="te-who" data-cid="${myCid}">השעות שלי</a>` : ''}</div></div>
+    <div class="view-actions">${canPick ? `<button class="btn" data-action="te-pick-who">${esc(c && c.id !== myCid ? c.name : 'עובד/ת אחר/ת…')}</button>` : ''}</div>
+  </div>
+  ${!c ? '<div class="panel"><div class="empty">המשתמש שלך אינו מקושר לכרטיס עובד/ת — בקשו ממנהל/ת לקשר אותו במסך משתמשים.</div></div>' : `
+  <div class="panel">
+    <div class="te-nav"><button class="btn ghost small" data-action="te-shift" data-days="-7">${ICON.back} שבוע קודם</button><strong>${esc(c.name)}</strong><button class="btn ghost small" data-action="te-shift" data-days="7">שבוע הבא</button>${ymd !== todayStr() ? `<button class="btn ghost small" data-action="te-day" data-date="${todayStr()}">היום</button>` : ''}</div>
+    ${weekStrip(cid, ymd)}
+    ${timeDayEditor(cid, ymd, { showWho: cid !== myCid })}
+  </div>
+  <div class="grid-2">
+    <div class="panel">${weekSummary(cid, ymd)}</div>
+    ${canPick ? `<div class="panel">${teamHoursBoard(ymd)}</div>` : ''}
+  </div>`}`;
+}
+/* CSV of a month for the office system (Admiral): date, employee, employee Admiral id, project, project Admiral id, category, hours, note */
+function exportHoursCsv(fromYmd, toYmd) {
+  const rows = TE().filter((e) => e.date >= fromYmd && e.date <= toYmd && Number(e.hours) > 0).sort((a, b) => a.date.localeCompare(b.date) || cname(a.contactId, '').localeCompare(cname(b.contactId, ''), 'he'));
+  const esc_ = (v) => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const head = ['תאריך', 'עובד/ת', 'מזהה עובד/ת באדמירל', 'פרויקט', 'מספר פרויקט', 'מזהה פרויקט באדמירל', 'קטגוריה', 'שעות', 'הערה'];
+  const lines = rows.map((e) => { const c = S.contacts[e.contactId]; const p = e.projectId ? S.projects[e.projectId] : null; return [e.date, c?.name || '', c?.admiralId || '', p?.name || '', p?.number || '', p?.admiralId || '', p ? 'פרויקט' : (TIME_CATS[e.category]?.label || e.category), fmtHours(e.hours), e.note || ''].map(esc_).join(','); });
+  const csv = '﻿' + [head.map(esc_).join(','), ...lines].join('\r\n');
+  downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `oberson-go-hours-${fromYmd}-${toYmd}.csv`);
+  return rows.length;
+}
+/* ---------- actions ---------- */
+async function timeAction(a, ds, t, e) {
+  switch (a) {
+    case 'goto-time': S.ui.timeWho = null; S.ui.timeDate = ds.date || null; nav('time'); return true;
+    case 'te-day': S.ui.timeDate = ds.date; render(); return true;
+    case 'te-shift': { const base = S.ui.timeDate || todayStr(); S.ui.timeDate = addDays(base, Number(ds.days)); render(); return true; }
+    case 'te-who': S.ui.timeWho = ds.cid || null; render(); return true;
+    case 'te-open': S.ui.timeWho = ds.cid; S.ui.timeDate = ds.date; render(); setTimeout(() => document.querySelector('.te-day')?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 50); return true;
+    case 'te-pick-who': {
+      e.stopPropagation();
+      const pool = isManager() ? employees() : employees().filter((c) => canTouchHours(c.id));
+      openMenu(t, { search: true, placeholder: 'של מי השעות?', items: pool.map((c) => ({ label: c.name, sub: tname(c.teamId, ''), value: c.id, selected: c.id === (S.ui.timeWho || myContactId()) })), onPick: (it) => { S.ui.timeWho = it.value; render(); } });
+      return true;
+    }
+    case 'te-step': { const key = ds.key; const cur = entriesOf(ds.cid, ds.date).find((x) => (key.startsWith('p:') ? x.projectId === key.slice(2) : x.category === key.slice(4) && !x.projectId)); await setHours(ds.cid, ds.date, key, (Number(cur?.hours) || 0) + Number(ds.delta)); return true; }
+    case 'te-add-project': { // any project in the office — the person may have been handed a task outside their plan
+      e.stopPropagation(); if (!canTouchHours(ds.cid)) { toast('רק העובד/ת, ראש/ת הצוות או מנהל/ת'); return true; }
+      const have = new Set(entriesOf(ds.cid, ds.date).map((x) => x.projectId).concat(projectsOfPerson(ds.cid, ds.date).map((p) => p.id)));
+      const items = P().filter((p) => p.state === 'active' && !have.has(p.id)).sort(byName).map((p) => ({ label: p.name, sub: [p.number, p.city, cname(p.clientId, '')].filter(Boolean).join(' · '), value: p.id }));
+      openMenu(t, { search: true, placeholder: 'איזה פרויקט? (כל פרויקטי המשרד)', items, onPick: (it) => setHours(ds.cid, ds.date, 'p:' + it.value, 0.5) });
+      return true;
+    }
+    case 'te-copy': await copyPreviousDay(ds.cid, ds.date); return true;
+    case 'te-close': { const ok = await closeDay(ds.cid, ds.date, ds.status); if (ok) toast(ds.status === 'absent' ? 'נרשמה היעדרות' : 'היום נסגר — תודה'); return true; }
+    case 'te-reopen': { const d = dayOf(ds.cid, ds.date); if (d && canTouchHours(ds.cid)) await deleteDoc('time_days', d.id); return true; }
+    case 'te-export': { if (!isManager()) return true; const base = S.ui.timeDate || todayStr(); const from = base.slice(0, 8) + '01'; const to = addDays(addDays(from, 32).slice(0, 8) + '01', -1); const n = exportHoursCsv(from, to); toast(n ? `${n} שורות יוצאו` : 'אין שעות בחודש הזה'); return true; }
+    default: return false;
+  }
+}
+document.addEventListener('change', (e) => {
+  const el = e.target; if (!el.dataset?.tenote) return;
+  const cur = entriesOf(el.dataset.cid, el.dataset.date).find((x) => x.category === el.dataset.tenote.slice(4) && !x.projectId);
+  setHours(el.dataset.cid, el.dataset.date, el.dataset.tenote, Number(cur?.hours) || 0, { note: el.value.trim() });
+});
 /* ===================== overlay: drawer + menu ===================== */
 function renderOverlay() {
   const ov = document.getElementById('overlay');
@@ -5776,6 +6049,7 @@ document.addEventListener('click', async (e) => {
   if (await shootAction(a, ds, t, e)) return;
   if (await meetingsAction(a, ds, t, e)) return;
   if (await sundayAction(a, ds, t, e)) return;
+  if (await timeAction(a, ds, t, e)) return;
   switch (a) {
     case 'ext': break; // an external link inside a clickable row: the browser opens it, the row stays closed
     case 'copy-text': { try { await navigator.clipboard.writeText(ds.text || ''); toast('הועתק: ' + (ds.text || '')); } catch (err) { toast('לא הצלחתי להעתיק'); } break; }
@@ -5912,7 +6186,7 @@ document.addEventListener('click', async (e) => {
     case 'comment-delete': { S.taskComments[ds.task] = (S.taskComments[ds.task] || []).filter((c) => c.id !== ds.id); render(); await write(() => sb.from('task_comments').delete().eq('id', ds.id)); break; }
     case 'mention-open': { e.stopPropagation(); openMenu(t, { search: true, placeholder: 'את מי לתייג?', items: mentionCandidates(''), onPick: (it) => { const ta = document.getElementById('comment-' + ds.id); if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); if (ta.value && !/\s$/.test(ta.value)) { ta.value += ' '; } } insertMention(ds.id, it.value, 0); } }); break; }
     case 'bell-toggle': e.stopPropagation(); S.ui.bell = !S.ui.bell; renderBell(); break;
-    case 'notif-open': { e.stopPropagation(); const n = S.notifications.find((x) => String(x.id) === String(ds.id)); S.ui.bell = false; if (n && !n.readAt) markRead([n.id]); else renderBell(); if (ds.request && ds.request.startsWith('sunday:')) { S.ui.mtab = 'sunday'; S.ui.sundayDate = null; nav('meetings'); } else if (ds.request) { if (S.requests[ds.request]) openDrawer('request', ds.request); else toast('הבקשה כבר לא קיימת'); } else if (ds.task && S.tasks[ds.task]) { openDrawer('task', ds.task); if (!S.taskComments[ds.task]) fetchComments(ds.task).then(render); } else toast('המשימה כבר לא קיימת'); break; }
+    case 'notif-open': { e.stopPropagation(); const n = S.notifications.find((x) => String(x.id) === String(ds.id)); S.ui.bell = false; if (n && !n.readAt) markRead([n.id]); else renderBell(); if (ds.request && ds.request.startsWith('time:')) { S.ui.timeWho = null; S.ui.timeDate = ds.request.slice(5); nav('time'); } else if (ds.request && ds.request.startsWith('sunday:')) { S.ui.mtab = 'sunday'; S.ui.sundayDate = null; nav('meetings'); } else if (ds.request) { if (S.requests[ds.request]) openDrawer('request', ds.request); else toast('הבקשה כבר לא קיימת'); } else if (ds.task && S.tasks[ds.task]) { openDrawer('task', ds.task); if (!S.taskComments[ds.task]) fetchComments(ds.task).then(render); } else toast('המשימה כבר לא קיימת'); break; }
     // ----- requests & updates -----
     case 'new-request': { if (!isMember()) break; S.ui.reqForm = null; openDrawer('request-new'); break; }
     case 'open-request': { if (S.requests[ds.id]) openDrawer('request', ds.id); break; }
