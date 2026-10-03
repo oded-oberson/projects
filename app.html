@@ -491,6 +491,8 @@
   .seg button.on { background: var(--ink); color: var(--accent-ink); }
   .seg button:disabled { cursor: default; opacity: .6; }
   .seg button.on:disabled { opacity: 1; }
+  .venue-seg { flex-wrap: wrap; }
+  .venue-seg button { flex: 1 0 auto; }
   .today-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
   .today-grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   #btn-request.has { border-color: var(--warn); box-shadow: inset 0 0 0 1px var(--warn); }
@@ -706,6 +708,72 @@
   .set-tools { justify-content: space-between; }
   .set-list.older { margin-top: 8px; }
   .set-cell { margin-top: 4px; }
+  /* need-to-know: reduced rows and the reduced page */
+  tr.row-click.reduced td { color: var(--ink-2); }
+  tr.row-click.reduced .cell-main { font-weight: 300; }
+  .pp-reduced { max-width: 860px; }
+  /* ---------- project page ---------- */
+  .pp-head { margin-bottom: 18px; }
+  .pp-back { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--ink-3); text-decoration: none; margin-bottom: 6px; }
+  .pp-back:hover { color: var(--ink); }
+  .pp-back svg { width: 14px; height: 14px; }
+  .pp-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .pp-title { flex: 1; min-width: 0; }
+  .pp-title .view-title input { font-family: var(--font-display); font-weight: 200; font-size: 36px; line-height: 1.1; padding: 2px 6px; margin-inline-start: -6px; border-color: transparent; background: transparent; width: 100%; letter-spacing: .01em; }
+  .pp-title .view-title input:hover, .pp-title .view-title input:focus { border-color: var(--line-2); }
+  .pp-en { font-size: 17px; margin-top: 2px; }
+  .pp-en .en { color: var(--ink); }
+  .pp-side-head { display: flex; align-items: center; gap: 8px; padding-top: 12px; }
+  .pp-quick { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 10px; }
+  .pp-quick .chip svg { width: 12px; height: 12px; }
+  .pp-quick .chip small { font-size: 11px; color: inherit; opacity: .7; }
+  .pp-jump { display: flex; flex-wrap: wrap; gap: 2px 16px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 8px 0; font-size: 13px; }
+  .pp-jump a { color: var(--ink-2); text-decoration: none; padding: 2px 0; letter-spacing: .02em; }
+  .pp-jump a:hover { color: var(--ink); }
+  .pp-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(300px, 1.35fr); gap: 20px; align-items: start; }
+  .pp-main, .pp-side { padding: 20px 22px 8px; }
+  .pp-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-top: 6px; }
+  .ph.gal { width: auto; height: auto; aspect-ratio: 4 / 3; }
+  .ph.gal img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ph.gal figcaption { position: absolute; bottom: 0; inset-inline: 0; font-size: 11px; padding: 2px 6px; background: rgba(255,255,255,.85); }
+  /* photoshoot & publication card */
+  .shoot-card { border: 1px solid var(--line-2); padding: 14px 16px 6px; margin-bottom: 24px; background: var(--surface); position: relative; }
+  .shoot-card::before { content: ""; position: absolute; inset-inline-start: 0; top: 0; bottom: 0; width: 4px; background: var(--warn-ink, #b7791f); }
+  .shoot-card.scheduled::before { background: var(--ink); }
+  .shoot-card.shot::before, .shoot-card.published::before { background: var(--good-ink, #2f7d4a); }
+  .shoot-card.cancelled { opacity: .7; }
+  .shoot-card.cancelled::before { background: var(--line-2); }
+  .shoot-offer { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .shoot-steps { display: flex; flex-direction: column; }
+  .shoot-step { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); min-width: 0; }
+  .shoot-step:last-child { border-bottom: 0; }
+  .shoot-step .switch { flex: none; }
+  .shoot-step-title { flex: 1; min-width: 0; color: inherit; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .shoot-step.done .shoot-step-title { color: var(--ink-3); text-decoration: line-through; }
+  .fund-row { display: grid; grid-template-columns: minmax(120px, 1.2fr) 110px auto minmax(100px, 1fr) 28px; gap: 8px; align-items: center; padding: 4px 0; }
+  .fund-row .fund-who { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .set-row.with-fn { grid-template-columns: minmax(0, 1fr) 150px 28px; }
+  @media (max-width: 700px) { .fund-row { grid-template-columns: 1fr 90px auto; } .fund-row input[type="text"] { grid-column: 1 / -1; } }
+  /* materials board */
+  .mat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; margin-top: 6px; }
+  .mat-card { border: 1px solid var(--line); background: var(--surface); cursor: pointer; display: flex; flex-direction: column; min-width: 0; transition: border-color .15s ease; }
+  .mat-card:hover { border-color: var(--ink-2); }
+  .mat-card.rejected { opacity: .6; }
+  .mat-img { position: relative; aspect-ratio: 4 / 3; background: var(--surface-2); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .mat-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .mat-noimg { color: var(--ink-3); width: 28px; height: 28px; }
+  .mat-noimg svg { width: 28px; height: 28px; }
+  .mat-count { position: absolute; bottom: 4px; inset-inline-end: 4px; font-size: 11px; background: rgba(255,255,255,.9); padding: 1px 6px; font-family: var(--font-num); }
+  .mat-body { padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .mat-title { font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mat-sub { font-size: 12px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 15px; }
+  .mat-foot { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 4px; }
+  .mat-price { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--ink-2); }
+  .photo-day { margin-top: 10px; }
+  .photo-day-head { display: flex; align-items: baseline; gap: 10px; font-size: 13px; color: var(--ink-2); margin-bottom: 4px; }
+  .photo-day-head small { color: var(--ink-3); }
+  @media (max-width: 1000px) { .pp-grid { grid-template-columns: minmax(0, 1fr); } .pp-main, .pp-side { padding: 14px 14px 4px; } .pp-title .view-title input { font-size: 28px; } }
   .set-chip small { font-size: 11px; opacity: .8; }
   .set-body .status-row { margin-bottom: 4px; }
   .set-body .status-row .chip.green.on { background: var(--good-ink); border-color: var(--good-ink); color: #fff; }
@@ -742,6 +810,7 @@
   .rp-title span { color: var(--ink-2); }
   .rp-project { font-size: 15px; margin-top: 4px; }
   .rp-project small { color: var(--ink-3); font-size: 12px; margin-inline-start: 6px; }
+  .rp-subject { font-size: 13.5px; color: var(--ink-2); margin-top: 2px; }
   .rp-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px; padding: 8px 0 10px; border-bottom: 1px solid var(--line); }
   .rp-kv { display: grid; grid-template-columns: 84px 1fr; gap: 8px; font-size: 12.5px; }
   .rp-kv span { color: var(--ink-3); }
@@ -983,6 +1052,7 @@ const ROLES = [
 const VIEWS = [
   { id: 'overview', label: 'סקירה' },
   { id: 'tasks', label: 'משימות' },
+  { id: 'meetings', label: 'פגישות' },
   { id: 'field', label: 'שטח' },
   { id: 'projects', label: 'פרויקטים' },
   { id: 'teams', label: 'צוותים' },
@@ -1012,6 +1082,9 @@ const DEFAULT_SETTINGS = {
   fullWeekHours: 42,
   leaveLeadDays: 3,
   partnerUserId: null,
+  handoverStageId: 'handover', // reaching this stage opens the photoshoot & publication card
+  shootFunctions: { pr: [], social: [] },
+  shootSteps: null, // null = the built-in template (DEFAULT_SHOOT_STEPS)
   teamRoles: ['ראש/ת צוות', 'אדריכל/ית', 'אדריכל/ית בכיר/ה', 'מעצב/ת פנים', 'מנהל/ת פרויקטים', 'מתמחה', 'סטודנט/ית', 'מנהל/ת משרד', 'הנהלת חשבונות', 'אחר'],
 };
 
@@ -1206,6 +1279,7 @@ function setCurrentStage(p, id) {
       if (own.state !== 'active') patchDoc('project_milestones', own.id, { state: 'active', doneAt: null });
     } else { mine.forEach((m) => { if (m.state !== 'todo') patchDoc('project_milestones', m.id, { state: 'todo', doneAt: null }); }); }
   }));
+  if (typeof afterStageChange === 'function') afterStageChange(p, id);
 }
 /* the current stage is finished: everything in it done; the next stage (if any) becomes current */
 function finishStage(p, id) {
@@ -1213,6 +1287,7 @@ function finishStage(p, id) {
   const next = ord.slice(i + 1).find((x) => x !== STAGE_NONE);
   if (next) { setCurrentStage(p, next); return; }
   batchEdits(() => { milestonesOf(p.id).filter((m) => msIsWork(m) && msStage(m) === id && m.state !== 'done').forEach((m) => patchDoc('project_milestones', m.id, { state: 'done', doneAt: nowIso() })); ensureStageRow(p, id, 'done'); });
+  if (typeof afterStageChange === 'function') afterStageChange(p, id);
 }
 /* a new project / sub-project starts its journey at the first stage */
 function startJourney(pid) {
@@ -1341,6 +1416,7 @@ function loadUi() {
   } catch (e) { /* storage unavailable */ }
   const h = (location.hash || '').replace('#', '');
   if (VIEWS.some((v) => v.id === h)) S.ui.view = h;
+  else if (h.startsWith('project/')) { S.ui.view = 'project'; S.ui.pageId = h.slice(8); }
 }
 function saveUi() {
   try { localStorage.setItem('obr-ui', JSON.stringify({ filters: S.ui.filters, ctab: S.ui.ctab, sort: S.ui.sort, ttab: S.ui.ttab, tproject: S.ui.tproject })); } catch (e) { /* ignore */ }
@@ -1369,11 +1445,11 @@ function render() {
   renderSync();
   renderUserBox();
   renderBell();
-  if (S.ui.view !== 'report' && !visibleViews().some((v) => v.id === S.ui.view)) S.ui.view = 'overview';
+  if (S.ui.view !== 'report' && S.ui.view !== 'project' && !visibleViews().some((v) => v.id === S.ui.view)) S.ui.view = 'overview';
   document.body.classList.toggle('report-view', S.ui.view === 'report');
   if (S.dbState === 'error') page.innerHTML = `<div class="banner">טעינת הנתונים נכשלה (${esc(S.error)}). <button class="btn small" data-action="reload-data">נסה שוב</button></div>`;
   else if (S.dbState === 'connecting') page.innerHTML = '<div class="loading">טוען את נתוני המשרד…</div>';
-  else page.innerHTML = { overview: renderOverview, tasks: renderTasks, field: renderField, report: renderReport, projects: renderProjects, teams: renderTeams, contacts: renderContacts, requests: renderRequests, commissions: renderCommissions, users: renderUsers, settings: renderSettings }[S.ui.view]();
+  else page.innerHTML = { overview: renderOverview, tasks: renderTasks, meetings: renderMeetings, field: renderField, report: renderReport, projects: renderProjects, project: renderProjectPage, teams: renderTeams, contacts: renderContacts, requests: renderRequests, commissions: renderCommissions, users: renderUsers, settings: renderSettings }[S.ui.view]();
   if (S.ui.view === 'report') paginateReport();
   renderOverlay();
   renderPendingBar();
@@ -1413,7 +1489,8 @@ function restoreFocus(f) {
   try { if (f.start != null && el.setSelectionRange) el.setSelectionRange(f.start, f.end); } catch (e) { /* not a text field */ }
 }
 function renderNav() {
-  document.getElementById('nav').innerHTML = visibleViews().map((v) => `<button type="button" data-action="nav" data-view="${v.id}" ${S.ui.view === v.id ? 'aria-current="page"' : ''}>${v.label}</button>`).join('');
+  const cur = S.ui.view === 'project' ? 'projects' : S.ui.view;
+  document.getElementById('nav').innerHTML = visibleViews().map((v) => `<button type="button" data-action="nav" data-view="${v.id}" ${cur === v.id ? 'aria-current="page"' : ''}>${v.label}</button>`).join('');
 }
 function renderSync() {
   const dot = document.querySelector('#sync .sync-dot'); const txt = document.getElementById('sync-text');
@@ -1636,6 +1713,8 @@ function renderOverview() {
       <div class="panel-head"><h2 class="panel-title">קבלנים</h2><span class="panel-sub">לפי מספר פרויקטים</span></div>
       ${conRows.length ? bars(conRows) : '<div class="empty">עדיין לא שויכו קבלנים לפרויקטים.</div>'}
     </div>
+    ${typeof meetingsPanel === 'function' ? meetingsPanel() : ''}
+    ${typeof shootsPanel === 'function' ? shootsPanel() : ''}
     ${isManager() ? `<div class="panel">
       <div class="panel-head"><h2 class="panel-title">עמלות</h2><span class="panel-sub">לפי סטטוס גבייה · מנהלים בלבד</span></div>
       ${K().length ? bars(commByStatus.map((r) => ({ label: COMM_STATUS[r.s].label, value: r.amt, cls: r.s === 'paid' ? 'good' : r.s === 'invoiced' ? 'warn' : '', display: `<strong>${fmtMoney(r.amt)}</strong> · ${r.n}`, click: { action: 'goto-commissions', attrs: `data-status="${r.s}"` } }))) : `<div class="empty">עדיין אין עמלות רשומות. <button class="btn small" data-action="new-commission">${ICON.plus} עמלה ראשונה</button></div>`}
@@ -1713,6 +1792,17 @@ function renderProjects() {
 function projectRow(p) {
   const d = daysSince(p.statusUpdatedAt);
   const stale = isStale(p);
+  if (isReduced(p)) return `<tr class="row-click reduced" data-action="open-project" data-id="${p.id}" title="מידע מצומצם — הפרויקט אינו משותף איתך">
+    <td class="col-main"><div class="cell-main">${parentOf(p) ? `<span class="muted">${esc(parentOf(p).name)} › </span>` : ''}${esc(p.name)}${p.state !== 'active' ? `<span class="tag internal">${STATES[p.state]}</span>` : ''}</div>
+        <div class="cell-sub">${nameEn(p) ? nameEnHtml(p) + (p.type || p.typeDetail || p.city ? ' · ' : '') : ''}${esc([p.type, p.typeDetail, p.city].filter(Boolean).join(' · '))}</div></td>
+    <td>${esc(cname(p.clientId, ''))}</td>
+    <td><span class="chip ${p.teamId ? '' : 'dim'}">${esc(tname(p.teamId))}</span></td>
+    <td><span class="chip ${p.leadId ? '' : 'dim'}">${esc(cname(p.leadId, 'ללא מוביל'))}</span></td>
+    <td>${stageChip(p)}</td>
+    <td>${healthChip(p.health)}</td>
+    <td><div class="cell-sub ${stale ? (d == null ? 'never' : 'stale') : ''}">${d == null ? 'לא עודכן אף פעם' : (d === 0 ? 'היום' : `לפני ${d} ימים`)}</div></td>
+    <td class="num muted">${fmtDate(p.startDate)}</td>
+  </tr>`;
   return `<tr class="row-click" data-action="open-project" data-id="${p.id}">
     <td class="col-main"><div class="cell-main">${parentOf(p) ? `<span class="muted">${esc(parentOf(p).name)} › </span>` : ''}${esc(p.name)}${p.needsReview ? '<span class="tag" title="פרטי הפרויקט יובאו מהאקסל וטרם אומתו">לאימות</span>' : ''}${p.state !== 'active' ? `<span class="tag internal">${STATES[p.state]}</span>` : ''}${childrenOf(p.id).length ? `<span class="tag internal" title="תת-פרויקטים">${childrenOf(p.id).length} תת</span>` : ''}</div>
         <div class="cell-sub">${nameEn(p) ? nameEnHtml(p) + (p.type || p.typeDetail || p.city ? ' · ' : '') : ''}${esc([p.type, p.typeDetail, p.city].filter(Boolean).join(' · '))}</div></td>
@@ -1999,6 +2089,7 @@ function renderSettings() {
       <div class="inline-note">בקשות פגישה ועדכוני מחלה/איחור מגיעים למשתמשים בתפקיד "אדמיניסטרציה" (משתמשים → תפקיד); אם אין — למנהלים.</div>` : ''}
       <div class="field"><label>שם המשרד</label><input type="text" id="set-office-name" value="${esc(st.officeName || '')}" ${ro ? 'disabled' : ''}></div>
     </div>
+    ${typeof shootSettingsPanel === 'function' ? shootSettingsPanel() : ''}
     ${isManager() ? `<div class="panel">
       <div class="panel-head"><h2 class="panel-title">יומן שינויים</h2><span class="panel-sub">${S.audit.length ? S.audit.length + ' שינויים אחרונים' : ''} <button class="btn ghost small" data-action="audit-load">רענן</button></span></div>
       ${S.audit.length ? `<div class="audit">${S.audit.map((a) => `<div class="audit-row">
@@ -2142,7 +2233,7 @@ const snake = (k) => k.replace(/[A-Z]/g, (m) => '_' + m.toLowerCase());
 const camel = (k) => k.replace(/_([a-z])/g, (m, c) => c.toUpperCase());
 const toRow = (obj) => { const o = {}; Object.entries(obj).forEach(([k, v]) => { if (k === 'updatedAt' || k === 'createdAt' || k === 'updatedBy') return; o[snake(k)] = v; }); return o; };
 const fromRow = (row) => { const o = {}; Object.entries(row).forEach(([k, v]) => { o[camel(k)] = v; }); return o; };
-const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels', 'work_schedules', 'requests', 'plan_sets'];
+const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares'];
 
 S.auth = { status: 'loading', session: null, profile: null, notice: '', error: '' };
 S.profiles = {}; S.invitations = {}; S.audit = [];
@@ -2150,12 +2241,17 @@ S.milestone_types = {}; S.project_milestones = {}; S.milestonesLoaded = {}; S.mi
 S.employee_levels = {}; // manual experience levels (team leads and up; RLS hides the table from staff)
 S.work_schedules = {}; // fixed working days / hours / remote days per employee (contact id)
 S.requests = {}; // requests & updates: meetings, leave, sickness, late arrival (RLS: own + approvers)
+S.project_shares = {}; // explicit sharing of a project with a user or a team (need-to-know)
 S.plan_sets = {}; // plan sets issued per project (סט תוכניות): status review / approval / tender / execution; the set's files are files.set_id
 const me = () => S.auth.profile;
 const myRole = () => me()?.role || 'anon';
 const isManager = () => ['owner', 'manager'].includes(myRole());
 const isOwner = () => myRole() === 'owner';
 const canWriteProjects = () => ['owner', 'manager', 'team_lead'].includes(myRole());
+/* need-to-know: a project row that came only from projects_summary is "reduced" — the person is not involved in it */
+const isReduced = (p) => !!p && p.reduced === true;
+const canEditProject = (p) => canWriteProjects() && !isReduced(p);
+const canTaskOn = (p) => !p || !isReduced(p) || ['owner', 'manager', 'admin'].includes(myRole()); // creating a task on a project
 const canWriteContact = (type) => isManager() || (myRole() === 'team_lead' && type !== 'employee');
 const ROLE_LABELS = { owner: 'בעלים', manager: 'מנהל/ת', team_lead: 'ראש/ת צוות', staff: 'עובד/ת', admin: 'אדמיניסטרציה', pending: 'ממתין/ה לאישור', disabled: 'חסום/ה' };
 const ready = () => S.dbState === 'ready' && S.auth.status === 'ready';
@@ -2173,13 +2269,28 @@ function friendlyError(e) {
 }
 
 const PAGE_ROWS = 1000; // PostgREST caps a single request at 1000 rows — page through larger tables
+/* need-to-know (2.10.2026): full project rows come only for projects the person is involved in; every member also gets the reduced
+   row of every project from projects_summary (name, client, address, office people, stage, health) — merged here as `reduced: true`.
+   Contacts are read through contacts_v, which blanks employees' HR details for people who may not see them. Writes go to the tables. */
+const TABLE_SOURCE = { contacts: 'contacts_v' };
+async function fetchRows(source) {
+  const rows = [];
+  for (let from = 0; ; from += PAGE_ROWS) {
+    const { data, error } = await sb.from(source).select('*').order('id').range(from, from + PAGE_ROWS - 1);
+    if (error) throw error;
+    rows.push(...(data || []));
+    if (!data || data.length < PAGE_ROWS) break;
+  }
+  return rows;
+}
 async function fetchTable(col) {
   const m = {};
-  for (let from = 0; ; from += PAGE_ROWS) {
-    const { data, error } = await sb.from(col).select('*').order('id').range(from, from + PAGE_ROWS - 1);
-    if (error) throw error;
-    (data || []).forEach((r) => { const o = fromRow(r); m[o.id] = o; });
-    if (!data || data.length < PAGE_ROWS) break;
+  if (col === 'projects') {
+    const [full, summary] = await Promise.all([fetchRows('projects'), fetchRows('projects_summary')]);
+    summary.forEach((r) => { const o = fromRow(r); o.reduced = true; m[o.id] = o; });
+    full.forEach((r) => { const o = fromRow(r); o.reduced = false; m[o.id] = o; });
+  } else {
+    (await fetchRows(TABLE_SOURCE[col] || col)).forEach((r) => { const o = fromRow(r); m[o.id] = o; });
   }
   S[col] = m; S.loaded[col] = true;
   applyPendingTo(col);
@@ -2245,7 +2356,7 @@ function subscribeRealtime() {
     }, 250);
   };
   rtChannel = sb.channel('office-live');
-  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests', 'plan_sets'].forEach((table) => {
+  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares'].forEach((table) => {
     rtChannel.on('postgres_changes', { event: '*', schema: 'public', table }, () => scheduleRefetch(table));
   });
   rtChannel.subscribe();
@@ -2534,7 +2645,7 @@ const TK = () => list('tasks');
 const profileOf = (uid) => (uid && S.profiles[uid]) || null;
 const uname = (uid, fallback = '—') => { const p = profileOf(uid); if (!p) return fallback; return p.fullName || cname(p.contactId, '') || p.email || fallback; };
 const activeUsers = () => Object.values(S.profiles).filter((p) => ['owner', 'manager', 'team_lead', 'staff', 'admin'].includes(p.role)).sort((a, b) => uname(a.id).localeCompare(uname(b.id), 'he'));
-const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const todayStr = (d = new Date()) => { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const addDays = (ymd, n) => { const d = new Date(ymd + 'T00:00:00'); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const checklistOf = (t) => (Array.isArray(t.checklist) ? t.checklist : []);
 const isOpenTask = (t) => t.status !== 'done';
@@ -2826,9 +2937,13 @@ function mentionTyping(ta) {
 }
 /* ===================== field: site visits, inspection reports, meeting summaries ===================== */
 const VISIT_KINDS = {
-  site: { label: 'ביקור באתר', report: 'דוח פיקוח עליון', items: 'ממצאים והנחיות', item: 'ממצא', add: 'ממצא חדש…', prev: 'ליקויים פתוחים מדוחות קודמים', summary: 'מצב כללי בשטח', people: 'נוכחים בביקור' },
-  meeting: { label: 'פגישה', report: 'סיכום פגישה', items: 'החלטות ומשימות', item: 'החלטה', add: 'החלטה / משימה חדשה…', prev: 'משימות פתוחות מפגישות קודמות', summary: 'סיכום הדיון', people: 'משתתפים' },
+  site: { label: 'ביקור באתר', report: 'דוח פיקוח עליון', items: 'ממצאים והנחיות', item: 'ממצא', add: 'ממצא חדש…', prev: 'ליקויים פתוחים מדוחות קודמים', summary: 'מצב כללי בשטח', people: 'נוכחים בביקור', next: 'ביקור הבא' },
+  meeting: { label: 'פגישה', report: 'סיכום פגישה', items: 'החלטות ומשימות', item: 'החלטה', add: 'החלטה / משימה חדשה…', prev: 'משימות פתוחות מפגישות קודמות', summary: 'סיכום הדיון', people: 'משתתפים', next: 'פגישה הבאה' },
 };
+/* where a meeting took place (site_visits.venue); a site visit is always at the site. '' (rows from before 2.10.2026) = office for meetings */
+const VENUES = { office: { label: 'במשרד' }, zoom: { label: 'זום / וידאו' }, site: { label: 'באתר' }, client: { label: 'אצל הלקוח' }, other: { label: 'אחר' } };
+const venueOf = (v) => (v?.kind === 'site' ? 'site' : (VENUES[v?.venue] ? v.venue : 'office'));
+const venueLabel = (v) => VENUES[venueOf(v)].label;
 const ITEM_KINDS = {
   defect: { label: 'ליקוי', cls: 'red' }, instruction: { label: 'הנחיה', cls: 'accent' }, finding: { label: 'ממצא', cls: '' },
   decision: { label: 'החלטה', cls: 'accent' }, task: { label: 'משימה', cls: 'yellow' }, note: { label: 'הערה', cls: 'dim' },
@@ -2851,6 +2966,9 @@ const visitsOf = (pid, kind) => SV().filter((v) => v.projectId === pid && (!kind
 const itemsOf = (vid) => VI().filter((i) => i.visitId === vid).sort((a, b) => (a.seq || 0) - (b.seq || 0));
 const filesOf = (where) => FL().filter((f) => Object.entries(where).every(([k, v]) => f[k] === v)).sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
 const visitTitle = (v) => `${visitKind(v).report} מס' ${v.seq}`;
+const visitLabel = (v) => ((v.title || '').trim() || visitTitle(v)); // what a list shows: the subject when there is one, else the numbered title
+/* the project line of a document: a meeting may belong to no project (an office / general meeting) */
+const visitProjectName = (v) => (v.projectId ? (S.projects[v.projectId]?.name || 'פרויקט שנמחק') : 'פגישה כללית');
 const itemNo = (v, it) => `${v.seq}.${it.seq}`;
 const isOpenItem = (it) => it.status === 'open' && ['defect', 'instruction', 'task', 'decision'].includes(it.kind);
 /* items still open from earlier visits of the same project and kind (carried into the next report) */
@@ -2861,10 +2979,12 @@ const carriedItems = (v) => {
 const responsibleName = (it) => it.responsibleId ? cname(it.responsibleId, it.responsibleText || '') : (it.responsibleText || '');
 
 /* ---------- data ---------- */
-async function newVisit(projectId, kind = 'site') {
+async function newVisit(projectId, kind = 'site', extra = {}) {
+  projectId = projectId || null; // a meeting without a project is a general (office) meeting; site visits always get a project
+  if (!projectId && kind !== 'meeting') return null;
   const seq = Math.max(0, ...visitsOf(projectId, kind).map((v) => v.seq || 0)) + 1;
   const id = uid('v');
-  const ok = await createDoc('site_visits', id, { projectId, kind, seq, visitDate: todayStr(), visitTime: '', authorId: me()?.id || null, attendees: '', summary: '', status: 'draft', finalizedAt: null, nextVisit: null });
+  const ok = await createDoc('site_visits', id, { projectId, kind, seq, visitDate: extra.visitDate || todayStr(), visitTime: extra.visitTime || '', authorId: me()?.id || null, attendees: extra.attendees || '', summary: '', status: 'draft', finalizedAt: null, nextVisit: null, venue: kind === 'site' ? 'site' : (VENUES[extra.venue] ? extra.venue : 'office'), title: extra.title || '' });
   return ok ? id : null;
 }
 async function newItem(visitId, kind, body = '') {
@@ -2892,8 +3012,9 @@ function queueSignedUrl(f) {
     try {
       const { data, error } = await sb.storage.from(FILE_BUCKET).createSignedUrls(batch.map((x) => x.path), 3600);
       if (error) throw error;
-      (data || []).forEach((row, i) => { const f = batch[i]; if (row && row.signedUrl) S.fileUrls[f.id] = { url: row.signedUrl, exp: Date.now() + 55 * 60000 }; else delete S.fileUrls[f.id]; });
-    } catch (e) { console.warn('signed urls', e); batch.forEach((x) => { delete S.fileUrls[x.id]; }); }
+      // a missing object is remembered for a minute (an empty url) — otherwise every render would ask again and re-render in a loop
+      (data || []).forEach((row, i) => { const f = batch[i]; if (row && row.signedUrl) S.fileUrls[f.id] = { url: row.signedUrl, exp: Date.now() + 55 * 60000 }; else S.fileUrls[f.id] = { url: '', exp: Date.now() + 60000 }; });
+    } catch (e) { console.warn('signed urls', e); batch.forEach((x) => { S.fileUrls[x.id] = { url: '', exp: Date.now() + 30000 }; }); }
     render();
   }, 30);
 }
@@ -2928,11 +3049,11 @@ async function uploadFiles(fileList, ctx) {
     let blob = file, ext = (file.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 8) || 'bin', mime = file.type || 'application/octet-stream', w = null, h = null;
     if (isImg) { const s = await shrinkImage(file); if (s) { blob = s.blob; ext = 'jpg'; mime = 'image/jpeg'; w = s.w; h = s.h; } }
     // folder per context: project / visit | set | task | presentation | general; a task without a project lives under tasks/
-    const path = `${ctx.projectId || 'tasks'}/${ctx.visitId || ctx.setId || ctx.taskId || ctx.slot || 'general'}/${id}.${ext}`;
+    const path = `${ctx.projectId || 'tasks'}/${ctx.visitId || ctx.setId || ctx.materialId || ctx.taskId || ctx.slot || 'general'}/${id}.${ext}`;
     try {
       const { error } = await sb.storage.from(FILE_BUCKET).upload(path, blob, { contentType: mime, upsert: false });
       if (error) throw error;
-      const ok = await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: ctx.projectId || null, visitId: ctx.visitId || null, itemId: ctx.itemId || null, taskId: ctx.taskId || null, slot: ctx.slot || null, setId: ctx.setId || null, kind: isImg ? 'image' : isAud ? 'audio' : isVid ? 'video' : isPdf ? 'pdf' : 'file', mime, size: blob.size, width: w, height: h, caption: ctx.caption || ((isImg || isAud) && (ctx.visitId || ctx.itemId) ? '' : file.name) /* visit photos stay caption-less; documents keep their file name */, takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : null, uploadedBy: me()?.id || null, durationSec: ctx.durationSec || null, transcript: '', transcribeStatus: '', transcribeError: '' });
+      const ok = await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: ctx.projectId || null, visitId: ctx.visitId || null, itemId: ctx.itemId || null, taskId: ctx.taskId || null, slot: ctx.slot || null, setId: ctx.setId || null, materialId: ctx.materialId || null, kind: isImg ? 'image' : isAud ? 'audio' : isVid ? 'video' : isPdf ? 'pdf' : 'file', mime, size: blob.size, width: w, height: h, caption: ctx.caption || ((isImg || isAud) && (ctx.visitId || ctx.itemId) ? '' : file.name) /* visit photos stay caption-less; documents keep their file name */, takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : null, uploadedBy: me()?.id || null, durationSec: ctx.durationSec || null, transcript: '', transcribeStatus: '', transcribeError: '' });
       if (!ok) throw new Error('row');
       up.done++;
     } catch (e) { console.warn('upload failed', e); up.failed++; toast('העלאה נכשלה: ' + friendlyError(e)); }
@@ -2993,55 +3114,62 @@ function itemRow(v, it, opts = {}) {
   </div>`;
 }
 function visitItem(v, opts = {}) {
-  const p = S.projects[v.projectId];
   const items = itemsOf(v.id);
   const open = items.filter(isOpenItem).length;
-  const meta = [opts.hideProject ? '' : (p ? p.name : 'פרויקט שנמחק'), uname(v.authorId, ''), items.length ? `${items.length} ${v.kind === 'meeting' ? 'החלטות' : 'ממצאים'}${open ? ` · ${open} פתוחים` : ''}` : ''].filter(Boolean).join(' · ');
+  const titled = !!(v.title || '').trim();
+  const meta = [opts.hideProject ? '' : visitProjectName(v), titled ? visitTitle(v) : '', v.kind === 'meeting' ? venueLabel(v) : '', uname(v.authorId, ''), items.length ? `${items.length} ${v.kind === 'meeting' ? 'החלטות' : 'ממצאים'}${open ? ` · ${open} פתוחים` : ''}` : ''].filter(Boolean).join(' · ');
   return `<div class="task-item" data-action="open-visit" data-id="${v.id}">
     <span class="visit-ic">${v.kind === 'meeting' ? ICON.doc : ICON.pin}</span>
-    <div class="li-body"><div class="li-title">${esc(visitTitle(v))}</div><div class="li-sub">${esc(meta)}</div></div>
+    <div class="li-body"><div class="li-title">${esc(visitLabel(v))}</div><div class="li-sub">${esc(meta)}</div></div>
     <div class="li-side"><span class="due">${esc(fmtDate(v.visitDate))}</span><span class="chip ${v.status === 'final' ? 'green' : 'dim'} status-chip">${v.status === 'final' ? 'סופי' : 'טיוטה'}</span></div>
   </div>`;
 }
+/* the quick-edit drawer: the latest meetings and the latest site visits of the project, side by side */
 function projectVisitsSection(p) {
-  const vs = visitsOf(p.id);
-  return `<div class="section">
-    <h3 class="section-title">שטח: ביקורים, דוחות פיקוח וסיכומי פגישה <small>${vs.length ? vs.length + ' מסמכים' : ''}</small></h3>
-    ${vs.length ? vs.slice(0, 6).map((v) => visitItem(v, { hideProject: true })).join('') + (vs.length > 6 ? `<div class="inline-note">ועוד ${vs.length - 6} — במסך שטח</div>` : '') : '<div class="inline-note">עדיין אין ביקורים או סיכומים לפרויקט.</div>'}
-    ${canWriteField() ? `<div class="add-row" style="margin-top:8px;flex-wrap:wrap"><button class="btn small" data-action="new-visit" data-project="${p.id}" data-kind="site">${ICON.pin} ביקור באתר</button><button class="btn small" data-action="new-visit" data-project="${p.id}" data-kind="meeting">${ICON.doc} סיכום פגישה</button></div>` : ''}
+  const meets = visitsOf(p.id, 'meeting'), sites = visitsOf(p.id, 'site');
+  const block = (title, vs, kind, btn, empty) => `<div class="section">
+    <h3 class="section-title">${title} <small>${vs.length ? vs.length : ''}</small></h3>
+    ${vs.length ? vs.slice(0, 4).map((v) => visitItem(v, { hideProject: true })).join('') + (vs.length > 4 ? `<div class="inline-note">ועוד ${vs.length - 4} — בדף הפרויקט</div>` : '') : `<div class="inline-note">${empty}</div>`}
+    ${canWriteField() ? `<div class="add-row" style="margin-top:8px"><button class="btn small" data-action="new-visit" data-project="${p.id}" data-kind="${kind}">${btn}</button></div>` : ''}
   </div>`;
+  return block('פגישות', meets, 'meeting', `${ICON.doc} סיכום פגישה`, 'עדיין אין סיכומי פגישה לפרויקט.') + block('פיקוח: ביקורי אתר ודוחות', sites, 'site', `${ICON.pin} ביקור באתר`, 'עדיין אין ביקורים באתר.');
 }
 
-/* ---------- view: שטח ---------- */
+/* ---------- view: שטח (site visits and inspection reports; meetings have their own tab) ---------- */
 function renderField() {
   const uid_ = me()?.id;
-  const recent = [...SV()].sort((a, b) => (b.visitDate || '').localeCompare(a.visitDate || '') || (b.createdAt || '').localeCompare(a.createdAt || ''));
+  const recent = SV().filter((v) => v.kind !== 'meeting').sort((a, b) => (b.visitDate || '').localeCompare(a.visitDate || '') || (b.createdAt || '').localeCompare(a.createdAt || ''));
   const drafts = recent.filter((v) => v.status !== 'final' && v.authorId === uid_);
-  const openItems = VI().filter(isOpenItem).map((it) => ({ it, v: S.site_visits[it.visitId] })).filter((x) => x.v && S.projects[x.v.projectId]?.state === 'active')
+  const openItems = VI().filter(isOpenItem).map((it) => ({ it, v: S.site_visits[it.visitId] })).filter((x) => x.v && x.v.kind !== 'meeting' && S.projects[x.v.projectId]?.state === 'active')
     .sort((a, b) => (a.it.dueDate || '9999').localeCompare(b.it.dueDate || '9999') || (b.v.visitDate || '').localeCompare(a.v.visitDate || ''));
   const byProject = {}; openItems.forEach((x) => { byProject[x.v.projectId] = (byProject[x.v.projectId] || 0) + 1; });
   const q = norm(S.ui.fq || '');
   const shown = q ? recent.filter((v) => norm([S.projects[v.projectId]?.name, visitTitle(v), uname(v.authorId, '')].join(' ')).includes(q)) : recent;
   return `
   <div class="view-head">
-    <div><h1 class="view-title">שטח</h1><div class="view-sub">ביקורי אתר, דוחות פיקוח עליון וסיכומי פגישות — ${SV().length} מסמכים · ${openItems.length} ליקויים ומשימות פתוחים</div></div>
-    <div class="view-actions">${canWriteField() ? `<button class="btn primary" data-action="new-visit-pick" data-kind="site">${ICON.pin} ביקור באתר</button><button class="btn" data-action="new-visit-pick" data-kind="meeting">${ICON.doc} סיכום פגישה</button>` : ''}</div>
+    <div><h1 class="view-title">שטח</h1><div class="view-sub">ביקורי אתר ודוחות פיקוח עליון — ${recent.length} דוחות · ${openItems.length} ליקויים והנחיות פתוחים · <a href="#meetings" data-action="nav" data-view="meetings">סיכומי פגישות בלשונית פגישות</a></div></div>
+    <div class="view-actions">${canWriteField() ? `<button class="btn primary" data-action="new-visit-pick" data-kind="site">${ICON.pin} ביקור באתר</button>` : ''}</div>
   </div>
   ${drafts.length ? `<div class="task-group"><div class="task-group-head"><span>הטיוטות שלי</span><small>${drafts.length}</small></div>${drafts.slice(0, 8).map((v) => visitItem(v)).join('')}</div>` : ''}
   <div class="grid-2">
     <div class="task-group">
-      <div class="task-group-head"><span>ליקויים ומשימות פתוחים</span><small>${openItems.length}${Object.keys(byProject).length ? ` · ${Object.keys(byProject).length} פרויקטים` : ''}</small></div>
-      ${openItems.length ? openItems.slice(0, 40).map(({ it, v }) => { const due = it.dueDate ? dueInfo({ dueDate: it.dueDate, status: 'todo' }) : { label: '', cls: '' }; const k = ITEM_KINDS[it.kind] || ITEM_KINDS.finding; return `<div class="task-item" data-action="open-visit" data-id="${v.id}" data-item="${it.id}">
-          <span class="chip ${k.cls} status-chip">${k.label}</span>
-          <div class="li-body"><div class="li-title">${esc(it.body || '(ללא תיאור)')}</div><div class="li-sub">${esc([S.projects[v.projectId]?.name, `${visitKind(v).report} ${v.seq}`, it.location, responsibleName(it)].filter(Boolean).join(' · '))}</div></div>
-          <div class="li-side">${due.label ? `<span class="due ${due.cls}">${esc(due.label)}</span>` : ''}</div></div>`; }).join('') + (openItems.length > 40 ? `<div class="inline-note">מוצגים 40 הראשונים לפי מועד</div>` : '') : '<div class="inline-note">אין ליקויים או משימות פתוחים.</div>'}
+      <div class="task-group-head"><span>ליקויים והנחיות פתוחים</span><small>${openItems.length}${Object.keys(byProject).length ? ` · ${Object.keys(byProject).length} פרויקטים` : ''}</small></div>
+      ${openItems.length ? openItems.slice(0, 40).map(({ it, v }) => openItemRow(it, v)).join('') + (openItems.length > 40 ? `<div class="inline-note">מוצגים 40 הראשונים לפי מועד</div>` : '') : '<div class="inline-note">אין ליקויים או הנחיות פתוחים.</div>'}
     </div>
     <div class="task-group">
-      <div class="task-group-head"><span>מסמכים אחרונים</span><small>${shown.length}</small></div>
-      <div class="add-row" style="margin:6px 0 10px"><input type="search" id="fq" placeholder="חיפוש לפי פרויקט, מסמך או עורך…" value="${esc(S.ui.fq || '')}"></div>
-      ${shown.length ? shown.slice(0, 30).map((v) => visitItem(v)).join('') : '<div class="inline-note">עדיין אין מסמכי שטח. התחילו מ"ביקור באתר".</div>'}
+      <div class="task-group-head"><span>דוחות אחרונים</span><small>${shown.length}</small></div>
+      <div class="add-row" style="margin:6px 0 10px"><input type="search" id="fq" placeholder="חיפוש לפי פרויקט, דוח או עורך…" value="${esc(S.ui.fq || '')}"></div>
+      ${shown.length ? shown.slice(0, 30).map((v) => visitItem(v)).join('') : '<div class="inline-note">עדיין אין דוחות פיקוח. התחילו מ"ביקור באתר".</div>'}
     </div>
   </div>`;
+}
+/* one open item (defect / instruction / decision / task) in a list, with its document and project */
+function openItemRow(it, v) {
+  const due = it.dueDate ? dueInfo({ dueDate: it.dueDate, status: 'todo' }) : { label: '', cls: '' }; const k = ITEM_KINDS[it.kind] || ITEM_KINDS.finding;
+  return `<div class="task-item" data-action="open-visit" data-id="${v.id}" data-item="${it.id}">
+    <span class="chip ${k.cls} status-chip">${k.label}</span>
+    <div class="li-body"><div class="li-title">${esc(it.body || '(ללא תיאור)')}</div><div class="li-sub">${esc([visitProjectName(v), (v.title || '').trim() || `${visitKind(v).report} ${v.seq}`, it.location, responsibleName(it)].filter(Boolean).join(' · '))}</div></div>
+    <div class="li-side">${due.label ? `<span class="due ${due.cls}">${esc(due.label)}</span>` : ''}</div></div>`;
 }
 
 /* ---------- drawer: visit ---------- */
@@ -3056,25 +3184,30 @@ function drawerVisit(id) {
   const dis = ro ? 'disabled' : '';
   const open = items.filter(isOpenItem).length;
   const kinds = ITEM_KINDS_OF[v.kind || 'site'];
+  const isMeet = v.kind === 'meeting';
+  const projectLine = p ? `<a href="#" data-action="open-project" data-id="${p.id}" style="color:inherit">${esc((p.number ? p.number + ' · ' : '') + p.name)}</a>${p.address ? ' · ' + esc(p.address) : ''}${p.city ? ', ' + esc(p.city) : ''}`
+    : (v.projectId ? 'פרויקט שנמחק' : 'פגישה כללית — ללא פרויקט');
   return `
   <div class="drawer-head">
     <div style="flex:1;min-width:0">
       <h2 class="drawer-title">${esc(visitTitle(v))}</h2>
-      <div class="drawer-sub">${p ? `<a href="#" data-action="open-project" data-id="${p.id}" style="color:inherit">${esc((p.number ? p.number + ' · ' : '') + p.name)}</a>` : 'פרויקט שנמחק'}${p?.address ? ' · ' + esc(p.address) : ''}${p?.city ? ', ' + esc(p.city) : ''}</div>
+      <div class="drawer-sub">${projectLine}${isMeet && !ro ? ` · <a href="#" data-action="visit-project" data-id="${id}">${p ? 'העבר לפרויקט אחר' : 'שייך לפרויקט'}</a>` : ''}</div>
     </div>
     <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
   </div>
   <div class="drawer-body">
     <div class="section">
       <div class="status-row">
-        <span class="chip ${v.status === 'final' ? 'green' : 'dim'}">${v.status === 'final' ? 'דוח סופי' : 'טיוטה'}</span>
+        <span class="chip ${v.status === 'final' ? 'green' : 'dim'}">${v.status === 'final' ? (isMeet ? 'סיכום סופי' : 'דוח סופי') : 'טיוטה'}</span>
         ${canWriteField() ? (v.status === 'final' ? `<button class="btn ghost small" data-action="visit-status" data-id="${id}" data-value="draft">פתח לעריכה</button>` : `<button class="btn small" data-action="visit-status" data-id="${id}" data-value="final">סמן כסופי</button>`) : ''}
         <button class="btn primary small" data-action="open-report" data-id="${id}">${ICON.doc} ${K.report} — תצוגה / PDF</button>
       </div>
+      ${isMeet ? field('נושא הפגישה', textInput('v-title', v.title || '', `data-bind="site_visits:${id}:title" placeholder="למשל: תיאום עם היזם, הצגת קונספט ללקוח" ${dis}`)) : ''}
+      ${isMeet ? `<div class="field"><label>איפה</label><span class="seg venue-seg">${Object.entries(VENUES).map(([k, m]) => `<button type="button" class="${venueOf(v) === k ? 'on' : ''}" data-action="visit-venue" data-id="${id}" data-value="${k}" ${dis}>${m.label}</button>`).join('')}</span></div>` : ''}
       <div class="field-row">
         ${field('תאריך', `<input type="date" id="v-date" value="${dateInput(v.visitDate)}" data-bind="site_visits:${id}:visitDate" ${dis}>`)}
         ${field('שעה', textInput('v-time', v.visitTime, `data-bind="site_visits:${id}:visitTime" placeholder="10:30" dir="ltr" ${dis}`))}
-        ${field('ביקור הבא', `<input type="date" id="v-next" value="${dateInput(v.nextVisit)}" data-bind="site_visits:${id}:nextVisit" ${dis}>`)}
+        ${field(K.next, `<input type="date" id="v-next" value="${dateInput(v.nextVisit)}" data-bind="site_visits:${id}:nextVisit" ${dis}>`)}
       </div>
       ${field(K.people, textArea('v-attendees', v.attendees, `rows="2" data-bind="site_visits:${id}:attendees" placeholder="שם ותפקיד, מופרדים בפסיקים" ${dis}`))}
       ${field(K.summary, textArea('v-summary', v.summary, `rows="3" data-bind="site_visits:${id}:summary" placeholder="${esc(v.kind === 'meeting' ? 'נושאים שנדונו, רקע, סיכום כללי' : 'התקדמות העבודות, מצב כללי, נקודות לתשומת לב')}" ${dis}`))}
@@ -3103,7 +3236,7 @@ function drawerVisit(id) {
 
 /* ---------- report view (screen + PDF) ---------- */
 function reportBlocks(v) {
-  const p = S.projects[v.projectId] || { name: 'פרויקט שנמחק' };
+  const p = S.projects[v.projectId] || { name: visitProjectName(v) };
   const K = visitKind(v);
   const items = itemsOf(v.id);
   const carried = carriedItems(v);
@@ -3113,8 +3246,8 @@ function reportBlocks(v) {
   const b = (cls, html) => blocks.push(`<div class="rp-b ${cls}">${html}</div>`);
   const kv = (k, val) => `<div class="rp-kv"><span>${k}</span><strong>${esc(val || '—')}</strong></div>`;
   b('rp-header', `<div class="rp-brand"><svg class="logo" aria-label="OBERSON GO"><use href="#logo-mark"/></svg></div>
-    <div class="rp-titles"><div class="rp-title">${esc(K.report)} <span>מס' ${v.seq}</span></div><div class="rp-project">${esc(p.name)}${p.number ? ` <small>פרויקט ${esc(p.number)}</small>` : ''}</div></div>`);
-  b('rp-meta', `${kv('תאריך', fmtDate(v.visitDate) + (v.visitTime ? ' · ' + v.visitTime : ''))}${kv('כתובת', [p.address, p.city].filter(Boolean).join(', '))}${kv('לקוח', cname(p.clientId, ''))}${kv('נערך על ידי', uname(v.authorId, ''))}${kv(K.people, v.attendees)}${v.nextVisit ? kv('ביקור הבא', fmtDate(v.nextVisit)) : ''}`);
+    <div class="rp-titles"><div class="rp-title">${esc(K.report)} <span>מס' ${v.seq}</span></div><div class="rp-project">${esc(p.name)}${p.number ? ` <small>פרויקט ${esc(p.number)}</small>` : ''}${(v.title || '').trim() ? `<div class="rp-subject">${esc(v.title.trim())}</div>` : ''}</div></div>`);
+  b('rp-meta', `${kv('תאריך', fmtDate(v.visitDate) + (v.visitTime ? ' · ' + v.visitTime : ''))}${v.kind === 'meeting' ? kv('איפה', venueLabel(v)) : ''}${p.id ? kv('כתובת', [p.address, p.city].filter(Boolean).join(', ')) : ''}${p.id ? kv('לקוח', cname(p.clientId, '')) : ''}${kv('נערך על ידי', uname(v.authorId, ''))}${kv(K.people, v.attendees)}${v.nextVisit ? kv(K.next, fmtDate(v.nextVisit)) : ''}`);
   if (v.summary) b('rp-section', `<h3>${esc(K.summary)}</h3><p>${esc(v.summary).replace(/\n/g, '<br>')}</p>`);
   const rowHtml = (vv, it, from) => `<div class="rp-row ${it.status === 'closed' ? 'closed' : ''}"><span class="c-no">${esc(itemNo(vv, it))}</span><span class="c-kind">${ITEM_KINDS[it.kind]?.label || ''}</span><span class="c-loc">${esc(it.location || '')}</span><span class="c-body">${esc(it.body || '').replace(/\n/g, '<br>')}${from ? `<small>מ${visitKind(from).report} ${from.seq}, ${fmtDate(from.visitDate)}</small>` : ''}</span><span class="c-resp">${esc(responsibleName(it))}</span><span class="c-due">${it.dueDate ? fmtDate(it.dueDate) : ''}</span><span class="c-st">${['note'].includes(it.kind) ? '' : (it.status === 'closed' ? 'טופל' : 'פתוח')}</span></div>`;
   const head = `<div class="rp-row rp-head"><span class="c-no">מס'</span><span class="c-kind">סוג</span><span class="c-loc">מיקום</span><span class="c-body">תיאור</span><span class="c-resp">אחריות</span><span class="c-due">לביצוע עד</span><span class="c-st">מצב</span></div>`;
@@ -3138,7 +3271,7 @@ function renderReport() {
   const busy = S.ui.pdfBusy;
   return `<div class="rp-tools no-print">
       <button class="btn ghost small" data-action="report-back" data-id="${v.id}">${ICON.back} חזרה</button>
-      <span class="inline-note">${esc(visitTitle(v))} · ${esc(S.projects[v.projectId]?.name || '')} · ${v.status === 'final' ? 'סופי' : 'טיוטה'}</span>
+      <span class="inline-note">${esc(visitTitle(v))} · ${esc(visitProjectName(v))} · ${v.status === 'final' ? 'סופי' : 'טיוטה'}</span>
       <span style="margin-inline-start:auto;display:inline-flex;gap:6px;flex-wrap:wrap">
         <button class="btn small" data-action="report-print" ${busy ? 'disabled' : ''}>הדפסה</button>
         <button class="btn primary small" data-action="report-pdf" data-id="${v.id}" ${busy ? 'disabled' : ''}>${busy ? 'מכין PDF…' : 'PDF — שמירה / שיתוף'}</button>
@@ -3193,13 +3326,12 @@ async function makeReportPdf(visitId) {
       if (i > 0) pdf.addPage();
       pdf.addImage(canvas.toDataURL('image/jpeg', 0.86), 'JPEG', 0, 0, 210, 297);
     }
-    const p = S.projects[v.projectId];
-    const name = `${visitKind(v).report} ${v.seq} - ${(p?.name || 'פרויקט').replace(/[\\/:*?"<>|]/g, ' ')}.pdf`;
+    const name = `${visitKind(v).report} ${v.seq} - ${visitProjectName(v).replace(/[\\/:*?"<>|]/g, ' ')}.pdf`;
     const blob = pdf.output('blob');
     const file = new File([blob], name, { type: 'application/pdf' });
-    // keep a copy in the project folder (files table, kind pdf)
+    // keep a copy in the project folder (files table, kind pdf); a general meeting has no project folder → tasks/
     try {
-      const id = uid('f'); const path = `${v.projectId}/${v.id}/report-${v.seq}-${Date.now().toString(36)}.pdf`;
+      const id = uid('f'); const path = `${v.projectId || 'tasks'}/${v.id}/report-${v.seq}-${Date.now().toString(36)}.pdf`;
       const { error } = await sb.storage.from(FILE_BUCKET).upload(path, blob, { contentType: 'application/pdf' });
       if (!error) await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: v.projectId, visitId: v.id, itemId: null, kind: 'pdf', mime: 'application/pdf', size: blob.size, width: null, height: null, caption: name, takenAt: null, uploadedBy: me()?.id || null });
     } catch (e) { console.warn('pdf archive', e); }
@@ -3299,17 +3431,35 @@ async function fieldAction(a, ds, t, e) {
   switch (a) {
     case 'new-visit': {
       if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; }
-      const id = await newVisit(ds.project, ds.kind || 'site'); if (id) openDrawer('visit', id); return true;
+      const id = await newVisit(ds.project || null, ds.kind || 'site', { venue: ds.venue }); if (id) openDrawer('visit', id); return true;
     }
-    case 'new-visit-pick': {
+    case 'new-visit-pick': { // which project? a meeting may also be general (no project)
       if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; }
       e.stopPropagation();
-      openMenu(t, { search: true, placeholder: 'לאיזה פרויקט?', items: activeProjects().sort(byName).map((p) => ({ label: p.name, sub: [p.number, p.city].filter(Boolean).join(' · '), value: p.id })), onPick: async (it) => { const id = await newVisit(it.value, ds.kind || 'site'); if (id) openDrawer('visit', id); } });
+      const kind = ds.kind || 'site';
+      const projects = activeProjects().filter((p) => !isReduced(p)).sort(byName).map((p) => ({ label: p.name, sub: [p.number, p.city].filter(Boolean).join(' · '), value: p.id }));
+      const items = kind === 'meeting' ? [{ label: 'פגישה כללית', sub: 'ללא פרויקט — פגישת משרד, ספק, מועמד…', value: '' }, ...projects] : projects;
+      openMenu(t, { search: true, placeholder: kind === 'meeting' ? 'באיזה הקשר?' : 'לאיזה פרויקט?', items, onPick: async (it) => { const id = await newVisit(it.value || null, kind, { venue: ds.venue }); if (id) openDrawer('visit', id); } });
+      return true;
+    }
+    case 'visit-venue': { if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } const v = S.site_visits[ds.id]; if (!v || v.status === 'final') return true; patchDoc('site_visits', ds.id, { venue: VENUES[ds.value] ? ds.value : 'office' }); return true; }
+    case 'visit-project': { // attach a meeting to a project (or move it); its number follows the new project's meetings
+      e.stopPropagation(); if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; }
+      const v = S.site_visits[ds.id]; if (!v || v.kind !== 'meeting' || v.status === 'final') return true;
+      const projects = activeProjects().filter((p) => !isReduced(p) && p.id !== v.projectId).sort(byName).map((p) => ({ label: p.name, sub: [p.number, p.city].filter(Boolean).join(' · '), value: p.id }));
+      const items = v.projectId ? [{ label: 'פגישה כללית', sub: 'ללא פרויקט', value: '' }, ...projects] : projects;
+      openMenu(t, { search: true, placeholder: 'לאיזה פרויקט?', items, onPick: (it) => { const pid = it.value || null; const seq = Math.max(0, ...visitsOf(pid, 'meeting').map((x) => x.seq || 0)) + 1; patchDoc('site_visits', ds.id, { projectId: pid, seq }); toast(pid ? 'הפגישה שויכה לפרויקט' : 'הפגישה הפכה לכללית'); } });
       return true;
     }
     case 'open-visit': { openDrawer('visit', ds.id); if (ds.item) setTimeout(() => document.getElementById('vi-' + ds.item)?.scrollIntoView({ block: 'center' }), 60); return true; }
     case 'visit-status': { if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } patchDoc('site_visits', ds.id, { status: ds.value, finalizedAt: ds.value === 'final' ? nowIso() : null }); if (ds.value === 'final') toast('הדוח סומן כסופי'); return true; }
-    case 'delete-visit': { const v = S.site_visits[ds.id]; if (!v) return true; const its = itemsOf(ds.id), fls = filesOf({ visitId: ds.id }); fls.forEach((f) => deleteDoc('files', f.id)); its.forEach((it) => deleteDoc('visit_items', it.id)); await deleteDoc('site_visits', ds.id); closeDrawer(true); toast('הביקור נמחק'); return true; }
+    case 'delete-visit': { // irreversible → confirmButton asks once ("כן, מחק / בטל") before the document and everything in it go
+      const v = S.site_visits[ds.id]; if (!v) return true;
+      if (!(isManager() || v.authorId === me()?.id)) { toast('מחיקה: מי שערך את המסמך, או מנהל/ת'); return true; }
+      const key = 'delete-visit' + `data-id="${ds.id}"`;
+      if (!ds.confirmed) { S.ui.confirm = key; render(); return true; }
+      S.ui.confirm = null;
+      const its = itemsOf(ds.id), fls = filesOf({ visitId: ds.id }); fls.forEach((f) => deleteDoc('files', f.id)); its.forEach((it) => deleteDoc('visit_items', it.id)); await deleteDoc('site_visits', ds.id); closeDrawer(true); toast(v.kind === 'meeting' ? 'הסיכום נמחק' : 'הביקור נמחק'); return true; }
     case 'vi-add': {
       if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; }
       const inp = document.getElementById('vi-add-' + ds.id); const body = (inp?.value || '').trim(); const kind = document.getElementById('vi-kind-' + ds.id)?.value;
@@ -3330,8 +3480,8 @@ async function fieldAction(a, ds, t, e) {
     }
     case 'file-open': { e.stopPropagation(); const f = S.files[ds.id]; if (!f) return true; const url = fileUrl(f); if (!url) { toast('טוען את הקובץ…'); return true; } if (f.kind === 'image') { S.ui.lightbox = ds.id; render(); } else window.open(url, '_blank', 'noopener'); return true; }
     case 'lightbox-close': S.ui.lightbox = null; render(); return true;
-    case 'open-report': { S.ui.reportId = ds.id; S.ui.returnDrawer = S.ui.drawer; S.ui.drawer = null; nav('report'); return true; }
-    case 'report-back': { const back = S.ui.returnDrawer; S.ui.returnDrawer = null; S.ui.view = 'field'; if (back) S.ui.drawer = back; try { history.replaceState(null, '', '#field'); } catch (err) { /* ignore */ } render(); return true; }
+    case 'open-report': { S.ui.reportId = ds.id; S.ui.returnDrawer = S.ui.drawer; S.ui.returnView = ['project', 'meetings', 'overview', 'tasks'].includes(S.ui.view) ? S.ui.view : 'field'; S.ui.drawer = null; nav('report'); return true; }
+    case 'report-back': { const back = S.ui.returnDrawer; S.ui.returnDrawer = null; S.ui.view = S.ui.returnView || 'field'; if (back) S.ui.drawer = back; try { history.replaceState(null, '', S.ui.view === 'project' ? '#project/' + S.ui.pageId : '#' + S.ui.view); } catch (err) { /* ignore */ } render(); return true; }
     case 'report-print': window.print(); return true;
     case 'rec-start': if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } await startRecording(ds.id); return true;
     case 'rec-stop': stopRecording(); return true;
@@ -3531,7 +3681,7 @@ function drawerRequest(id) {
       ${field(r.kind === 'meeting' ? 'מתי נקבע / הערה' : 'הערה (לא חובה)', `<input type="text" id="rq-decision-note" placeholder="${r.kind === 'meeting' ? 'למשל: יום ג׳ 14.10 בשעה 10:00 אצל הלקוח' : 'למשל: לתאם עם…'}">`)}
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-action="req-approve" data-id="${r.id}" data-note="1">${r.kind === 'meeting' ? 'נקבע' : 'אשר'}</button><button class="btn" data-action="req-reject" data-id="${r.id}" data-note="1">${r.kind === 'meeting' ? 'לא ניתן לקבוע' : 'דחה'}</button></div></div>` : ''}
   </div>
-  <div class="drawer-foot"><span class="inline-note">${r.handledAt ? `טופל ${fmtDateTime(r.handledAt)} · ${esc(uname(r.handledBy))}` : ''}</span>${mine && r.status === 'open' ? `<button class="btn small" data-action="req-cancel" data-id="${r.id}">בטל את הבקשה</button>` : ''}</div>`;
+  <div class="drawer-foot"><span class="inline-note">${r.handledAt ? `טופל ${fmtDateTime(r.handledAt)} · ${esc(uname(r.handledBy))}` : ''}</span><span style="display:inline-flex;gap:6px">${r.kind === 'meeting' && r.status === 'done' && canWriteField() ? `<button class="btn small" data-action="meeting-from-request" data-id="${r.id}" title="פותח סיכום פגישה עם הנושא, התאריך והפרויקט">${ICON.doc} סיכום הפגישה</button>` : ''}${mine && r.status === 'open' ? `<button class="btn small" data-action="req-cancel" data-id="${r.id}">בטל את הבקשה</button>` : ''}</span></div>`;
 }
 /* ===================== files: task attachments, the project's current presentation, issued plan sets ===================== */
 /* A plan set (סט תוכניות) is a row in plan_sets — running number, status, issue date, note — and its files are files.set_id.
@@ -3686,7 +3836,6 @@ function filesMenu(kind, id, anchor) {
 }
 async function filesAction(a, ds, t, e) {
   switch (a) {
-    case 'goto-files': { e.stopPropagation(); if (S.ui.drawer?.kind !== 'project' || S.ui.drawer.id !== ds.id) openDrawer('project', ds.id); setTimeout(() => document.getElementById('files-section')?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 80); return true; }
     case 'files-toggle': S.ui.filesOpen[ds.key] = !S.ui.filesOpen[ds.key]; render(); return true;
     case 'set-toggle': { e.stopPropagation(); const s = S.plan_sets[ds.id]; if (!s) return true; const latest = latestSet(s.projectId); const key = ds.id; const cur = key in S.ui.setOpen ? S.ui.setOpen[key] : (latest && latest.id === key); S.ui.setOpen[key] = !cur; render(); return true; }
     case 'set-new': {
@@ -3707,13 +3856,669 @@ async function filesAction(a, ds, t, e) {
     default: return false;
   }
 }
+/* ===================== the project page — the project's home ===================== */
+/* Clicking a project opens this page (view 'project', hash #project/<id>). The quick-edit drawer keeps the same sections in one column.
+   The page adds: quick access (presentation, latest set, renderings, site photos), the full field list, the materials board,
+   the renderings gallery and the site photos — and, once a project reaches handover, the photoshoot & publication card. */
+Object.assign(S.ui, { pageId: null, photoFilter: '', fieldFilter: '' });
+ICON.image = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="4" width="14" height="12"/><path d="M3 14l4-4 3 3 3-4 4 5"/><circle cx="13" cy="8" r="1.3" fill="currentColor" stroke="none"/></svg>';
+const renderingsOf = (pid) => FL().filter((f) => f.projectId === pid && f.slot === 'render').sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+const sitePhotosOf = (pid) => FL().filter((f) => f.projectId === pid && f.kind === 'image' && (f.slot === 'site' || (f.visitId && S.site_visits[f.visitId]?.kind === 'site'))).sort((a, b) => (photoDate(b) || '').localeCompare(photoDate(a) || ''));
+const photoDate = (f) => (f.visitId && S.site_visits[f.visitId]?.visitDate) || (f.takenAt || f.createdAt || '').slice(0, 10);
+const isOnPage = (pid) => S.ui.view === 'project' && S.ui.pageId === pid;
+
+function openProjectPage(id) {
+  if (!S.projects[id]) { toast('הפרויקט לא נמצא'); return; }
+  if (S.ui.drawer) { closeDrawer(); if (S.ui.confirmClose) return; }
+  S.ui.pageId = id; S.ui.view = 'project'; S.ui.menu = null;
+  try { history.replaceState(null, '', '#project/' + id); } catch (e) { /* ignore */ }
+  window.scrollTo({ top: 0 });
+  render();
+}
+/* scroll a section of the project into view — inside the drawer when it is open, otherwise on the page (opened if needed) */
+function showProjectSection(pid, sectionId) {
+  const inDrawer = S.ui.drawer?.kind === 'project' && S.ui.drawer.id === pid;
+  if (!inDrawer && !isOnPage(pid)) openProjectPage(pid);
+  setTimeout(() => document.getElementById(sectionId)?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 80);
+}
+
+/* ---------- galleries ---------- */
+function galleryTile(f, opts = {}) {
+  const url = fileUrl(f);
+  const armed = S.ui.confirm === 'file:' + f.id;
+  const del = !canDeleteFile(f) ? '' : armed
+    ? `<span class="ph-confirm"><button type="button" class="btn small danger" data-action="file-del" data-id="${f.id}" data-confirmed="1">מחק</button><button type="button" class="btn small" data-action="cancel-confirm">בטל</button></span>`
+    : `<button type="button" class="ph-del" data-action="file-del" data-id="${f.id}" title="מחק">${ICON.x}</button>`;
+  const inner = f.kind === 'image' ? (url ? `<img src="${esc(url)}" alt="${esc(f.caption || '')}" loading="lazy">` : '<span class="ph-wait">…</span>') : `<span class="ph-file">${ICON.doc}<small>${esc(fileExt(f))}</small></span>`;
+  return `<figure class="ph gal ${armed ? 'armed' : ''}" data-action="file-open" data-id="${f.id}" title="${esc(f.caption || '')}">${inner}${opts.caption ? `<figcaption>${esc(opts.caption)}</figcaption>` : ''}${del}</figure>`;
+}
+function rendersSection(p) {
+  const files = renderingsOf(p.id);
+  const imgs = files.filter((f) => f.kind === 'image'), docs = files.filter((f) => f.kind !== 'image');
+  return `<div class="section" id="renders-section">
+    <h3 class="section-title">הדמיות <small>${files.length ? files.length : ''}</small></h3>
+    ${imgs.length ? `<div class="gallery">${imgs.map((f) => galleryTile(f)).join('')}</div>` : ''}
+    ${docs.length ? `<div class="file-list">${docs.map((f) => fileRow(f)).join('')}</div>` : ''}
+    ${!files.length ? '<div class="inline-note">עדיין אין הדמיות — העלו תמונות (או PDF) והן יהיו זמינות מכאן תמיד.</div>' : ''}
+    <div class="add-row">${uploadControl({ projectId: p.id, slot: 'render' }, { label: 'העלה הדמיות', primary: !files.length, accept: 'image/*,.pdf' })}</div>
+  </div>`;
+}
+function sitePhotosSection(p) {
+  const all = sitePhotosOf(p.id);
+  const dates = [...new Set(all.map(photoDate))];
+  const groups = dates.map((d) => ({ d, files: all.filter((f) => photoDate(f) === d) }));
+  const shown = S.ui.photoFilter === 'all' ? groups : groups.slice(0, 3);
+  const visitOf = (f) => (f.visitId ? S.site_visits[f.visitId] : null);
+  return `<div class="section" id="photos-section">
+    <h3 class="section-title">צילומים מהאתר <small>${all.length ? `${all.length} תמונות · ${dates.length} ימים` : ''}</small></h3>
+    ${shown.map((g) => { const v = visitOf(g.files[0]); return `<div class="photo-day"><div class="photo-day-head"><span>${esc(fmtDate(g.d))}</span>${v ? `<a href="#" data-action="open-visit" data-id="${v.id}">${esc(visitTitle(v))}</a>` : '<span class="muted">העלאה ישירה</span>'}<small>${g.files.length}</small></div><div class="gallery">${g.files.map((f) => galleryTile(f)).join('')}</div></div>`; }).join('')}
+    ${groups.length > shown.length ? `<button type="button" class="btn small ghost" data-action="photos-all">הצג את כל ${dates.length} הימים</button>` : ''}
+    ${!all.length ? '<div class="inline-note">תמונות מביקורי האתר מופיעות כאן לבד; אפשר גם לצלם ישירות.</div>' : ''}
+    <div class="add-row">${uploadControl({ projectId: p.id, slot: 'site' }, { label: 'העלה צילומים', camera: true, accept: 'image/*' })}</div>
+  </div>`;
+}
+/* the project's meetings: every summary, with a venue filter when there are many (office / zoom / site / client) */
+function projectMeetingsSection(p) {
+  const all = visitsOf(p.id, 'meeting');
+  const f = S.ui.fieldFilter; // reused as the venue filter of the page
+  const vs = f ? all.filter((v) => venueOf(v) === f) : all;
+  const counts = {}; all.forEach((v) => { counts[venueOf(v)] = (counts[venueOf(v)] || 0) + 1; });
+  const open = VI().filter((it) => isOpenItem(it) && all.some((v) => v.id === it.visitId)).length;
+  return `<div class="section" id="meetings-section">
+    <h3 class="section-title">פגישות <small>${all.length ? `${all.length} סיכומים${open ? ` · ${open} החלטות ומשימות פתוחות` : ''}` : ''}</small></h3>
+    ${all.length > 3 ? `<div class="chips" style="margin-bottom:8px">${[['', 'הכל'], ...Object.entries(VENUES).filter(([k]) => counts[k]).map(([k, m]) => [k, `${m.label} ${counts[k]}`])].map(([k, l]) => `<span class="chip btn-chip ${f === k ? 'accent' : ''}" data-action="field-filter" data-value="${k}" role="button" tabindex="0">${l}</span>`).join('')}</div>` : ''}
+    ${vs.length ? vs.map((v) => visitItem(v, { hideProject: true })).join('') : '<div class="inline-note">עדיין אין סיכומי פגישה לפרויקט. סיכום קצר אחרי כל פגישה — במשרד, בזום או אצל הלקוח — שומר את ההחלטות במקום אחד.</div>'}
+    ${canWriteField() ? `<div class="add-row" style="margin-top:8px;flex-wrap:wrap"><button class="btn small" data-action="new-visit" data-project="${p.id}" data-kind="meeting">${ICON.doc} סיכום פגישה</button><button class="btn small ghost" data-action="new-visit" data-project="${p.id}" data-kind="meeting" data-venue="zoom">פגישת זום</button></div>` : ''}
+  </div>`;
+}
+/* the project's site visits: inspection reports */
+function projectFieldSection(p) {
+  const vs = visitsOf(p.id, 'site');
+  const open = VI().filter((it) => isOpenItem(it) && vs.some((v) => v.id === it.visitId)).length;
+  return `<div class="section" id="field-section">
+    <h3 class="section-title">פיקוח: ביקורי אתר ודוחות <small>${vs.length ? `${vs.length} דוחות${open ? ` · ${open} ליקויים פתוחים` : ''}` : ''}</small></h3>
+    ${vs.length ? vs.map((v) => visitItem(v, { hideProject: true })).join('') : '<div class="inline-note">עדיין אין ביקורים באתר. ביקור חדש פותח דוח פיקוח עם ממצאים, תמונות והנחיות.</div>'}
+    ${canWriteField() ? `<div class="add-row" style="margin-top:8px"><button class="btn small" data-action="new-visit" data-project="${p.id}" data-kind="site">${ICON.pin} ביקור באתר</button></div>` : ''}
+  </div>`;
+}
+
+/* ---------- the page ---------- */
+function projectQuickAccess(p) {
+  const pres = presentationsOf(p.id)[0]; const set = latestSet(p.id); const renders = renderingsOf(p.id).length; const photos = sitePhotosOf(p.id).length; const visits = visitsOf(p.id, 'site').length; const meets = visitsOf(p.id, 'meeting').length; const mats = typeof materialsOf === 'function' ? materialsOf(p.id).length : 0;
+  const chip = (label, attrs, cls = '') => `<span class="chip btn-chip qa ${cls}" ${attrs} role="button" tabindex="0">${label}</span>`;
+  return `<div class="pp-quick">
+    ${pres ? chip(`${ICON.doc} פרזנטציה <small>${esc(fmtDate(pres.createdAt))}</small>`, `data-action="file-open" data-id="${pres.id}" title="${esc(fileName(pres))} — לחיצה פותחת"`, 'accent') : chip(`${ICON.doc} אין פרזנטציה`, `data-action="scroll-to" data-target="files-section"`, 'dim')}
+    ${set ? `<span class="qa">${latestSetChip(p)}</span>` : chip('אין סט תוכניות', `data-action="scroll-to" data-target="files-section"`, 'dim')}
+    ${chip(`${ICON.image} הדמיות <small>${renders}</small>`, `data-action="scroll-to" data-target="renders-section"`, renders ? '' : 'dim')}
+    ${chip(`${ICON.camera} צילומים <small>${photos}</small>`, `data-action="scroll-to" data-target="photos-section"`, photos ? '' : 'dim')}
+    ${chip(`${ICON.doc} פגישות <small>${meets}</small>`, `data-action="scroll-to" data-target="meetings-section"`, meets ? '' : 'dim')}
+    ${chip(`${ICON.pin} פיקוח <small>${visits}</small>`, `data-action="scroll-to" data-target="field-section"`, visits ? '' : 'dim')}
+    ${chip(`לוח חומרים <small>${mats}</small>`, `data-action="scroll-to" data-target="materials-section"`, mats ? '' : 'dim')}
+  </div>`;
+}
+function renderProjectPage() {
+  const p = S.projects[S.ui.pageId];
+  if (!p) return `<div class="view-head"><div><h1 class="view-title">הפרויקט לא נמצא</h1><div class="view-sub">אולי נמחק, או שהקישור ישן.</div></div><div class="view-actions"><button class="btn" data-action="nav" data-view="projects">לרשימת הפרויקטים</button></div></div>`;
+  if (isReduced(p)) return `
+  <div class="pp-head">
+    <a href="#projects" class="pp-back" data-action="nav" data-view="projects">${ICON.back} כל הפרויקטים</a>
+    <div class="pp-title-row">
+      <div class="pp-title"><h1 class="view-title">${esc(p.name)}</h1>${nameEn(p) ? `<div class="pp-en">${nameEnHtml(p, true)}</div>` : ''}<div class="view-sub">${projectSubline(p)}</div></div>
+      <div class="pp-side-head"><span class="tag internal" title="הפרויקט אינו משותף איתך">מידע מצומצם</span></div>
+    </div>
+  </div>
+  <div class="panel pp-reduced">${reducedProjectBody(p)}</div>`;
+  ensureMilestonesLoaded(p);
+  const ro = !canEditProject(p);
+  const jump = [['status-section', 'סטטוס'], ['journey', 'שלבים'], ['tasks-section', 'משימות'], ['meetings-section', 'פגישות'], ['field-section', 'פיקוח'], ['materials-section', 'חומרים'], ['renders-section', 'הדמיות'], ['photos-section', 'צילומים'], ['files-section', 'קבצים'], ['team-section', 'צוות'], ['details-section', 'פרטים']];
+  return `
+  <div class="pp-head">
+    <a href="#projects" class="pp-back" data-action="nav" data-view="projects">${ICON.back} כל הפרויקטים</a>
+    <div class="pp-title-row">
+      <div class="pp-title">
+        <h1 class="view-title">${ro ? esc(p.name) : `<input type="text" id="p-name" value="${esc(S.ui.drafts['p-name'] ?? p.name)}" data-bind="projects:${p.id}:name" aria-label="שם הפרויקט">`}</h1>
+        ${nameEn(p) ? `<div class="pp-en">${nameEnHtml(p, true)}</div>` : ''}
+        <div class="view-sub">${projectSubline(p)}</div>
+      </div>
+      <div class="pp-side-head">${healthChip(p.health, { cls: 'btn-chip', attrs: `data-action="menu" data-menu="health" data-id="${p.id}" role="button" tabindex="0"` })}${p.state !== 'active' ? `<span class="tag internal">${STATES[p.state]}</span>` : ''}</div>
+    </div>
+    ${projectQuickAccess(p)}
+    <nav class="pp-jump" aria-label="קפיצה לסעיף">${jump.map(([id, l]) => `<a href="#" data-action="scroll-to" data-target="${id}">${l}</a>`).join('')}</nav>
+  </div>
+  <div class="pp-grid">
+    <div class="pp-main panel">
+      ${typeof shootCard === 'function' ? shootCard(p) : ''}
+      ${journeyStrip(p)}
+      ${projectStatusBox(p)}
+      ${journeySection(p)}
+      ${subProjectsSection(p)}
+      <div id="tasks-section">${projectTasksSection(p)}</div>
+      ${projectMeetingsSection(p)}
+      ${projectFieldSection(p)}
+      ${typeof materialsBoard === 'function' ? materialsBoard(p) : ''}
+      ${rendersSection(p)}
+      ${sitePhotosSection(p)}
+      ${projectFilesSection(p)}
+    </div>
+    <aside class="pp-side panel">
+      ${projectTeamSection(p)}
+      ${projectExternalSection(p)}
+      ${projectCommissionsSection(p)}
+      ${projectDetailsSection(p)}
+      ${projectNotesSection(p)}
+      ${sharesSection(p)}
+      <div class="section pp-foot">${projectFoot(p)}</div>
+    </aside>
+  </div>`;
+}
+
+/* ---------- need-to-know: the reduced view and sharing ---------- */
+function reducedProjectBody(p) {
+  const people = [...new Set([p.leadId, ...(p.memberIds || [])].filter(Boolean))];
+  const row = (l, v) => (v ? `<div class="role-row"><div class="role-name">${l}</div><div class="role-body">${v}</div></div>` : '');
+  const chip = (id) => `<button type="button" class="chip" data-action="open-contact" data-id="${id}">${esc(cname(id, '—'))}</button>`;
+  const leadName = cname(p.leadId, '') || cname(teamLeadId(p.teamId), '');
+  return `<div class="section">
+      <div class="status-box">
+        <div class="field-row" style="margin-bottom:6px">
+          <div class="field"><label>שלב נוכחי</label><div style="padding-top:5px">${stageChip(p)}</div></div>
+          <div class="field"><label>רמזור</label><div style="padding-top:5px">${healthChip(p.health)}</div></div>
+          <div class="field"><label>מצב</label><div style="padding-top:5px"><span class="chip ${p.state === 'active' ? 'green' : 'dim'}">${esc(STATES[p.state] || p.state || '')}</span></div></div>
+        </div>
+        <span class="status-meta">${p.statusUpdatedAt ? `הסטטוס עודכן ${esc(fmtDate(p.statusUpdatedAt))}` : 'הסטטוס עדיין לא עודכן'}</span>
+      </div>
+    </div>
+    <div class="section">
+      <h3 class="section-title">פרטים</h3>
+      ${row('לקוח', p.clientId ? chip(p.clientId) : '')}
+      ${row('אנשי קשר אצל הלקוח', (p.clientPersonIds || []).map(chip).join(' '))}
+      ${row('כתובת', esc([p.address, p.city].filter(Boolean).join(', ')))}
+      ${row('סוג', esc([p.type, p.typeDetail].filter(Boolean).join(' · ')))}
+      ${row('צוות', esc(tname(p.teamId, '')))}
+      ${row('מהמשרד', people.map(chip).join(' '))}
+      ${row('ניהול פרויקט', p.pmId ? chip(p.pmId) : '')}
+    </div>
+    <div class="section"><div class="inline-note">מידע מצומצם — הפרויקט אינו משותף איתך. כדי לראות משימות, קבצים, שלבים ודוחות, בקשו מ${esc(leadName || 'ראש/ת הצוות')} להוסיף אותך לפרויקט או לשתף אותו.</div></div>`;
+}
+const sharesOf = (pid) => list('project_shares').filter((s) => s.projectId === pid);
+const canShare = (p) => !!p && !isReduced(p) && (isManager() || myRole() === 'team_lead' || (!!p.leadId && p.leadId === myContactId()));
+function sharesSection(p) {
+  if (isReduced(p) || !isMember()) return '';
+  const shares = sharesOf(p.id);
+  const chips = shares.map((s) => `<span class="chip accent">${s.userId ? esc(uname(s.userId)) : esc(tname(s.teamId, 'צוות'))}${canShare(p) ? `<button class="x" data-action="share-remove" data-id="${s.id}" title="הסר">${ICON.x}</button>` : ''}</span>`).join('');
+  return `<div class="section" id="share-section">
+    <h3 class="section-title">שיתוף <small>מי רואה מעבר לצוות</small></h3>
+    <div class="chips">${chips}${canShare(p) ? `<button class="btn small ghost" data-action="share-add" data-id="${p.id}">${ICON.plus} שתף עם…</button>` : ''}</div>
+    <div class="inline-note" style="margin-top:6px">רואים את הפרויקט במלואו: צוות הפרויקט, המוביל/ה, חברי הצוות המעורבים, מי שהוקצתה לו משימה בו, ומי ששותף כאן. כל השאר רואים מידע מצומצם.</div>
+  </div>`;
+}
+
+/* ---------- actions ---------- */
+async function projectAction(a, ds, t, e) {
+  switch (a) {
+    case 'open-project': openProjectPage(ds.id); return true;
+    case 'open-project-page': openProjectPage(ds.id); return true;
+    case 'scroll-to': { e.preventDefault(); const el = document.getElementById(ds.target); if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' }); return true; }
+    case 'photos-all': S.ui.photoFilter = 'all'; render(); return true;
+    case 'field-filter': S.ui.fieldFilter = ds.value || ''; render(); return true;
+    case 'goto-journey': showProjectSection(ds.id, 'journey'); return true;
+    case 'share-add': {
+      e.stopPropagation(); const p = S.projects[ds.id]; if (!p || !canShare(p)) { toast('שיתוף: מנהלים, ראשי צוותים ומוביל/ת הפרויקט'); return true; }
+      const have = sharesOf(p.id);
+      const teams = T().filter((tm) => tm.id !== p.teamId && !have.some((s) => s.teamId === tm.id)).map((tm) => ({ label: tm.name, sub: 'צוות', value: 'team:' + tm.id }));
+      const users = activeUsers().filter((u) => !have.some((s) => s.userId === u.id) && !['owner', 'manager'].includes(u.role)).map((u) => ({ label: uname(u.id), sub: ROLE_LABELS[u.role] || '', value: 'user:' + u.id }));
+      openMenu(t, { search: true, placeholder: 'לשתף עם צוות או אדם…', items: [...teams, ...users], onPick: (it) => { const [kind, id] = it.value.split(':'); createDoc('project_shares', uid('shr'), { projectId: p.id, userId: kind === 'user' ? id : null, teamId: kind === 'team' ? id : null, createdBy: me()?.id || null }); } });
+      return true;
+    }
+    case 'share-remove': { const s = S.project_shares[ds.id]; if (!s) return true; const p = S.projects[s.projectId]; if (!canShare(p)) { toast('אין לך הרשאת עריכה'); return true; } await deleteDoc('project_shares', s.id); return true; }
+    case 'goto-files': showProjectSection(ds.id, 'files-section'); return true;
+    default: return false;
+  }
+}
+/* ===================== materials board (לוח חומרים) ===================== */
+/* One card per material: photos, description, area / room, supplier from the contacts, quote (price, note, files) and a status.
+   Every member adds and edits; prices are visible to everyone (decided 30.9); deleting: whoever added it, team leads, managers. */
+const MAT_STATUS = {
+  proposed: { label: 'מוצע', cls: 'dim' },
+  approved: { label: 'אושר', cls: 'green' },
+  ordered: { label: 'הוזמן', cls: 'accent' },
+  rejected: { label: 'נפסל', cls: 'red' },
+};
+const MAT_ORDER = ['proposed', 'approved', 'ordered', 'rejected'];
+S.materials = {};
+Object.assign(S.ui, { matFilter: '' });
+const MT = () => list('materials');
+const materialsOf = (pid) => MT().filter((m) => m.projectId === pid).sort((a, b) => (a.area || '').localeCompare(b.area || '', 'he') || (Number(a.sortIndex) || 0) - (Number(b.sortIndex) || 0) || (a.createdAt || '').localeCompare(b.createdAt || ''));
+const materialPhotos = (mid) => filesOf({ materialId: mid, kind: 'image' });
+const materialDocs = (mid) => FL().filter((f) => f.materialId === mid && f.kind !== 'image');
+const materialCover = (m) => materialPhotos(m.id)[0] || null;
+const canDeleteMaterial = (m) => !!m && isMember() && (isManager() || myRole() === 'team_lead' || m.createdBy === me()?.id);
+const matAreas = (pid) => [...new Set(materialsOf(pid).map((m) => (m.area || '').trim()).filter(Boolean))];
+
+function matStatusChip(m, edit) {
+  const st = MAT_STATUS[m.status] || MAT_STATUS.proposed;
+  return `<span class="chip ${st.cls} ${edit && isMember() ? 'btn-chip' : ''}" ${edit && isMember() ? `data-action="menu" data-menu="matstatus" data-id="${m.id}" role="button" tabindex="0" title="לחיצה משנה"` : ''}>${st.label}</span>`;
+}
+function materialCard(m) {
+  const cover = materialCover(m); const url = cover ? fileUrl(cover) : '';
+  const n = materialPhotos(m.id).length;
+  return `<div class="mat-card ${m.status}" data-action="open-material" data-id="${m.id}">
+    <div class="mat-img">${url ? `<img src="${esc(url)}" alt="" loading="lazy">` : `<span class="mat-noimg">${ICON.image}</span>`}${n > 1 ? `<span class="mat-count">${n}</span>` : ''}</div>
+    <div class="mat-body">
+      <div class="mat-title">${esc(m.title || 'ללא שם')}</div>
+      <div class="mat-sub">${esc([m.area, cname(m.supplierId, '')].filter(Boolean).join(' · '))}</div>
+      <div class="mat-foot">${matStatusChip(m, true)}${m.price != null && m.price !== '' ? `<span class="mat-price">${fmtMoney(m.price)}</span>` : ''}</div>
+    </div>
+  </div>`;
+}
+function materialsBoard(p) {
+  const all = materialsOf(p.id);
+  const f = S.ui.matFilter;
+  const items = f ? all.filter((m) => m.status === f) : all;
+  const counts = {}; all.forEach((m) => { counts[m.status] = (counts[m.status] || 0) + 1; });
+  const total = all.reduce((s, m) => s + (Number(m.price) || 0), 0);
+  return `<div class="section" id="materials-section">
+    <h3 class="section-title">לוח חומרים <small>${all.length ? `${all.length} פריטים${total ? ' · ' + fmtMoney(total) : ''}` : ''}</small></h3>
+    ${all.length > 2 ? `<div class="chips" style="margin-bottom:8px"><span class="chip btn-chip ${!f ? 'accent' : ''}" data-action="mat-filter" data-value="" role="button" tabindex="0">הכל <small>${all.length}</small></span>${MAT_ORDER.filter((k) => counts[k]).map((k) => `<span class="chip btn-chip ${f === k ? 'accent' : ''}" data-action="mat-filter" data-value="${k}" role="button" tabindex="0">${MAT_STATUS[k].label} <small>${counts[k]}</small></span>`).join('')}</div>` : ''}
+    ${items.length ? `<div class="mat-grid">${items.map(materialCard).join('')}</div>` : `<div class="inline-note">${all.length ? 'אין פריטים במצב הזה.' : 'עדיין אין חומרים על הלוח — תמונה, תיאור, ספק והצעת מחיר לכל פריט.'}</div>`}
+    ${isMember() ? `<div class="add-row" style="margin-top:10px"><button type="button" class="btn small ${all.length ? '' : 'primary'}" data-action="mat-new" data-id="${p.id}">${ICON.plus} חומר חדש</button></div>` : ''}
+  </div>`;
+}
+function drawerMaterial(id) {
+  const m = S.materials[id];
+  if (!m) return `<div class="drawer-head"><h2 class="drawer-title">הפריט נמחק</h2><button class="icon-btn" data-action="close-drawer">${ICON.x}</button></div>`;
+  const p = S.projects[m.projectId];
+  const ro = !isMember();
+  const docs = materialDocs(m.id);
+  return `
+  <div class="drawer-head">
+    <div style="flex:1;min-width:0">
+      <h2 class="drawer-title"><input type="text" id="m-title" value="${esc(S.ui.drafts['m-title'] ?? m.title)}" data-bind="materials:${m.id}:title" placeholder="שם החומר / המוצר" aria-label="שם" ${ro ? 'disabled' : ''}></h2>
+      <div class="drawer-sub">${p ? `<a href="#" data-action="open-project" data-id="${p.id}" style="color:inherit">${esc(p.name)}</a> · ` : ''}לוח חומרים</div>
+    </div>
+    <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
+  </div>
+  <div class="drawer-body">
+    <div class="section">
+      <div class="status-row">${MAT_ORDER.map((k) => `<span class="chip ${MAT_STATUS[k].cls} ${m.status === k ? 'on' : ''}" ${ro ? '' : `data-action="mat-status" data-id="${m.id}" data-value="${k}" role="button" tabindex="0"`}>${MAT_STATUS[k].label}</span>`).join('')}</div>
+      <div class="field"><label>תמונות</label>${photoStrip({ materialId: m.id, kind: 'image' }, { projectId: m.projectId, materialId: m.id })}</div>
+      <div class="field-row">
+        ${field('אזור / חדר', textInput('m-area', m.area, `data-bind="materials:${m.id}:area" list="dl-areas" placeholder="סלון, מטבח, חזית…" ${ro ? 'disabled' : ''}`))}
+        ${field('ספק', `<div style="padding-top:4px">${pickerChips(m, { field: 'supplierId', single: true, type: 'supplier' }, 'materials')}</div>`)}
+      </div>
+      ${field('תיאור', textArea('m-description', m.description, `rows="3" data-bind="materials:${m.id}:description" placeholder="דגם, מידות, גימור, כמות…" ${ro ? 'disabled' : ''}`))}
+    </div>
+    <div class="section">
+      <h3 class="section-title">הצעת מחיר</h3>
+      <div class="field-row">
+        ${field('מחיר (₪)', `<input type="number" id="m-price" min="0" step="1" value="${m.price ?? ''}" data-bind="materials:${m.id}:price" inputmode="decimal" ${ro ? 'disabled' : ''}>`)}
+        ${field('הערה', textInput('m-quoteNote', m.quoteNote, `data-bind="materials:${m.id}:quoteNote" placeholder="תוקף, תנאי תשלום, זמן אספקה" ${ro ? 'disabled' : ''}`))}
+      </div>
+      ${docs.length ? `<div class="file-list">${docs.map((f) => fileRow(f)).join('')}</div>` : ''}
+      <div class="add-row">${uploadControl({ projectId: m.projectId, materialId: m.id, slot: 'quote' }, { label: docs.length ? 'הוסף קובץ' : 'העלה הצעת מחיר', accept: '.pdf,image/*,.xlsx,.docx' })}</div>
+    </div>
+  </div>
+  <div class="drawer-foot">
+    <span class="inline-note">נוסף ע"י ${esc(uname(m.createdBy, '—'))} · ${fmtDate(m.createdAt)}</span>
+    ${canDeleteMaterial(m) ? confirmButton('mat-del', `data-id="${m.id}"`, 'מחק פריט') : ''}
+  </div>
+  <datalist id="dl-areas">${(p ? matAreas(p.id) : []).map((a) => `<option value="${esc(a)}">`).join('')}</datalist>`;
+}
+async function newMaterial(pid) {
+  if (!isMember()) { toast('אין לך הרשאת עריכה'); return null; }
+  const id = uid('m');
+  const sortIndex = Math.max(0, ...materialsOf(pid).map((m) => Number(m.sortIndex) || 0)) + 1;
+  const ok = await createDoc('materials', id, { projectId: pid, title: '', description: '', area: '', supplierId: null, price: null, quoteNote: '', status: 'proposed', sortIndex, createdBy: me()?.id || null });
+  return ok ? id : null;
+}
+function materialsMenu(kind, id, anchor) {
+  if (kind !== 'matstatus') return false;
+  if (!isMember()) { toast('אין לך הרשאת עריכה'); return true; }
+  const m = S.materials[id]; if (!m) return true;
+  openMenu(anchor, { items: MAT_ORDER.map((k) => ({ label: MAT_STATUS[k].label, value: k, selected: m.status === k })), onPick: (it) => patchDoc('materials', id, { status: it.value }) });
+  return true;
+}
+async function materialsAction(a, ds, t, e) {
+  switch (a) {
+    case 'open-material': openDrawer('material', ds.id); return true;
+    case 'mat-new': { const id = await newMaterial(ds.id); if (id) { openDrawer('material', id); setTimeout(() => document.getElementById('m-title')?.focus(), 40); } return true; }
+    case 'mat-status': { e.stopPropagation(); if (!isMember()) { toast('אין לך הרשאת עריכה'); return true; } patchDoc('materials', ds.id, { status: ds.value }); return true; }
+    case 'mat-filter': S.ui.matFilter = ds.value || ''; render(); return true;
+    case 'mat-del': {
+      const m = S.materials[ds.id]; if (!m) return true;
+      if (!canDeleteMaterial(m)) { toast('מחיקה: מי שהוסיף את הפריט, ראשי צוותים ומנהלים'); return true; }
+      const key = a + `data-id="${ds.id}"`;
+      if (!ds.confirmed) { S.ui.confirm = key; render(); return true; }
+      S.ui.confirm = null;
+      FL().filter((f) => f.materialId === m.id).forEach((f) => deleteFile(f.id));
+      await deleteDoc('materials', m.id); closeDrawer(true); toast('הפריט נמחק'); return true;
+    }
+    default: return false;
+  }
+}
+/* ===================== photoshoot & publication (צילום ופרסום) ===================== */
+/* When a project reaches handover a shoot opens by itself (a manager can open one by hand too): a card on the project page with the
+   steps of the office procedure as tasks — each assigned by office function (management, administration, PR, social, the project lead) —
+   the shoot date, photographer, stylist, the partners who join the shoot day, and (managers only) the money they put in. */
+const SHOOT_STATUS = {
+  open: { label: 'בהכנה', cls: 'yellow', hint: 'השלב נפתח — תיאומים בעבודה' },
+  scheduled: { label: 'נקבע מועד', cls: 'accent', hint: 'יום הצילום נקבע' },
+  shot: { label: 'צולם', cls: 'green', hint: 'הצילומים בוצעו — לבחירה ולפרסום' },
+  published: { label: 'פורסם', cls: 'green', hint: 'הפרויקט פורסם' },
+  cancelled: { label: 'בוטל', cls: 'dim', hint: 'לא מצלמים את הפרויקט הזה' },
+};
+const SHOOT_ORDER = ['open', 'scheduled', 'shot', 'published'];
+const SHOOT_FN = { managers: 'הנהלה', admin: 'אדמיניסטרציה', pr: 'יחסי ציבור', social: 'סושיאל', lead: 'מוביל/ת הפרויקט' };
+const DEFAULT_SHOOT_STEPS = [
+  { text: 'תיאום מועד הצילום עם בעלי הנכס / היזם / ניהול הפרויקט', fn: 'lead' },
+  { text: 'תיאום צלם/ת ומועד', fn: 'admin' },
+  { text: 'תיאום צוות הסושיאל ואנשי צוות נוספים ליום הצילום', fn: 'social' },
+  { text: 'סטיילינג לצילומים — סטייליסט/ית, אביזרים, פרחים', fn: 'pr' },
+  { text: 'גיוס שותפים למימון יום הצילום — קבלנים וספקים', fn: 'managers' },
+  { text: 'הפקת יום הצילום — לו"ז, נוכחים, גישה לנכס', fn: 'admin' },
+  { text: 'קבלת התמונות מהצלם/ת ובחירה', fn: 'pr' },
+  { text: 'אישור פרסום מבעלי הנכס / הלקוח', fn: 'pr' },
+  { text: 'פרסום ברשתות ובעיתונות', fn: 'social' },
+];
+const FUND_STATUS = { asked: { label: 'פנינו', cls: 'dim' }, agreed: { label: 'אישר', cls: 'yellow' }, paid: { label: 'שילם', cls: 'green' }, declined: { label: 'סירב', cls: 'red' } };
+S.shoots = {}; S.shoot_funding = {};
+const SH = () => list('shoots');
+const shootOf = (pid) => SH().find((s) => s.projectId === pid) || null;
+const shootTasks = (sid) => TK().filter((t) => t.shootId === sid).sort((a, b) => (Number(a.sortIndex) || 0) - (Number(b.sortIndex) || 0));
+const fundingOf = (sid) => list('shoot_funding').filter((f) => f.shootId === sid).sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
+const handoverStageId = () => settings().handoverStageId || 'handover';
+const shootSteps = () => { const s = settings().shootSteps; return Array.isArray(s) && s.length ? s : DEFAULT_SHOOT_STEPS; };
+const shootFns = () => Object.assign({ pr: [], social: [] }, settings().shootFunctions || {});
+/* who gets a step of a given function — the first user found; managers when nobody is set */
+function usersForFn(fn, p) {
+  const users = activeUsers();
+  const byRole = (roles) => users.filter((u) => roles.includes(u.role)).map((u) => u.id);
+  const managers = () => { const st = settings(); return st.partnerUserId && users.some((u) => u.id === st.partnerUserId) ? [st.partnerUserId] : byRole(['owner', 'manager']); };
+  const fns = shootFns();
+  if (fn === 'managers') return managers();
+  if (fn === 'admin') { const a = byRole(['admin']); return a.length ? a : managers(); }
+  if (fn === 'pr') { const a = (fns.pr || []).filter((id) => users.some((u) => u.id === id)); return a.length ? a : managers(); }
+  if (fn === 'social') { const a = (fns.social || []).filter((id) => users.some((u) => u.id === id)); return a.length ? a : usersForFn('pr', p); }
+  if (fn === 'lead') { const ids = [p?.leadId, teamLeadId(p?.teamId)].filter(Boolean); for (const cid of ids) { const u = users.find((x) => x.contactId === cid); if (u) return [u.id]; } return managers(); }
+  return managers();
+}
+async function ensureShoot(pid, opts = {}) {
+  const p = S.projects[pid]; if (!p || !isMember()) return null;
+  const have = shootOf(pid); if (have) return have.id;
+  const id = uid('sh');
+  const ok = await createDoc('shoots', id, { projectId: pid, status: 'open', openedAt: todayStr(), shootDate: null, shootDates: '', photographerId: null, stylistId: null, partnerIds: [], notes: '', createdBy: me()?.id || null });
+  if (!ok) return null;
+  const steps = shootSteps();
+  let i = 0;
+  for (const step of steps) {
+    const assignee = usersForFn(step.fn, p)[0] || null;
+    await newTask({ title: step.text, description: `צילום ופרסום · ${SHOOT_FN[step.fn] || ''}`, projectId: pid, assigneeId: assignee, shootId: id, sortIndex: ++i });
+  }
+  if (!opts.quiet) toast(`נפתח שלב צילום ופרסום ל«${p.name}» — ${steps.length} משימות חולקו`);
+  return id;
+}
+/* called by the stage flow: reaching (or finishing) the handover stage opens the shoot */
+function afterStageChange(p, stageId) {
+  if (stageId !== handoverStageId() || !isMember()) return;
+  if (!shootOf(p.id)) ensureShoot(p.id);
+}
+
+/* ---------- the card on the project page ---------- */
+function shootStatusChip(s, edit) {
+  const st = SHOOT_STATUS[s.status] || SHOOT_STATUS.open;
+  return `<span class="chip ${st.cls} ${edit && isMember() ? 'btn-chip' : ''}" ${edit && isMember() ? `data-action="menu" data-menu="shootstatus" data-id="${s.id}" role="button" tabindex="0" title="${esc(st.hint)} — לחיצה משנה"` : `title="${esc(st.hint)}"`}>${st.label}</span>`;
+}
+function shootCard(p) {
+  const s = shootOf(p.id);
+  if (!s) return isManager() ? `<div class="shoot-offer"><span class="inline-note">שלב הצילום והפרסום נפתח לבד כשהפרויקט מגיע ל«${esc(stageName(handoverStageId(), p))}».</span> <button type="button" class="btn small ghost" data-action="shoot-open" data-id="${p.id}">פתח עכשיו</button></div>` : '';
+  const tasks = shootTasks(s.id); const done = tasks.filter((t) => t.status === 'done').length;
+  const ro = !isMember();
+  const funding = isManager() ? fundingOf(s.id) : [];
+  const fundTotal = sum(funding.filter((f) => f.status !== 'declined'), (f) => f.amount);
+  const partnerPool = [...new Set([...(p.contractorIds || []), ...(p.supplierIds || []), ...(p.partnerIds || [])])];
+  return `<div class="section shoot-card ${s.status}" id="shoot-section">
+    <h3 class="section-title">צילום ופרסום <small>נפתח ${esc(fmtDate(s.openedAt))}${tasks.length ? ` · ${done} מתוך ${tasks.length} שלבים` : ''}</small></h3>
+    <div class="status-row">${SHOOT_ORDER.map((k) => `<span class="chip ${SHOOT_STATUS[k].cls} ${s.status === k ? 'on' : ''}" ${ro ? '' : `data-action="shoot-status" data-id="${s.id}" data-value="${k}" role="button" tabindex="0"`} title="${esc(SHOOT_STATUS[k].hint)}">${SHOOT_STATUS[k].label}</span>`).join('')}${s.status === 'cancelled' ? `<span class="chip dim on">בוטל</span>` : ''}</div>
+    <div class="field-row">
+      ${field('מועד הצילום', `<input type="date" id="sh-date" value="${dateInput(s.shootDate)}" data-bind="shoots:${s.id}:shootDate" ${ro ? 'disabled' : ''}>`)}
+      ${field('ימים / הערה למועד', textInput('sh-dates', s.shootDates, `data-bind="shoots:${s.id}:shootDates" placeholder="למשל: יומיים, 12–13.11, בוקר" ${ro ? 'disabled' : ''}`))}
+    </div>
+    <div class="field-row">
+      ${field('צלם/ת', `<div style="padding-top:4px">${pickerChips(s, { field: 'photographerId', single: true, type: 'partner' }, 'shoots')}</div>`)}
+      ${field('סטיילינג', `<div style="padding-top:4px">${pickerChips(s, { field: 'stylistId', single: true, type: 'partner' }, 'shoots')}</div>`)}
+    </div>
+    <div class="field"><label>שותפים ליום הצילום <small class="muted">קבלנים / ספקים שמצטרפים</small></label>
+      <div class="chips">${(s.partnerIds || []).map((id) => `<span class="chip ${contact(id) ? '' : 'dim'}"><a href="#" data-action="open-contact" data-id="${id}" style="color:inherit;text-decoration:none">${esc(cname(id, 'נמחק'))}</a>${ro ? '' : `<button class="x" data-action="pick-remove" data-col="shoots" data-doc="${s.id}" data-field="partnerIds" data-value="${id}" data-single="0" title="הסר">${ICON.x}</button>`}</span>`).join('')}
+        ${ro ? '' : `<button class="btn small ghost" data-action="shoot-partner-add" data-id="${s.id}" title="${partnerPool.length ? 'הקבלנים והספקים של הפרויקט קודם' : ''}">${ICON.plus} הוסף</button>`}</div>
+    </div>
+    ${isManager() ? `<div class="field"><label>מימון יום הצילום <small class="muted">מנהלים בלבד${funding.length ? ' · ' + fmtMoney(fundTotal) : ''}</small></label>
+      ${funding.length ? funding.map((f) => `<div class="fund-row">
+        <span class="fund-who">${esc(cname(f.contactId, 'ללא שם'))}</span>
+        <input type="number" min="0" step="100" id="fund-${f.id}" value="${f.amount ?? ''}" data-bind="shoot_funding:${f.id}:amount" placeholder="₪" inputmode="decimal">
+        ${menuChip(FUND_STATUS[f.status]?.label || f.status, `data-action="menu" data-menu="fundstatus" data-id="${f.id}"`, FUND_STATUS[f.status]?.cls || '')}
+        <input type="text" id="fundn-${f.id}" value="${esc(f.note || '')}" data-bind="shoot_funding:${f.id}:note" placeholder="הערה">
+        <button type="button" class="icon-btn" data-action="fund-del" data-id="${f.id}" title="הסר">${ICON.x}</button>
+      </div>`).join('') : '<div class="inline-note">עדיין לא נרשמו שותפים למימון.</div>'}
+      <button type="button" class="btn small ghost" data-action="fund-add" data-id="${s.id}" style="margin-top:6px">${ICON.plus} שותף למימון</button>
+    </div>` : ''}
+    <div class="field"><label>שלבי ההפקה <small class="muted">${tasks.length ? `${done}/${tasks.length}` : ''}</small></label>
+      ${tasks.length ? `<div class="progress"><div style="width:${Math.round((done / tasks.length) * 100)}%"></div></div>` : ''}
+      <div class="shoot-steps">${tasks.map((t) => `<div class="shoot-step ${t.status}">
+        <label class="switch" title="סימון בוצע"><input type="checkbox" data-shoottask="${t.id}" ${t.status === 'done' ? 'checked' : ''} ${ro || !canWriteTasks() ? 'disabled' : ''}></label>
+        <a href="#" class="shoot-step-title" data-action="open-task" data-id="${t.id}">${esc(t.title)}</a>
+        ${menuChip(uname(t.assigneeId, 'ללא אחראי'), `data-action="menu" data-menu="assignee" data-id="${t.id}"`, t.assigneeId ? 'accent' : 'dim')}
+        ${t.dueDate ? `<span class="due ${dueInfo(t).cls}">${esc(dueInfo(t).label)}</span>` : ''}
+      </div>`).join('')}</div>
+      ${!ro && canWriteTasks() ? `<div class="add-row"><input type="text" id="shoot-step-add-${s.id}" placeholder="שלב נוסף… (Enter)" data-shootadd="${s.id}"><button class="btn small" data-action="shoot-step-add" data-id="${s.id}">${ICON.plus}</button></div>` : ''}
+    </div>
+    ${field('הערות', textArea('sh-notes', s.notes, `rows="2" data-bind="shoots:${s.id}:notes" placeholder="תיאומים, בקשות מיוחדות של הלקוח, מה לצלם" ${ro ? 'disabled' : ''}`))}
+    ${isManager() && s.status !== 'cancelled' ? `<div class="inline-note"><button type="button" class="btn small ghost" data-action="shoot-status" data-id="${s.id}" data-value="cancelled">בטל את שלב הצילום</button></div>` : ''}
+  </div>`;
+}
+/* the overview panel: shoots in progress */
+function shootsPanel() {
+  const rows = SH().filter((s) => s.status !== 'published' && s.status !== 'cancelled').map((s) => ({ s, p: S.projects[s.projectId] })).filter((x) => x.p).sort((a, b) => (a.s.shootDate || '9999').localeCompare(b.s.shootDate || '9999'));
+  if (!rows.length) return '';
+  return `<div class="panel">
+    <div class="panel-head"><h2 class="panel-title">צילום ופרסום</h2><span class="panel-sub">${rows.length} פרויקטים בתהליך</span></div>
+    ${rows.map(({ s, p }) => { const ts = shootTasks(s.id); const dn = ts.filter((t) => t.status === 'done').length; return `<div class="list-item" data-action="open-project" data-id="${p.id}">
+      ${shootStatusChip(s)}
+      <div class="li-body"><div class="li-title">${esc(p.name)}</div><div class="li-sub">${esc([s.shootDate ? 'צילום ' + fmtDate(s.shootDate) : 'מועד טרם נקבע', ts.length ? `${dn}/${ts.length} שלבים` : ''].filter(Boolean).join(' · '))}</div></div>
+      <div class="li-side">${ICON.back}</div></div>`; }).join('')}
+  </div>`;
+}
+/* settings: the handover stage, who is PR / social, the step template */
+function shootSettingsPanel() {
+  if (!isManager()) return '';
+  const st = settings(); const fns = shootFns(); const steps = shootSteps();
+  const users = activeUsers();
+  const userChips = (fn) => `<div class="chips">${(fns[fn] || []).map((id) => `<span class="chip accent">${esc(uname(id))}<button class="x" data-action="shootfn-remove" data-fn="${fn}" data-id="${id}" title="הסר">${ICON.x}</button></span>`).join('')}<button class="btn small ghost" data-action="menu" data-menu="shootfn" data-id="${fn}">${ICON.plus} הוסף</button></div>`;
+  return `<div class="panel">
+    <div class="panel-head"><h2 class="panel-title">צילום ופרסום</h2><span class="panel-sub">נפתח לבד במסירה; בעלים לפי תפקידי משרד</span></div>
+    <div class="field"><label>השלב שפותח את הצילום</label>${selectHtml('set-handover', handoverStageId(), st.phases.map((x) => ({ value: x.id, label: x.name })))}</div>
+    <div class="field-row">
+      <div class="field"><label>יחסי ציבור</label>${userChips('pr')}</div>
+      <div class="field"><label>סושיאל</label>${userChips('social')}</div>
+    </div>
+    <div class="inline-note" style="margin-bottom:10px">אדמיניסטרציה = משתמשים בתפקיד "אדמיניסטרציה"; הנהלה = השותף המנהל (או כל הבעלים). כשלא הוגדר מישהו לתפקיד, השלב עובר להנהלה.</div>
+    <label style="font-size:12.5px;color:var(--ink-2);letter-spacing:.04em">שלבי ההפקה (התבנית)</label>
+    <div class="set-list" style="margin-top:6px">${steps.map((s, i) => `<div class="set-row with-fn">
+      <input type="text" id="shootstep-${i}" value="${esc(s.text)}" data-shootstep="${i}:text">
+      ${selectHtml('shootfn-' + i, s.fn, Object.entries(SHOOT_FN).map(([value, label]) => ({ value, label })), { attrs: `data-shootstep="${i}:fn"` })}
+      <div class="set-tools"><button class="icon-btn" data-action="shootstep-remove" data-index="${i}" title="הסר">${ICON.x}</button></div>
+    </div>`).join('')}</div>
+    <div class="add-row"><input type="text" id="shootstep-new" placeholder="שלב חדש…"><button class="btn small" data-action="shootstep-add">הוסף</button></div>
+  </div>`;
+}
+
+/* ---------- menus & actions ---------- */
+function shootMenu(kind, id, anchor) {
+  if (kind === 'shootstatus') {
+    if (!isMember()) { toast('אין לך הרשאת עריכה'); return true; }
+    const s = S.shoots[id]; if (!s) return true;
+    openMenu(anchor, { items: [...SHOOT_ORDER, 'cancelled'].map((k) => ({ label: SHOOT_STATUS[k].label, sub: SHOOT_STATUS[k].hint, value: k, selected: s.status === k })), onPick: (it) => patchDoc('shoots', id, { status: it.value }) });
+    return true;
+  }
+  if (kind === 'fundstatus') {
+    if (!isManager()) return true;
+    const f = S.shoot_funding[id]; if (!f) return true;
+    openMenu(anchor, { items: Object.entries(FUND_STATUS).map(([v, m]) => ({ label: m.label, value: v, selected: f.status === v })), onPick: (it) => patchDoc('shoot_funding', id, { status: it.value }) });
+    return true;
+  }
+  if (kind === 'shootfn') {
+    if (!isManager()) return true;
+    const fn = id; const cur = shootFns()[fn] || [];
+    openMenu(anchor, { search: true, placeholder: 'מי מטפל/ת ב' + (SHOOT_FN[fn] || '') + '?', items: activeUsers().filter((u) => !cur.includes(u.id)).map((u) => ({ label: uname(u.id), sub: ROLE_LABELS[u.role] || '', value: u.id })), onPick: (it) => patchSettings({ shootFunctions: Object.assign({}, shootFns(), { [fn]: [...cur, it.value] }) }) });
+    return true;
+  }
+  return false;
+}
+async function shootAction(a, ds, t, e) {
+  switch (a) {
+    case 'shoot-open': { if (!isManager()) { toast('פתיחה ידנית: מנהלים'); return true; } await ensureShoot(ds.id); return true; }
+    case 'shoot-status': { e.stopPropagation(); if (!isMember()) { toast('אין לך הרשאת עריכה'); return true; } patchDoc('shoots', ds.id, { status: ds.value }); return true; }
+    case 'shoot-partner-add': {
+      e.stopPropagation(); if (!isMember()) { toast('אין לך הרשאת עריכה'); return true; }
+      const s = S.shoots[ds.id]; if (!s) return true; const p = S.projects[s.projectId];
+      const cur = s.partnerIds || [];
+      const pool = p ? [...new Set([...(p.contractorIds || []), ...(p.supplierIds || []), ...(p.partnerIds || [])])] : [];
+      const first = pool.filter((id) => !cur.includes(id)).map((id) => contact(id)).filter(Boolean).map((c) => ({ label: c.name, sub: (CTYPES[c.type]?.label || '') + ' · בפרויקט', value: c.id }));
+      const rest = C().filter((c) => ['contractor', 'supplier', 'partner'].includes(c.type) && c.active !== false && !cur.includes(c.id) && !pool.includes(c.id)).sort(byName).map((c) => ({ label: c.name, sub: CTYPES[c.type]?.label || '', value: c.id }));
+      openMenu(t, { search: true, placeholder: 'מי מצטרף ליום הצילום?', items: [...first, ...rest], onPick: (it) => patchDoc('shoots', s.id, { partnerIds: [...cur, it.value] }) });
+      return true;
+    }
+    case 'fund-add': {
+      e.stopPropagation(); if (!isManager()) return true;
+      const s = S.shoots[ds.id]; if (!s) return true;
+      const have = fundingOf(s.id).map((f) => f.contactId);
+      const items = (s.partnerIds || []).filter((id) => !have.includes(id)).map((id) => contact(id)).filter(Boolean).map((c) => ({ label: c.name, sub: 'שותף ליום הצילום', value: c.id }));
+      const rest = C().filter((c) => ['contractor', 'supplier', 'partner'].includes(c.type) && c.active !== false && !have.includes(c.id) && !(s.partnerIds || []).includes(c.id)).sort(byName).map((c) => ({ label: c.name, sub: CTYPES[c.type]?.label || '', value: c.id }));
+      openMenu(t, { search: true, placeholder: 'מי משתתף במימון?', items: [...items, ...rest], onPick: (it) => createDoc('shoot_funding', uid('fd'), { shootId: s.id, contactId: it.value, amount: null, status: 'asked', note: '' }) });
+      return true;
+    }
+    case 'fund-del': { if (!isManager()) return true; await deleteDoc('shoot_funding', ds.id); return true; }
+    case 'shoot-step-add': {
+      const s = S.shoots[ds.id]; if (!s || !canWriteTasks()) return true;
+      const inp = document.getElementById('shoot-step-add-' + s.id); const title = (inp?.value || '').trim(); if (!title) { inp?.focus(); return true; }
+      inp.value = '';
+      const sortIndex = Math.max(0, ...shootTasks(s.id).map((x) => Number(x.sortIndex) || 0)) + 1;
+      await newTask({ title, description: 'צילום ופרסום', projectId: s.projectId, assigneeId: null, shootId: s.id, sortIndex });
+      setTimeout(() => document.getElementById('shoot-step-add-' + s.id)?.focus(), 30);
+      return true;
+    }
+    case 'shootfn-remove': { if (!isManager()) return true; const fns = shootFns(); patchSettings({ shootFunctions: Object.assign({}, fns, { [ds.fn]: (fns[ds.fn] || []).filter((id) => id !== ds.id) }) }); return true; }
+    case 'shootstep-remove': { if (!isManager()) return true; const steps = shootSteps().slice(); steps.splice(Number(ds.index), 1); patchSettings({ shootSteps: steps }); return true; }
+    case 'shootstep-add': { if (!isManager()) return true; const inp = document.getElementById('shootstep-new'); const text = (inp?.value || '').trim(); if (!text) { inp?.focus(); return true; } patchSettings({ shootSteps: [...shootSteps(), { text, fn: 'admin' }] }); return true; }
+    default: return false;
+  }
+}
+document.addEventListener('change', (e) => {
+  const el = e.target;
+  if (el.dataset.shoottask) { const t = S.tasks[el.dataset.shoottask]; if (!t || !canWriteTasks()) { render(); return; } setTaskStatus(t.id, el.checked ? 'done' : 'todo'); return; }
+  if (el.dataset.shootstep) { if (!isManager()) return; const [i, key] = el.dataset.shootstep.split(':'); const steps = shootSteps().map((s) => Object.assign({}, s)); if (!steps[Number(i)]) return; steps[Number(i)][key] = key === 'text' ? el.value.trim() || steps[Number(i)].text : el.value; patchSettings({ shootSteps: steps }); return; }
+  if (el.id === 'set-handover') { if (!isManager()) return; patchSettings({ handoverStageId: el.value }); }
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.dataset?.shootadd) { e.preventDefault(); document.querySelector(`[data-action="shoot-step-add"][data-id="${e.target.dataset.shootadd}"]`)?.click(); } if (e.key === 'Enter' && e.target.id === 'shootstep-new') { e.preventDefault(); document.querySelector('[data-action="shootstep-add"]')?.click(); } });
+/* ===================== meetings: every meeting summary in one place ===================== */
+/* A meeting is a site_visits row of kind 'meeting' (same editor and report as a site visit: participants, summary, decisions and tasks,
+   photos, recording). Since 2.10.2026 it also has a venue (office / zoom / site / client / other), a subject, and may belong to no
+   project at all (a general office meeting). The שטח tab keeps the site visits; this tab shows the meetings — upcoming ones first. */
+Object.assign(S.ui, { mvenue: '', mmine: false, mq: '' });
+const MEETINGS = () => SV().filter((v) => v.kind === 'meeting');
+const byDateDesc = (a, b) => (b.visitDate || '').localeCompare(a.visitDate || '') || (b.createdAt || '').localeCompare(a.createdAt || '');
+const meetingsSorted = () => MEETINGS().sort(byDateDesc);
+/* decisions and tasks still open, from meetings of active projects (and general meetings) */
+const openMeetingItems = () => VI().filter(isOpenItem).map((it) => ({ it, v: S.site_visits[it.visitId] }))
+  .filter((x) => x.v && x.v.kind === 'meeting' && (!x.v.projectId || S.projects[x.v.projectId]?.state === 'active'))
+  .sort((a, b) => (a.it.dueDate || '9999').localeCompare(b.it.dueDate || '9999') || (b.v.visitDate || '').localeCompare(a.v.visitDate || ''));
+/* what is already on the calendar: summaries dated after today (a meeting prepared ahead — today's are in the lists below), and meeting
+   requests administration has set (or is still to set) for today or later — everything the person is allowed to see */
+function upcomingMeetings(days = 14) {
+  const today = todayStr(); const until = todayStr(new Date(Date.now() + days * 864e5));
+  const out = MEETINGS().filter((v) => (v.visitDate || '') > today && (v.visitDate || '') <= until)
+    .map((v) => ({ date: v.visitDate, time: v.visitTime || '', label: visitLabel(v), sub: [visitProjectName(v), venueLabel(v), v.status === 'final' ? 'סוכם' : ''].filter(Boolean).join(' · '), attrs: `data-action="open-visit" data-id="${v.id}"`, icon: ICON.doc }));
+  (typeof R === 'function' ? R() : []).filter((r) => r.kind === 'meeting' && ['open', 'done'].includes(r.status) && r.startDate && r.startDate >= today && r.startDate <= until)
+    .forEach((r) => out.push({ date: r.startDate, time: r.atTime || '', label: r.title || 'פגישה', sub: [r.projectId && S.projects[r.projectId] ? S.projects[r.projectId].name : (REQ_SCOPES[r.scope] || ''), REQ_MEETING[r.meetingType] || '', r.status === 'open' ? 'ממתינה לקביעה' : 'נקבעה', uname(r.requesterId, '')].filter(Boolean).join(' · '), attrs: `data-action="open-request" data-id="${r.id}"`, icon: ICON.pin, pending: r.status === 'open' }));
+  return out.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+}
+const upcomingRow = (u) => `<div class="task-item" ${u.attrs}>
+    <span class="visit-ic">${u.icon}</span>
+    <div class="li-body"><div class="li-title">${esc(u.label)}</div><div class="li-sub">${esc(u.sub)}</div></div>
+    <div class="li-side"><span class="due ${u.date === todayStr() ? 'warn' : ''}">${esc(u.date === todayStr() ? 'היום' : fmtDate(u.date))}${u.time ? ' · ' + esc(u.time) : ''}</span>${u.pending ? '<span class="chip yellow status-chip">לקביעה</span>' : ''}</div>
+  </div>`;
+
+/* ---------- view: פגישות ---------- */
+function renderMeetings() {
+  const uid_ = me()?.id;
+  const all = meetingsSorted();
+  const counts = {}; all.forEach((v) => { counts[venueOf(v)] = (counts[venueOf(v)] || 0) + 1; });
+  const venue = S.ui.mvenue, mine = S.ui.mmine, q = norm(S.ui.mq || '');
+  let shown = all;
+  if (venue) shown = shown.filter((v) => venueOf(v) === venue);
+  if (mine) shown = shown.filter((v) => v.authorId === uid_);
+  if (q) shown = shown.filter((v) => norm([visitProjectName(v), visitLabel(v), visitTitle(v), uname(v.authorId, ''), v.attendees, v.summary].join(' ')).includes(q));
+  const drafts = all.filter((v) => v.status !== 'final' && v.authorId === uid_);
+  const openItems = openMeetingItems();
+  const upcoming = upcomingMeetings(14);
+  const byProject = {}; openItems.forEach((x) => { byProject[x.v.projectId || '_general'] = (byProject[x.v.projectId || '_general'] || 0) + 1; });
+  const venueChips = [['', `הכל ${all.length}`], ...Object.entries(VENUES).filter(([k]) => counts[k]).map(([k, m]) => [k, `${m.label} ${counts[k]}`])]
+    .map(([k, l]) => `<span class="chip btn-chip ${venue === k ? 'accent' : ''}" data-action="mvenue" data-value="${k}" role="button" tabindex="0">${l}</span>`).join('');
+  return `
+  <div class="view-head">
+    <div><h1 class="view-title">פגישות</h1><div class="view-sub">סיכומי פגישות במשרד, בזום, באתר ואצל הלקוח — ${all.length} סיכומים · ${openItems.length} החלטות ומשימות פתוחות · <a href="#field" data-action="nav" data-view="field">ביקורי אתר ודוחות פיקוח בלשונית שטח</a></div></div>
+    <div class="view-actions">${canWriteField() ? `<button class="btn primary" data-action="new-visit-pick" data-kind="meeting">${ICON.doc} סיכום פגישה</button><button class="btn" data-action="new-visit-pick" data-kind="meeting" data-venue="zoom">פגישת זום</button>` : ''}${isMember() ? `<button class="btn ghost" data-action="meeting-request" title="האדמיניסטרציה תתאם">${ICON.plus} בקשת פגישה</button>` : ''}</div>
+  </div>
+  ${upcoming.length ? `<div class="task-group"><div class="task-group-head"><span>פגישות קרובות</span><small>${upcoming.length} · 14 הימים הבאים</small></div>${upcoming.slice(0, 12).map(upcomingRow).join('')}</div>` : ''}
+  ${drafts.length ? `<div class="task-group"><div class="task-group-head"><span>הטיוטות שלי</span><small>${drafts.length}</small></div>${drafts.slice(0, 8).map((v) => visitItem(v)).join('')}</div>` : ''}
+  <div class="grid-2">
+    <div class="task-group">
+      <div class="task-group-head"><span>החלטות ומשימות פתוחות מפגישות</span><small>${openItems.length}${Object.keys(byProject).length ? ` · ${Object.keys(byProject).length} הקשרים` : ''}</small></div>
+      ${openItems.length ? openItems.slice(0, 40).map(({ it, v }) => openItemRow(it, v)).join('') + (openItems.length > 40 ? '<div class="inline-note">מוצגות 40 הראשונות לפי מועד</div>' : '') : '<div class="inline-note">אין החלטות או משימות פתוחות מפגישות.</div>'}
+    </div>
+    <div class="task-group" id="meetings-list">
+      <div class="task-group-head"><span>סיכומים</span><small>${shown.length}${shown.length !== all.length ? ` מתוך ${all.length}` : ''}</small></div>
+      <div class="chips" style="margin:6px 0 8px">${venueChips}<span class="chip btn-chip ${mine ? 'accent' : ''}" data-action="mmine" role="button" tabindex="0">שלי</span></div>
+      <div class="add-row" style="margin:0 0 10px"><input type="search" id="mq" placeholder="חיפוש לפי פרויקט, נושא, משתתפים או עורך…" value="${esc(S.ui.mq || '')}"></div>
+      ${shown.length ? shown.slice(0, 40).map((v) => visitItem(v)).join('') + (shown.length > 40 ? '<div class="inline-note">מוצגים 40 האחרונים — צמצמו בחיפוש</div>' : '') : `<div class="inline-note">${all.length ? 'אין סיכומים שמתאימים לסינון.' : 'עדיין אין סיכומי פגישה. אחרי כל פגישה — סיכום קצר עם ההחלטות, ומי אחראי על מה.'}</div>`}
+    </div>
+  </div>`;
+}
+
+/* ---------- overview panel: the next meetings, or the latest summaries ---------- */
+function meetingsPanel() {
+  const upcoming = upcomingMeetings(7);
+  const latest = meetingsSorted().slice(0, 4);
+  if (!upcoming.length && !latest.length) return '';
+  return `<div class="panel">
+    <div class="panel-head"><h2 class="panel-title">פגישות</h2><span class="panel-sub">${upcoming.length ? 'השבוע הקרוב' : 'סיכומים אחרונים'} <button class="btn ghost small" data-action="nav" data-view="meetings">לכל הפגישות</button></span></div>
+    ${upcoming.length ? upcoming.slice(0, 6).map(upcomingRow).join('') : latest.map((v) => visitItem(v)).join('')}
+  </div>`;
+}
+
+/* ---------- actions ---------- */
+async function meetingsAction(a, ds, t, e) {
+  switch (a) {
+    case 'mvenue': S.ui.mvenue = ds.value || ''; render(); return true;
+    case 'mmine': S.ui.mmine = !S.ui.mmine; render(); return true;
+    case 'meeting-request': { if (!isMember()) return true; S.ui.reqForm = { kind: 'meeting', scope: 'project', meetingType: 'internal', startDate: todayStr(), endDate: todayStr(), atTime: '' }; openDrawer('request-new'); return true; }
+    case 'meeting-from-request': { // a meeting administration has set → its summary, with the subject, date and project already filled in
+      if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; }
+      const r = S.requests[ds.id]; if (!r || r.kind !== 'meeting') return true;
+      const id = await newVisit(r.projectId && S.projects[r.projectId] && !isReduced(S.projects[r.projectId]) ? r.projectId : null, 'meeting', { title: r.title || '', venue: r.meetingType === 'external' ? 'client' : 'office', visitDate: r.startDate || todayStr(), visitTime: r.atTime || '' });
+      if (id) openDrawer('visit', id);
+      return true;
+    }
+    default: return false;
+  }
+}
+document.addEventListener('input', (e) => { const el = e.target; if (el.id === 'mq') { S.ui.mq = el.value; render(); } });
 /* ===================== overlay: drawer + menu ===================== */
 function renderOverlay() {
   const ov = document.getElementById('overlay');
   const d = S.ui.drawer;
   let html = '';
   if (d) {
-    const body = d.kind === 'project' ? drawerProject(d.id) : d.kind === 'contact' ? drawerContact(d.id) : d.kind === 'import' ? drawerImport() : d.kind === 'task' ? drawerTask(d.id) : d.kind === 'visit' ? drawerVisit(d.id) : d.kind === 'request' ? drawerRequest(d.id) : d.kind === 'request-new' ? drawerNewRequest() : drawerCommission(d.id);
+    const body = d.kind === 'project' ? drawerProject(d.id) : d.kind === 'contact' ? drawerContact(d.id) : d.kind === 'import' ? drawerImport() : d.kind === 'task' ? drawerTask(d.id) : d.kind === 'visit' ? drawerVisit(d.id) : d.kind === 'request' ? drawerRequest(d.id) : d.kind === 'request-new' ? drawerNewRequest() : d.kind === 'material' ? drawerMaterial(d.id) : drawerCommission(d.id);
     const pend = hasPending() && S.ui.autoSaveFailed ? `<div class="drawer-save"><span>${pendingCount() === 1 ? 'שינוי אחד לא נשמר' : pendingCount() + ' שינויים לא נשמרו'} — אין חיבור?</span><button class="btn primary small" data-action="pending-save" ${S.ui.committing ? 'disabled' : ''}>${S.ui.committing ? 'שומר…' : 'שמור שוב'}</button><button class="btn small" data-action="pending-discard" ${S.ui.committing ? 'disabled' : ''}>בטל</button></div>` : '';
     html += `<div class="scrim" data-action="close-drawer"></div><aside class="drawer" role="dialog" aria-modal="true" data-key="${esc(drawerKey())}">${body}${pend}</aside>`;
   }
@@ -3731,10 +4536,10 @@ function closeDrawer(force) {
   S.ui.drawer = null; S.ui.menu = null; S.ui.confirm = null; S.ui.confirmClose = false; S.ui.drafts = {}; render();
 }
 
-function pickerChips(p, role) {
+function pickerChips(p, role, col = 'projects') {
   const ids = role.single ? (p[role.field] ? [p[role.field]] : []) : (p[role.field] || []);
-  const chips = ids.map((id) => `<span class="chip ${contact(id) ? '' : 'dim'}"><a href="#" data-action="open-contact" data-id="${id}" style="color:inherit;text-decoration:none">${esc(cname(id, 'איש קשר שנמחק'))}</a><button class="x" data-action="pick-remove" data-col="projects" data-doc="${p.id}" data-field="${role.field}" data-value="${id}" data-single="${role.single ? 1 : 0}" title="הסר">${ICON.x}</button></span>`);
-  const add = (!role.single || !ids.length) ? `<button class="btn small ghost" data-action="pick-add" data-col="projects" data-doc="${p.id}" data-field="${role.field}" data-type="${role.type}" data-single="${role.single ? 1 : 0}">${ICON.plus} ${role.single ? 'בחר' : 'הוסף'}</button>` : '';
+  const chips = ids.map((id) => `<span class="chip ${contact(id) ? '' : 'dim'}"><a href="#" data-action="open-contact" data-id="${id}" style="color:inherit;text-decoration:none">${esc(cname(id, 'איש קשר שנמחק'))}</a><button class="x" data-action="pick-remove" data-col="${col}" data-doc="${p.id}" data-field="${role.field}" data-value="${id}" data-single="${role.single ? 1 : 0}" title="הסר">${ICON.x}</button></span>`);
+  const add = (!role.single || !ids.length) ? `<button class="btn small ghost" data-action="pick-add" data-col="${col}" data-doc="${p.id}" data-field="${role.field}" data-type="${role.type}" data-single="${role.single ? 1 : 0}">${ICON.plus} ${role.single ? 'בחר' : 'הוסף'}</button>` : '';
   return `<div class="chips">${chips.join('')}${add}</div>`;
 }
 
@@ -3769,26 +4574,12 @@ function clientPeopleSection(p) {
     ${!ro && canWriteContact('person') ? `<button class="btn small ghost" data-action="new-person" data-parent="${p.clientId}" data-project="${p.id}">${ICON.plus} איש קשר חדש אצל הלקוח</button>` : ''}
   </div></div>`;
 }
-function drawerProject(id) {
-  const p = S.projects[id];
-  if (!p) return `<div class="drawer-head"><h2 class="drawer-title">הפרויקט נמחק</h2><button class="icon-btn" data-action="close-drawer">${ICON.x}</button></div>`;
+/* the project's sections — shared by the quick-edit drawer and the full project page */
+function projectStatusBox(p) {
   const st = settings();
   const d = daysSince(p.statusUpdatedAt);
-  const comms = commissionsOf(p.id);
-  const teamLead = teamLeadId(p.teamId);
   const noteDraft = S.ui.drafts['p-statusNote'];
-  return `
-  <div class="drawer-head">
-    <div style="flex:1;min-width:0">
-      <h2 class="drawer-title"><input type="text" id="p-name" value="${esc(S.ui.drafts['p-name'] ?? p.name)}" data-bind="projects:${p.id}:name" aria-label="שם הפרויקט"></h2>
-      ${nameEn(p) ? `<div class="drawer-en">${nameEnHtml(p, true)}</div>` : ''}
-      <div class="drawer-sub">${parentOf(p) ? `<a href="#" data-action="open-project" data-id="${parentOf(p).id}" style="color:inherit">תת-פרויקט של ${esc(parentOf(p).name)}</a> · ` : ''}${esc([p.number ? 'מס\' ' + p.number : '', p.type, p.typeDetail, p.city, cname(p.clientId, '')].filter(Boolean).join(' · '))}</div>
-    </div>
-    <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
-  </div>
-  <div class="drawer-body">
-    ${journeyStrip(p)}
-    <div class="section">
+  return `<div class="section" id="status-section">
       <div class="status-box">
         <div class="field-row" style="margin-bottom:10px">
           ${field('מצב', selectHtml('p-state', p.state, Object.entries(STATES).map(([value, label]) => ({ value, label })), { attrs: `data-bind="projects:${p.id}:state"` }))}
@@ -3806,25 +4597,18 @@ function drawerProject(id) {
           <button class="btn primary small" data-action="update-status" data-id="${p.id}">${noteDraft != null && noteDraft !== (p.statusNote || '') ? 'שמור ועדכן סטטוס' : 'סמן כמעודכן היום'}</button>
         </div>
       </div>
-    </div>
-
-    ${journeySection(p)}
-
-    ${projectFilesSection(p)}
-
-    ${subProjectsSection(p)}
-
-    ${projectTasksSection(p)}
-
-    ${projectVisitsSection(p)}
-
-    <div class="section">
+    </div>`;
+}
+function projectTeamSection(p) {
+  const teamLead = teamLeadId(p.teamId);
+  return `<div class="section" id="team-section">
       <h3 class="section-title">צוות <small>${teamLead ? 'ראש צוות: ' + esc(cname(teamLead)) : ''}</small></h3>
       ${field('צוות', selectHtml('p-team', p.teamId || '', T().map((t) => ({ value: t.id, label: t.name + (t.leadId ? ' · ' + cname(t.leadId) : '') })), { blank: 'ללא צוות', attrs: `data-bind="projects:${p.id}:teamId"` }))}
       ${ROLES.filter((r) => r.type === 'employee').map((r) => `<div class="role-row"><div class="role-name">${r.label}</div><div class="role-body">${pickerChips(p, r)}</div></div>`).join('')}
-    </div>
-
-    <div class="section">
+    </div>`;
+}
+function projectExternalSection(p) {
+  return `<div class="section" id="external-section">
       <h3 class="section-title">גורמים חיצוניים</h3>
       <div class="role-row"><div class="role-name">לקוח</div><div class="role-body">${pickerChips(p, { field: 'clientId', single: true, type: 'client' })}</div></div>
       ${ROLES.filter((r) => r.type !== 'employee').map((r) => `<div class="role-row"><div class="role-name">${r.label}</div><div class="role-body">${pickerChips(p, r)}</div></div>`).join('')}
@@ -3833,9 +4617,12 @@ function drawerProject(id) {
         ${field('איש קשר אצל הלקוח (טקסט חופשי)', textInput('p-clientContactName', p.clientContactName, `data-bind="projects:${p.id}:clientContactName"`))}
         ${field('טלפון / מייל', textInput('p-clientContactPhone', p.clientContactPhone, `data-bind="projects:${p.id}:clientContactPhone" dir="auto"`))}
       </div>` : ''}
-    </div>
-
-    ${isManager() ? `<div class="section">
+    </div>`;
+}
+function projectCommissionsSection(p) {
+  if (!isManager()) return '';
+  const comms = commissionsOf(p.id);
+  return `<div class="section" id="commissions-section">
       <h3 class="section-title">עמלות <small>${comms.length ? fmtMoney(sum(comms, (k) => k.amount)) : ''} · מנהלים בלבד</small></h3>
       ${comms.length ? comms.map((k) => `<div class="comm-row">
         <div><a href="#" data-action="open-commission" data-id="${k.id}" style="text-decoration:none;color:inherit;font-weight:500">${esc(cname(k.supplierId, 'ללא ספק'))}</a><div class="cell-sub">${esc(k.note || '')}</div></div>
@@ -3843,9 +4630,11 @@ function drawerProject(id) {
         ${menuChip(COMM_STATUS[k.status]?.label || k.status, `data-action="menu" data-menu="kstatus" data-id="${k.id}"`, COMM_STATUS[k.status]?.cls || '')}
       </div>`).join('') : '<div class="inline-note">אין עמלות רשומות לפרויקט.</div>'}
       <button class="btn small" style="margin-top:8px" data-action="new-commission" data-project="${p.id}">${ICON.plus} הוסף עמלה</button>
-    </div>` : ''}
-
-    <div class="section">
+    </div>`;
+}
+function projectDetailsSection(p) {
+  const st = settings();
+  return `<div class="section" id="details-section">
       <h3 class="section-title">פרטי הפרויקט ${p.needsReview ? '<small>יובאו מהאקסל — לאימות</small>' : ''}</h3>
       <div class="field-row">
         ${field('מס\' פרויקט', textInput('p-number', p.number, `data-bind="projects:${p.id}:number" dir="auto"`))}
@@ -3863,16 +4652,67 @@ function drawerProject(id) {
       </div>
       ${p.profitCenter || p.admiralId ? `<div class="inline-note" style="margin-bottom:8px">אדמירל: ${esc([p.profitCenter ? 'מרכז רווח ' + p.profitCenter : '', p.admiralId ? 'מס\' פנימי ' + p.admiralId : ''].filter(Boolean).join(' · '))}</div>` : ''}
       <label class="switch"><input type="checkbox" id="p-needsReview" ${p.needsReview ? 'checked' : ''} data-bind="projects:${p.id}:needsReview"> ממתין לאימות פרטים</label>
-    </div>
-
-    <div class="section">
+    </div>`;
+}
+function projectNotesSection(p) {
+  return `<div class="section" id="notes-section">
       <h3 class="section-title">הערות</h3>
       ${textArea('p-notes', p.notes, `rows="3" data-bind="projects:${p.id}:notes" placeholder="הערות כלליות על הפרויקט"`)}
+    </div>`;
+}
+function projectFoot(p) {
+  return `<span class="inline-note">נוצר ${fmtDate(p.createdAt)} · עודכן ${fmtDate(p.updatedAt)}</span>
+    ${isManager() ? confirmButton('delete-doc', `data-col="projects" data-id="${p.id}"`, 'מחק פרויקט') : ''}`;
+}
+function projectSubline(p) {
+  return `${parentOf(p) ? `<a href="#" data-action="open-project" data-id="${parentOf(p).id}" style="color:inherit">תת-פרויקט של ${esc(parentOf(p).name)}</a> · ` : ''}${esc([p.number ? 'מס\' ' + p.number : '', p.type, p.typeDetail, p.city, cname(p.clientId, '')].filter(Boolean).join(' · '))}`;
+}
+/* the quick-edit drawer: the same sections, one column */
+function drawerProject(id) {
+  const p = S.projects[id];
+  if (!p) return `<div class="drawer-head"><h2 class="drawer-title">הפרויקט נמחק</h2><button class="icon-btn" data-action="close-drawer">${ICON.x}</button></div>`;
+  if (isReduced(p)) return `
+  <div class="drawer-head">
+    <div style="flex:1;min-width:0"><h2 class="drawer-title">${esc(p.name)}</h2>${nameEn(p) ? `<div class="drawer-en">${nameEnHtml(p)}</div>` : ''}<div class="drawer-sub">${projectSubline(p)} · <a href="#" data-action="open-project-page" data-id="${p.id}" style="color:inherit">דף הפרויקט</a></div></div>
+    <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
+  </div>
+  <div class="drawer-body">${reducedProjectBody(p)}</div>`;
+  return `
+  <div class="drawer-head">
+    <div style="flex:1;min-width:0">
+      <h2 class="drawer-title"><input type="text" id="p-name" value="${esc(S.ui.drafts['p-name'] ?? p.name)}" data-bind="projects:${p.id}:name" aria-label="שם הפרויקט"></h2>
+      ${nameEn(p) ? `<div class="drawer-en">${nameEnHtml(p, true)}</div>` : ''}
+      <div class="drawer-sub">${projectSubline(p)} · <a href="#" data-action="open-project-page" data-id="${p.id}" style="color:inherit">דף הפרויקט</a></div>
     </div>
+    <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
+  </div>
+  <div class="drawer-body">
+    ${journeyStrip(p)}
+    ${projectStatusBox(p)}
+
+    ${journeySection(p)}
+
+    ${projectFilesSection(p)}
+
+    ${subProjectsSection(p)}
+
+    ${projectTasksSection(p)}
+
+    ${projectVisitsSection(p)}
+
+    ${projectTeamSection(p)}
+
+    ${projectExternalSection(p)}
+
+    ${projectCommissionsSection(p)}
+
+    ${projectDetailsSection(p)}
+
+    ${projectNotesSection(p)}
+    ${sharesSection(p)}
   </div>
   <div class="drawer-foot">
-    <span class="inline-note">נוצר ${fmtDate(p.createdAt)} · עודכן ${fmtDate(p.updatedAt)}</span>
-    ${isManager() ? confirmButton('delete-doc', `data-col="projects" data-id="${p.id}"`, 'מחק פרויקט') : ''}
+    ${projectFoot(p)}
   </div>`;
 }
 /* contract milestones as a work list: status, due date, checklist and tasks per milestone. Names follow the contracts (DataWave sync / unified types).
@@ -3965,7 +4805,7 @@ function stageEditor(p) {
    A parent project shows its sub-projects' progress per stage and marks nothing itself. */
 function ensureMilestonesLoaded(p) {
   if (S.milestonesLoaded[p.id] || S.milestonesLoading[p.id]) return;
-  S.milestonesLoading[p.id] = true; fetchMilestones(p.id).then(() => { S.milestonesLoading[p.id] = false; if (S.ui.drawer?.kind === 'project' && S.ui.drawer.id === p.id) render(); });
+  S.milestonesLoading[p.id] = true; fetchMilestones(p.id).then(() => { S.milestonesLoading[p.id] = false; if ((S.ui.drawer?.kind === 'project' && S.ui.drawer.id === p.id) || isOnPage(p.id)) render(); });
 }
 /* the strip at the top of the card: the stepper, the "go back?" confirmation and the "not started yet" hint */
 function journeyStrip(p) {
@@ -4378,6 +5218,8 @@ function renderMenu() {
 function menuFor(kind, id, anchor) {
   if (fieldMenu(kind, id, anchor)) return;
   if (filesMenu(kind, id, anchor)) return;
+  if (materialsMenu(kind, id, anchor)) return;
+  if (shootMenu(kind, id, anchor)) return;
   if (kind === 'mtmerge') {
     if (!isManager()) return;
     const t = S.milestone_types[id]; if (!t) return;
@@ -4404,7 +5246,7 @@ function menuFor(kind, id, anchor) {
   }
   if (kind === 'tproject' || kind === 'tpick') {
     const cur = kind === 'tproject' ? S.tasks[id]?.projectId : S.ui.tproject;
-    const items = [{ label: kind === 'tpick' ? 'כל הפרויקטים' : 'משימה משרדית (ללא פרויקט)', value: '', selected: !cur }, ...P().filter((p) => p.state === 'active' || p.id === cur).sort(byName).map((p) => ({ label: p.name, sub: [p.city, cname(p.leadId, '')].filter(Boolean).join(' · '), value: p.id, selected: cur === p.id }))];
+    const items = [{ label: kind === 'tpick' ? 'כל הפרויקטים' : 'משימה משרדית (ללא פרויקט)', value: '', selected: !cur }, ...P().filter((p) => (p.state === 'active' || p.id === cur) && (kind === 'tpick' || canTaskOn(p))).sort(byName).map((p) => ({ label: p.name, sub: [p.city, cname(p.leadId, '')].filter(Boolean).join(' · '), value: p.id, selected: cur === p.id }))];
     openMenu(anchor, { search: true, placeholder: 'חיפוש פרויקט…', items, onPick: (it) => { if (kind === 'tpick') { S.ui.tproject = it.value || ''; saveUi(); render(); } else patchDoc('tasks', id, { projectId: it.value || null, phaseId: null }); } });
     return;
   }
@@ -4467,13 +5309,16 @@ function openPicker(anchor, { col, doc, field, type, single }) {
 /* ===================== events ===================== */
 function bindHandler(el) {
   const [col, id, key] = el.dataset.bind.split(':');
-  if (col === 'projects' && !canWriteProjects()) { toast('אין לך הרשאת עריכה'); render(); return; }
+  if (col === 'projects' && !canEditProject(S.projects[id])) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'contacts' && !canWriteContact(S.contacts[id]?.type)) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'tasks' && !canWriteTasks()) { toast('אין לך הרשאת עריכה'); render(); return; }
   if ((col === 'site_visits' || col === 'visit_items') && !canWriteField()) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'project_milestones' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'milestone_types' && !isManager()) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'plan_sets' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
+  if (col === 'materials' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
+  if (col === 'shoots' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
+  if (col === 'shoot_funding' && !isManager()) { toast('מנהלים בלבד'); render(); return; }
   if (col === 'plan_sets' && key === 'issuedAt' && !el.value) { render(); return; } // a set always has an issue date
   if (col === 'employee_levels') { // the row may not exist yet: create it on first edit; an empty level means "back to automatic"
     if (!canEditLevel(S.contacts[id])) { toast('אין לך הרשאת עריכה'); render(); return; }
@@ -4485,7 +5330,7 @@ function bindHandler(el) {
   if (el.type === 'checkbox') v = el.checked;
   else if (el.type === 'number') v = el.value === '' ? null : Number(el.value);
   else v = el.value;
-  if (['teamId', 'leadId', 'phase', 'clientId', 'projectId', 'supplierId', 'startDate', 'dueDate', 'expectedDate', 'invoiceDate', 'paidDate', 'assigneeId', 'phaseId', 'parentId', 'responsibleId', 'nextVisit', 'typeId', 'phase', 'milestoneId', 'nameEn'].includes(key) && v === '') v = null;
+  if (['teamId', 'leadId', 'phase', 'clientId', 'projectId', 'supplierId', 'startDate', 'dueDate', 'expectedDate', 'invoiceDate', 'paidDate', 'assigneeId', 'phaseId', 'parentId', 'responsibleId', 'nextVisit', 'typeId', 'phase', 'milestoneId', 'nameEn', 'shootDate'].includes(key) && v === '') v = null;
   if (key === 'nameEn' && typeof v === 'string') { v = v.trim() || null; el.value = v || ''; }
   delete S.ui.drafts[el.id];
   if (key === 'name' && !String(v).trim()) { render(); return; }
@@ -4550,7 +5395,7 @@ document.addEventListener('change', (e) => {
 });
 document.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); if (hasPending()) commitPending(); return; }
-  if (e.key === 'Escape') { if (S.ui.menu) { closeMenu(); return; } if (S.ui.confirmClose) { S.ui.confirmClose = false; render(); return; } if (S.ui.drawer) closeDrawer(); }
+  if (e.key === 'Escape') { if (S.ui.menu) { closeMenu(); return; } if (S.ui.confirmClose) { S.ui.confirmClose = false; render(); return; } if (S.ui.drawer) closeDrawer(); else if (S.ui.view === 'project' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) nav('projects'); }
   if (e.key === 'Enter') {
     const el = e.target;
     if (el.id === 'menu-q') { e.preventDefault(); const first = document.querySelector('#menu .menu-item'); if (first) first.click(); return; }
@@ -4594,6 +5439,10 @@ document.addEventListener('click', async (e) => {
   if (t.tagName === 'A' && t.target !== '_blank') e.preventDefault(); // external links (target=_blank) keep their default: open in a new tab
   if (await fieldAction(a, ds, t, e)) return;
   if (await filesAction(a, ds, t, e)) return;
+  if (await projectAction(a, ds, t, e)) return;
+  if (await materialsAction(a, ds, t, e)) return;
+  if (await shootAction(a, ds, t, e)) return;
+  if (await meetingsAction(a, ds, t, e)) return;
   switch (a) {
     case 'ext': break; // an external link inside a clickable row: the browser opens it, the row stays closed
     case 'copy-text': { try { await navigator.clipboard.writeText(ds.text || ''); toast('הועתק: ' + (ds.text || '')); } catch (err) { toast('לא הצלחתי להעתיק'); } break; }
@@ -4674,7 +5523,6 @@ document.addEventListener('click', async (e) => {
     }
     case 'stage-reset': { const p = S.projects[ds.id]; if (!p || !canEditMilestones()) break; patchDoc('projects', p.id, { stages: null }); break; }
     case 'toggle-billing': S.ui.showBilling[ds.id] = !S.ui.showBilling[ds.id]; render(); break;
-    case 'goto-journey': { if (S.ui.drawer?.kind !== 'project') openDrawer('project', ds.id); setTimeout(() => document.getElementById('journey')?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 60); break; }
     case 'split-sections': {
       if (!canWriteProjects()) { toast('אין לך הרשאת עריכה'); break; }
       if (!ds.confirmed) { S.ui.confirm = 'split:' + ds.id; render(); break; }
@@ -4701,7 +5549,7 @@ document.addEventListener('click', async (e) => {
       const id = uid('p');
       await createDoc('projects', id, { name: `${par.name} — חלק ${n}`, number: par.number ? `${par.number}.${n}` : '', parentId: par.id, clientId: par.clientId || null, clientPersonIds: par.clientPersonIds || [], teamId: par.teamId || null, leadId: par.leadId || null, memberIds: par.memberIds || [], pmId: par.pmId || null, contractorIds: [], consultantIds: [], supplierIds: [], partnerIds: [], type: par.type || '', typeDetail: par.typeDetail || '', address: par.address || '', city: par.city || '', clientContactName: '', clientContactPhone: '', state: 'active', phases: null, health: null, statusNote: '', statusUpdatedAt: null, size: par.size || 'm', startDate: todayStr(), dueDate: null, notes: '', needsReview: false, internal: false, sortIndex: (par.sortIndex || 0) + n });
       S.milestonesLoaded[id] = true; if (canEditMilestones()) startJourney(id);
-      openDrawer('project', id); setTimeout(() => { const i = document.getElementById('p-name'); if (i) { i.focus(); i.select(); } }, 40); break;
+      openProjectPage(id); setTimeout(() => { const i = document.getElementById('p-name'); if (i) { i.focus(); i.select(); } }, 40); break;
     }
     // ----- tasks -----
     case 'goto-tasks': S.ui.ttab = ds.tab || 'mine'; saveUi(); nav('tasks'); break;
@@ -4763,7 +5611,6 @@ document.addEventListener('click', async (e) => {
     case 'ctab': S.ui.ctab = ds.tab; S.ui.cq = ''; S.ui.ccat = ''; S.ui.climit = 0; saveUi(); render(); break;
     case 'ccat': S.ui.ccat = ds.cat || ''; S.ui.climit = 0; render(); break;
     case 'cmore': S.ui.climit = ds.all ? Infinity : Math.max(CONTACT_PAGE, S.ui.climit || 0) + CONTACT_PAGE; render(); break;
-    case 'open-project': openDrawer('project', ds.id); break;
     case 'open-contact': openDrawer('contact', ds.id); break;
     case 'open-commission': openDrawer('commission', ds.id); break;
     case 'close-drawer': closeDrawer(); break;
@@ -4782,7 +5629,7 @@ document.addEventListener('click', async (e) => {
       const f = S.ui.filters;
       await createDoc('projects', id, { number: '', name: 'פרויקט חדש', type: '', typeDetail: '', address: '', city: '', clientId: null, clientContactName: '', clientContactPhone: '', teamId: f.team || null, leadId: f.lead || null, memberIds: [], pmId: null, contractorIds: [], consultantIds: [], supplierIds: [], partnerIds: [], state: 'active', phases: null, health: null, statusNote: '', statusUpdatedAt: null, size: 'm', startDate: nowIso().slice(0, 10), dueDate: null, notes: '', needsReview: false, internal: false, sortIndex: P().length + 1 });
       Object.assign(f, { q: '', flag: '', state: 'active' });
-      openDrawer('project', id);
+      openProjectPage(id);
       setTimeout(() => { const i = document.getElementById('p-name'); if (i) { i.focus(); i.select(); } }, 30);
       break;
     }
@@ -4869,7 +5716,7 @@ async function renameListValue(key, oldV, newV) {
   if (key === 'types') { for (const p of P().filter((x) => x.type === oldV)) await patchDoc('projects', p.id, { type: newV }); }
   else { for (const c of C().filter((x) => CAT_LIST[x.type] === key && x.category === oldV)) await patchDoc('contacts', c.id, { category: newV }); }
 }
-window.addEventListener('hashchange', () => { const h = (location.hash || '').replace('#', ''); if (VIEWS.some((v) => v.id === h) && h !== S.ui.view) { S.ui.view = h; render(); } });
+window.addEventListener('hashchange', () => { const h = (location.hash || '').replace('#', ''); if (VIEWS.some((v) => v.id === h) && h !== S.ui.view) { S.ui.view = h; render(); } else if (h.startsWith('project/') && !(S.ui.view === 'project' && S.ui.pageId === h.slice(8))) { S.ui.view = 'project'; S.ui.pageId = h.slice(8); render(); } });
 window.addEventListener('resize', () => { if (S.ui.menu) followAnchor(); });
 document.addEventListener('scroll', (e) => { if (S.ui.menu && !(e.target instanceof Node && document.getElementById('menu')?.contains(e.target))) followAnchor(); }, true);
 
