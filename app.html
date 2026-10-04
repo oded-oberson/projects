@@ -352,6 +352,7 @@
   .menu-item.selected { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
   .menu-item.create { color: var(--ink); border-top: 1px solid var(--line); border-radius: 0; margin-top: 4px; padding-top: 9px; }
   .menu-item small { color: var(--ink-3); margin-inline-start: auto; font-size: 12.5px; }
+  .menu-item > svg { width: 12px; height: 12px; flex: none; }
   .menu-empty { padding: 10px; color: var(--ink-3); font-size: 13.5px; }
 
   /* ---------- settings ---------- */
@@ -599,6 +600,23 @@
   .req-kind strong { font-weight: 500; font-size: 15px; }
   .req-kind span { color: var(--ink-3); font-size: 12.5px; }
   .req-row .li-side time { display: block; }
+  /* participants of a meeting request: office people plain, externals with their kind; the "+" chip opens the databases */
+  .rq-parts { margin-bottom: 6px; }
+  .rq-parts .chip.part { background: var(--surface); border-color: var(--line-2); color: var(--ink); max-width: 100%; }
+  .rq-parts .chip.part.emp { border-color: var(--ink); }
+  .rq-parts .chip.part small { color: var(--ink-3); font-size: 11px; }
+  .rq-parts a.chip.part { text-decoration: none; }
+  .rq-parts a.chip.part:hover { border-color: var(--ink); }
+  .rq-parts .chip.add { border-style: dashed; color: var(--ink-2); }
+  .rq-parts .chip.add:hover { border-style: solid; }
+  .rq-suggest { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 8px; }
+  .rq-suggest small { color: var(--ink-3); font-size: 12px; margin-inline-end: 2px; }
+  .rq-suggest .chip { font-size: 12px; padding: 2px 8px; }
+  .rq-newc { border: 1px solid var(--line-2); border-inline-start: 3px solid var(--accent); background: var(--surface); padding: 12px 14px; margin: 4px 0 8px; display: grid; gap: 4px; }
+  .rq-newc-head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; margin-bottom: 4px; }
+  .rq-newc-head strong { font-weight: 500; }
+  .rq-newc-head .muted { font-size: 12px; }
+  .rq-newc .field { margin-bottom: 6px; }
   .today-col h4 { margin: 0 0 6px; font-size: 13px; color: var(--ink-3); font-weight: 500; }
   .today-col .chips-sub { display: flex; flex-wrap: wrap; gap: 4px; }
   @media (max-width: 720px) {
@@ -2355,6 +2373,8 @@ const isReduced = (p) => !!p && p.reduced === true;
 const canEditProject = (p) => canWriteProjects() && !isReduced(p);
 const canTaskOn = (p) => !p || !isReduced(p) || ['owner', 'manager', 'admin'].includes(myRole()); // creating a task on a project
 const canWriteContact = (type) => isManager() || (myRole() === 'team_lead' && type !== 'employee');
+/* adding someone new to the databases (contacts_insert): managers anything; every member an external contact — e.g. from a meeting request */
+const canCreateContact = (type) => isManager() || (isMember() && type !== 'employee');
 const ROLE_LABELS = { owner: 'בעלים', manager: 'מנהל/ת', team_lead: 'ראש/ת צוות', staff: 'עובד/ת', admin: 'אדמיניסטרציה', pending: 'ממתין/ה לאישור', disabled: 'חסום/ה' };
 const ready = () => S.dbState === 'ready' && S.auth.status === 'ready';
 
@@ -3648,6 +3668,76 @@ const requestTask = (rid) => TK().find((t) => t.requestId === rid) || null;
 function closeRequestTask(rid) { const t = requestTask(rid); if (t && t.status !== 'done') setTaskStatus(t.id, 'done'); }
 const isAdminRole = () => myRole() === 'admin';
 const R = () => list('requests');
+/* ---------- participants of a meeting request: office employees and external contacts, straight from the databases ----------
+   requests.participant_ids holds contact ids. Anyone who may request a meeting may also add a new (non-employee) contact to the
+   databases from the form — so the person needed for the meeting is in the system from the first time they are mentioned. */
+const PART_TYPES = ['person', 'client', 'consultant', 'contractor', 'pm', 'supplier', 'partner'];
+const reqParticipants = (r) => (r?.participantIds || []).map((id) => contact(id)).filter(Boolean);
+/* the small print of a participant chip: employees by team / role, externals by kind and organisation */
+const partSub = (c) => c.type === 'employee' ? (c.teamId ? tname(c.teamId, '') : (c.role || 'משרד')) : [CTYPES[c.type]?.label || '', personOrg(c)].filter(Boolean).join(' · ');
+const partChip = (c, inner = '', attrs = '') => `<span class="chip part ${c.type === 'employee' ? 'emp' : ''}" title="${esc(partSub(c))}" ${attrs}>${esc(c.name)}${c.type !== 'employee' ? `<small>${esc(CTYPES[c.type]?.label || '')}</small>` : ''}${inner}</span>`;
+/* who is likely to sit in a meeting of this project: the office team, the client and their people, the project manager, consultants… */
+function projectPeople(pid) {
+  const p = pid ? S.projects[pid] : null; if (!p) return [];
+  const ids = [p.leadId, ...(p.memberIds || []), p.clientId, ...(p.clientPersonIds || []), p.pmId, ...(p.consultantIds || []), ...(p.contractorIds || []), ...(p.partnerIds || []), ...(p.supplierIds || [])];
+  return [...new Set(ids.filter(Boolean))].map((id) => contact(id)).filter((c) => c && c.active !== false);
+}
+const partNames = (r, max = 3) => { const ps = reqParticipants(r); return ps.length ? ps.slice(0, max).map((c) => c.name).join(', ') + (ps.length > max ? ` +${ps.length - max}` : '') : ''; };
+/* a participant as text for a meeting summary's "who was there": externals with their kind and organisation */
+const partText = (c) => c.type === 'employee' ? c.name : `${c.name} (${[CTYPES[c.type]?.label || '', personOrg(c)].filter(Boolean).join(', ')})`;
+/* the participants in a request drawer: each opens the contact card; externals show their kind and phone — what administration needs to call */
+const partsHtml = (r) => `<div class="chips rq-parts">${reqParticipants(r).map((c) => `<a href="#" class="chip part ${c.type === 'employee' ? 'emp' : ''}" data-action="open-contact" data-id="${c.id}" title="${esc(partSub(c))}">${esc(c.name)}${c.type !== 'employee' ? `<small>${esc([CTYPES[c.type]?.label || '', c.phone || c.phone2 || ''].filter(Boolean).join(' · '))}</small>` : ''}</a>`).join('')}</div>`;
+function addParticipant(id) { const f = S.ui.reqForm; if (!f || !S.contacts[id]) return; f.participantIds = [...new Set([...(f.participantIds || []), id])]; f.newContact = null; render(); }
+function removeParticipant(id) { const f = S.ui.reqForm; if (!f) return; f.participantIds = (f.participantIds || []).filter((x) => x !== id); render(); }
+function startNewContact(name) { const f = S.ui.reqForm; if (!f) return; f.newContact = { name: name || '', type: 'person', company: '', phone: '', email: '' }; render(); setTimeout(() => { const i = document.getElementById(name ? 'rqc-type' : 'rqc-name'); if (i) i.focus(); }, 30); }
+/* the "+" of the participants: everyone active in the databases — people of the project first, then the office, then the rest — and a way in for someone new */
+function openParticipantPicker(anchor) {
+  const f = S.ui.reqForm; if (!f) return;
+  const chosen = new Set(f.participantIds || []);
+  const near = new Set((f.scope === 'project' && f.projectId ? projectPeople(f.projectId) : []).map((c) => c.id));
+  const people = C().filter((c) => c.active !== false && c.id !== myContactId() && (c.type === 'employee' || PART_TYPES.includes(c.type)));
+  const rank = (c) => (chosen.has(c.id) ? 100 : 0) + (near.has(c.id) ? 0 : 10) + (c.type === 'employee' ? 0 : 1); // chosen ones stay listed (marked) so a name is never offered twice
+  const items = [{ label: 'איש קשר חדש — עוד לא במאגר', sub: 'נשמר במאגרים ומצורף לפגישה', value: '__new', icon: ICON.plus },
+    ...people.sort((a, b) => rank(a) - rank(b) || byName(a, b)).map((c) => ({ label: c.name, sub: chosen.has(c.id) ? 'כבר ברשימה' : (near.has(c.id) ? 'בפרויקט · ' : '') + partSub(c), value: c.id, selected: chosen.has(c.id) }))];
+  openMenu(anchor, { search: true, create: true, createLabel: 'כאיש קשר חדש', placeholder: 'חיפוש עובד/ת או איש קשר…', emptyText: 'לא נמצא במאגרים — הקלידו את השם המלא כדי להוסיף', items,
+    onPick: (it) => { if (it.value === '__new') startNewContact(''); else addParticipant(it.value); },
+    onCreate: (name) => startNewContact(name) });
+}
+/* the mini-form for a contact who is not in the databases yet; saved as a regular contact (type ≠ employee) and added to the request */
+async function saveNewParticipant() {
+  const f = S.ui.reqForm; if (!f || !f.newContact) return;
+  const nc = f.newContact;
+  ['name', 'type', 'company', 'phone', 'email'].forEach((k) => { const el = document.getElementById('rqc-' + k); if (el) nc[k] = el.value; });
+  const name = (nc.name || '').trim(); if (!name) { toast('מה השם?'); document.getElementById('rqc-name')?.focus(); return; }
+  const type = PART_TYPES.includes(nc.type) ? nc.type : 'person';
+  if (!canCreateContact(type)) { toast('אין לך הרשאה להוסיף למאגר'); return; }
+  const dup = C().find((c) => c.active !== false && norm(c.name) === norm(name)); // the same name already in the databases: use that card, no duplicate
+  if (dup) { addParticipant(dup.id); toast(`${dup.name} כבר במאגר — צורף/ה לפגישה`); return; }
+  const id = uid('c'); const company = (nc.company || '').trim();
+  const ok = await createDoc('contacts', id, { type, name, firstName: '', lastName: '', company: type === 'client' && !company ? name : company, role: '', category: '', teamId: null, parentId: null, phone: (nc.phone || '').trim(), phone2: '', email: (nc.email || '').trim(), address: '', notes: '', active: true });
+  if (!ok) return;
+  addParticipant(id);
+  toast(`${name} נוסף/ה למאגר ולפגישה`);
+}
+function participantsBlock(f) {
+  const chosen = (f.participantIds || []).map((id) => contact(id)).filter(Boolean);
+  const suggest = f.scope === 'project' && f.projectId ? projectPeople(f.projectId).filter((c) => !(f.participantIds || []).includes(c.id) && c.id !== myContactId()).slice(0, 10) : [];
+  const nc = f.newContact;
+  const types = PART_TYPES.map((t) => ({ value: t, label: CTYPES[t].label }));
+  return `<div class="field"><label>משתתפים נדרשים</label>
+    <div class="chips rq-parts" id="rq-parts">${chosen.map((c) => partChip(c, `<button type="button" class="x" data-action="rq-part-remove" data-id="${c.id}" title="הסר">${ICON.x}</button>`)).join('')}
+      <button type="button" class="chip btn-chip add" id="rq-part-pick" data-action="rq-part-pick" title="עובדי המשרד ואנשי הקשר מהמאגרים — או מישהו חדש">${ICON.plus} הוספת משתתף/ת</button></div>
+    ${suggest.length ? `<div class="rq-suggest" id="rq-suggest"><small>מהפרויקט:</small>${suggest.map((c) => `<button type="button" class="chip dim btn-chip" data-action="rq-part-add" data-id="${c.id}" title="${esc(partSub(c))}">${ICON.plus} ${esc(c.name)}</button>`).join('')}</div>` : ''}
+    ${nc ? `<div class="rq-newc" id="rq-newc">
+      <div class="rq-newc-head"><strong>איש קשר חדש</strong><span class="muted">נשמר במאגרים ומצורף לפגישה</span></div>
+      <div class="field-row">${field('שם', `<input type="text" id="rqc-name" value="${esc(nc.name || '')}" data-rqc="name" placeholder="שם מלא" autocomplete="off">`)}${field('סוג', selectHtml('rqc-type', nc.type || 'person', types, { attrs: 'data-rqc="type"' }))}</div>
+      <div class="field-row">${field('ארגון / חברה', `<input type="text" id="rqc-company" value="${esc(nc.company || '')}" data-rqc="company" placeholder="לא חובה">`)}${field('טלפון', `<input type="tel" id="rqc-phone" value="${esc(nc.phone || '')}" data-rqc="phone" dir="ltr" placeholder="05x-xxxxxxx">`)}</div>
+      ${field('מייל', `<input type="email" id="rqc-email" value="${esc(nc.email || '')}" data-rqc="email" dir="ltr" placeholder="לא חובה">`)}
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn small primary" data-action="rq-newc-add">${ICON.plus} הוסף למאגר ולפגישה</button><button type="button" class="btn small" data-action="rq-newc-cancel">ביטול</button></div>
+    </div>` : ''}
+    <div class="inline-note">עובדי משרד ואנשי קשר חיצוניים מתוך המאגרים — כך האדמיניסטרציה יודעת את מי לתאם. מי שעוד לא במאגר נוסף דרך ה־＋ ונשמר במאגרים.</div>
+  </div>`;
+}
 const leaveLeadDays = () => Number(settings().leaveLeadDays) || 3;
 const partnerIds = () => { const pid = settings().partnerUserId; if (pid && S.profiles[pid]) return [pid]; return Object.values(S.profiles).filter((p) => p.role === 'owner').map((p) => p.id); };
 const leadUserOf = (requesterId) => { // the profile of the requester's team lead (null when none, or when the requester is that lead)
@@ -3691,8 +3781,8 @@ const reqStatusChip = (r) => { const s = REQ_STATUS[r.status] || REQ_STATUS.open
 function submitRequest(kind, f) {
   if (!isMember()) { toast('אין לך הרשאה'); return null; }
   const id = uid('rq'); const c = myContactId() ? S.contacts[myContactId()] : null;
-  const body = { kind, requesterId: me().id, contactId: myContactId(), projectId: f.projectId || null, scope: f.scope || null, meetingType: f.meetingType || null, title: (f.title || '').trim(), note: (f.note || '').trim(), startDate: f.startDate || null, endDate: f.endDate || f.startDate || null, days: null, atTime: f.atTime || null, urgency: null, status: 'open', needs: [], approvals: [], handledBy: null, handledAt: null };
-  if (kind === 'meeting') { body.needs = ['admin']; body.urgency = clampUrgency(f.urgency); body.startDate = null; body.endDate = null; body.atTime = null; } // administration sets the date when it schedules
+  const body = { kind, requesterId: me().id, contactId: myContactId(), projectId: f.projectId || null, scope: f.scope || null, meetingType: f.meetingType || null, title: (f.title || '').trim(), note: (f.note || '').trim(), startDate: f.startDate || null, endDate: f.endDate || f.startDate || null, days: null, atTime: f.atTime || null, urgency: null, participantIds: [], status: 'open', needs: [], approvals: [], handledBy: null, handledAt: null };
+  if (kind === 'meeting') { body.needs = ['admin']; body.urgency = clampUrgency(f.urgency); body.participantIds = [...new Set((f.participantIds || []).filter((cid) => !!S.contacts[cid]))]; body.startDate = null; body.endDate = null; body.atTime = null; } // administration sets the date when it schedules; the participants come from the databases
   else if (kind === 'leave') { body.days = workingDaysBetween(c, body.startDate, body.endDate); body.needs = body.days > leaveLeadDays() ? ['lead', 'partner'] : ['lead']; }
   else { body.needs = ['lead', 'admin']; body.status = 'done'; }
   createDoc('requests', id, body);
@@ -3728,7 +3818,7 @@ function requestRow(r, opts = {}) {
   return `<div class="list-item req-row" data-action="open-request" data-id="${r.id}">
     <div class="li-body">
       <div class="li-title">${esc(REQ_KINDS[r.kind]?.label || r.kind)}${!mine ? ` · <span class="muted">${esc(uname(r.requesterId))}</span>` : ''}</div>
-      <div class="li-sub">${esc(reqTitle(r))}${r.note ? ' · ' + esc(r.note.slice(0, 80)) : ''}</div>
+      <div class="li-sub">${esc(reqTitle(r))}${r.kind === 'meeting' && partNames(r) ? ' · עם ' + esc(partNames(r)) : ''}${r.note ? ' · ' + esc(r.note.slice(0, 80)) : ''}</div>
     </div>
     <div class="li-side" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
       ${urgencyChip(r)}
@@ -3765,9 +3855,10 @@ function drawerNewRequest() {
       <div class="field"><label>סוג הפגישה</label><span class="seg">${Object.entries(REQ_MEETING).map(([v, l]) => `<button type="button" class="${f.meetingType === v ? 'on' : ''}" data-action="req-set" data-key="meetingType" data-value="${v}">${l}</button>`).join('')}</span></div>
       <div class="field"><label>בהקשר של</label><span class="seg">${Object.entries(REQ_SCOPES).map(([v, l]) => `<button type="button" class="${f.scope === v ? 'on' : ''}" data-action="req-set" data-key="scope" data-value="${v}">${l}</button>`).join('')}</span></div>
       ${f.scope === 'project' ? field('פרויקט', selectHtml('rq-project', f.projectId || '', projOpts, { blank: 'בחר פרויקט…', attrs: 'data-req="projectId"' })) : ''}
-      ${field('נושא / עם מי', `<input type="text" id="rq-title" value="${esc(f.title || '')}" data-req="title" placeholder="למשל: פגישת תיאום עם היזם, מצגת ללקוח">`)}
+      ${field('נושא', `<input type="text" id="rq-title" value="${esc(f.title || '')}" data-req="title" placeholder="למשל: פגישת תיאום עם היזם, מצגת ללקוח">`)}
+      ${participantsBlock(f)}
       <div class="field"><label>כמה דחוף</label><span class="seg urg-seg" id="rq-urgency">${REQ_URGENCY.map((u, i) => `<button type="button" class="${urg === i ? 'on' : ''} u${i}" data-action="req-set" data-key="urgency" data-value="${i}" title="${esc(u.label)}">${u.short}</button>`).join('')}</span><div class="inline-note" id="rq-urgency-hint"><b>${esc(REQ_URGENCY[urg].label)}</b> — ${esc(REQ_URGENCY[urg].hint)}. 0 = היום, 1 = השבוע, 2 = שבוע הבא … 5 = כשיתאפשר. את התאריך והשעה תקבע האדמיניסטרציה.</div></div>
-      ${field('הערות', `<textarea id="rq-note" rows="3" data-req="note" placeholder="משתתפים, מיקום, משך, אילוצי זמן (למשל: לא בימי ג׳)…">${esc(f.note || '')}</textarea>`)}
+      ${field('הערות', `<textarea id="rq-note" rows="3" data-req="note" placeholder="מיקום, משך, אילוצי זמן (למשל: לא בימי ג׳)…">${esc(f.note || '')}</textarea>`)}
       <div class="inline-note">הבקשה תגיע לאדמיניסטרציה (${approversOf({ needs: ['admin'], requesterId: me().id }).admin.map((id) => uname(id)).join(', ') || '—'}) ותיפתח אצלה כמשימה לפי הדחיפות; כשתיקבע, תקבל/י התראה.</div>`
     : f.kind === 'leave' ? `
       <div class="field-row">${field('מתאריך', `<input type="date" id="rq-start" value="${esc(f.startDate || '')}" data-req="startDate">`)}${field('עד תאריך', `<input type="date" id="rq-end" value="${esc(f.endDate || f.startDate || '')}" data-req="endDate">`)}</div>
@@ -3798,6 +3889,7 @@ function drawerRequest(id) {
     ['מבקש/ת', uname(r.requesterId)], ['נשלח', fmtDateTime(r.createdAt)],
     r.kind === 'meeting' ? ['פגישה', `${REQ_MEETING[r.meetingType] || ''} · ${REQ_SCOPES[r.scope] || ''}${r.projectId && S.projects[r.projectId] ? ' · ' + S.projects[r.projectId].name : ''}`] : null,
     r.kind === 'meeting' ? ['נושא', r.title] : null,
+    r.kind === 'meeting' && reqParticipants(r).length ? ['משתתפים', '', partsHtml(r)] : null,
     reqUrgency(r) ? ['דחיפות', `${reqUrgency(r).label} — ${reqUrgency(r).hint}`] : null,
     r.startDate ? [r.kind === 'meeting' ? (r.status === 'done' ? 'נקבע ל' : 'תאריך מועדף') : 'תאריכים', `${fmtDate(r.startDate)}${r.endDate && r.endDate !== r.startDate ? ' – ' + fmtDate(r.endDate) : ''}${r.atTime ? ' · ' + r.atTime : ''}`] : null,
     r.kind === 'leave' ? ['ימי עבודה', fmtNum(r.days || 0)] : null,
@@ -3811,7 +3903,7 @@ function drawerRequest(id) {
     <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
   </div>
   <div class="drawer-body">
-    <div class="section"><div style="margin-bottom:8px">${reqStatusChip(r)}</div>${rowsInfo.map(([l, v]) => `<div class="role-row"><div class="role-name">${l}</div><div class="role-body">${esc(v)}</div></div>`).join('')}${task ? `<div class="role-row"><div class="role-name">משימה</div><div class="role-body"><a href="#" data-action="open-task" data-id="${task.id}">${esc(task.title)}</a> · ${esc(uname(task.assigneeId, 'ללא אחראי'))} · <span class="chip ${task.status === 'done' ? 'green' : 'yellow'}">${esc(TASK_STATUS[task.status]?.label || task.status)}</span>${task.dueDate ? ' · עד ' + esc(fmtDate(task.dueDate)) : ''}</div></div>` : ''}</div>
+    <div class="section"><div style="margin-bottom:8px">${reqStatusChip(r)}</div>${rowsInfo.map(([l, v, html]) => `<div class="role-row"><div class="role-name">${l}</div><div class="role-body">${html || esc(v)}</div></div>`).join('')}${task ? `<div class="role-row"><div class="role-name">משימה</div><div class="role-body"><a href="#" data-action="open-task" data-id="${task.id}">${esc(task.title)}</a> · ${esc(uname(task.assigneeId, 'ללא אחראי'))} · <span class="chip ${task.status === 'done' ? 'green' : 'yellow'}">${esc(TASK_STATUS[task.status]?.label || task.status)}</span>${task.dueDate ? ' · עד ' + esc(fmtDate(task.dueDate)) : ''}</div></div>` : ''}</div>
     ${r.needs?.length ? `<div class="section"><h3 class="section-title">${r.kind === 'sick' || r.kind === 'late' ? 'עודכנו' : 'אישורים'}</h3>${r.kind === 'sick' || r.kind === 'late' ? `<div class="muted">${esc(Object.values(ap).flat().map((id) => uname(id)).join(', ') || '—')}</div>` : chain}</div>` : ''}
     ${roles.length ? `<div class="section"><h3 class="section-title">${r.kind === 'meeting' ? 'קביעת הפגישה' : 'ההחלטה שלך'}</h3>
       ${r.kind === 'meeting' ? `<div class="field-row">${field('תאריך', `<input type="date" id="rq-decision-date" value="${esc(r.startDate || '')}">`)}${field('שעה', `<input type="time" id="rq-decision-time" value="${esc(r.atTime || '')}">`)}</div>` : ''}
@@ -4581,7 +4673,7 @@ function upcomingMeetings(days = 14) {
 /* a meeting request administration still has to schedule: who asked, for what, how urgent */
 const pendingRequestRow = (r) => `<div class="task-item" data-action="open-request" data-id="${r.id}">
     <span class="visit-ic">${ICON.pin}</span>
-    <div class="li-body"><div class="li-title">${esc(r.title || 'פגישה')}</div><div class="li-sub">${esc([r.projectId && S.projects[r.projectId] ? S.projects[r.projectId].name : (REQ_SCOPES[r.scope] || ''), REQ_MEETING[r.meetingType] || '', uname(r.requesterId, ''), fmtDate(r.createdAt)].filter(Boolean).join(' · '))}</div></div>
+    <div class="li-body"><div class="li-title">${esc(r.title || 'פגישה')}</div><div class="li-sub">${esc([r.projectId && S.projects[r.projectId] ? S.projects[r.projectId].name : (REQ_SCOPES[r.scope] || ''), REQ_MEETING[r.meetingType] || '', uname(r.requesterId, ''), partNames(r) ? 'עם ' + partNames(r) : '', fmtDate(r.createdAt)].filter(Boolean).join(' · '))}</div></div>
     <div class="li-side">${urgencyChip(r)}</div>
   </div>`;
 const upcomingRow = (u) => `<div class="task-item" ${u.attrs}>
@@ -4660,7 +4752,8 @@ async function meetingsAction(a, ds, t, e) {
     case 'meeting-from-request': { // a meeting administration has set → its summary, with the subject, date and project already filled in
       if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; }
       const r = S.requests[ds.id]; if (!r || r.kind !== 'meeting') return true;
-      const id = await newVisit(r.projectId && S.projects[r.projectId] && !isReduced(S.projects[r.projectId]) ? r.projectId : null, 'meeting', { title: r.title || '', venue: r.meetingType === 'external' ? 'client' : 'office', visitDate: r.startDate || todayStr(), visitTime: r.atTime || '' });
+      const attendees = [uname(r.requesterId, ''), ...reqParticipants(r).map(partText)].filter(Boolean).join(', '); // the requester and the participants of the request, ready to be corrected
+      const id = await newVisit(r.projectId && S.projects[r.projectId] && !isReduced(S.projects[r.projectId]) ? r.projectId : null, 'meeting', { title: r.title || '', venue: r.meetingType === 'external' ? 'client' : 'office', visitDate: r.startDate || todayStr(), visitTime: r.atTime || '', attendees });
       if (id) openDrawer('visit', id);
       return true;
     }
@@ -5993,6 +6086,8 @@ document.addEventListener('input', (e) => {
   if (el.id === 'mt-q') { S.ui.mtq = el.value; S.ui.mtlimit = 0; render(); return; }
   if (el.id === 'tf-q') { S.ui.tfilter.q = el.value; render(); return; }
   if (el.dataset.comment) { S.ui.drafts[el.id] = el.value; mentionTyping(el); return; }
+  if (el.dataset.rqc) { const f = S.ui.reqForm; if (f?.newContact) f.newContact[el.dataset.rqc] = el.value; return; } // the new-contact mini-form survives a re-render
+  if (el.dataset.req && el.dataset.req !== 'projectId') { const f = S.ui.reqForm; if (f) f[el.dataset.req] = el.value; return; } // a title typed and not yet blurred is kept when a participant is added
   if (el.id === 'import-text') { S.ui.importState.text = el.value; return; }
   if (el.dataset.bind && (el.tagName === 'TEXTAREA' || el.type === 'text')) S.ui.drafts[el.id] = el.value;
   if (el.id === 'p-statusNote') { S.ui.drafts[el.id] = el.value; const b = document.querySelector('[data-action="update-status"]'); if (b) b.textContent = 'שמור ועדכן סטטוס'; }
@@ -6012,6 +6107,7 @@ document.addEventListener('change', (e) => {
   if (el.dataset.action === 'toggle-person') { const p = S.projects[el.dataset.id]; if (!p || !canWriteProjects()) { render(); return; } const cur = p.clientPersonIds || []; patchDoc('projects', p.id, { clientPersonIds: el.checked ? [...new Set([...cur, el.dataset.person])] : cur.filter((x) => x !== el.dataset.person) }); return; }
   // settings
   if (el.dataset.req) { const f = S.ui.reqForm; if (!f) return; f[el.dataset.req] = el.value; if (el.dataset.req === 'startDate' && (!f.endDate || f.endDate < el.value)) f.endDate = el.value; if (f.kind === 'leave' || el.dataset.req === 'projectId') render(); return; }
+  if (el.dataset.rqc) { const f = S.ui.reqForm; if (f?.newContact) f.newContact[el.dataset.rqc] = el.value; return; }
   if (el.dataset.sched) { const [cid, d, key] = el.dataset.sched.split(':'); if (key === 'on') setScheduleDay(cid, Number(d), el.checked ? {} : null); else if (el.value) setScheduleDay(cid, Number(d), { [key]: el.value }); return; }
   if (el.dataset.stgtarget) { const [pid, sid] = el.dataset.stgtarget.split(':'); const p = S.projects[pid]; if (!p || !canEditMilestones()) return; const row = ensureStageRow(p, sid, 'todo'); patchDoc('project_milestones', row.id, { dueDate: el.value || null }); return; }
   if (el.dataset.stgname) { const [pid, sid] = el.dataset.stgname.split(':'); const p = S.projects[pid]; if (!p || !canEditMilestones()) return; const name = el.value.trim(); if (!name) return; patchDoc('projects', pid, { stages: ownStageIds(p).map((id) => ({ id, name: id === sid ? name : stageName(id, p) })) }); milestonesOf(pid).filter((m) => msIsStageRow(m) && msStage(m) === sid).forEach((m) => patchDoc('project_milestones', m.id, { name })); return; }
@@ -6052,6 +6148,7 @@ document.addEventListener('keydown', (e) => {
     if (el.dataset.mscheckadd) { e.preventDefault(); document.querySelector(`[data-action="ms-check-add"][data-id="${el.dataset.mscheckadd}"]`)?.click(); return; }
     if (el.dataset.socialadd) { e.preventDefault(); addSocial(el.dataset.socialadd, el.value); return; }
     if (el.id?.startsWith('check-add-')) { e.preventDefault(); document.querySelector(`[data-action="check-add"][data-id="${el.id.slice(10)}"]`)?.click(); return; }
+    if (el.dataset.rqc && el.tagName === 'INPUT') { e.preventDefault(); document.querySelector('[data-action="rq-newc-add"]')?.click(); return; }
     if (el.id === 'add-team') { document.querySelector('[data-action="add-team"]')?.click(); return; }
     if (el.id === 'add-phase') { document.querySelector('[data-action="add-phase"]')?.click(); return; }
     
@@ -6234,6 +6331,12 @@ document.addEventListener('click', async (e) => {
     case 'rtab': S.ui.rtab = ds.tab; render(); break;
     case 'req-kind': { const f = S.ui.reqForm || (S.ui.reqForm = {}); f.kind = ds.kind || null; if (!f.startDate) f.startDate = todayStr(); if (!f.endDate) f.endDate = f.startDate; if (!f.scope) f.scope = 'project'; if (!f.meetingType) f.meetingType = 'internal'; if (f.urgency == null) f.urgency = REQ_URGENCY_DEFAULT; render(); break; }
     case 'req-set': { const f = S.ui.reqForm; if (!f) break; f[ds.key] = ds.key === 'urgency' ? clampUrgency(ds.value) : ds.value; render(); break; }
+    // participants of a meeting request: from the databases, or a new contact on the spot
+    case 'rq-part-pick': e.stopPropagation(); openParticipantPicker(t); break;
+    case 'rq-part-add': addParticipant(ds.id); break;
+    case 'rq-part-remove': e.stopPropagation(); removeParticipant(ds.id); break;
+    case 'rq-newc-add': await saveNewParticipant(); break;
+    case 'rq-newc-cancel': { const f = S.ui.reqForm; if (f) { f.newContact = null; render(); } break; }
     case 'req-submit': {
       const f = S.ui.reqForm; if (!f || !f.kind) break;
       if (f.kind === 'meeting' && f.scope === 'project' && !f.projectId) { toast('בחרו פרויקט'); break; }
