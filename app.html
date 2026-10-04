@@ -2063,7 +2063,7 @@ function renderContacts() {
   <div class="view-head">
     <div><h1 class="view-title">מאגרים</h1><div class="view-sub">כל הנתונים שמזינים את הפרויקטים: אנשים, ספקים ורשימות. כל רשומה מופיעה פעם אחת ומקושרת לפרויקטים שלה.</div></div>
     <div class="view-actions">
-      ${canAdd ? `<button class="btn" data-action="open-import" data-type="${tab}">ייבוא מהדבקה</button><button class="btn primary" data-action="new-contact" data-type="${tab}">${ICON.plus} ${CTYPES[tab].new}</button>` : ''}
+      ${canAdd ? `${canImportContacts(tab) ? `<button class="btn" data-action="open-import" data-type="${tab}">ייבוא מהדבקה</button>` : ''}<button class="btn primary" data-action="new-contact" data-type="${tab}">${ICON.plus} ${CTYPES[tab].new}</button>` : ''}
     </div>
   </div>
   <div class="filters">
@@ -2372,9 +2372,12 @@ const canWriteProjects = () => ['owner', 'manager', 'team_lead'].includes(myRole
 const isReduced = (p) => !!p && p.reduced === true;
 const canEditProject = (p) => canWriteProjects() && !isReduced(p);
 const canTaskOn = (p) => !p || !isReduced(p) || ['owner', 'manager', 'admin'].includes(myRole()); // creating a task on a project
-const canWriteContact = (type) => isManager() || (myRole() === 'team_lead' && type !== 'employee');
-/* adding someone new to the databases (contacts_insert): managers anything; every member an external contact — e.g. from a meeting request */
-const canCreateContact = (type) => isManager() || (isMember() && type !== 'employee');
+/* the databases (4.10.2026): every member adds and edits external contacts — clients, their people, consultants, contractors, suppliers… —
+   from wherever it is relevant (the databases tab, a meeting request, a project). Employees (HR) stay with managers. Deleting and merging:
+   managers; bulk import by paste: managers and team leads. Mirror of contacts_insert / contacts_update. */
+const canWriteContact = (type) => isManager() || (isMember() && type !== 'employee');
+const canCreateContact = canWriteContact;
+const canImportContacts = (type) => isManager() || (myRole() === 'team_lead' && type !== 'employee');
 const ROLE_LABELS = { owner: 'בעלים', manager: 'מנהל/ת', team_lead: 'ראש/ת צוות', staff: 'עובד/ת', admin: 'אדמיניסטרציה', pending: 'ממתין/ה לאישור', disabled: 'חסום/ה' };
 const ready = () => S.dbState === 'ready' && S.auth.status === 'ready';
 
@@ -5032,8 +5035,9 @@ document.addEventListener('change', (e) => {
    At the end of each workday every employee says how the day went: hours per project in half-hour steps, plus office categories
    (office / self-management / team management for leads / other with a note). The day's target is the person's fixed hours for that
    weekday (work_schedules; the office default is 9). Lines are suggested — the person's projects, projects they touched today and
-   lately — hours start at 0, "כמו אתמול" copies the previous workday. Editable by the person, their team lead and managers.
-   Tables: time_entries (one row per project / category per day) and time_days (the day is closed: done | absent). */
+   lately — hours start at 0, "כמו אתמול" copies the previous workday. Editable by the person and their team lead.
+   Owners, managers and administration do not log hours at all (4.10.2026) — not their own, not anyone else's: they see every team and
+   export the month. Tables: time_entries (one row per project / category per day) and time_days (the day is closed: done | absent). */
 S.time_entries = {}; S.time_days = {};
 Object.assign(S.ui, { timeDate: null, timeWho: null });
 const TIME_CATS = { office: { label: 'משרדי', hint: 'ישיבות משרד, אדמיניסטרציה, כללי' }, self: { label: 'ניהול עצמי', hint: 'תכנון יום, לימוד, סידורים' }, team: { label: 'ניהול צוות', hint: 'ראשי צוותים: הנחיה, בדיקות, ישיבות צוות' }, other: { label: 'אחר', hint: 'יש להשלים תחום' } };
@@ -5051,7 +5055,16 @@ const awayOn = (cid, ymd) => (typeof R === 'function' ? R() : []).some((r) => r.
 const entriesOf = (cid, ymd) => TE().filter((e) => e.contactId === cid && e.date === ymd);
 const dayOf = (cid, ymd) => TD().find((d) => d.contactId === cid && d.date === ymd) || null;
 const dayTotal = (cid, ymd) => entriesOf(cid, ymd).reduce((s, e) => s + (Number(e.hours) || 0), 0);
-const canTouchHours = (cid) => !!cid && (isManager() || cid === myContactId() || (myRole() === 'team_lead' && !!S.contacts[cid]?.teamId && teamLeadId(S.contacts[cid].teamId) === myContactId()));
+/* who logs hours: team leads and staff. Owners, managers and administration are "viewers": they log nothing — not for themselves, not
+   for others — but see every team and export (mirror of can_touch_hours / can_see_hours in the database). */
+const HOURS_ROLES = ['team_lead', 'staff'];
+const logsHours = (role) => HOURS_ROLES.includes(role);
+const iLogHours = () => logsHours(myRole());
+const hoursViewer = () => ['owner', 'manager', 'admin'].includes(myRole());
+const contactLogsHours = (cid) => { const p = profileByContact(cid); return !p || logsHours(p.role); }; // no account yet → will log once invited
+const leadsContact = (cid) => myRole() === 'team_lead' && !!S.contacts[cid]?.teamId && teamLeadId(S.contacts[cid].teamId) === myContactId();
+const canTouchHours = (cid) => !!cid && iLogHours() && (cid === myContactId() || leadsContact(cid));
+const canSeeHours = (cid) => !!cid && (hoursViewer() || cid === myContactId() || leadsContact(cid));
 const previousWorkday = (c, ymd) => { for (let i = 1; i <= 7; i++) { const d = addDays(ymd, -i); if (isWorkday(c, d)) return d; } return null; };
 /* the projects a person works on: project team, tasks assigned lately, hours logged lately, anything logged that day */
 function projectsOfPerson(cid, ymd) {
@@ -5078,7 +5091,7 @@ function openDaysOf(cid, now = new Date()) {
 }
 /* ---------- data ---------- */
 async function setHours(cid, ymd, key, hours, extra = {}) {
-  if (!canTouchHours(cid)) { toast('רק העובד/ת, ראש/ת הצוות או מנהל/ת'); return false; }
+  if (!canTouchHours(cid)) { toast(hoursViewer() ? 'מנהלים ואדמיניסטרציה לא רושמים שעות — רק רואים' : 'רק העובד/ת או ראש/ת הצוות'); return false; }
   hours = Math.max(0, Math.min(HOURS_MAX, Math.round(hours * 2) / 2));
   const projectId = key.startsWith('p:') ? key.slice(2) : null; const category = projectId ? 'project' : key.slice(4);
   const have = entriesOf(cid, ymd).find((e) => (projectId ? e.projectId === projectId : e.category === category && !e.projectId));
@@ -5087,7 +5100,7 @@ async function setHours(cid, ymd, key, hours, extra = {}) {
   return createDoc('time_entries', uid('te'), Object.assign({ date: ymd, contactId: cid, userId: profileByContact(cid)?.id || me()?.id || null, projectId, category, hours, note: '' }, extra));
 }
 async function closeDay(cid, ymd, status = 'done') {
-  if (!canTouchHours(cid)) { toast('רק העובד/ת, ראש/ת הצוות או מנהל/ת'); return false; }
+  if (!canTouchHours(cid)) { toast(hoursViewer() ? 'מנהלים ואדמיניסטרציה לא רושמים שעות — רק רואים' : 'רק העובד/ת או ראש/ת הצוות'); return false; }
   const c = S.contacts[cid]; const have = dayOf(cid, ymd);
   const patch = { status, plannedHours: plannedHours(c, ymd), submittedAt: nowIso() };
   if (have) return patchDoc('time_days', have.id, patch);
@@ -5120,7 +5133,7 @@ function timeDayEditor(cid, ymd, opts = {}) {
   if (p) TK().forEach((t) => { if (t.projectId && t.assigneeId === p.id && ((t.doneAt || '').slice(0, 10) === ymd || (t.updatedAt || '').slice(0, 10) === ymd)) touched.add(t.projectId); });
   SV().forEach((v) => { if (v.projectId && v.visitDate === ymd && (v.authorId === p?.id || (v.attendees || '').includes(c.name))) touched.add(v.projectId); });
   const lines = projects.map((pr) => timeLine(cid, ymd, 'p:' + pr.id, pr.name, Number(byKey['p:' + pr.id]?.hours) || 0, { project: pr, tag: touched.has(pr.id) ? 'נגעת היום' : '' }));
-  const cats = Object.entries(TIME_CATS).filter(([k]) => k !== 'team' || isTeamLead(cid) || ['owner', 'manager'].includes(profileByContact(cid)?.role)).map(([k, m]) => { const e = byKey['cat:' + k]; return timeLine(cid, ymd, 'cat:' + k, m.label, Number(e?.hours) || 0, { hint: m.hint, cls: 'cat', note: k === 'other' ? (e?.note || '') : undefined, notePlaceholder: 'תחום — חובה' }); });
+  const cats = Object.entries(TIME_CATS).filter(([k]) => k !== 'team' || isTeamLead(cid)).map(([k, m]) => { const e = byKey['cat:' + k]; return timeLine(cid, ymd, 'cat:' + k, m.label, Number(e?.hours) || 0, { hint: m.hint, cls: 'cat', note: k === 'other' ? (e?.note || '') : undefined, notePlaceholder: 'תחום — חובה' }); });
   const otherMissing = entries.some((e) => e.category === 'other' && Number(e.hours) > 0 && !(e.note || '').trim());
   const cls = total === 0 ? '' : total < planned ? 'warn' : total > planned + 2 ? 'warn' : 'good';
   const statusChip = day ? (day.status === 'absent' ? '<span class="chip dim">היעדרות</span>' : '<span class="chip green">נרשם ✓</span>') : (away ? '<span class="chip dim">חופשה / מחלה</span>' : (planned ? '<span class="chip yellow">עדיין לא נרשם</span>' : '<span class="chip dim">לא יום עבודה</span>'));
@@ -5144,7 +5157,7 @@ function timeDayEditor(cid, ymd, opts = {}) {
 }
 /* the end-of-day panel on the overview and on "היום שלי" */
 function timePanel() {
-  const cid = myContactId(); if (!cid || !isMember()) return '';
+  const cid = myContactId(); if (!cid || !iLogHours()) return ''; // owners, managers and administration are never asked
   const open = openDaysOf(cid); if (!open.length) return '';
   const d = open[open.length - 1]; const others = open.slice(0, -1);
   return `<div class="panel time-panel" id="time-panel">
@@ -5172,37 +5185,42 @@ function weekSummary(cid, ymd) {
 /* who filled what this week — the lead's team, or every team for managers */
 function teamHoursBoard(ymd) {
   const start = weekStart(ymd); const days = [0, 1, 2, 3, 4].map((i) => addDays(start, i));
-  const teams = isManager() ? T() : T().filter((t) => t.leadId === myContactId());
+  const viewer = hoursViewer();
+  const teams = viewer ? T() : T().filter((t) => t.leadId === myContactId());
   if (!teams.length) return '';
   const cell = (c, d) => { const planned = plannedHours(c, d); if (!planned) return '<td class="off">·</td>'; if (awayOn(c.id, d)) return '<td class="away">—</td>'; const day = dayOf(c.id, d); const total = dayTotal(c.id, d); const st = day ? (day.status === 'absent' ? 'away' : 'done') : total > 0 ? 'part' : d < todayStr() ? 'missing' : 'future'; return `<td class="${st}"><button type="button" data-action="te-open" data-cid="${c.id}" data-date="${d}" title="${esc(c.name + ' · ' + fmtDate(d))}">${st === 'away' ? '—' : st === 'future' ? '' : fmtHours(total)}${st === 'done' ? ' ✓' : ''}</button></td>`; };
-  const body = teams.map((t) => { const emps = teamMembers(t.id); if (!emps.length) return ''; return `<tr class="team-row"><th colspan="${days.length + 2}">${esc(t.name)}</th></tr>${emps.map((c) => `<tr><td class="who"><button type="button" data-action="te-open" data-cid="${c.id}" data-date="${ymd}">${esc(c.name)}</button></td>${days.map((d) => cell(c, d)).join('')}<td class="num">${fmtHours(days.reduce((s, d) => s + dayTotal(c.id, d), 0))}</td></tr>`).join('')}`; }).join('');
-  const missing = teams.flatMap((t) => teamMembers(t.id)).filter((c) => days.some((d) => d < todayStr() && isWorkday(c, d) && !awayOn(c.id, d) && !dayOf(c.id, d))).length;
+  const body = teams.map((t) => { const emps = teamMembers(t.id).filter((c) => contactLogsHours(c.id)); if (!emps.length) return ''; return `<tr class="team-row"><th colspan="${days.length + 2}">${esc(t.name)}</th></tr>${emps.map((c) => `<tr><td class="who"><button type="button" data-action="te-open" data-cid="${c.id}" data-date="${ymd}">${esc(c.name)}</button></td>${days.map((d) => cell(c, d)).join('')}<td class="num">${fmtHours(days.reduce((s, d) => s + dayTotal(c.id, d), 0))}</td></tr>`).join('')}`; }).join('');
+  const missing = teams.flatMap((t) => teamMembers(t.id)).filter((c) => contactLogsHours(c.id)).filter((c) => days.some((d) => d < todayStr() && isWorkday(c, d) && !awayOn(c.id, d) && !dayOf(c.id, d))).length;
   return `<div class="section" id="hours-board">
-    <h3 class="section-title">${isManager() ? 'כל הצוותים' : 'הצוות שלי'} — השבוע <small>${missing ? `${missing} עם ימים חסרים` : 'הכל נרשם'}</small>${isManager() ? ` <button class="btn ghost small" data-action="te-export" style="margin-inline-start:auto">${ICON.doc} ייצוא CSV לחודש</button>` : ''}</h3>
+    <h3 class="section-title">${viewer ? 'כל הצוותים' : 'הצוות שלי'} — השבוע <small>${missing ? `${missing} עם ימים חסרים` : 'הכל נרשם'}</small></h3>
     <div class="table-wrap"><table class="te-board"><thead><tr><th></th>${days.map((d) => `<th>${DAY_SHORT[dowOf(d)]} ${esc(fmtDate(d).slice(0, 5))}</th>`).join('')}<th>סה״כ</th></tr></thead><tbody>${body}</tbody></table></div>
-    <div class="inline-note">לחיצה על תא פותחת את היום של העובד/ת לעריכה. ✓ = היום נסגר · חלקי = נרשמו שעות בלי לסגור · חסר = לא נרשם · — = היעדרות.</div>
+    <div class="inline-note">לחיצה על תא פותחת את היום של העובד/ת ${viewer ? 'לצפייה' : 'לעריכה'}. ✓ = היום נסגר · חלקי = נרשמו שעות בלי לסגור · חסר = לא נרשם · — = היעדרות.</div>
   </div>`;
 }
 function renderTime() {
-  const myCid = myContactId();
-  const cid = (S.ui.timeWho && canTouchHours(S.ui.timeWho) ? S.ui.timeWho : null) || myCid;
+  const myCid = myContactId(); const viewer = hoursViewer();
+  const who = S.ui.timeWho && canSeeHours(S.ui.timeWho) ? S.ui.timeWho : null;
+  const cid = who || (viewer ? null : myCid); // a viewer (owner / manager / administration) has no hours of their own to show
   const ymd = S.ui.timeDate || (cid ? (openDaysOf(cid).slice(-1)[0] || todayStr()) : todayStr());
   const c = cid ? S.contacts[cid] : null;
-  const canPick = isManager() || myRole() === 'team_lead';
-  return `
-  <div class="view-head">
-    <div><h1 class="view-title">שעות</h1><div class="view-sub">רישום יומי לפי פרויקט בחצאי שעות — היעד הוא שעות המשרה של כל אחד · ${myCid ? `<a href="#" data-action="te-who" data-cid="${myCid}">השעות שלי</a>` : ''}</div></div>
-    <div class="view-actions">${canPick ? `<button class="btn" data-action="te-pick-who">${esc(c && c.id !== myCid ? c.name : 'עובד/ת אחר/ת…')}</button>` : ''}</div>
-  </div>
-  ${!c ? '<div class="panel"><div class="empty">המשתמש שלך אינו מקושר לכרטיס עובד/ת — בקשו ממנהל/ת לקשר אותו במסך משתמשים.</div></div>' : `
+  const canPick = viewer || myRole() === 'team_lead';
+  const sub = viewer ? 'הרישום היומי של העובדים לפי פרויקט — צפייה וייצוא. מנהלים ואדמיניסטרציה לא רושמים שעות.' : `רישום יומי לפי פרויקט בחצאי שעות — היעד הוא שעות המשרה של כל אחד${myCid ? ` · <a href="#" data-action="te-who" data-cid="${myCid}">השעות שלי</a>` : ''}`;
+  const person = !c ? '' : `
   <div class="panel">
-    <div class="te-nav"><button class="btn ghost small" data-action="te-shift" data-days="-7">${ICON.back} שבוע קודם</button><strong>${esc(c.name)}</strong><button class="btn ghost small" data-action="te-shift" data-days="7">שבוע הבא</button>${ymd !== todayStr() ? `<button class="btn ghost small" data-action="te-day" data-date="${todayStr()}">היום</button>` : ''}</div>
+    <div class="te-nav"><button class="btn ghost small" data-action="te-shift" data-days="-7">${ICON.back} שבוע קודם</button><strong>${esc(c.name)}</strong><button class="btn ghost small" data-action="te-shift" data-days="7">שבוע הבא</button>${ymd !== todayStr() ? `<button class="btn ghost small" data-action="te-day" data-date="${todayStr()}">היום</button>` : ''}${viewer ? `<button class="btn ghost small" data-action="te-who" data-cid="">סגור</button>` : ''}</div>
     ${weekStrip(cid, ymd)}
     ${timeDayEditor(cid, ymd, { showWho: cid !== myCid })}
+  </div>`;
+  return `
+  <div class="view-head">
+    <div><h1 class="view-title">שעות</h1><div class="view-sub">${sub}</div></div>
+    <div class="view-actions">${canPick ? `<button class="btn" data-action="te-pick-who">${esc(c && c.id !== myCid ? c.name : (viewer ? 'של מי לראות?' : 'עובד/ת אחר/ת…'))}</button>` : ''}${viewer ? `<button class="btn" data-action="te-export">${ICON.doc} ייצוא CSV לחודש</button>` : ''}</div>
   </div>
+  ${!c && !viewer ? '<div class="panel"><div class="empty">המשתמש שלך אינו מקושר לכרטיס עובד/ת — בקשו ממנהל/ת לקשר אותו במסך משתמשים.</div></div>' : `
+  ${person}
   <div class="grid-2">
-    <div class="panel">${weekSummary(cid, ymd)}</div>
-    ${canPick ? `<div class="panel">${teamHoursBoard(ymd)}</div>` : ''}
+    ${c ? `<div class="panel">${weekSummary(cid, ymd)}</div>` : ''}
+    ${canPick ? `<div class="panel">${teamHoursBoard(ymd) || '<div class="empty">אין עדיין צוותים.</div>'}</div>` : ''}
   </div>`}`;
 }
 /* CSV of a month for the office system (Admiral): date, employee, employee Admiral id, project, project Admiral id, category, hours, note */
@@ -5225,13 +5243,13 @@ async function timeAction(a, ds, t, e) {
     case 'te-open': S.ui.timeWho = ds.cid; S.ui.timeDate = ds.date; render(); setTimeout(() => document.querySelector('.te-day')?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 50); return true;
     case 'te-pick-who': {
       e.stopPropagation();
-      const pool = isManager() ? employees() : employees().filter((c) => canTouchHours(c.id));
+      const pool = hoursViewer() ? employees().filter((c) => contactLogsHours(c.id)) : employees().filter((c) => canTouchHours(c.id));
       openMenu(t, { search: true, placeholder: 'של מי השעות?', items: pool.map((c) => ({ label: c.name, sub: tname(c.teamId, ''), value: c.id, selected: c.id === (S.ui.timeWho || myContactId()) })), onPick: (it) => { S.ui.timeWho = it.value; render(); } });
       return true;
     }
     case 'te-step': { const key = ds.key; const cur = entriesOf(ds.cid, ds.date).find((x) => (key.startsWith('p:') ? x.projectId === key.slice(2) : x.category === key.slice(4) && !x.projectId)); await setHours(ds.cid, ds.date, key, (Number(cur?.hours) || 0) + Number(ds.delta)); return true; }
     case 'te-add-project': { // any project in the office — the person may have been handed a task outside their plan
-      e.stopPropagation(); if (!canTouchHours(ds.cid)) { toast('רק העובד/ת, ראש/ת הצוות או מנהל/ת'); return true; }
+      e.stopPropagation(); if (!canTouchHours(ds.cid)) { toast(hoursViewer() ? 'מנהלים ואדמיניסטרציה לא רושמים שעות — רק רואים' : 'רק העובד/ת או ראש/ת הצוות'); return true; }
       const have = new Set(entriesOf(ds.cid, ds.date).map((x) => x.projectId).concat(projectsOfPerson(ds.cid, ds.date).map((p) => p.id)));
       const items = P().filter((p) => p.state === 'active' && !have.has(p.id)).sort(byName).map((p) => ({ label: p.name, sub: [p.number, p.city, cname(p.clientId, '')].filter(Boolean).join(' · '), value: p.id }));
       openMenu(t, { search: true, placeholder: 'איזה פרויקט? (כל פרויקטי המשרד)', items, onPick: (it) => setHours(ds.cid, ds.date, 'p:' + it.value, 0.5) });
@@ -5240,7 +5258,7 @@ async function timeAction(a, ds, t, e) {
     case 'te-copy': await copyPreviousDay(ds.cid, ds.date); return true;
     case 'te-close': { const ok = await closeDay(ds.cid, ds.date, ds.status); if (ok) toast(ds.status === 'absent' ? 'נרשמה היעדרות' : 'היום נסגר — תודה'); return true; }
     case 'te-reopen': { const d = dayOf(ds.cid, ds.date); if (d && canTouchHours(ds.cid)) await deleteDoc('time_days', d.id); return true; }
-    case 'te-export': { if (!isManager()) return true; const base = S.ui.timeDate || todayStr(); const from = base.slice(0, 8) + '01'; const to = addDays(addDays(from, 32).slice(0, 8) + '01', -1); const n = exportHoursCsv(from, to); toast(n ? `${n} שורות יוצאו` : 'אין שעות בחודש הזה'); return true; }
+    case 'te-export': { if (!hoursViewer()) return true; const base = S.ui.timeDate || todayStr(); const from = base.slice(0, 8) + '01'; const to = addDays(addDays(from, 32).slice(0, 8) + '01', -1); const n = exportHoursCsv(from, to); toast(n ? `${n} שורות יוצאו` : 'אין שעות בחודש הזה'); return true; }
     default: return false;
   }
 }
@@ -5302,13 +5320,13 @@ function clientPeopleSection(p) {
   const extra = C().filter((x) => x.type === 'person' && chosen.includes(x.id) && x.parentId !== p.clientId);
   const all = [...ppl, ...extra];
   const ro = !canWriteProjects();
-  if (!all.length && ro) return '';
+  if (!all.length && ro && !canWriteContact('person')) return '';
   return `<div class="role-row"><div class="role-name">אנשי קשר מטעם הלקוח</div><div class="role-body">
     ${all.length ? `<div class="list">${all.map((x) => `<div class="list-item" style="cursor:default">
       <label class="switch" style="flex:none" title="מסומן = איש קשר של הפרויקט הזה"><input type="checkbox" data-action="toggle-person" data-id="${p.id}" data-person="${x.id}" ${chosen.includes(x.id) ? 'checked' : ''} ${ro ? 'disabled' : ''}></label>
       <div class="li-body"><div class="li-title"><a href="#" data-action="open-contact" data-id="${x.id}" style="color:inherit;text-decoration:none">${esc(x.name)}</a>${x.role ? ` <span class="muted">· ${esc(x.role)}</span>` : ''}${x.parentId !== p.clientId ? ' <span class="tag internal">' + esc(personOrg(x) || 'ללא שיוך') + '</span>' : ''}</div><div class="li-sub"><span class="ltr">${esc([x.phone || x.phone2, x.email].filter(Boolean).join(' · '))}</span></div></div>
     </div>`).join('')}</div>` : '<div class="inline-note">ללקוח הזה אין עדיין אנשי קשר במאגר.</div>'}
-    ${!ro && canWriteContact('person') ? `<button class="btn small ghost" data-action="new-person" data-parent="${p.clientId}" data-project="${p.id}">${ICON.plus} איש קשר חדש אצל הלקוח</button>` : ''}
+    ${canWriteContact('person') && !isReduced(p) ? `<button class="btn small ghost" data-action="new-person" data-parent="${p.clientId}" data-project="${p.id}" title="${ro ? 'נשמר אצל הלקוח במאגרים; לשיוך לפרויקט — ראש/ת הצוות' : ''}">${ICON.plus} איש קשר חדש אצל הלקוח</button>` : ''}
   </div></div>`;
 }
 /* the project's sections — shared by the quick-edit drawer and the full project page */
@@ -5643,7 +5661,7 @@ function drawerImport() {
   </div>
   <div class="drawer-body">
     ${im.rows ? '' : `<div class="section">
-      <div class="field"><label>סוג רשומות</label>${selectHtml('import-type', type, Object.entries(CTYPES).filter(([k]) => canWriteContact(k)).map(([value, m]) => ({ value, label: m.plural })))}</div>
+      <div class="field"><label>סוג רשומות</label>${selectHtml('import-type', type, Object.entries(CTYPES).filter(([k]) => canImportContacts(k)).map(([value, m]) => ({ value, label: m.plural })))}</div>
       <div class="field"><label>הדבקה</label><textarea id="import-text" rows="12" dir="auto" placeholder="שם&#9;טלפון&#9;מייל&#9;חברה&#9;תפקיד&#10;ישראל ישראלי&#9;050-1234567&#9;israel@example.com&#9;…">${esc(im.text)}</textarea></div>
       <div class="inline-note">כותרות מזוהות: ${Object.values(cols).join(', ')}. שורה עם שם שכבר קיים במאגר תעדכן את הפרטים החסרים במקום ליצור כפילות. עמודות לא מזוהות מתעלמות.</div>
       <div style="margin-top:12px"><button class="btn primary" data-action="import-parse">בדוק את הנתונים</button></div>
@@ -5689,6 +5707,7 @@ function parseImport(text, type) {
 async function commitImport() {
   const im = S.ui.importState; if (!im?.rows) return;
   const type = im.type; let created = 0, updated = 0;
+  if (!canImportContacts(type)) { toast('ייבוא מהדבקה — ראשי צוותים ומנהלים'); return; }
   for (const r of im.rows) {
     if (r.action === 'create') { const id = uid('c'); const d = Object.assign({ type, firstName: '', lastName: '', company: type === 'client' ? r.data.name : '', role: '', category: '', teamId: null, phone: '', email: '', notes: '', active: true }, r.data); if (await createDoc('contacts', id, d)) created++; }
     else if (r.action === 'update') { const patch = Object.assign({}, r.data); delete patch.name; if (await patchDoc('contacts', r.id, patch)) updated++; }
@@ -6395,7 +6414,7 @@ document.addEventListener('click', async (e) => {
     }
     case 'new-contact': {
       const type = ds.type || 'employee';
-      if (!canWriteContact(type)) { toast('הוספת ' + CTYPES[type].plural + ' שמורה למנהלים'); break; }
+      if (!canWriteContact(type)) { toast(type === 'employee' ? 'הוספת עובדים שמורה למנהלים' : 'אין לך הרשאה להוסיף למאגר'); break; }
       const id = uid('c');
       await createDoc('contacts', id, { type, name: CTYPES[type].new, firstName: '', lastName: '', company: '', role: '', category: '', teamId: null, phone: '', email: '', notes: '', active: true });
       openDrawer('contact', id);
@@ -6409,11 +6428,12 @@ document.addEventListener('click', async (e) => {
       openDrawer('commission', id); break;
     }
     case 'new-person': {
-      if (!canWriteContact('person')) { toast('הוספת אנשי קשר שמורה לראשי צוותים ומנהלים'); break; }
+      if (!canWriteContact('person')) { toast('אין לך הרשאה להוסיף למאגר'); break; }
       const org = ds.parent ? S.contacts[ds.parent] : null;
       const id = uid('c');
       await createDoc('contacts', id, { type: 'person', name: 'איש קשר חדש', firstName: '', lastName: '', company: '', role: '', category: '', teamId: null, parentId: org ? org.id : null, phone: '', phone2: '', email: '', address: '', notes: '', active: true });
       if (ds.project && S.projects[ds.project] && canWriteProjects()) await patchDoc('projects', ds.project, { clientPersonIds: [...(S.projects[ds.project].clientPersonIds || []), id] });
+      else if (ds.project && org) toast(`נשמר אצל ${org.name} במאגרים — לשיוך לפרויקט פנו לראש/ת הצוות`);
       openDrawer('contact', id);
       setTimeout(() => { const i = document.getElementById('c-name'); if (i) { i.focus(); i.select(); } }, 30);
       break;
@@ -6443,7 +6463,7 @@ document.addEventListener('click', async (e) => {
       openMenu(t, { search: true, placeholder: 'לתוך איזו רשומה למזג?', emptyText: 'אין רשומות מאותו סוג', items: C().filter((x) => x.type === c.type && x.id !== c.id).sort(byName).map((x) => ({ label: x.name, sub: x.company || x.role || x.category || '', value: x.id })), onPick: (it) => { S.ui.confirmMerge = { from: ds.id, into: it.value }; render(); } }); break; }
     case 'merge-confirm': { const m = S.ui.confirmMerge; S.ui.confirmMerge = null; if (m) await mergeContacts(m.from, m.into); break; }
     case 'merge-cancel': S.ui.confirmMerge = null; render(); break;
-    case 'open-import': S.ui.importState = { type: ds.type || S.ui.ctab, text: '', rows: null }; openDrawer('import', null); break;
+    case 'open-import': { const ty = ds.type || S.ui.ctab; if (!canImportContacts(ty)) { toast('ייבוא מהדבקה — ראשי צוותים ומנהלים'); break; } S.ui.importState = { type: ty, text: '', rows: null }; openDrawer('import', null); break; }
     case 'import-parse': { const im = S.ui.importState; im.text = document.getElementById('import-text')?.value || im.text; const res = parseImport(im.text, im.type); if (res.error) { toast(res.error); break; } im.rows = res.rows; render(); break; }
     case 'import-reset': S.ui.importState.rows = null; render(); break;
     case 'import-commit': await commitImport(); break;
