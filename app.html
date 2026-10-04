@@ -2652,6 +2652,10 @@ async function doSignup(name, email, password) {
   S.auth.busy = false;
   if (error) { S.auth.error = friendlyError(error); render(); return; }
   if (data.session) { await afterSignIn(data.session); return; }
+  // an address that is already registered: Supabase answers as if a new user was created (no email is sent) — say so instead of promising a mail
+  if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+    S.auth.mode = 'login'; S.auth.error = 'כבר יש חשבון עם הכתובת הזאת — היכנסו עם הסיסמה, או לחצו "שכחתי סיסמה" לקבלת קישור לאיפוס.'; S.auth.email = email.trim(); render(); return;
+  }
   S.auth.mode = 'login'; S.auth.notice = 'נשלח אליכם מייל לאישור הכתובת. אחרי הלחיצה על הקישור אפשר להיכנס.'; render();
 }
 async function doReset(email) {
