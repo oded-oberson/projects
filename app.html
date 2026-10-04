@@ -491,6 +491,9 @@
   .seg button.on { background: var(--ink); color: var(--accent-ink); }
   .seg button:disabled { cursor: default; opacity: .6; }
   .seg button.on:disabled { opacity: 1; }
+  .urg-seg button { min-width: 34px; font-weight: 600; }
+  .urg-seg button.u0.on { background: var(--crit); color: #fff; }
+  .urg-seg button.u1.on { background: var(--warn-ink); color: #fff; }
   .venue-seg { flex-wrap: wrap; }
   .venue-seg button { flex: 1 0 auto; }
   /* ---------- daily hours ---------- */
@@ -2930,7 +2933,7 @@ function drawerTask(id) {
   <div class="drawer-head">
     <div style="flex:1;min-width:0">
       <h2 class="drawer-title"><input type="text" id="t-title" value="${esc(S.ui.drafts['t-title'] ?? t.title)}" data-bind="tasks:${id}:title" placeholder="כותרת המשימה" aria-label="כותרת" ${dis}></h2>
-      <div class="drawer-sub">${p ? `<a href="#" data-action="open-project" data-id="${p.id}" style="color:inherit">${esc(p.name)}</a>` : 'משימה משרדית'}${t.phaseId && phases.find((x) => x.id === t.phaseId) ? ' · ' + esc(phases.find((x) => x.id === t.phaseId).name) : ''}</div>
+      <div class="drawer-sub">${p ? `<a href="#" data-action="open-project" data-id="${p.id}" style="color:inherit">${esc(p.name)}</a>` : 'משימה משרדית'}${t.phaseId && phases.find((x) => x.id === t.phaseId) ? ' · ' + esc(phases.find((x) => x.id === t.phaseId).name) : ''}${t.requestId && S.requests[t.requestId] ? ` · <a href="#" data-action="open-request" data-id="${t.requestId}">בקשת הפגישה</a>` : ''}</div>
     </div>
     <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
   </div>
@@ -2992,7 +2995,7 @@ function notifText(n) {
   }
   if (n.kind === 'request' || n.kind === 'request_decided') {
     const r = S.requests[n.requestId];
-    if (n.kind === 'request') return `<strong>${esc(uname(n.actorId, 'מישהו'))}</strong> ${r ? (r.kind === 'sick' || r.kind === 'late' ? 'עדכן/ה:' : 'מבקש/ת:') : 'שלח/ה בקשה'} <span class="notif-task">${esc(r ? reqTitle(r) : '')}</span>`;
+    if (n.kind === 'request') return `<strong>${esc(uname(n.actorId, 'מישהו'))}</strong> ${r ? (r.kind === 'sick' || r.kind === 'late' ? 'עדכן/ה:' : 'מבקש/ת:') : 'שלח/ה בקשה'} <span class="notif-task">${esc(r ? reqTitle(r) + (reqUrgency(r) ? ' · דחיפות ' + reqUrgency(r).label : '') : '')}</span>`;
     return `<strong>${esc(uname(n.actorId, 'מישהו'))}</strong> ${r ? ({ approved: 'אישר/ה', rejected: 'דחה/תה', done: 'קבע/ה' }[r.status] || 'עדכן/ה') : 'ענה/תה על'} <span class="notif-task">${esc(r ? reqTitle(r) : 'בקשה')}</span>`;
   }
   const t = S.tasks[n.taskId];
@@ -3612,7 +3615,7 @@ function renderLightbox() {
    settings.partnerUserId, else the owners). Leave up to `leaveLeadDays` (3) working days needs the lead; longer leave needs lead + partner.
    The database notifies the approvers on insert and the requester on a decision (requests_notify). */
 const REQ_KINDS = {
-  meeting: { label: 'בקשת פגישה', sub: 'האדמיניסטרציה תקבע — פנימית או חיצונית, לפרויקט / אישית / כללית', verb: 'לקבוע' },
+  meeting: { label: 'בקשת פגישה', sub: 'האדמיניסטרציה תקבע לפי הדחיפות (0–5) — פנימית או חיצונית, לפרויקט / אישית / כללית', verb: 'לקבוע' },
   leave: { label: 'בקשת חופשה', sub: 'עד 3 ימי עבודה: אישור ראש/ת הצוות. מעל: גם השותף/ה המנהל/ת', verb: 'לאשר' },
   sick: { label: 'עדכון מחלה', sub: 'מעדכן את ראש/ת הצוות ואת האדמיניסטרציה', verb: '' },
   late: { label: 'איחור / הגעה מאוחרת', sub: 'עדכון קצר לצוות ולאדמיניסטרציה', verb: '' },
@@ -3620,6 +3623,25 @@ const REQ_KINDS = {
 const REQ_STATUS = { open: { label: 'ממתין', cls: 'yellow' }, approved: { label: 'אושר', cls: 'green' }, rejected: { label: 'נדחה', cls: 'red' }, done: { label: 'טופל', cls: 'green' }, cancelled: { label: 'בוטל', cls: 'dim' } };
 const REQ_SCOPES = { project: 'לפרויקט', personal: 'אישית', general: 'כללית' };
 const REQ_MEETING = { internal: 'פנימית', external: 'חיצונית' };
+/* the office urgency scale (the same 0–5 as the Sunday meetings): the requester says how urgent, administration picks the date */
+const REQ_URGENCY = [
+  { label: '0 · היום', text: 'היום', short: '0', cls: 'red', hint: 'חייבת לקרות היום' },
+  { label: '1 · השבוע', text: 'השבוע', short: '1', cls: 'yellow', hint: 'במהלך השבוע הזה' },
+  { label: '2 · שבוע הבא', text: 'שבוע הבא', short: '2', cls: '', hint: 'בשבוע הבא' },
+  { label: '3 · בעוד שבועיים', text: 'בעוד שבועיים', short: '3', cls: 'dim', hint: 'בעוד כשבועיים' },
+  { label: '4 · בעוד שלושה שבועות', text: 'בעוד שלושה שבועות', short: '4', cls: 'dim', hint: 'בעוד כשלושה שבועות' },
+  { label: '5 · כשיתאפשר', text: 'כשיתאפשר', short: '5', cls: 'dim', hint: 'לא דחוף — כשיתאפשר' },
+];
+const REQ_URGENCY_DEFAULT = 1;
+const clampUrgency = (v) => { const n = Number(v); return Number.isInteger(n) && n >= 0 && n <= 5 ? n : REQ_URGENCY_DEFAULT; };
+const reqUrgency = (r) => (r && r.kind === 'meeting' && r.urgency != null && REQ_URGENCY[r.urgency]) ? REQ_URGENCY[r.urgency] : null;
+const urgencyChip = (r) => { const u = reqUrgency(r); return u ? `<span class="chip ${u.cls}" title="דחיפות ${esc(u.label)}">${esc(u.label)}</span>` : ''; };
+/* meetings administration still has to set — most urgent first, then oldest first */
+const urgencySort = (a, b) => ((reqUrgency(a)?.short ?? 1.5) - (reqUrgency(b)?.short ?? 1.5)) || (a.createdAt || '').localeCompare(b.createdAt || '');
+const pendingMeetingRequests = () => R().filter((r) => r.kind === 'meeting' && r.status === 'open' && !r.startDate).sort(urgencySort);
+/* the task the database opened for administration when the meeting was requested (tasks.request_id); closed when the request is settled */
+const requestTask = (rid) => TK().find((t) => t.requestId === rid) || null;
+function closeRequestTask(rid) { const t = requestTask(rid); if (t && t.status !== 'done') setTaskStatus(t.id, 'done'); }
 const isAdminRole = () => myRole() === 'admin';
 const R = () => list('requests');
 const leaveLeadDays = () => Number(settings().leaveLeadDays) || 3;
@@ -3665,28 +3687,30 @@ const reqStatusChip = (r) => { const s = REQ_STATUS[r.status] || REQ_STATUS.open
 function submitRequest(kind, f) {
   if (!isMember()) { toast('אין לך הרשאה'); return null; }
   const id = uid('rq'); const c = myContactId() ? S.contacts[myContactId()] : null;
-  const body = { kind, requesterId: me().id, contactId: myContactId(), projectId: f.projectId || null, scope: f.scope || null, meetingType: f.meetingType || null, title: (f.title || '').trim(), note: (f.note || '').trim(), startDate: f.startDate || null, endDate: f.endDate || f.startDate || null, days: null, atTime: f.atTime || null, status: 'open', needs: [], approvals: [], handledBy: null, handledAt: null };
-  if (kind === 'meeting') { body.needs = ['admin']; }
+  const body = { kind, requesterId: me().id, contactId: myContactId(), projectId: f.projectId || null, scope: f.scope || null, meetingType: f.meetingType || null, title: (f.title || '').trim(), note: (f.note || '').trim(), startDate: f.startDate || null, endDate: f.endDate || f.startDate || null, days: null, atTime: f.atTime || null, urgency: null, status: 'open', needs: [], approvals: [], handledBy: null, handledAt: null };
+  if (kind === 'meeting') { body.needs = ['admin']; body.urgency = clampUrgency(f.urgency); body.startDate = null; body.endDate = null; body.atTime = null; } // administration sets the date when it schedules
   else if (kind === 'leave') { body.days = workingDaysBetween(c, body.startDate, body.endDate); body.needs = body.days > leaveLeadDays() ? ['lead', 'partner'] : ['lead']; }
   else { body.needs = ['lead', 'admin']; body.status = 'done'; }
   createDoc('requests', id, body);
   return id;
 }
 /* ---------- deciding ---------- */
-function decideRequest(id, decision, note = '') {
+function decideRequest(id, decision, note = '', extra = null) {
   const r = S.requests[id]; if (!r || r.status !== 'open') return;
   const roles = myRolesOn(r); if (!roles.length) { toast('הבקשה לא ממתינה לך'); return; }
   const approvals = [...(r.approvals || []), ...roles.map((role) => ({ role, userId: me().id, decision, note, at: nowIso() }))];
   const patch = { approvals };
+  if (decision === 'approved' && extra) Object.entries(extra).forEach(([k, v]) => { if (v != null && v !== '') patch[k] = v; }); // a meeting: the date and time administration set
   if (decision === 'rejected') { patch.status = 'rejected'; patch.handledBy = me().id; patch.handledAt = nowIso(); }
   else {
     const done = approvals.filter((a) => a.decision === 'approved').map((a) => a.role);
     if ((r.needs || []).every((n) => done.includes(n))) { patch.status = r.kind === 'meeting' ? 'done' : 'approved'; patch.handledBy = me().id; patch.handledAt = nowIso(); }
   }
   patchDoc('requests', id, patch);
+  if (patch.status) closeRequestTask(id);
   toast(decision === 'rejected' ? 'הבקשה נדחתה' : (patch.status ? (r.kind === 'meeting' ? 'סומן כנקבע' : 'הבקשה אושרה') : 'אישורך נרשם — ממתין לאישור נוסף'));
 }
-const cancelRequest = (id) => { const r = S.requests[id]; if (!r || r.requesterId !== me()?.id || r.status !== 'open') return; patchDoc('requests', id, { status: 'cancelled' }); };
+const cancelRequest = (id) => { const r = S.requests[id]; if (!r || r.requesterId !== me()?.id || r.status !== 'open') return; patchDoc('requests', id, { status: 'cancelled' }); closeRequestTask(id); };
 /* people away today (approved leave / sickness covering the date) */
 function awayToday(date = new Date()) {
   const d = todayStr(date); const out = [];
@@ -3703,7 +3727,8 @@ function requestRow(r, opts = {}) {
       <div class="li-sub">${esc(reqTitle(r))}${r.note ? ' · ' + esc(r.note.slice(0, 80)) : ''}</div>
     </div>
     <div class="li-side" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
-      ${roles.length ? `<button type="button" class="btn small primary" data-action="req-approve" data-id="${r.id}">${r.kind === 'meeting' ? 'נקבע' : 'אשר'}</button><button type="button" class="btn small" data-action="req-reject" data-id="${r.id}">${r.kind === 'meeting' ? 'לא ניתן' : 'דחה'}</button>` : reqStatusChip(r)}
+      ${urgencyChip(r)}
+      ${roles.length ? (r.kind === 'meeting' ? `<button type="button" class="btn small primary" data-action="open-request" data-id="${r.id}">לקבוע…</button>` : `<button type="button" class="btn small primary" data-action="req-approve" data-id="${r.id}">אשר</button><button type="button" class="btn small" data-action="req-reject" data-id="${r.id}">דחה</button>`) : reqStatusChip(r)}
       <time class="muted" style="font-size:12px">${fmtDate(r.createdAt)}</time>
     </div>
   </div>`;
@@ -3711,7 +3736,7 @@ function requestRow(r, opts = {}) {
 function renderRequests() {
   const tab = S.ui.rtab || (pendingForMe().length ? 'pending' : 'mine');
   const all = R().sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
-  const pend = pendingForMe(); const mine = myRequests();
+  const pend = pendingForMe().sort(urgencySort); const mine = myRequests();
   const canAll = isManager() || isAdminRole() || myRole() === 'team_lead';
   const rows = tab === 'pending' ? pend : tab === 'mine' ? mine : all;
   const tabs = [['pending', `ממתינות לי${pend.length ? ` · ${pend.length}` : ''}`], ['mine', `שלי${mine.length ? ` · ${mine.length}` : ''}`], ...(canAll ? [['all', `כולן · ${all.length}`]] : [])];
@@ -3724,7 +3749,8 @@ function renderRequests() {
 }
 /* ---------- new request drawer ---------- */
 function drawerNewRequest() {
-  const f = S.ui.reqForm || (S.ui.reqForm = { kind: null, scope: 'project', meetingType: 'internal', startDate: todayStr(), endDate: todayStr(), atTime: '' });
+  const f = S.ui.reqForm || (S.ui.reqForm = { kind: null, scope: 'project', meetingType: 'internal', startDate: todayStr(), endDate: todayStr(), atTime: '', urgency: REQ_URGENCY_DEFAULT });
+  const urg = clampUrgency(f.urgency);
   const c = myContactId() ? S.contacts[myContactId()] : null;
   const days = f.kind === 'leave' ? workingDaysBetween(c, f.startDate, f.endDate) : 0;
   const lead = leadUserOf(me().id);
@@ -3736,9 +3762,9 @@ function drawerNewRequest() {
       <div class="field"><label>בהקשר של</label><span class="seg">${Object.entries(REQ_SCOPES).map(([v, l]) => `<button type="button" class="${f.scope === v ? 'on' : ''}" data-action="req-set" data-key="scope" data-value="${v}">${l}</button>`).join('')}</span></div>
       ${f.scope === 'project' ? field('פרויקט', selectHtml('rq-project', f.projectId || '', projOpts, { blank: 'בחר פרויקט…', attrs: 'data-req="projectId"' })) : ''}
       ${field('נושא / עם מי', `<input type="text" id="rq-title" value="${esc(f.title || '')}" data-req="title" placeholder="למשל: פגישת תיאום עם היזם, מצגת ללקוח">`)}
-      <div class="field-row">${field('תאריך מועדף', `<input type="date" id="rq-start" value="${esc(f.startDate || '')}" data-req="startDate">`)}${field('שעה מועדפת', `<input type="time" id="rq-time" value="${esc(f.atTime || '')}" data-req="atTime">`)}</div>
-      ${field('הערות', `<textarea id="rq-note" rows="3" data-req="note" placeholder="משתתפים, מיקום, משך, גמישות בתאריך…">${esc(f.note || '')}</textarea>`)}
-      <div class="inline-note">הבקשה תגיע לאדמיניסטרציה (${approversOf({ needs: ['admin'], requesterId: me().id }).admin.map((id) => uname(id)).join(', ') || '—'}); כשתיקבע, תקבל/י התראה.</div>`
+      <div class="field"><label>כמה דחוף</label><span class="seg urg-seg" id="rq-urgency">${REQ_URGENCY.map((u, i) => `<button type="button" class="${urg === i ? 'on' : ''} u${i}" data-action="req-set" data-key="urgency" data-value="${i}" title="${esc(u.label)}">${u.short}</button>`).join('')}</span><div class="inline-note" id="rq-urgency-hint"><b>${esc(REQ_URGENCY[urg].label)}</b> — ${esc(REQ_URGENCY[urg].hint)}. 0 = היום, 1 = השבוע, 2 = שבוע הבא … 5 = כשיתאפשר. את התאריך והשעה תקבע האדמיניסטרציה.</div></div>
+      ${field('הערות', `<textarea id="rq-note" rows="3" data-req="note" placeholder="משתתפים, מיקום, משך, אילוצי זמן (למשל: לא בימי ג׳)…">${esc(f.note || '')}</textarea>`)}
+      <div class="inline-note">הבקשה תגיע לאדמיניסטרציה (${approversOf({ needs: ['admin'], requesterId: me().id }).admin.map((id) => uname(id)).join(', ') || '—'}) ותיפתח אצלה כמשימה לפי הדחיפות; כשתיקבע, תקבל/י התראה.</div>`
     : f.kind === 'leave' ? `
       <div class="field-row">${field('מתאריך', `<input type="date" id="rq-start" value="${esc(f.startDate || '')}" data-req="startDate">`)}${field('עד תאריך', `<input type="date" id="rq-end" value="${esc(f.endDate || f.startDate || '')}" data-req="endDate">`)}</div>
       <div class="lvl-summary"><span class="chip ${days > leaveLeadDays() ? 'accent' : 'dim'}">${days} ימי עבודה</span><span class="muted">לפי ימי העבודה הקבועים שלך · לאישור: ${esc(chain)}</span></div>
@@ -3768,10 +3794,12 @@ function drawerRequest(id) {
     ['מבקש/ת', uname(r.requesterId)], ['נשלח', fmtDateTime(r.createdAt)],
     r.kind === 'meeting' ? ['פגישה', `${REQ_MEETING[r.meetingType] || ''} · ${REQ_SCOPES[r.scope] || ''}${r.projectId && S.projects[r.projectId] ? ' · ' + S.projects[r.projectId].name : ''}`] : null,
     r.kind === 'meeting' ? ['נושא', r.title] : null,
-    r.startDate ? [r.kind === 'meeting' ? 'תאריך מועדף' : 'תאריכים', `${fmtDate(r.startDate)}${r.endDate && r.endDate !== r.startDate ? ' – ' + fmtDate(r.endDate) : ''}${r.atTime ? ' · ' + r.atTime : ''}`] : null,
+    reqUrgency(r) ? ['דחיפות', `${reqUrgency(r).label} — ${reqUrgency(r).hint}`] : null,
+    r.startDate ? [r.kind === 'meeting' ? (r.status === 'done' ? 'נקבע ל' : 'תאריך מועדף') : 'תאריכים', `${fmtDate(r.startDate)}${r.endDate && r.endDate !== r.startDate ? ' – ' + fmtDate(r.endDate) : ''}${r.atTime ? ' · ' + r.atTime : ''}`] : null,
     r.kind === 'leave' ? ['ימי עבודה', fmtNum(r.days || 0)] : null,
     r.note ? ['הערות', r.note] : null,
   ].filter(Boolean);
+  const task = r.kind === 'meeting' ? requestTask(r.id) : null;
   const chain = (r.needs || []).map((need) => { const done = (r.approvals || []).find((a) => a.role === need); const who = (ap[need] || []).map((id) => uname(id)).join(' / ') || '—'; return `<div class="role-row"><div class="role-name">${{ lead: 'ראש/ת צוות', partner: 'שותף/ה מנהל/ת', admin: 'אדמיניסטרציה' }[need]}</div><div class="role-body">${done ? `<span class="chip ${done.decision === 'approved' ? 'green' : 'red'}">${done.decision === 'approved' ? (r.kind === 'meeting' ? 'נקבע' : 'אושר') : 'נדחה'} · ${esc(uname(done.userId))} · ${fmtDateTime(done.at)}</span>${done.note ? `<div class="muted">${esc(done.note)}</div>` : ''}` : (r.status === 'open' ? `<span class="chip yellow">ממתין · ${esc(who)}</span>` : `<span class="chip dim">${esc(who)}</span>`)}</div></div>`; }).join('');
   return `
   <div class="drawer-head">
@@ -3779,10 +3807,11 @@ function drawerRequest(id) {
     <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
   </div>
   <div class="drawer-body">
-    <div class="section"><div style="margin-bottom:8px">${reqStatusChip(r)}</div>${rowsInfo.map(([l, v]) => `<div class="role-row"><div class="role-name">${l}</div><div class="role-body">${esc(v)}</div></div>`).join('')}</div>
+    <div class="section"><div style="margin-bottom:8px">${reqStatusChip(r)}</div>${rowsInfo.map(([l, v]) => `<div class="role-row"><div class="role-name">${l}</div><div class="role-body">${esc(v)}</div></div>`).join('')}${task ? `<div class="role-row"><div class="role-name">משימה</div><div class="role-body"><a href="#" data-action="open-task" data-id="${task.id}">${esc(task.title)}</a> · ${esc(uname(task.assigneeId, 'ללא אחראי'))} · <span class="chip ${task.status === 'done' ? 'green' : 'yellow'}">${esc(TASK_STATUS[task.status]?.label || task.status)}</span>${task.dueDate ? ' · עד ' + esc(fmtDate(task.dueDate)) : ''}</div></div>` : ''}</div>
     ${r.needs?.length ? `<div class="section"><h3 class="section-title">${r.kind === 'sick' || r.kind === 'late' ? 'עודכנו' : 'אישורים'}</h3>${r.kind === 'sick' || r.kind === 'late' ? `<div class="muted">${esc(Object.values(ap).flat().map((id) => uname(id)).join(', ') || '—')}</div>` : chain}</div>` : ''}
     ${roles.length ? `<div class="section"><h3 class="section-title">${r.kind === 'meeting' ? 'קביעת הפגישה' : 'ההחלטה שלך'}</h3>
-      ${field(r.kind === 'meeting' ? 'מתי נקבע / הערה' : 'הערה (לא חובה)', `<input type="text" id="rq-decision-note" placeholder="${r.kind === 'meeting' ? 'למשל: יום ג׳ 14.10 בשעה 10:00 אצל הלקוח' : 'למשל: לתאם עם…'}">`)}
+      ${r.kind === 'meeting' ? `<div class="field-row">${field('תאריך', `<input type="date" id="rq-decision-date" value="${esc(r.startDate || '')}">`)}${field('שעה', `<input type="time" id="rq-decision-time" value="${esc(r.atTime || '')}">`)}</div>` : ''}
+      ${field(r.kind === 'meeting' ? 'מיקום / הערה' : 'הערה (לא חובה)', `<input type="text" id="rq-decision-note" placeholder="${r.kind === 'meeting' ? 'למשל: אצל הלקוח, חדר ישיבות, זום' : 'למשל: לתאם עם…'}">`)}
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-action="req-approve" data-id="${r.id}" data-note="1">${r.kind === 'meeting' ? 'נקבע' : 'אשר'}</button><button class="btn" data-action="req-reject" data-id="${r.id}" data-note="1">${r.kind === 'meeting' ? 'לא ניתן לקבוע' : 'דחה'}</button></div></div>` : ''}
   </div>
   <div class="drawer-foot"><span class="inline-note">${r.handledAt ? `טופל ${fmtDateTime(r.handledAt)} · ${esc(uname(r.handledBy))}` : ''}</span><span style="display:inline-flex;gap:6px">${r.kind === 'meeting' && r.status === 'done' && canWriteField() ? `<button class="btn small" data-action="meeting-from-request" data-id="${r.id}" title="פותח סיכום פגישה עם הנושא, התאריך והפרויקט">${ICON.doc} סיכום הפגישה</button>` : ''}${mine && r.status === 'open' ? `<button class="btn small" data-action="req-cancel" data-id="${r.id}">בטל את הבקשה</button>` : ''}</span></div>`;
@@ -4545,6 +4574,12 @@ function upcomingMeetings(days = 14) {
     .forEach((r) => out.push({ date: r.startDate, time: r.atTime || '', label: r.title || 'פגישה', sub: [r.projectId && S.projects[r.projectId] ? S.projects[r.projectId].name : (REQ_SCOPES[r.scope] || ''), REQ_MEETING[r.meetingType] || '', r.status === 'open' ? 'ממתינה לקביעה' : 'נקבעה', uname(r.requesterId, '')].filter(Boolean).join(' · '), attrs: `data-action="open-request" data-id="${r.id}"`, icon: ICON.pin, pending: r.status === 'open' }));
   return out.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
 }
+/* a meeting request administration still has to schedule: who asked, for what, how urgent */
+const pendingRequestRow = (r) => `<div class="task-item" data-action="open-request" data-id="${r.id}">
+    <span class="visit-ic">${ICON.pin}</span>
+    <div class="li-body"><div class="li-title">${esc(r.title || 'פגישה')}</div><div class="li-sub">${esc([r.projectId && S.projects[r.projectId] ? S.projects[r.projectId].name : (REQ_SCOPES[r.scope] || ''), REQ_MEETING[r.meetingType] || '', uname(r.requesterId, ''), fmtDate(r.createdAt)].filter(Boolean).join(' · '))}</div></div>
+    <div class="li-side">${urgencyChip(r)}</div>
+  </div>`;
 const upcomingRow = (u) => `<div class="task-item" ${u.attrs}>
     <span class="visit-ic">${u.icon}</span>
     <div class="li-body"><div class="li-title">${esc(u.label)}</div><div class="li-sub">${esc(u.sub)}</div></div>
@@ -4573,6 +4608,7 @@ function renderMeetings() {
   const drafts = all.filter((v) => v.status !== 'final' && v.authorId === uid_);
   const openItems = openMeetingItems();
   const upcoming = upcomingMeetings(14);
+  const toSchedule = typeof pendingMeetingRequests === 'function' ? pendingMeetingRequests() : [];
   const byProject = {}; openItems.forEach((x) => { byProject[x.v.projectId || '_general'] = (byProject[x.v.projectId || '_general'] || 0) + 1; });
   const venueChips = [['', `הכל ${all.length}`], ...Object.entries(VENUES).filter(([k]) => counts[k]).map(([k, m]) => [k, `${m.label} ${counts[k]}`])]
     .map(([k, l]) => `<span class="chip btn-chip ${venue === k ? 'accent' : ''}" data-action="mvenue" data-value="${k}" role="button" tabindex="0">${l}</span>`).join('');
@@ -4583,6 +4619,7 @@ function renderMeetings() {
   </div>
   ${tabs}
   ${upcoming.length ? `<div class="task-group"><div class="task-group-head"><span>פגישות קרובות</span><small>${upcoming.length} · 14 הימים הבאים</small></div>${upcoming.slice(0, 12).map(upcomingRow).join('')}</div>` : ''}
+  ${toSchedule.length ? `<div class="task-group" id="meetings-to-schedule"><div class="task-group-head"><span>בקשות פגישה — ממתינות לקביעה</span><small>${toSchedule.length} · לפי דחיפות</small></div>${toSchedule.slice(0, 12).map(pendingRequestRow).join('')}</div>` : ''}
   ${drafts.length ? `<div class="task-group"><div class="task-group-head"><span>הטיוטות שלי</span><small>${drafts.length}</small></div>${drafts.slice(0, 8).map((v) => visitItem(v)).join('')}</div>` : ''}
   <div class="grid-2">
     <div class="task-group">
@@ -4615,7 +4652,7 @@ async function meetingsAction(a, ds, t, e) {
     case 'mtab': S.ui.mtab = ds.tab; render(); return true;
     case 'mvenue': S.ui.mvenue = ds.value || ''; render(); return true;
     case 'mmine': S.ui.mmine = !S.ui.mmine; render(); return true;
-    case 'meeting-request': { if (!isMember()) return true; S.ui.reqForm = { kind: 'meeting', scope: 'project', meetingType: 'internal', startDate: todayStr(), endDate: todayStr(), atTime: '' }; openDrawer('request-new'); return true; }
+    case 'meeting-request': { if (!isMember()) return true; S.ui.reqForm = { kind: 'meeting', scope: 'project', meetingType: 'internal', startDate: todayStr(), endDate: todayStr(), atTime: '', urgency: REQ_URGENCY_DEFAULT }; openDrawer('request-new'); return true; }
     case 'meeting-from-request': { // a meeting administration has set → its summary, with the subject, date and project already filled in
       if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; }
       const r = S.requests[ds.id]; if (!r || r.kind !== 'meeting') return true;
@@ -6191,8 +6228,8 @@ document.addEventListener('click', async (e) => {
     case 'new-request': { if (!isMember()) break; S.ui.reqForm = null; openDrawer('request-new'); break; }
     case 'open-request': { if (S.requests[ds.id]) openDrawer('request', ds.id); break; }
     case 'rtab': S.ui.rtab = ds.tab; render(); break;
-    case 'req-kind': { const f = S.ui.reqForm || (S.ui.reqForm = {}); f.kind = ds.kind || null; if (!f.startDate) f.startDate = todayStr(); if (!f.endDate) f.endDate = f.startDate; if (!f.scope) f.scope = 'project'; if (!f.meetingType) f.meetingType = 'internal'; render(); break; }
-    case 'req-set': { const f = S.ui.reqForm; if (!f) break; f[ds.key] = ds.value; render(); break; }
+    case 'req-kind': { const f = S.ui.reqForm || (S.ui.reqForm = {}); f.kind = ds.kind || null; if (!f.startDate) f.startDate = todayStr(); if (!f.endDate) f.endDate = f.startDate; if (!f.scope) f.scope = 'project'; if (!f.meetingType) f.meetingType = 'internal'; if (f.urgency == null) f.urgency = REQ_URGENCY_DEFAULT; render(); break; }
+    case 'req-set': { const f = S.ui.reqForm; if (!f) break; f[ds.key] = ds.key === 'urgency' ? clampUrgency(ds.value) : ds.value; render(); break; }
     case 'req-submit': {
       const f = S.ui.reqForm; if (!f || !f.kind) break;
       if (f.kind === 'meeting' && f.scope === 'project' && !f.projectId) { toast('בחרו פרויקט'); break; }
@@ -6203,7 +6240,16 @@ document.addEventListener('click', async (e) => {
       if (id) { closeDrawer(true); toast(f.kind === 'sick' || f.kind === 'late' ? 'העדכון נשלח' : 'הבקשה נשלחה'); }
       break;
     }
-    case 'req-approve': case 'req-reject': { e.stopPropagation(); const note = ds.note ? (document.getElementById('rq-decision-note')?.value || '') : ''; decideRequest(ds.id, a === 'req-approve' ? 'approved' : 'rejected', note.trim()); if (ds.note) closeDrawer(true); break; }
+    case 'req-approve': case 'req-reject': {
+      e.stopPropagation(); const note = ds.note ? (document.getElementById('rq-decision-note')?.value || '') : '';
+      const rq = S.requests[ds.id]; let extra = null;
+      if (rq && rq.kind === 'meeting' && a === 'req-approve' && document.getElementById('rq-decision-date')) { // administration schedules: the date is the point
+        const d = document.getElementById('rq-decision-date').value, t = document.getElementById('rq-decision-time')?.value || '';
+        if (!d) { toast('מתי נקבע? בחרו תאריך'); document.getElementById('rq-decision-date').focus(); break; }
+        extra = { startDate: d, endDate: d, atTime: t || null };
+      }
+      decideRequest(ds.id, a === 'req-approve' ? 'approved' : 'rejected', note.trim(), extra); if (ds.note) closeDrawer(true); break;
+    }
     case 'req-cancel': { cancelRequest(ds.id); closeDrawer(true); toast('הבקשה בוטלה'); break; }
     case 'notif-read-all': e.stopPropagation(); markRead(S.notifications.filter((n) => !n.readAt).map((n) => n.id)); break;
     case 'goto-projects': {
