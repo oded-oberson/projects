@@ -639,6 +639,7 @@
   .arc-row.arc-head span { font-size: 11.5px; color: var(--ink-3); padding: 0 4px; }
   .arc-row input { min-width: 0; font-size: 13px; padding: 5px 6px; }
   .arc-table:has(.arc-row [data-arcrow="links"]) .arc-row { grid-template-columns: 1fr 2fr 56px; }
+  .arc-table:has(.arc-row [data-arcrow="credits"]) .arc-row { grid-template-columns: 1fr 2fr 56px; }
   .arc-row-tools { display: flex; gap: 2px; justify-content: flex-end; }
   .arc-row-tools .icon-btn svg { width: 12px; height: 12px; }
   @media (max-width: 720px) { .arc-hero:has(.arc-hero-img) { grid-template-columns: 1fr; } .arc-row { grid-template-columns: 1fr 1fr; } .arc-row.arc-head { display: none; } .arc-table:has(.arc-row [data-arcrow="links"]) .arc-row { grid-template-columns: 1fr; } }
@@ -5348,6 +5349,8 @@ const ARCHIVE_CATS = { 'Residence': 'מגורים', 'Public & Spaces': 'ציבו
 const PRESS_KINDS = { print: 'פרינט', web: 'אונליין', video: 'וידאו', award: 'פרס', other: 'אחר' };
 const COLOR_FIELDS = [['area', 'איפה', 'תקרה, קיר סלון, חזית…'], ['brand', 'יצרן', 'טמבור, נירלט, Farrow & Ball…'], ['code', 'גוון / קוד', 'שם הגוון ומספרו'], ['finish', 'גימור', 'מט, משי, אפוקסי…'], ['note', 'הערה', '']];
 const LINK_FIELDS = [['label', 'מה זה', 'תיקיית צילומים, סט ביצוע, אתר הספק…'], ['url', 'קישור', 'https://…']];
+/* credits: who did what — kitchen, lighting, contractor, photographer, the artists on the walls — the role in Hebrew, the name as credited */
+const CREDIT_FIELDS = [['role', 'תפקיד', 'מטבח, עיצוב תאורה, קבלן מפתח…'], ['name', 'מי', 'שם החברה / האדם כפי שמופיע בקרדיט']];
 ICON.archive = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="4" width="14" height="4"/><path d="M4 8v8h12V8M8 11h4"/></svg>';
 ICON.globe = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3c2.5 2.5 2.5 11.5 0 14M10 3c-2.5 2.5-2.5 11.5 0 14"/></svg>';
 /* who sees the archive (mirror of can_see_archive): managers, administration, the PR / social people */
@@ -5397,7 +5400,7 @@ function archiveCard(p) {
       <div class="arc-name" dir="auto">${esc(arcName(p))}</div>
       ${officeName(p) && officeName(p) !== arcName(p) ? `<div class="arc-he">${esc(officeName(p))}${officeNamePublic(p) ? '' : ' <span class="tag internal arc-internal" title="השם במשרד — לא לפרסום">פנימי</span>'}</div>` : (he && he !== arcName(p) ? `<div class="arc-he">${esc(he)}</div>` : '')}
       <div class="arc-meta">${[catLabel(arcCat(p)), year, p.city, a?.photographer ? 'צילום: ' + a.photographer : ''].filter(Boolean).map(esc).join(' · ')}</div>
-      <div class="arc-counts">${[pressOf(p.id).length ? `${pressOf(p.id).length} פרסומים` : '', (a?.colors || []).length ? `${a.colors.length} גוונים` : '', typeof materialsOf === 'function' && materialsOf(p.id).length ? `${materialsOf(p.id).length} חומרים` : '', people ? `${people} מהמשרד` : ''].filter(Boolean).join(' · ')}</div>
+      <div class="arc-counts">${[pressOf(p.id).length ? `${pressOf(p.id).length} פרסומים` : '', (a?.colors || []).length ? `${a.colors.length} גוונים` : '', (a?.credits || []).length ? `${a.credits.length} קרדיטים` : '', typeof materialsOf === 'function' && materialsOf(p.id).length ? `${materialsOf(p.id).length} חומרים` : '', people ? `${people} מהמשרד` : ''].filter(Boolean).join(' · ')}</div>
     </div>
   </a>`;
 }
@@ -5410,7 +5413,7 @@ function renderArchive() {
   if (cat === '_none') shown = shown.filter((p) => !arcCat(p));
   else if (cat === '_review') shown = shown.filter((p) => archiveOf(p.id)?.needsReview);
   else if (cat) shown = shown.filter((p) => arcCat(p) === cat);
-  if (q) shown = shown.filter((p) => { const a = archiveOf(p.id) || {}; return norm([arcName(p), p.name, p.nameEn, p.number, p.city, p.address, a.photographer, a.textHe, a.textEn, cname(p.clientId, ''), (a.colors || []).map((c) => [c.area, c.brand, c.code].join(' ')).join(' ')].join(' ')).includes(q); });
+  if (q) shown = shown.filter((p) => { const a = archiveOf(p.id) || {}; return norm([arcName(p), p.name, p.nameEn, p.number, p.city, p.address, a.photographer, a.textHe, a.textEn, cname(p.clientId, ''), (a.colors || []).map((c) => [c.area, c.brand, c.code].join(' ')).join(' '), (a.credits || []).map((c) => [c.role, c.name].join(' ')).join(' '), a.bookChapter].join(' ')).includes(q); });
   shown = shown.slice().sort((a, b) => (arcYear(b) || 0) - (arcYear(a) || 0) || (archiveOf(b.id)?.publishedAt || '').localeCompare(archiveOf(a.id)?.publishedAt || '') || arcName(a).localeCompare(arcName(b), 'en'));
   const review = all.filter((p) => archiveOf(p.id)?.needsReview).length;
   const pool = pressPool();
@@ -5477,7 +5480,7 @@ function renderArchivePage() {
   const cover = a.coverUrl || a.coverThumb || '';
   const gallery = Array.isArray(a.gallery) ? a.gallery : [];
   const press = pressOf(p.id); const set = executionSet(p.id); const shoot = typeof shootOf === 'function' ? shootOf(p.id) : null;
-  const jump = [['arc-photos', 'צילומים'], ['arc-text', 'טקסט'], ['arc-colors', 'גוונים'], ['materials-section', 'חומרים'], ['files-section', 'סט ביצוע וקבצים'], ['arc-press', 'פרסומים'], ['arc-people', 'אנשים'], ['arc-links', 'קישורים']];
+  const jump = [['arc-photos', 'צילומים'], ['arc-text', 'טקסט'], ['arc-credits', 'קרדיטים'], ['arc-colors', 'גוונים'], ['materials-section', 'חומרים'], ['files-section', 'סט ביצוע וקבצים'], ['arc-press', 'פרסומים'], ['arc-people', 'אנשים'], ['arc-links', 'קישורים']];
   const stub = p.id.startsWith('pw_');
   return `
   <div class="pp-head arc-head">
@@ -5492,6 +5495,7 @@ function renderArchivePage() {
           ${field('קטגוריה', selectHtml('arc-category', a.category || '', Object.entries(ARCHIVE_CATS).map(([v, l]) => ({ value: v, label: l })), { blank: 'ללא קטגוריה', attrs: `data-arc="category" data-pid="${p.id}" ${ro ? 'disabled' : ''}` }))}
           ${field('שנת סיום', arcInput(a, p.id, 'completedYear', { type: 'number', attrs: 'min="1990" max="2100" dir="ltr"', placeholder: String(new Date().getFullYear()) }))}
           ${field('צלם/ת', arcInput(a, p.id, 'photographer', { placeholder: 'כפי שמופיע בקרדיט' }))}
+          ${field('בספר', arcInput(a, p.id, 'bookChapter', { placeholder: 'פרק ב-House of Oberson, למשל 2a · Not so mellow yellow' }))}
           ${field('דף באתר', `<div class="arc-site">${arcInput(a, p.id, 'websiteUrl', { type: 'url', attrs: 'dir="ltr"', placeholder: 'https://oberson-arch.com/projects/…' })}${a.websiteUrl ? `<a class="icon-btn" href="${esc(a.websiteUrl)}" target="_blank" rel="noopener" title="פתח את הדף באתר">${ICON.globe}</a>` : ''}</div>`)}
         </div>
         <div class="arc-office"><a href="#project/${p.id}" data-action="open-project" data-id="${p.id}" class="btn small ghost">${ICON.doc} דף הפרויקט${p.number ? ' · ' + esc(p.number) : ''}</a><span class="muted">${esc([stub ? 'פרויקט לשעבר — מהאתר' : '', p.address, p.city, cname(p.clientId, '')].filter(Boolean).join(' · '))}</span>${a.needsReview && !ro ? `<button class="btn small" data-action="arc-reviewed" data-id="${p.id}" title="הפרטים נבדקו">✓ נבדק</button>` : ''}</div>
@@ -5516,6 +5520,11 @@ function renderArchivePage() {
           <div>${field('עברית', `<textarea id="arc-textHe" rows="6" data-arc="textHe" data-pid="${p.id}" placeholder="תיאור הפרויקט לפרסום בעברית" ${ro ? 'disabled' : ''}>${esc(a.textHe || '')}</textarea>`)}${a.textHe ? `<button type="button" class="btn small ghost" data-action="copy-text" data-text="${esc(a.textHe)}">העתק</button>` : ''}</div>
           <div>${field('English', `<textarea id="arc-textEn" rows="6" dir="ltr" data-arc="textEn" data-pid="${p.id}" placeholder="The project description for publication" ${ro ? 'disabled' : ''}>${esc(a.textEn || '')}</textarea>`)}${a.textEn ? `<button type="button" class="btn small ghost" data-action="copy-text" data-text="${esc(a.textEn)}">Copy</button>` : ''}</div>
         </div>
+      </div>
+      <div class="section" id="arc-credits">
+        <h3 class="section-title">קרדיטים <small>${(a.credits || []).length || ''}</small></h3>
+        <div class="inline-note" style="margin-bottom:8px">מי עשה מה: מטבח, תאורה, קבלן, צלם — ואמנות על הקירות. כך לקוח שלא זוכר איפה קנה את המטבח מקבל תשובה.${a.bookChapter ? ` · בספר <b>House of Oberson</b> (Rizzoli): פרק ${esc(a.bookChapter)}` : ''}</div>
+        ${arcRows(a, p.id, 'credits', CREDIT_FIELDS, 'הוסף קרדיט')}
       </div>
       <div class="section" id="arc-colors">
         <h3 class="section-title">גוונים וצבעים <small>${(a.colors || []).length || ''}</small></h3>
@@ -5618,7 +5627,7 @@ async function archiveAction(a, ds, t, e) {
       return true;
     }
     case 'arc-reviewed': patchArchive(ds.id, { needsReview: false }); return true;
-    case 'arc-row-add': { const ar = ensureArchive(ds.pid); if (!ar) return true; const rows = (ar[ds.key] || []).slice(); rows.push(ds.key === 'colors' ? { area: '', brand: '', code: '', finish: '', note: '' } : { label: '', url: '' }); patchDoc('project_archive', ds.pid, { [ds.key]: rows }); setTimeout(() => { const inputs = document.querySelectorAll(`[data-arcrow="${ds.key}"][data-index="${rows.length - 1}"]`); if (inputs[0]) inputs[0].focus(); }, 40); return true; }
+    case 'arc-row-add': { const ar = ensureArchive(ds.pid); if (!ar) return true; const rows = (ar[ds.key] || []).slice(); rows.push(ds.key === 'colors' ? { area: '', brand: '', code: '', finish: '', note: '' } : ds.key === 'credits' ? { role: '', roleEn: '', name: '' } : { label: '', url: '' }); patchDoc('project_archive', ds.pid, { [ds.key]: rows }); setTimeout(() => { const inputs = document.querySelectorAll(`[data-arcrow="${ds.key}"][data-index="${rows.length - 1}"]`); if (inputs[0]) inputs[0].focus(); }, 40); return true; }
     case 'arc-row-remove': { const ar = archiveOf(ds.pid); if (!ar) return true; patchDoc('project_archive', ds.pid, { [ds.key]: (ar[ds.key] || []).filter((_, i) => i !== Number(ds.index)) }); return true; }
     case 'arc-photographer': {
       e.stopPropagation(); if (!canEditArchive()) return true;
@@ -5717,7 +5726,7 @@ function closeDrawer(force) {
 
 function pickerChips(p, role, col = 'projects') {
   const ids = role.single ? (p[role.field] ? [p[role.field]] : []) : (p[role.field] || []);
-  const chips = ids.map((id) => `<span class="chip ${contact(id) ? '' : 'dim'}"><a href="#" data-action="open-contact" data-id="${id}" style="color:inherit;text-decoration:none">${esc(cname(id, 'איש קשר שנמחק'))}</a><button class="x" data-action="pick-remove" data-col="${col}" data-doc="${p.id}" data-field="${role.field}" data-value="${id}" data-single="${role.single ? 1 : 0}" title="הסר">${ICON.x}</button></span>`);
+  const chips = ids.map((id) => `<span class="chip ${contact(id) ? '' : 'dim'}" ${contact(id)?.active === false ? 'title="עובד/ת לשעבר"' : ''}><a href="#" data-action="open-contact" data-id="${id}" style="color:inherit;text-decoration:none">${esc(cname(id, 'איש קשר שנמחק'))}${contact(id)?.type === 'employee' && contact(id)?.active === false ? ' <small class="muted">(לשעבר)</small>' : ''}</a><button class="x" data-action="pick-remove" data-col="${col}" data-doc="${p.id}" data-field="${role.field}" data-value="${id}" data-single="${role.single ? 1 : 0}" title="הסר">${ICON.x}</button></span>`);
   const add = (!role.single || !ids.length) ? `<button class="btn small ghost" data-action="pick-add" data-col="${col}" data-doc="${p.id}" data-field="${role.field}" data-type="${role.type}" data-single="${role.single ? 1 : 0}">${ICON.plus} ${role.single ? 'בחר' : 'הוסף'}</button>` : '';
   return `<div class="chips">${chips.join('')}${add}</div>`;
 }
@@ -6484,8 +6493,9 @@ async function setTeamLead(teamId, cid) {
 function openPicker(anchor, { col, doc, field, type, single }) {
   const d = S[col][doc];
   const current = single ? (d[field] ? [d[field]] : []) : (d[field] || []);
-  const options = C().filter((c) => c.type === type && c.active !== false && !current.includes(c.id)).sort(byName)
-    .map((c) => ({ label: c.name, sub: type === 'employee' ? tname(c.teamId, c.role || '') : (c.category || c.company || ''), value: c.id }));
+  const options = C().filter((c) => c.type === type && (c.active !== false || type === 'employee') && !current.includes(c.id))
+    .sort((x, y) => ((x.active === false) - (y.active === false)) || byName(x, y))
+    .map((c) => ({ label: c.name, sub: type === 'employee' ? (c.active === false ? 'לשעבר' + (c.role ? ' · ' + c.role : '') : tname(c.teamId, c.role || '')) : (c.category || c.company || ''), value: c.id }));
   const apply = (id) => (col === 'teams' && field === 'leadId') ? setTeamLead(doc, id) : single ? patchDoc(col, doc, { [field]: id }) : patchDoc(col, doc, { [field]: [...current, id] });
   openMenu(anchor, {
     search: true, create: true, createLabel: 'כ' + (CTYPES[type]?.label || ''), placeholder: 'חיפוש ' + (CTYPES[type]?.plural || '') + '…',
