@@ -1270,10 +1270,13 @@ const VIEWS = [
 const visibleViews = () => VIEWS.filter((v) => (!v.managers || isManager()) && (!v.archive || (typeof canSeeArchive === 'function' && canSeeArchive())));
 const DEFAULT_SETTINGS = {
   officeName: 'OBERSON',
+  /* the office's stages, as the fee proposals define them (5.10.2026): opening · preliminary design (alternatives, layout, concept, renderings) ·
+     permit · tender = detailed design for tender (tender set, booklet, schedules, bills of quantities) · build = detailed design for construction
+     (construction set, joinery, finishes, elevations) · furniture (furniture, styling, accessories) · site supervision · handover */
   phases: [
     { id: 'init', name: 'פתיחת פרויקט', weight: 0.5 }, { id: 'concept', name: 'תכנון ראשוני', weight: 1 },
-    { id: 'permit', name: 'היתר', weight: 0.8 }, { id: 'detail', name: 'תכנון מפורט', weight: 1.5 },
-    { id: 'tender', name: 'מכרז', weight: 0.7 }, { id: 'build', name: 'ביצוע', weight: 1.2 }, { id: 'handover', name: 'מסירה', weight: 0.5 },
+    { id: 'permit', name: 'היתר', weight: 0.8 }, { id: 'tender', name: 'מכרז', weight: 1.5 }, { id: 'build', name: 'ביצוע', weight: 1.2 },
+    { id: 'furniture', name: 'ריהוט', weight: 0.6 }, { id: 'supervision', name: 'פיקוח עליון', weight: 0.7 }, { id: 'handover', name: 'מסירה', weight: 0.3 },
   ],
   unknownPhaseWeight: 1,
   sizes: [{ id: 'xs', name: 'XS', weight: 0.25 }, { id: 's', name: 'S', weight: 0.5 }, { id: 'm', name: 'M', weight: 1 }, { id: 'l', name: 'L', weight: 2 }, { id: 'xl', name: 'XL', weight: 3 }],
@@ -1324,14 +1327,17 @@ const tname = (id, fallback = 'ללא צוות') => team(id)?.name || fallback;
    (contract milestones mapped to the stage through the unified type; template milestones for projects without a contract breakdown).
    Nobody marks a stage by hand: the database keeps projects.stage / projects.stage_progress up to date from the milestones
    (recompute_project_stage), and the same rule runs here for parents (which aggregate their sub-projects) and for instant feedback.
-   Which template stages a project type gets: settings.phasesByType (by default a permit stage only for private houses / residential). */
+   Which template stages a project type gets: settings.phasesByType (by default a permit stage only for private houses / residential, and no
+   furniture stage for internal / consulting work). */
 const STAGE_DONE = '__done', STAGE_NONE = '_none';
 const PERMIT_TYPES = ['בית פרטי', 'מגורים', 'התחדשות עירונית']; // types whose contracts usually include a permit; per project the contract decides
 const TYPE_ONLY_PHASES = { permit: PERMIT_TYPES }; // default rule: stage id → the only types that get it
+const NO_FURNITURE_TYPES = ['פנימי', 'ייעוץ']; // types that never furnish anything
+const TYPE_SKIP_PHASES = { furniture: NO_FURNITURE_TYPES }; // default rule: stage id → the types that do not get it
 function phaseIdsForType(type) {
   const tpl = settings().phases; const map = settings().phasesByType || {};
   if (type && Array.isArray(map[type])) return tpl.filter((x) => map[type].includes(x.id)).map((x) => x.id);
-  return tpl.filter((x) => !TYPE_ONLY_PHASES[x.id] || !type || TYPE_ONLY_PHASES[x.id].includes(type)).map((x) => x.id);
+  return tpl.filter((x) => (!TYPE_ONLY_PHASES[x.id] || !type || TYPE_ONLY_PHASES[x.id].includes(type)) && !(type && TYPE_SKIP_PHASES[x.id]?.includes(type))).map((x) => x.id);
 }
 const phasesForType = (type) => { const ids = phaseIdsForType(type); return settings().phases.filter((x) => ids.includes(x.id)); };
 const stageDefs = () => settings().phases;
@@ -1505,6 +1511,7 @@ function startJourney(pid) {
   const first = stageList(p)[0]; if (first) ensureStageRow(p, first, 'active');
 }
 const buildPhaseName = () => settings().phases.find((x) => x.id === 'build')?.name || 'ביצוע';
+const siteStageName = () => settings().phases.find((x) => x.id === 'supervision')?.name || 'פיקוח עליון'; // the stage spent on site
 const sizeOf = (id) => settings().sizes.find((s) => s.id === id) || null;
 const employees = () => C().filter((c) => c.type === 'employee' && c.active !== false).sort(byName);
 const teamLeadId = (teamId) => team(teamId)?.leadId || null;
@@ -1794,7 +1801,7 @@ function renderOverview() {
   const yellow = act.filter((p) => p.health === 'yellow');
   const stale = act.filter(isStale);
   const never = act.filter((p) => !p.statusUpdatedAt);
-  const inBuild = act.filter((p) => hasActivePhaseNamed(p, buildPhaseName()));
+  const onSite = act.filter((p) => hasActivePhaseNamed(p, siteStageName()));
   const openComm = K().filter((k) => k.status !== 'paid');
   const openSum = sum(openComm, (k) => k.amount);
   const stageRows = act.map((p) => currentStageRow(p));
@@ -1863,7 +1870,7 @@ function renderOverview() {
   </div>
   ${typeof timePanel === 'function' ? timePanel() : ''}
   <div class="tiles">
-    ${tile('פרויקטים פעילים', act.length, `${inBuild.length} בביצוע`, { cls: 'hero', click: { action: 'goto-projects', attrs: 'data-state="active"' } })}
+    ${tile('פרויקטים פעילים', act.length, `${onSite.length} בפיקוח עליון`, { cls: 'hero', click: { action: 'goto-projects', attrs: 'data-state="active"' } })}
     ${tile(`${HEALTH.red.icon} דחוף`, red.length, `${yellow.length} לתשומת לב`, { cls: red.length ? 'crit' : '', click: { action: 'goto-projects', attrs: 'data-health="red"' } })}
     ${tile('המשימות שלי', myOpenTasks().length, myOpenTasks().filter(isOverdue).length ? `${myOpenTasks().filter(isOverdue).length} באיחור` : (myOpenTasks().filter((t) => dueInfo(t).key === 'today').length ? `${myOpenTasks().filter((t) => dueInfo(t).key === 'today').length} להיום` : 'אין באיחור'), { cls: myOpenTasks().some(isOverdue) ? 'warn' : '', click: { action: 'goto-tasks', attrs: 'data-tab="mine"' } })}
     ${isManager() ? tile('משימות באיחור במשרד', TK().filter(isOverdue).length, `${TK().filter(isOpenTask).length} פתוחות בסך הכול`, { cls: TK().some(isOverdue) ? 'crit' : '', click: { action: 'goto-tasks', attrs: 'data-tab="all"' } }) : ''}
@@ -2082,7 +2089,8 @@ function phasesByTypeEditor() {
         ${st.phases.map((ph) => `<td class="num"><input type="checkbox" data-ptm="${esc(t)}:${ph.id}" ${ids.includes(ph.id) ? 'checked' : ''} ${ro ? 'disabled' : ''} aria-label="${esc(t)} — ${esc(ph.name)}"></td>`).join('')}
       </tr>`; }).join('')}</tbody>
     </table></div>
-    <div class="inline-note" style="margin-top:8px">ברירת המחדל: כל השלבים לכל סוג, למעט "${esc(st.phases.find((x) => x.id === 'permit')?.name || 'היתר')}" שקיים רק ב${PERMIT_TYPES.join(' ו')}. פרויקט חדש מקבל את שלבי הסוג שלו; בפרויקט קיים לוחצים "התאם לסוג ולחוזה" בכרטיס הפרויקט. פרויקט ללא סוג מקבל את כל השלבים.</div>
+    <div class="inline-note" style="margin-top:8px">ברירת המחדל: כל השלבים לכל סוג, למעט "${esc(st.phases.find((x) => x.id === 'permit')?.name || 'היתר')}" שקיים רק ב${PERMIT_TYPES.join(', ')} ו"${esc(st.phases.find((x) => x.id === 'furniture')?.name || 'ריהוט')}" שאינו קיים ב${NO_FURNITURE_TYPES.join(' ו')}. פרויקט חדש מקבל את שלבי הסוג שלו; בפרויקט קיים לוחצים "התאם לסוג ולחוזה" בכרטיס הפרויקט. פרויקט ללא סוג מקבל את כל השלבים.</div>
+    <div class="inline-note" style="margin-top:8px">תכולת השלבים כמו בהצעות המחיר: <strong>תכנון ראשוני</strong> — חלופות, תכנית העמדה, קונספט, הדמיות · <strong>מכרז</strong> — תכנון מפורט למכרז: סט מכרז, חוברת, רשימות, מפרטים וכתבי כמויות, תיאום יועצים · <strong>ביצוע</strong> — תכנון מפורט לביצוע: סט ביצוע, נגרות, חומרי גמר, פריסות · <strong>ריהוט</strong> — בחירת ריהוט, סטיילינג ואביזרים · <strong>פיקוח עליון</strong> — ליווי הבנייה באתר · <strong>מסירה</strong>. אבן דרך מהחוזה נכנסת לשלב לפי הסוג האחיד שלה (הגדרות ← אבני דרך).</div>
   </div>`;
 }
 const CONTACT_PAGE = 250; // rows rendered before "show more" — keeps the person registry (1000+ rows) snappy
