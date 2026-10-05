@@ -591,6 +591,57 @@
     body.sunday-print .sunday-agenda { border: 0; padding: 0; margin: 0; }
     body.sunday-print .sunday-team { display: none !important; }
   }
+  /* ---------- the archive: completed projects ---------- */
+  .arc-tools { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 14px; }
+  .arc-tools .search { flex: 1 1 260px; max-width: 420px; position: relative; }
+  .arc-tools .search input { width: 100%; }
+  .arc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+  .arc-card { display: flex; flex-direction: column; border: 1px solid var(--line); background: var(--surface); color: inherit; text-decoration: none; overflow: hidden; transition: border-color .15s; }
+  .arc-card:hover { border-color: var(--ink); }
+  .arc-cover { position: relative; aspect-ratio: 4 / 3; background: var(--surface-2); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .arc-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
+  .arc-card:hover .arc-cover img { transform: scale(1.03); }
+  .arc-initial { font-family: "Narkiss Block", sans-serif; font-weight: 200; font-size: 56px; color: var(--ink-3); }
+  .arc-tag { position: absolute; top: 8px; inset-inline-start: 8px; background: var(--surface); }
+  .arc-body { padding: 10px 12px 12px; display: grid; gap: 3px; }
+  .arc-name { font-weight: 500; font-size: 15px; line-height: 1.25; }
+  .arc-he { color: var(--ink-2); font-size: 13px; }
+  .arc-meta, .arc-counts { color: var(--ink-3); font-size: 12px; }
+  .arc-pool { margin-bottom: 14px; }
+  .press-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .press-card { border: 1px solid var(--line); background: var(--surface); display: flex; flex-direction: column; min-width: 0; }
+  .press-img { display: flex; align-items: center; justify-content: center; aspect-ratio: 3 / 4; background: var(--surface-2); overflow: hidden; }
+  .press-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .press-kind { color: var(--ink-3); font-size: 13px; }
+  .press-body { padding: 8px 10px 10px; display: grid; gap: 4px; }
+  .press-title { font-size: 13px; font-weight: 500; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .press-meta { font-size: 11.5px; color: var(--ink-3); }
+  .press-actions { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 2px; }
+  .arc-hero { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px 20px; align-items: start; }
+  .arc-hero:has(.arc-hero-img) { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); }
+  .arc-hero-img { display: block; aspect-ratio: 4 / 3; background: var(--surface-2); overflow: hidden; }
+  .arc-hero-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .arc-hero-body { min-width: 0; }
+  .arc-title input, .arc-sub input { width: 100%; font: inherit; border: 0; border-bottom: 1px dashed var(--line-2); background: transparent; padding: 2px 0; }
+  .arc-title input { font-family: "Narkiss Block", sans-serif; font-weight: 200; font-size: 34px; letter-spacing: .01em; }
+  .arc-title input:focus, .arc-sub input:focus { outline: 0; border-bottom-color: var(--ink); }
+  .arc-sub { margin: 2px 0 10px; color: var(--ink-2); font-size: 15px; }
+  .arc-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px 12px; }
+  .arc-facts .field { margin-bottom: 4px; }
+  .arc-site { display: flex; gap: 4px; align-items: center; }
+  .arc-site input { flex: 1; min-width: 0; }
+  .arc-office { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; font-size: 13px; }
+  .arc-gallery .ph.gal { cursor: zoom-in; }
+  .arc-texts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .arc-texts .btn { margin-top: -8px; }
+  .arc-table { display: grid; gap: 4px; }
+  .arc-row { display: grid; grid-template-columns: 1.2fr 1fr 1.2fr .8fr 1.2fr 56px; gap: 4px; align-items: center; }
+  .arc-row.arc-head span { font-size: 11.5px; color: var(--ink-3); padding: 0 4px; }
+  .arc-row input { min-width: 0; font-size: 13px; padding: 5px 6px; }
+  .arc-table:has(.arc-row [data-arcrow="links"]) .arc-row { grid-template-columns: 1fr 2fr 56px; }
+  .arc-row-tools { display: flex; gap: 2px; justify-content: flex-end; }
+  .arc-row-tools .icon-btn svg { width: 12px; height: 12px; }
+  @media (max-width: 720px) { .arc-hero:has(.arc-hero-img) { grid-template-columns: 1fr; } .arc-row { grid-template-columns: 1fr 1fr; } .arc-row.arc-head { display: none; } .arc-table:has(.arc-row [data-arcrow="links"]) .arc-row { grid-template-columns: 1fr; } }
   .today-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
   .today-grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   #btn-request.has { border-color: var(--warn); box-shadow: inset 0 0 0 1px var(--warn); }
@@ -1174,11 +1225,12 @@ const VIEWS = [
   { id: 'teams', label: 'צוותים' },
   { id: 'contacts', label: 'מאגרים' },
   { id: 'requests', label: 'בקשות' },
+  { id: 'archive', label: 'ארכיון', archive: true },
   { id: 'commissions', label: 'עמלות', managers: true },
   { id: 'users', label: 'משתמשים', managers: true },
   { id: 'settings', label: 'הגדרות' },
 ];
-const visibleViews = () => VIEWS.filter((v) => !v.managers || isManager());
+const visibleViews = () => VIEWS.filter((v) => (!v.managers || isManager()) && (!v.archive || (typeof canSeeArchive === 'function' && canSeeArchive())));
 const DEFAULT_SETTINGS = {
   officeName: 'OBERSON',
   phases: [
@@ -1533,6 +1585,7 @@ function loadUi() {
   const h = (location.hash || '').replace('#', '');
   if (VIEWS.some((v) => v.id === h)) S.ui.view = h;
   else if (h.startsWith('project/')) { S.ui.view = 'project'; S.ui.pageId = h.slice(8); }
+  else if (h.startsWith('archive/')) { S.ui.view = 'archive-page'; S.ui.arcPage = h.slice(8); }
 }
 function saveUi() {
   try { localStorage.setItem('obr-ui', JSON.stringify({ filters: S.ui.filters, ctab: S.ui.ctab, sort: S.ui.sort, ttab: S.ui.ttab, tproject: S.ui.tproject })); } catch (e) { /* ignore */ }
@@ -1561,11 +1614,12 @@ function render() {
   renderSync();
   renderUserBox();
   renderBell();
-  if (S.ui.view !== 'report' && S.ui.view !== 'project' && !visibleViews().some((v) => v.id === S.ui.view)) S.ui.view = 'overview';
+  if (S.ui.view === 'archive-page' && !(typeof canSeeArchive === 'function' && canSeeArchive())) S.ui.view = 'overview';
+  if (S.ui.view !== 'report' && S.ui.view !== 'project' && S.ui.view !== 'archive-page' && !visibleViews().some((v) => v.id === S.ui.view)) S.ui.view = 'overview';
   document.body.classList.toggle('report-view', S.ui.view === 'report');
   if (S.dbState === 'error') page.innerHTML = `<div class="banner">טעינת הנתונים נכשלה (${esc(S.error)}). <button class="btn small" data-action="reload-data">נסה שוב</button></div>`;
   else if (S.dbState === 'connecting') page.innerHTML = '<div class="loading">טוען את נתוני המשרד…</div>';
-  else page.innerHTML = { overview: renderOverview, tasks: renderTasks, time: renderTime, meetings: renderMeetings, field: renderField, report: renderReport, projects: renderProjects, project: renderProjectPage, teams: renderTeams, contacts: renderContacts, requests: renderRequests, commissions: renderCommissions, users: renderUsers, settings: renderSettings }[S.ui.view]();
+  else page.innerHTML = { overview: renderOverview, tasks: renderTasks, time: renderTime, meetings: renderMeetings, field: renderField, report: renderReport, projects: renderProjects, project: renderProjectPage, teams: renderTeams, contacts: renderContacts, requests: renderRequests, archive: renderArchive, 'archive-page': renderArchivePage, commissions: renderCommissions, users: renderUsers, settings: renderSettings }[S.ui.view]();
   if (S.ui.view === 'report') paginateReport();
   renderOverlay();
   renderPendingBar();
@@ -1605,7 +1659,7 @@ function restoreFocus(f) {
   try { if (f.start != null && el.setSelectionRange) el.setSelectionRange(f.start, f.end); } catch (e) { /* not a text field */ }
 }
 function renderNav() {
-  const cur = S.ui.view === 'project' ? 'projects' : S.ui.view;
+  const cur = S.ui.view === 'project' ? 'projects' : S.ui.view === 'archive-page' ? 'archive' : S.ui.view;
   document.getElementById('nav').innerHTML = visibleViews().map((v) => `<button type="button" data-action="nav" data-view="${v.id}" ${cur === v.id ? 'aria-current="page"' : ''}>${v.label}</button>`).join('');
 }
 function renderSync() {
@@ -2353,7 +2407,7 @@ const snake = (k) => k.replace(/[A-Z]/g, (m) => '_' + m.toLowerCase());
 const camel = (k) => k.replace(/_([a-z])/g, (m, c) => c.toUpperCase());
 const toRow = (obj) => { const o = {}; Object.entries(obj).forEach(([k, v]) => { if (k === 'updatedAt' || k === 'createdAt' || k === 'updatedBy') return; o[snake(k)] = v; }); return o; };
 const fromRow = (row) => { const o = {}; Object.entries(row).forEach(([k, v]) => { o[camel(k)] = v; }); return o; };
-const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days'];
+const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items'];
 
 S.auth = { status: 'loading', session: null, profile: null, notice: '', error: '' };
 S.profiles = {}; S.invitations = {}; S.audit = [];
@@ -2481,7 +2535,7 @@ function subscribeRealtime() {
     }, 250);
   };
   rtChannel = sb.channel('office-live');
-  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days'].forEach((table) => {
+  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items'].forEach((table) => {
     rtChannel.on('postgres_changes', { event: '*', schema: 'public', table }, () => scheduleRefetch(table));
   });
   rtChannel.subscribe();
@@ -3183,11 +3237,13 @@ async function uploadFiles(fileList, ctx) {
     let blob = file, ext = (file.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 8) || 'bin', mime = file.type || 'application/octet-stream', w = null, h = null;
     if (isImg) { const s = await shrinkImage(file); if (s) { blob = s.blob; ext = 'jpg'; mime = 'image/jpeg'; w = s.w; h = s.h; } }
     // folder per context: project / visit | set | task | presentation | general; a task without a project lives under tasks/
-    const path = `${ctx.projectId || 'tasks'}/${ctx.visitId || ctx.setId || ctx.materialId || ctx.taskId || ctx.slot || 'general'}/${id}.${ext}`;
+    let pressId = ctx.pressId || null;
+    if (ctx.pressNew && !pressId && typeof createDoc === 'function') { pressId = uid('pr'); await createDoc('press_items', pressId, { projectId: ctx.projectId || null, kind: 'print', title: file.name.replace(/\.[^.]+$/, ''), outlet: '', url: '', imageUrl: '', publishedOn: null, websiteId: null, notes: '' }); } // a scan uploaded to the archive gets a press card of its own
+    const path = `${ctx.projectId || 'tasks'}/${ctx.visitId || ctx.setId || ctx.materialId || ctx.taskId || (pressId ? 'press' : '') || ctx.slot || 'general'}/${id}.${ext}`;
     try {
       const { error } = await sb.storage.from(FILE_BUCKET).upload(path, blob, { contentType: mime, upsert: false });
       if (error) throw error;
-      const ok = await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: ctx.projectId || null, visitId: ctx.visitId || null, itemId: ctx.itemId || null, taskId: ctx.taskId || null, slot: ctx.slot || null, setId: ctx.setId || null, materialId: ctx.materialId || null, kind: isImg ? 'image' : isAud ? 'audio' : isVid ? 'video' : isPdf ? 'pdf' : 'file', mime, size: blob.size, width: w, height: h, caption: ctx.caption || ((isImg || isAud) && (ctx.visitId || ctx.itemId) ? '' : file.name) /* visit photos stay caption-less; documents keep their file name */, takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : null, uploadedBy: me()?.id || null, durationSec: ctx.durationSec || null, transcript: '', transcribeStatus: '', transcribeError: '' });
+      const ok = await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: ctx.projectId || null, visitId: ctx.visitId || null, itemId: ctx.itemId || null, taskId: ctx.taskId || null, slot: ctx.slot || null, setId: ctx.setId || null, materialId: ctx.materialId || null, pressId, kind: isImg ? 'image' : isAud ? 'audio' : isVid ? 'video' : isPdf ? 'pdf' : 'file', mime, size: blob.size, width: w, height: h, caption: ctx.caption || ((isImg || isAud) && (ctx.visitId || ctx.itemId) ? '' : file.name) /* visit photos stay caption-less; documents keep their file name */, takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : null, uploadedBy: me()?.id || null, durationSec: ctx.durationSec || null, transcript: '', transcribeStatus: '', transcribeError: '' });
       if (!ok) throw new Error('row');
       up.done++;
     } catch (e) { console.warn('upload failed', e); up.failed++; toast('העלאה נכשלה: ' + friendlyError(e)); }
@@ -3932,7 +3988,7 @@ const latestSet = (pid) => setsOf(pid)[0] || null;
 const setFiles = (sid) => filesOf({ setId: sid });
 const presentationsOf = (pid) => filesOf({ projectId: pid, slot: 'presentation' }).reverse(); // newest first
 const taskFiles = (tid) => filesOf({ taskId: tid });
-const generalFiles = (pid) => FL().filter((f) => f.projectId === pid && !f.visitId && !f.itemId && !f.taskId && !f.slot && !f.setId && f.kind !== 'audio').sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+const generalFiles = (pid) => FL().filter((f) => f.projectId === pid && !f.visitId && !f.itemId && !f.taskId && !f.slot && !f.setId && !f.pressId && f.kind !== 'audio').sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
 const canDeleteFile = (f) => !!f && isMember() && (isManager() || myRole() === 'team_lead' || f.uploadedBy === me()?.id);
 const canDeleteSet = (s) => !!s && isMember() && (isManager() || myRole() === 'team_lead' || s.createdBy === me()?.id);
 const fileExt = (f) => ((f.path || f.caption || '').split('.').pop() || '').toLowerCase().slice(0, 5);
@@ -5267,6 +5323,371 @@ document.addEventListener('change', (e) => {
   const cur = entriesOf(el.dataset.cid, el.dataset.date).find((x) => x.category === el.dataset.tenote.slice(4) && !x.projectId);
   setHours(el.dataset.cid, el.dataset.date, el.dataset.tenote, Number(cur?.hours) || 0, { note: el.value.trim() });
 });
+/* ===================== the archive: completed projects (4.10.2026) =====================
+   What the office keeps about a finished project, in one place, by its publication name ("media name"): the page on the website
+   and its photos, who photographed, the texts in Hebrew and English, the colours and shades, the materials board, the last
+   execution set, the people — office, client, consultants, contractors, suppliers — the publications and press scans, links.
+   A client calling years later about the shade of their ceiling or where the kitchen was bought gets the answer from here.
+   Visible to managers, administration and the PR / social team (settings.shootFunctions). The data: project_archive (1:1 with
+   projects — every published project is a project in the system, imported from oberson-arch.com), press_items (publications
+   and scans; the website's publications wait in a pool to be assigned), files.press_id (an uploaded scan). */
+S.project_archive = {}; S.press_items = {};
+Object.assign(S.ui, { arcq: '', arcCat: '', arcPage: null, arcPress: false, arcSync: null, pressAdd: null });
+const SITE_URL = 'https://oberson-arch.com';
+const AR = () => list('project_archive');
+const PI = () => list('press_items');
+const ARCHIVE_CATS = { 'Residence': 'מגורים', 'Public & Spaces': 'ציבורי ומסחרי', 'Hotels & Hospitality': 'מלונאות ואירוח', 'Housing': 'בנייה רוויה' };
+const PRESS_KINDS = { print: 'פרינט', web: 'אונליין', video: 'וידאו', award: 'פרס', other: 'אחר' };
+const COLOR_FIELDS = [['area', 'איפה', 'תקרה, קיר סלון, חזית…'], ['brand', 'יצרן', 'טמבור, נירלט, Farrow & Ball…'], ['code', 'גוון / קוד', 'שם הגוון ומספרו'], ['finish', 'גימור', 'מט, משי, אפוקסי…'], ['note', 'הערה', '']];
+const LINK_FIELDS = [['label', 'מה זה', 'תיקיית צילומים, סט ביצוע, אתר הספק…'], ['url', 'קישור', 'https://…']];
+ICON.archive = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="4" width="14" height="4"/><path d="M4 8v8h12V8M8 11h4"/></svg>';
+ICON.globe = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3c2.5 2.5 2.5 11.5 0 14M10 3c-2.5 2.5-2.5 11.5 0 14"/></svg>';
+/* who sees the archive (mirror of can_see_archive): managers, administration, the PR / social people */
+const canSeeArchive = () => !!me() && (isManager() || myRole() === 'admin' || (typeof shootFns === 'function' && (shootFns().social.includes(me().id) || shootFns().pr.includes(me().id))));
+const canEditArchive = canSeeArchive;
+const archiveOf = (pid) => S.project_archive[pid] || null;
+/* the archive's projects: everything with an archive card, plus completed office projects that have none yet */
+const archiveProjects = () => P().filter((p) => S.project_archive[p.id] || p.state === 'done');
+const arcName = (p) => { const a = archiveOf(p.id); return (a && a.mediaName) || p.nameEn || p.name; };
+const arcNameHe = (p) => { const a = archiveOf(p.id); return (a && a.mediaNameHe) || (p.id.startsWith('pw_') ? '' : p.name); };
+const arcCover = (a) => (a ? (a.coverThumb || a.coverUrl || '') : '');
+const arcYear = (p) => { const a = archiveOf(p.id); return (a && a.completedYear) || (p.dueDate ? Number(p.dueDate.slice(0, 4)) : null) || null; };
+const arcCat = (p) => { const a = archiveOf(p.id); return (a && a.category) || ''; };
+const catLabel = (c) => ARCHIVE_CATS[c] || c || '';
+const pressOf = (pid) => PI().filter((x) => x.projectId === pid).sort((a, b) => (b.publishedOn || '').localeCompare(a.publishedOn || '') || (b.createdAt || '').localeCompare(a.createdAt || ''));
+const pressPool = () => PI().filter((x) => !x.projectId).sort((a, b) => (b.publishedOn || '').localeCompare(a.publishedOn || ''));
+const pressFiles = (prid) => filesOf({ pressId: prid });
+const executionSet = (pid) => (typeof setsOf === 'function' ? setsOf(pid).find((s) => s.status === 'execution') : null) || null;
+/* the archive card of a project is created on the first edit — nothing to fill in advance */
+function ensureArchive(pid) {
+  if (S.project_archive[pid]) return S.project_archive[pid];
+  const p = S.projects[pid]; if (!p || !canEditArchive()) return null;
+  createDoc('project_archive', pid, { mediaName: p.nameEn || p.name, mediaNameHe: p.id.startsWith('pw_') ? '' : p.name, category: '', websiteUrl: '', websiteId: null, websiteIdHe: null, coverUrl: '', coverThumb: '', gallery: [], photosUrl: '', photographer: '', photographerId: null, completedYear: arcYear(p), textHe: '', textEn: '', colors: [], publications: [], links: [], notes: '', publishedAt: null, websiteModified: '', needsReview: false });
+  return S.project_archive[pid];
+}
+function patchArchive(pid, patch) { const a = ensureArchive(pid); if (!a) { toast('אין לך הרשאה'); return; } patchDoc('project_archive', pid, patch); }
+function openArchivePage(id) {
+  if (!S.projects[id]) { toast('הפרויקט לא נמצא'); return; }
+  if (S.ui.drawer) { closeDrawer(); if (S.ui.confirmClose) return; }
+  S.ui.arcPage = id; S.ui.view = 'archive-page'; S.ui.menu = null;
+  try { history.replaceState(null, '', '#archive/' + id); } catch (e) { /* ignore */ }
+  window.scrollTo({ top: 0 });
+  render();
+}
+/* ---------- the grid ---------- */
+function archiveCard(p) {
+  const a = archiveOf(p.id); const cover = arcCover(a); const year = arcYear(p); const he = arcNameHe(p);
+  const people = [p.leadId, ...(p.memberIds || [])].filter((id) => contact(id)).length;
+  return `<a href="#archive/${p.id}" class="arc-card ${cover ? '' : 'nocover'}" data-action="arc-open" data-id="${p.id}" title="${esc(arcName(p))}">
+    <div class="arc-cover"><span class="arc-initial">${esc(arcName(p).slice(0, 1))}</span>${cover ? `<img src="${esc(cover)}" alt="" loading="lazy" onerror="this.remove()">` : ''}${a?.needsReview ? '<span class="tag arc-tag">לבדיקה</span>' : ''}${!a ? '<span class="tag arc-tag">ללא כרטיס</span>' : ''}</div>
+    <div class="arc-body">
+      <div class="arc-name" dir="auto">${esc(arcName(p))}</div>
+      ${he && he !== arcName(p) ? `<div class="arc-he">${esc(he)}</div>` : ''}
+      <div class="arc-meta">${[catLabel(arcCat(p)), year, p.city, a?.photographer ? 'צילום: ' + a.photographer : ''].filter(Boolean).map(esc).join(' · ')}</div>
+      <div class="arc-counts">${[pressOf(p.id).length ? `${pressOf(p.id).length} פרסומים` : '', (a?.colors || []).length ? `${a.colors.length} גוונים` : '', typeof materialsOf === 'function' && materialsOf(p.id).length ? `${materialsOf(p.id).length} חומרים` : '', people ? `${people} מהמשרד` : ''].filter(Boolean).join(' · ')}</div>
+    </div>
+  </a>`;
+}
+function renderArchive() {
+  if (!canSeeArchive()) return `<div class="view-head"><div><h1 class="view-title">ארכיון</h1><div class="view-sub">הארכיון פתוח למנהלים, לאדמיניסטרציה ולצוות הסושיאל.</div></div></div>`;
+  const all = archiveProjects();
+  const q = norm(S.ui.arcq || ''); const cat = S.ui.arcCat;
+  const cats = {}; all.forEach((p) => { const c = arcCat(p) || '_none'; cats[c] = (cats[c] || 0) + 1; });
+  let shown = all;
+  if (cat === '_none') shown = shown.filter((p) => !arcCat(p));
+  else if (cat === '_review') shown = shown.filter((p) => archiveOf(p.id)?.needsReview);
+  else if (cat) shown = shown.filter((p) => arcCat(p) === cat);
+  if (q) shown = shown.filter((p) => { const a = archiveOf(p.id) || {}; return norm([arcName(p), p.name, p.nameEn, p.number, p.city, p.address, a.photographer, a.textHe, a.textEn, cname(p.clientId, ''), (a.colors || []).map((c) => [c.area, c.brand, c.code].join(' ')).join(' ')].join(' ')).includes(q); });
+  shown = shown.slice().sort((a, b) => (arcYear(b) || 0) - (arcYear(a) || 0) || (archiveOf(b.id)?.publishedAt || '').localeCompare(archiveOf(a.id)?.publishedAt || '') || arcName(a).localeCompare(arcName(b), 'en'));
+  const review = all.filter((p) => archiveOf(p.id)?.needsReview).length;
+  const pool = pressPool();
+  const chip = (k, l) => `<span class="chip btn-chip ${cat === k ? 'accent' : ''}" data-action="arc-cat" data-value="${k}" role="button" tabindex="0">${l}</span>`;
+  const sync = S.ui.arcSync;
+  return `
+  <div class="view-head">
+    <div><h1 class="view-title">ארכיון</h1><div class="view-sub">פרויקטים שהסתיימו — ${all.length} · לפי שם המדיה. צילומים, צלם, טקסטים, גוונים, חומרים, סט ביצוע, אנשים ופרסומים — כל מה שלקוח עשוי לשאול עליו בעוד שנים.</div></div>
+    <div class="view-actions">${isManager() ? `<button class="btn ${sync ? 'ghost' : ''}" data-action="arc-sync" ${sync ? 'disabled' : ''} title="מושך מהאתר פרויקטים חדשים, גלריות ופרסומים">${ICON.globe} ${sync ? esc(sync) : 'סנכרון מהאתר'}</button>` : ''}${canEditArchive() ? `<button class="btn primary" data-action="arc-add">${ICON.plus} פרויקט לארכיון</button>` : ''}</div>
+  </div>
+  <div class="arc-tools">
+    <div class="chips">${chip('', `הכל ${all.length}`)}${Object.entries(ARCHIVE_CATS).filter(([k]) => cats[k]).map(([k, l]) => chip(k, `${l} ${cats[k]}`)).join('')}${cats._none ? chip('_none', `ללא קטגוריה ${cats._none}`) : ''}${review ? chip('_review', `לבדיקה ${review}`) : ''}</div>
+    <div class="search"><input type="search" id="arc-q" placeholder="חיפוש בארכיון: שם, עיר, לקוח, צלם, גוון…" value="${esc(S.ui.arcq || '')}"></div>
+  </div>
+  ${pool.length ? `<div class="panel arc-pool"><div class="panel-head"><h2 class="panel-title">פרסומים מהאתר שעדיין לא שויכו לפרויקט <small>${pool.length}</small></h2><span class="panel-sub"><button class="btn ghost small" data-action="arc-pool-toggle">${S.ui.arcPress ? 'הסתר' : 'הצג ושייך'}</button></span></div>${S.ui.arcPress ? `<div class="press-grid">${pool.slice(0, 60).map((x) => pressCard(x, { assign: true })).join('')}</div>${pool.length > 60 ? '<div class="inline-note">מוצגים 60 הראשונים — שייכו וימשיכו להופיע הבאים.</div>' : ''}` : ''}</div>` : ''}
+  ${shown.length ? `<div class="arc-grid">${shown.map(archiveCard).join('')}</div>` : `<div class="panel"><div class="empty">${q || cat ? 'לא נמצא פרויקט שמתאים.' : 'הארכיון ריק — "סנכרון מהאתר" מביא את הפרויקטים שפורסמו, ו"פרויקט לארכיון" מוסיף פרויקט שהסתיים.'}</div></div>`}`;
+}
+/* ---------- a press item (publication / scan) ---------- */
+function pressCard(x, opts = {}) {
+  const files = pressFiles(x.id); const img = x.imageUrl || (files.find((f) => f.kind === 'image') ? fileUrl(files.find((f) => f.kind === 'image')) : '');
+  const open = x.url || img || (files[0] ? fileUrl(files[0]) : '');
+  const armed = S.ui.confirm === 'press:' + x.id;
+  return `<div class="press-card">
+    <a class="press-img" href="${esc(open || '#')}" target="_blank" rel="noopener" title="${esc(x.title || x.outlet || 'פרסום')}">${img ? `<img src="${esc(img)}" alt="" loading="lazy">` : `<span class="press-kind">${esc(PRESS_KINDS[x.kind] || x.kind)}</span>`}</a>
+    <div class="press-body">
+      <div class="press-title" dir="auto">${esc(x.title || x.outlet || (x.websiteId ? 'פרסום מהאתר' : 'פרסום'))}</div>
+      <div class="press-meta">${[PRESS_KINDS[x.kind] || x.kind, x.outlet && x.title ? x.outlet : '', x.publishedOn ? fmtDate(x.publishedOn) : '', files.length ? `${files.length} קבצים` : ''].filter(Boolean).map(esc).join(' · ')}</div>
+      ${opts.assign ? `<button type="button" class="btn small" data-action="press-assign" data-id="${x.id}">שייך לפרויקט…</button>` : canEditArchive() ? `<div class="press-actions">${x.url ? `<a class="btn small ghost" href="${esc(x.url)}" target="_blank" rel="noopener">פתח</a>` : ''}<button type="button" class="btn small ghost" data-action="press-edit" data-id="${x.id}">ערוך</button>${armed ? `<button type="button" class="btn small danger" data-action="press-remove" data-id="${x.id}" data-confirmed="1">הסר</button><button type="button" class="btn small" data-action="cancel-confirm">בטל</button>` : `<button type="button" class="btn small ghost" data-action="press-remove" data-id="${x.id}">הסר</button>`}</div>` : ''}
+    </div>
+  </div>`;
+}
+function pressForm(pid, x = null) {
+  const f = S.ui.pressAdd || {};
+  return `<div class="rq-newc" id="press-form">
+    <div class="rq-newc-head"><strong>${x ? 'עריכת פרסום' : 'פרסום חדש'}</strong><span class="muted">כתבה, פרס, וידאו — או סריקה של פרינט</span></div>
+    <div class="field-row">${field('כותרת', `<input type="text" id="prs-title" value="${esc(x ? x.title : (f.title || ''))}" placeholder="שם הכתבה">`)}${field('במה', `<input type="text" id="prs-outlet" value="${esc(x ? x.outlet : (f.outlet || ''))}" placeholder="מגזין / אתר / תוכנית">`)}</div>
+    <div class="field-row">${field('סוג', selectHtml('prs-kind', x ? x.kind : (f.kind || 'print'), Object.entries(PRESS_KINDS).map(([v, l]) => ({ value: v, label: l }))))}${field('תאריך', `<input type="date" id="prs-date" value="${esc(x ? (x.publishedOn || '') : (f.publishedOn || ''))}">`)}</div>
+    ${field('קישור', `<input type="url" id="prs-url" value="${esc(x ? x.url : (f.url || ''))}" dir="ltr" placeholder="https://…">`)}
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn small primary" data-action="press-save" data-project="${pid}" ${x ? `data-id="${x.id}"` : ''}>${x ? 'שמור' : ICON.plus + ' הוסף פרסום'}</button><button type="button" class="btn small" data-action="press-cancel">ביטול</button></div>
+  </div>`;
+}
+/* ---------- the page of one archived project ---------- */
+const arcInput = (a, pid, key, opts = {}) => `<input type="${opts.type || 'text'}" id="arc-${key}" value="${esc(a?.[key] ?? '')}" data-arc="${key}" data-pid="${pid}" ${opts.attrs || ''} placeholder="${esc(opts.placeholder || '')}" ${canEditArchive() ? '' : 'disabled'}>`;
+function arcRows(a, pid, key, fields, addLabel) {
+  const rows = (a?.[key] || []);
+  const ro = !canEditArchive();
+  return `<div class="arc-table">
+    ${rows.length ? `<div class="arc-row arc-head">${fields.map(([k, l]) => `<span>${l}</span>`).join('')}<span></span></div>` : ''}
+    ${rows.map((r, i) => `<div class="arc-row">${fields.map(([k, l, ph]) => `<input type="text" value="${esc(r[k] || '')}" data-arcrow="${key}" data-pid="${pid}" data-index="${i}" data-key="${k}" placeholder="${esc(ph || '')}" ${k === 'url' ? 'dir="ltr"' : 'dir="auto"'} ${ro ? 'disabled' : ''}>`).join('')}<span class="arc-row-tools">${key === 'links' && r.url ? `<a class="icon-btn" href="${esc(r.url)}" target="_blank" rel="noopener" title="פתח">${ICON.globe}</a>` : ''}${ro ? '' : `<button type="button" class="icon-btn" data-action="arc-row-remove" data-pid="${pid}" data-key="${key}" data-index="${i}" title="הסר">${ICON.x}</button>`}</span></div>`).join('')}
+    ${ro ? (rows.length ? '' : '<div class="inline-note">עדיין לא נרשם.</div>') : `<div class="add-row"><button type="button" class="btn small ${rows.length ? 'ghost' : ''}" data-action="arc-row-add" data-pid="${pid}" data-key="${key}">${ICON.plus} ${addLabel}</button></div>`}
+  </div>`;
+}
+function peopleSummary(p) {
+  const row = (l, ids) => { const cs = ids.filter((id) => contact(id)); return cs.length ? `<div class="role-row"><div class="role-name">${l}</div><div class="role-body"><div class="chips">${cs.map((id) => `<a href="#" class="chip" data-action="open-contact" data-id="${id}" style="text-decoration:none">${esc(cname(id))}${contact(id).phone ? `<small>${esc(contact(id).phone)}</small>` : ''}</a>`).join('')}</div></div></div>` : ''; };
+  const lead = p.teamId ? teamLeadId(p.teamId) : null;
+  const html = [row('מוביל/ת הפרויקט', [p.leadId]), row('צוות', (p.memberIds || []).filter((id) => id !== p.leadId)), row('ראש/ת צוות', lead && lead !== p.leadId ? [lead] : []), row('לקוח', [p.clientId]), row('אנשי קשר אצל הלקוח', p.clientPersonIds || []), row('ניהול פרויקט', [p.pmId]), row('יועצים', p.consultantIds || []), row('קבלנים', p.contractorIds || []), row('ספקים', p.supplierIds || []), row('שיתופי פעולה', p.partnerIds || [])].filter(Boolean).join('');
+  return html || `<div class="inline-note">עדיין לא רשומים אנשים לפרויקט.${canWriteProjects() ? ' אפשר להוסיף בדף הפרויקט.' : ''}</div>`;
+}
+function renderArchivePage() {
+  const p = S.projects[S.ui.arcPage];
+  if (!p || !canSeeArchive()) return `<div class="view-head"><div><h1 class="view-title">הפרויקט לא נמצא</h1></div><div class="view-actions"><button class="btn" data-action="nav" data-view="archive">לארכיון</button></div></div>`;
+  const a = archiveOf(p.id) || {};
+  const ro = !canEditArchive(); const edits = canEditProject(p);
+  const cover = a.coverUrl || a.coverThumb || '';
+  const gallery = Array.isArray(a.gallery) ? a.gallery : [];
+  const press = pressOf(p.id); const set = executionSet(p.id); const shoot = typeof shootOf === 'function' ? shootOf(p.id) : null;
+  const jump = [['arc-photos', 'צילומים'], ['arc-text', 'טקסט'], ['arc-colors', 'גוונים'], ['materials-section', 'חומרים'], ['files-section', 'סט ביצוע וקבצים'], ['arc-press', 'פרסומים'], ['arc-people', 'אנשים'], ['arc-links', 'קישורים']];
+  const stub = p.id.startsWith('pw_');
+  return `
+  <div class="pp-head arc-head">
+    <a href="#archive" class="pp-back" data-action="nav" data-view="archive">${ICON.back} הארכיון</a>
+    <div class="arc-hero">
+      ${cover ? `<a class="arc-hero-img" href="${esc(a.websiteUrl || cover)}" target="_blank" rel="noopener"><img src="${esc(cover)}" alt=""></a>` : ''}
+      <div class="arc-hero-body">
+        <h1 class="view-title arc-title">${ro ? esc(arcName(p)) : `<input type="text" id="arc-mediaName" value="${esc(a.mediaName || arcName(p))}" data-arc="mediaName" data-pid="${p.id}" dir="auto" aria-label="שם המדיה" placeholder="שם המדיה">`}</h1>
+        <div class="arc-sub">${ro ? esc(arcNameHe(p) || '') : `<input type="text" id="arc-mediaNameHe" value="${esc(a.mediaNameHe || '')}" data-arc="mediaNameHe" data-pid="${p.id}" placeholder="שם בעברית (לפרסום)" aria-label="שם בעברית">`}</div>
+        <div class="arc-facts">
+          ${field('קטגוריה', selectHtml('arc-category', a.category || '', Object.entries(ARCHIVE_CATS).map(([v, l]) => ({ value: v, label: l })), { blank: 'ללא קטגוריה', attrs: `data-arc="category" data-pid="${p.id}" ${ro ? 'disabled' : ''}` }))}
+          ${field('שנת סיום', arcInput(a, p.id, 'completedYear', { type: 'number', attrs: 'min="1990" max="2100" dir="ltr"', placeholder: String(new Date().getFullYear()) }))}
+          ${field('צלם/ת', arcInput(a, p.id, 'photographer', { placeholder: 'כפי שמופיע בקרדיט' }))}
+          ${field('דף באתר', `<div class="arc-site">${arcInput(a, p.id, 'websiteUrl', { type: 'url', attrs: 'dir="ltr"', placeholder: 'https://oberson-arch.com/projects/…' })}${a.websiteUrl ? `<a class="icon-btn" href="${esc(a.websiteUrl)}" target="_blank" rel="noopener" title="פתח את הדף באתר">${ICON.globe}</a>` : ''}</div>`)}
+        </div>
+        <div class="arc-office">${stub ? `<span class="tag internal">נוצר מהאתר — עדיין לא מקושר לפרויקט במאגר המשרד</span>${isManager() ? `<button class="btn small ghost" data-action="arc-link-project" data-id="${p.id}">קשר לפרויקט קיים…</button>` : ''}` : `<a href="#project/${p.id}" data-action="open-project" data-id="${p.id}" class="btn small ghost">${ICON.doc} דף הפרויקט במשרד${p.number ? ' · ' + esc(p.number) : ''}</a><span class="muted">${esc([p.name !== arcName(p) ? p.name : '', p.address, p.city, cname(p.clientId, '')].filter(Boolean).join(' · '))}</span>`}${a.needsReview && !ro ? `<button class="btn small" data-action="arc-reviewed" data-id="${p.id}" title="הקישור או הפרטים נבדקו">✓ נבדק</button>` : ''}</div>
+      </div>
+    </div>
+    <nav class="pp-jump" aria-label="קפיצה לסעיף">${jump.map(([id, l]) => `<a href="#" data-action="scroll-to" data-target="${id}">${l}</a>`).join('')}</nav>
+  </div>
+  <div class="pp-grid">
+    <div class="pp-main panel">
+      <div class="section" id="arc-photos">
+        <h3 class="section-title">צילומים <small>${gallery.length ? `${gallery.length} באתר` : ''}${shoot ? ` · ${typeof SHOOT_STATUS !== 'undefined' && SHOOT_STATUS[shoot.status] ? SHOOT_STATUS[shoot.status].label : 'צילום'}${shoot.shootDate ? ' ' + fmtDate(shoot.shootDate) : ''}` : ''}</small></h3>
+        <div class="field-row">
+          ${field('תיקיית הצילומים (קישור)', `<div class="arc-site">${arcInput(a, p.id, 'photosUrl', { type: 'url', attrs: 'dir="ltr"', placeholder: 'Dropbox / Drive / WeTransfer…' })}${a.photosUrl ? `<a class="icon-btn" href="${esc(a.photosUrl)}" target="_blank" rel="noopener" title="פתח">${ICON.globe}</a>` : ''}</div>`)}
+          ${field('צלם/ת במאגר', `<div class="chips">${a.photographerId && contact(a.photographerId) ? `<span class="chip part"><a href="#" data-action="open-contact" data-id="${a.photographerId}" style="color:inherit;text-decoration:none">${esc(cname(a.photographerId))}</a>${ro ? '' : `<button type="button" class="x" data-action="arc-photographer" data-id="${p.id}" data-clear="1" title="הסר">${ICON.x}</button>`}</span>` : (ro ? '<span class="muted">—</span>' : `<button type="button" class="chip btn-chip add" data-action="arc-photographer" data-id="${p.id}">${ICON.plus} בחר מהמאגר</button>`)}</div>`)}
+        </div>
+        ${gallery.length ? `<div class="gallery arc-gallery">${gallery.slice(0, S.ui.photoFilter === 'all' ? 999 : 24).map((g) => `<a class="ph gal" href="${esc(g.url || g)}" target="_blank" rel="noopener"><img src="${esc(g.thumb || g.url || g)}" alt="" loading="lazy"></a>`).join('')}</div>${gallery.length > 24 && S.ui.photoFilter !== 'all' ? `<button type="button" class="btn small ghost" data-action="photos-all">הצג את כל ${gallery.length} התמונות</button>` : ''}` : `<div class="inline-note">${a.websiteId ? 'הגלריה מהאתר תופיע אחרי "סנכרון מהאתר".' : 'אין תמונות מהאתר — קישור לתיקיית הצילומים נשמר למעלה.'}</div>`}
+        ${typeof sitePhotosOf === 'function' && sitePhotosOf(p.id).length ? `<div class="inline-note" style="margin-top:8px">בנוסף ${sitePhotosOf(p.id).length} צילומים מהאתר (ביקורי אתר) — <a href="#project/${p.id}" data-action="open-project" data-id="${p.id}">בדף הפרויקט</a></div>` : ''}
+      </div>
+      <div class="section" id="arc-text">
+        <h3 class="section-title">הטקסט על הפרויקט</h3>
+        <div class="arc-texts">
+          <div>${field('עברית', `<textarea id="arc-textHe" rows="6" data-arc="textHe" data-pid="${p.id}" placeholder="תיאור הפרויקט לפרסום בעברית" ${ro ? 'disabled' : ''}>${esc(a.textHe || '')}</textarea>`)}${a.textHe ? `<button type="button" class="btn small ghost" data-action="copy-text" data-text="${esc(a.textHe)}">העתק</button>` : ''}</div>
+          <div>${field('English', `<textarea id="arc-textEn" rows="6" dir="ltr" data-arc="textEn" data-pid="${p.id}" placeholder="The project description for publication" ${ro ? 'disabled' : ''}>${esc(a.textEn || '')}</textarea>`)}${a.textEn ? `<button type="button" class="btn small ghost" data-action="copy-text" data-text="${esc(a.textEn)}">Copy</button>` : ''}</div>
+        </div>
+      </div>
+      <div class="section" id="arc-colors">
+        <h3 class="section-title">גוונים וצבעים <small>${(a.colors || []).length || ''}</small></h3>
+        <div class="inline-note" style="margin-bottom:8px">מה שלקוח ישאל בעוד חמש שנים: גוון התקרה, צבע הקיר בסלון, הגימור של המטבח.</div>
+        ${arcRows(a, p.id, 'colors', COLOR_FIELDS, 'הוסף גוון')}
+      </div>
+      ${typeof materialsBoard === 'function' ? materialsBoard(p) : ''}
+      ${typeof projectFilesSection === 'function' ? `<div id="files-section-wrap">${set ? `<div class="inline-note" style="margin:0 0 -6px">סט ביצוע אחרון: ${latestSetChip ? latestSetChip(p) : ''}</div>` : ''}${projectFilesSection(p)}</div>` : ''}
+      <div class="section" id="arc-press">
+        <h3 class="section-title">פרסומים <small>${press.length || ''}</small></h3>
+        ${press.length ? `<div class="press-grid">${press.map((x) => pressCard(x)).join('')}</div>` : '<div class="inline-note">עדיין אין פרסומים לפרויקט. כתבות, פרסים, וידאו — וסריקות של פרינט.</div>'}
+        ${S.ui.pressAdd && S.ui.pressAdd.pid === p.id ? pressForm(p.id, S.ui.pressAdd.id ? S.press_items[S.ui.pressAdd.id] : null) : (ro ? '' : `<div class="add-row" style="flex-wrap:wrap"><button type="button" class="btn small" data-action="press-new" data-project="${p.id}">${ICON.plus} פרסום</button>${uploadControl({ projectId: p.id, pressNew: true }, { label: 'העלה סריקה', accept: 'image/*,.pdf' })}${pressPool().length ? `<button type="button" class="btn small ghost" data-action="press-from-pool" data-project="${p.id}">מהפרסומים באתר (${pressPool().length})</button>` : ''}</div>`)}
+      </div>
+      <div class="section" id="arc-links">
+        <h3 class="section-title">קישורים ומידע נוסף</h3>
+        ${arcRows(a, p.id, 'links', LINK_FIELDS, 'הוסף קישור')}
+        ${field('הערות', `<textarea id="arc-notes" rows="3" data-arc="notes" data-pid="${p.id}" placeholder="מה עוד חשוב לזכור על הפרויקט" ${ro ? 'disabled' : ''}>${esc(a.notes || '')}</textarea>`)}
+      </div>
+    </div>
+    <aside class="pp-side panel">
+      <div class="section" id="arc-people">
+        <h3 class="section-title">מי היה בפרויקט</h3>
+        ${edits ? projectTeamSection(p) + projectExternalSection(p) : peopleSummary(p)}
+      </div>
+      <div class="section">
+        <h3 class="section-title">פרטים</h3>
+        <div class="role-row"><div class="role-name">כתובת</div><div class="role-body">${esc([p.address, p.city].filter(Boolean).join(', ') || '—')}</div></div>
+        ${p.type ? `<div class="role-row"><div class="role-name">סוג</div><div class="role-body">${esc([p.type, p.typeDetail].filter(Boolean).join(' · '))}</div></div>` : ''}
+        ${a.publishedAt ? `<div class="role-row"><div class="role-name">פורסם באתר</div><div class="role-body">${esc(fmtDate(a.publishedAt))}</div></div>` : ''}
+        ${p.startDate || p.dueDate ? `<div class="role-row"><div class="role-name">תקופה</div><div class="role-body">${esc([p.startDate ? fmtDate(p.startDate) : '', p.dueDate ? fmtDate(p.dueDate) : ''].filter(Boolean).join(' – '))}</div></div>` : ''}
+        <div class="role-row"><div class="role-name">סט ביצוע</div><div class="role-body">${set ? (typeof setChip === 'function' ? setChip(set) : esc('סט ' + set.seq)) : '<span class="muted">עדיין לא יצא סט ביצוע</span>'}</div></div>
+        ${a.websiteId ? `<div class="inline-note">מזהה באתר: ${a.websiteId}${a.websiteModified ? ' · עודכן באתר ' + esc(fmtDate(a.websiteModified.slice(0, 10))) : ''}</div>` : ''}
+      </div>
+      <div class="section pp-foot"><span class="inline-note">${a.updatedAt ? 'הכרטיס עודכן ' + esc(fmtDate(a.updatedAt)) : 'עדיין אין כרטיס ארכיון — הוא נוצר עם העריכה הראשונה'}</span>${isManager() && stub ? confirmButton('arc-delete', `data-id="${p.id}"`, 'הסר מהארכיון') : ''}</div>
+    </aside>
+  </div>`;
+}
+/* ---------- sync from the website (managers): new projects, galleries, publications ---------- */
+async function syncArchiveFromSite() {
+  if (!isManager()) { toast('סנכרון מהאתר — מנהלים'); return; }
+  if (S.ui.arcSync) return;
+  const get = async (path) => { const r = await fetch(SITE_URL + '/wp-json/wp/v2/' + path, { cache: 'no-store' }); if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); };
+  const dec = (s) => { const t = document.createElement('textarea'); t.innerHTML = s || ''; return t.value.trim(); };
+  const thumbOf = (m) => m?.media_details?.sizes?.medium_large?.source_url || m?.media_details?.sizes?.large?.source_url || m?.source_url || '';
+  const step = (t) => { S.ui.arcSync = t; render(); };
+  let created = 0, galleries = 0, pressNew = 0;
+  try {
+    step('קורא את האתר…');
+    const site = [];
+    for (let page = 1; page <= 4; page++) { const j = await get(`project?per_page=100&page=${page}&lang=en&_fields=id,slug,link,title,date,modified,featured_media`); site.push(...j); if (j.length < 100) break; }
+    const known = new Map(AR().filter((x) => x.websiteId).map((x) => [Number(x.websiteId), x]));
+    for (let i = 0; i < site.length; i++) {
+      const w = site[i]; let a = known.get(Number(w.id));
+      if (!a) { // new on the website: a project of its own + a card to review (category and photographer are not in the site's API)
+        const pid = 'pw_' + w.id; const title = dec(w.title && w.title.rendered) || w.slug;
+        if (!S.projects[pid]) await createDoc('projects', pid, { number: '', name: title, nameEn: title, type: '', typeDetail: '', address: '', city: '', clientId: null, clientContactName: '', clientContactPhone: '', teamId: null, leadId: null, memberIds: [], pmId: null, contractorIds: [], consultantIds: [], supplierIds: [], partnerIds: [], state: 'done', phases: null, health: null, statusNote: '', statusUpdatedAt: null, size: 'm', startDate: null, dueDate: null, notes: `פרויקט שהסתיים — יובא מאתר המשרד (${w.link})`, needsReview: false, internal: false, sortIndex: 9500 + i });
+        await createDoc('project_archive', pid, { mediaName: title, mediaNameHe: '', category: '', websiteUrl: w.link, websiteId: w.id, websiteIdHe: null, coverUrl: '', coverThumb: '', gallery: [], photosUrl: '', photographer: '', photographerId: null, completedYear: Number((w.date || '').slice(0, 4)) || null, textHe: '', textEn: '', colors: [], publications: [], links: [], notes: 'נוסף בסנכרון מהאתר — לבדיקה: קטגוריה, צלם/ת, קישור לפרויקט במשרד', publishedAt: (w.date || '').slice(0, 10) || null, websiteModified: w.modified || '', needsReview: true });
+        a = S.project_archive[pid]; created++;
+      }
+      if (!(a.gallery || []).length || a.websiteModified !== w.modified) { // the page changed (or was never read): its images
+        step(`גלריות ${i + 1}/${site.length}…`);
+        const media = await get(`media?parent=${w.id}&per_page=100&_fields=id,source_url,mime_type,media_details.sizes.medium_large.source_url,media_details.sizes.large.source_url`);
+        const imgs = media.filter((m) => /^image\//.test(m.mime_type || '') || /\.(jpe?g|png|webp)$/i.test(m.source_url || ''));
+        const gallery = imgs.map((m) => ({ id: m.id, url: m.source_url, thumb: thumbOf(m) }));
+        const cover = imgs.find((m) => m.id === w.featured_media) || imgs[0];
+        await patchDoc('project_archive', a.id, { gallery, coverThumb: cover ? thumbOf(cover) : (a.coverThumb || ''), coverUrl: a.coverUrl || (cover ? cover.source_url : ''), websiteModified: w.modified || '' });
+        galleries++;
+      }
+    }
+    step('פרסומים…');
+    const pubs = [];
+    for (let page = 1; page <= 4; page++) { const j = await get(`publication?per_page=100&page=${page}&_fields=id,date,modified,class_list,featured_media,link`); pubs.push(...j); if (j.length < 100) break; }
+    const have = new Set(PI().filter((x) => x.websiteId).map((x) => Number(x.websiteId)));
+    const fresh = pubs.filter((x) => !have.has(Number(x.id)));
+    const mediaIds = fresh.map((x) => x.featured_media).filter(Boolean);
+    const thumbs = {};
+    for (let i = 0; i < mediaIds.length; i += 50) { const j = await get(`media?include=${mediaIds.slice(i, i + 50).join(',')}&per_page=50&_fields=id,source_url,media_details.sizes.medium_large.source_url,media_details.sizes.large.source_url`); j.forEach((m) => { thumbs[m.id] = { thumb: thumbOf(m), url: m.source_url }; }); }
+    for (const x of fresh) {
+      const cls = (x.class_list || []).join(' ');
+      const kind = /publications_cat-print/.test(cls) ? 'print' : /publications_cat-video/.test(cls) ? 'video' : /publications_cat-(web|online)/.test(cls) ? 'web' : /award/.test(cls) ? 'award' : 'print';
+      const img = thumbs[x.featured_media] || {};
+      await createDoc('press_items', 'wp_' + x.id, { projectId: null, kind, title: '', outlet: '', url: img.url || x.link || '', imageUrl: img.thumb || img.url || '', publishedOn: (x.date || '').slice(0, 10) || null, websiteId: x.id, notes: 'מהאתר' });
+      pressNew++;
+    }
+    S.ui.arcSync = null; render();
+    toast(`סונכרן מהאתר: ${created} פרויקטים חדשים${created ? ' (לבדיקה)' : ''}, ${galleries} גלריות, ${pressNew} פרסומים חדשים`);
+  } catch (e) { console.error(e); S.ui.arcSync = null; render(); toast('הסנכרון נעצר: ' + (e.message || e)); }
+}
+/* ---------- actions ---------- */
+async function archiveAction(a, ds, t, e) {
+  switch (a) {
+    case 'arc-open': e.preventDefault(); openArchivePage(ds.id); return true;
+    case 'arc-cat': S.ui.arcCat = ds.value || ''; render(); return true;
+    case 'arc-pool-toggle': S.ui.arcPress = !S.ui.arcPress; render(); return true;
+    case 'arc-sync': e.stopPropagation(); syncArchiveFromSite(); return true;
+    case 'arc-add': { // a completed office project that has no card yet — or any project the office wants in the archive
+      e.stopPropagation(); if (!canEditArchive()) return true;
+      const items = P().filter((p) => !S.project_archive[p.id]).sort((x, y) => ((x.state === 'done') - (y.state === 'done')) * -1 || byName(x, y)).map((p) => ({ label: p.name, sub: [p.number, STATES[p.state], p.city].filter(Boolean).join(' · '), value: p.id }));
+      openMenu(t, { search: true, placeholder: 'איזה פרויקט?', emptyText: 'כל הפרויקטים כבר בארכיון', items, onPick: (it) => { ensureArchive(it.value); openArchivePage(it.value); } });
+      return true;
+    }
+    case 'arc-reviewed': patchArchive(ds.id, { needsReview: false }); return true;
+    case 'arc-row-add': { const ar = ensureArchive(ds.pid); if (!ar) return true; const rows = (ar[ds.key] || []).slice(); rows.push(ds.key === 'colors' ? { area: '', brand: '', code: '', finish: '', note: '' } : { label: '', url: '' }); patchDoc('project_archive', ds.pid, { [ds.key]: rows }); setTimeout(() => { const inputs = document.querySelectorAll(`[data-arcrow="${ds.key}"][data-index="${rows.length - 1}"]`); if (inputs[0]) inputs[0].focus(); }, 40); return true; }
+    case 'arc-row-remove': { const ar = archiveOf(ds.pid); if (!ar) return true; patchDoc('project_archive', ds.pid, { [ds.key]: (ar[ds.key] || []).filter((_, i) => i !== Number(ds.index)) }); return true; }
+    case 'arc-photographer': {
+      e.stopPropagation(); if (!canEditArchive()) return true;
+      if (ds.clear) { patchArchive(ds.id, { photographerId: null }); return true; }
+      const ar = archiveOf(ds.id) || {};
+      const items = C().filter((c) => c.active !== false && c.type !== 'employee').sort(byName).map((c) => ({ label: c.name, sub: [CTYPES[c.type]?.label || '', c.category || c.company || ''].filter(Boolean).join(' · '), value: c.id, selected: ar.photographerId === c.id }));
+      openMenu(t, { search: true, create: true, createLabel: 'כספק/ית (צלם/ת)', placeholder: 'מי צילם/ה?', items, onPick: (it) => patchArchive(ds.id, { photographerId: it.value, photographer: ar.photographer || it.label }), onCreate: async (name) => { const id = uid('c'); await createDoc('contacts', id, { type: 'supplier', name, firstName: '', lastName: '', company: name, role: 'צלם/ת', category: 'צילום', teamId: null, parentId: null, phone: '', phone2: '', email: '', address: '', notes: 'נוסף מהארכיון', active: true }); patchArchive(ds.id, { photographerId: id, photographer: ar.photographer || name }); } });
+      return true;
+    }
+    case 'arc-link-project': { // a project created from the website is really an existing office project: move the card there
+      e.stopPropagation(); if (!isManager()) return true;
+      const stub = S.projects[ds.id]; const ar = archiveOf(ds.id); if (!stub || !ar) return true;
+      const items = P().filter((p) => p.id !== ds.id && !p.id.startsWith('pw_') && !S.project_archive[p.id]).sort((x, y) => ((x.state === 'done') - (y.state === 'done')) * -1 || byName(x, y)).map((p) => ({ label: p.name, sub: [p.number, STATES[p.state], p.city].filter(Boolean).join(' · '), value: p.id }));
+      openMenu(t, { search: true, placeholder: 'איזה פרויקט במאגר המשרד זה?', items, onPick: async (it) => {
+        const data = Object.assign({}, ar); delete data.id; delete data.createdAt; delete data.updatedAt; delete data.updatedBy; data.needsReview = false; data.notes = (data.notes ? data.notes + '\n' : '') + `קושר ל"${S.projects[it.value].name}" ${fmtDate(todayStr())}`;
+        pressOf(ds.id).forEach((x) => patchDoc('press_items', x.id, { projectId: it.value }));
+        await createDoc('project_archive', it.value, data);
+        await deleteDoc('project_archive', ds.id); await deleteDoc('projects', ds.id);
+        openArchivePage(it.value); toast('הכרטיס עבר לפרויקט במאגר המשרד');
+      } });
+      return true;
+    }
+    case 'arc-delete': { // two steps, like every deletion
+      if (!isManager()) return true;
+      const key = a + `data-id="${ds.id}"`; if (!ds.confirmed) { S.ui.confirm = key; render(); return true; }
+      pressOf(ds.id).forEach((x) => patchDoc('press_items', x.id, { projectId: null }));
+      if (archiveOf(ds.id)) await deleteDoc('project_archive', ds.id); if (ds.id.startsWith('pw_')) await deleteDoc('projects', ds.id);
+      S.ui.confirm = null; nav('archive'); toast('הוסר מהארכיון'); return true;
+    }
+    case 'press-new': S.ui.pressAdd = { pid: ds.project, id: null }; render(); setTimeout(() => document.getElementById('prs-title')?.focus(), 30); return true;
+    case 'press-edit': { const x = S.press_items[ds.id]; if (!x) return true; S.ui.pressAdd = { pid: x.projectId, id: x.id }; render(); return true; }
+    case 'press-cancel': S.ui.pressAdd = null; render(); return true;
+    case 'press-save': {
+      if (!canEditArchive()) return true;
+      const v = (id) => (document.getElementById(id)?.value || '').trim();
+      const body = { title: v('prs-title'), outlet: v('prs-outlet'), kind: PRESS_KINDS[v('prs-kind')] ? v('prs-kind') : 'print', url: v('prs-url'), publishedOn: v('prs-date') || null };
+      if (!body.title && !body.outlet && !body.url && !ds.id) { toast('כותרת, במה או קישור — משהו אחד לפחות'); return true; }
+      if (ds.id) await patchDoc('press_items', ds.id, body);
+      else await createDoc('press_items', uid('pr'), Object.assign({ projectId: ds.project, imageUrl: '', websiteId: null, notes: '' }, body));
+      S.ui.pressAdd = null; render(); return true;
+    }
+    case 'press-remove': {
+      e.stopPropagation(); if (!canEditArchive()) return true;
+      if (!ds.confirmed) { S.ui.confirm = 'press:' + ds.id; render(); return true; }
+      const x = S.press_items[ds.id]; if (!x) return true;
+      if (x.websiteId) patchDoc('press_items', ds.id, { projectId: null }); else { pressFiles(ds.id).forEach((f) => patchDoc('files', f.id, { pressId: null })); deleteDoc('press_items', ds.id); }
+      S.ui.confirm = null; render(); return true;
+    }
+    case 'press-assign': { // from the pool: which project does this scan belong to?
+      e.stopPropagation(); if (!canEditArchive()) return true;
+      const items = archiveProjects().sort((x, y) => (arcYear(y) || 0) - (arcYear(x) || 0) || arcName(x).localeCompare(arcName(y), 'en')).map((p) => ({ label: arcName(p), sub: [catLabel(arcCat(p)), arcYear(p), p.city].filter(Boolean).join(' · '), value: p.id }));
+      openMenu(t, { search: true, placeholder: 'לאיזה פרויקט שייך הפרסום?', items, onPick: (it) => { patchDoc('press_items', ds.id, { projectId: it.value }); toast('שויך ל' + it.label); } });
+      return true;
+    }
+    case 'press-from-pool': { // on a project page: pick a publication from the website's pool
+      e.stopPropagation(); if (!canEditArchive()) return true;
+      const items = pressPool().map((x) => ({ label: `${PRESS_KINDS[x.kind] || x.kind} · ${x.publishedOn ? fmtDate(x.publishedOn) : ''}`, sub: x.imageUrl ? (x.imageUrl.split('/').pop() || '').slice(0, 40) : '', value: x.id }));
+      openMenu(t, { search: true, placeholder: 'איזה פרסום?', emptyText: 'אין פרסומים לא משויכים', items, onPick: (it) => patchDoc('press_items', it.value, { projectId: ds.project }) });
+      return true;
+    }
+    default: return false;
+  }
+}
+/* edits of the card save as they are made (reversible); the row tables save on change */
+document.addEventListener('change', (e) => {
+  const el = e.target;
+  if (el.id === 'arc-q') return;
+  if (el.dataset?.arc) {
+    if (!canEditArchive()) { toast('אין לך הרשאת עריכה'); render(); return; }
+    let v = el.value;
+    if (el.dataset.arc === 'completedYear') v = v === '' ? null : Number(v);
+    if (el.dataset.arc === 'websiteUrl' || el.dataset.arc === 'photosUrl') { v = v.trim(); if (v && !/^https?:\/\//i.test(v)) v = 'https://' + v; }
+    patchArchive(el.dataset.pid, { [el.dataset.arc]: v });
+    return;
+  }
+  if (el.dataset?.arcrow) {
+    if (!canEditArchive()) { toast('אין לך הרשאת עריכה'); render(); return; }
+    const ar = archiveOf(el.dataset.pid); if (!ar) return;
+    const rows = (ar[el.dataset.arcrow] || []).map((r, i) => (i === Number(el.dataset.index) ? Object.assign({}, r, { [el.dataset.key]: el.dataset.key === 'url' && el.value.trim() && !/^https?:\/\//i.test(el.value.trim()) ? 'https://' + el.value.trim() : el.value }) : r));
+    patchDoc('project_archive', el.dataset.pid, { [el.dataset.arcrow]: rows });
+  }
+});
+document.addEventListener('input', (e) => { const el = e.target; if (el.id === 'arc-q') { S.ui.arcq = el.value; render(); } });
 /* ===================== overlay: drawer + menu ===================== */
 function renderOverlay() {
   const ov = document.getElementById('overlay');
@@ -6206,6 +6627,7 @@ document.addEventListener('click', async (e) => {
   if (await shootAction(a, ds, t, e)) return;
   if (await meetingsAction(a, ds, t, e)) return;
   if (await sundayAction(a, ds, t, e)) return;
+  if (await archiveAction(a, ds, t, e)) return;
   if (await timeAction(a, ds, t, e)) return;
   switch (a) {
     case 'ext': break; // an external link inside a clickable row: the browser opens it, the row stays closed
@@ -6496,7 +6918,7 @@ async function renameListValue(key, oldV, newV) {
   if (key === 'types') { for (const p of P().filter((x) => x.type === oldV)) await patchDoc('projects', p.id, { type: newV }); }
   else { for (const c of C().filter((x) => CAT_LIST[x.type] === key && x.category === oldV)) await patchDoc('contacts', c.id, { category: newV }); }
 }
-window.addEventListener('hashchange', () => { const h = (location.hash || '').replace('#', ''); if (VIEWS.some((v) => v.id === h) && h !== S.ui.view) { S.ui.view = h; render(); } else if (h.startsWith('project/') && !(S.ui.view === 'project' && S.ui.pageId === h.slice(8))) { S.ui.view = 'project'; S.ui.pageId = h.slice(8); render(); } });
+window.addEventListener('hashchange', () => { const h = (location.hash || '').replace('#', ''); if (VIEWS.some((v) => v.id === h) && h !== S.ui.view) { S.ui.view = h; render(); } else if (h.startsWith('project/') && !(S.ui.view === 'project' && S.ui.pageId === h.slice(8))) { S.ui.view = 'project'; S.ui.pageId = h.slice(8); render(); } else if (h.startsWith('archive/') && !(S.ui.view === 'archive-page' && S.ui.arcPage === h.slice(8))) { S.ui.view = 'archive-page'; S.ui.arcPage = h.slice(8); render(); } });
 window.addEventListener('resize', () => { if (S.ui.menu) followAnchor(); });
 document.addEventListener('scroll', (e) => { if (S.ui.menu && !(e.target instanceof Node && document.getElementById('menu')?.contains(e.target))) followAnchor(); }, true);
 
