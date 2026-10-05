@@ -1374,7 +1374,10 @@ function stageProgressOf(p) {
   if (!acc._) acc._ = emptyProg();
   return acc;
 }
-const stageOf = (p) => { if (childrenOf(p.id).length || S.milestonesLoaded[p.id]) { const pr = stageProgressOf(p); return deriveStage(pr, stageList(p, pr)); } return p.stage || null; };
+/* a project marked done with no work milestones at all (the website's completed projects, say) counts as completed, not "not started" —
+   the same rule as recompute_project_stage in the database */
+const deriveStageFor = (p, prog, ord) => { const id = deriveStage(prog, ord); return id === null && p.state === 'done' ? STAGE_DONE : id; };
+const stageOf = (p) => { if (childrenOf(p.id).length || S.milestonesLoaded[p.id]) { const pr = stageProgressOf(p); return deriveStageFor(p, pr, stageList(p, pr)); } return p.stage || (p.state === 'done' ? STAGE_DONE : null); };
 const currentStage = (p) => { const id = stageOf(p); return id && id !== STAGE_DONE && id !== STAGE_NONE ? (stageDef(id) || { id, name: stageName(id, p), weight: settings().unknownPhaseWeight ?? 1 }) : null; };
 const activePhases = (p) => { const s = currentStage(p); return s ? [s] : []; };
 const allPhasesDone = (p) => stageOf(p) === STAGE_DONE;
@@ -1389,7 +1392,7 @@ const STAGE_STATES = {
 /* the stage rows of a project, in its order, each with its derived state, counts, target date and last movement. Stages before the current
    one count as passed (✓) even without milestones; a parent project aggregates its sub-projects. */
 function projectStages(p) {
-  const prog = stageProgressOf(p); const ord = stageList(p, prog); const cur = deriveStage(prog, ord);
+  const prog = stageProgressOf(p); const ord = stageList(p, prog); const cur = deriveStageFor(p, prog, ord);
   const loaded = !!S.milestonesLoaded[p.id];
   const ms = loaded ? milestonesOf(p.id).filter(msIsWork) : [];
   const ci = cur === STAGE_DONE ? ord.length : ord.indexOf(cur);
@@ -5491,7 +5494,7 @@ function renderArchivePage() {
           ${field('צלם/ת', arcInput(a, p.id, 'photographer', { placeholder: 'כפי שמופיע בקרדיט' }))}
           ${field('דף באתר', `<div class="arc-site">${arcInput(a, p.id, 'websiteUrl', { type: 'url', attrs: 'dir="ltr"', placeholder: 'https://oberson-arch.com/projects/…' })}${a.websiteUrl ? `<a class="icon-btn" href="${esc(a.websiteUrl)}" target="_blank" rel="noopener" title="פתח את הדף באתר">${ICON.globe}</a>` : ''}</div>`)}
         </div>
-        <div class="arc-office">${stub ? `<span class="tag internal">נוצר מהאתר — עדיין לא מקושר לפרויקט במאגר המשרד</span>${isManager() ? `<button class="btn small ghost" data-action="arc-link-project" data-id="${p.id}">קשר לפרויקט קיים…</button>` : ''}` : `<a href="#project/${p.id}" data-action="open-project" data-id="${p.id}" class="btn small ghost">${ICON.doc} דף הפרויקט במשרד${p.number ? ' · ' + esc(p.number) : ''}</a><span class="muted">${esc([p.name !== arcName(p) ? p.name : '', p.address, p.city, cname(p.clientId, '')].filter(Boolean).join(' · '))}</span>`}${a.needsReview && !ro ? `<button class="btn small" data-action="arc-reviewed" data-id="${p.id}" title="הקישור או הפרטים נבדקו">✓ נבדק</button>` : ''}</div>
+        <div class="arc-office"><a href="#project/${p.id}" data-action="open-project" data-id="${p.id}" class="btn small ghost">${ICON.doc} דף הפרויקט${p.number ? ' · ' + esc(p.number) : ''}</a><span class="muted">${esc([stub ? 'פרויקט לשעבר — מהאתר' : '', p.address, p.city, cname(p.clientId, '')].filter(Boolean).join(' · '))}</span>${a.needsReview && !ro ? `<button class="btn small" data-action="arc-reviewed" data-id="${p.id}" title="הפרטים נבדקו">✓ נבדק</button>` : ''}</div>
       </div>
     </div>
     <nav class="pp-jump" aria-label="קפיצה לסעיף">${jump.map(([id, l]) => `<a href="#" data-action="scroll-to" data-target="${id}">${l}</a>`).join('')}</nav>
@@ -5623,19 +5626,6 @@ async function archiveAction(a, ds, t, e) {
       const ar = archiveOf(ds.id) || {};
       const items = C().filter((c) => c.active !== false && c.type !== 'employee').sort(byName).map((c) => ({ label: c.name, sub: [CTYPES[c.type]?.label || '', c.category || c.company || ''].filter(Boolean).join(' · '), value: c.id, selected: ar.photographerId === c.id }));
       openMenu(t, { search: true, create: true, createLabel: 'כספק/ית (צלם/ת)', placeholder: 'מי צילם/ה?', items, onPick: (it) => patchArchive(ds.id, { photographerId: it.value, photographer: ar.photographer || it.label }), onCreate: async (name) => { const id = uid('c'); await createDoc('contacts', id, { type: 'supplier', name, firstName: '', lastName: '', company: name, role: 'צלם/ת', category: 'צילום', teamId: null, parentId: null, phone: '', phone2: '', email: '', address: '', notes: 'נוסף מהארכיון', active: true }); patchArchive(ds.id, { photographerId: id, photographer: ar.photographer || name }); } });
-      return true;
-    }
-    case 'arc-link-project': { // a project created from the website is really an existing office project: move the card there
-      e.stopPropagation(); if (!isManager()) return true;
-      const stub = S.projects[ds.id]; const ar = archiveOf(ds.id); if (!stub || !ar) return true;
-      const items = P().filter((p) => p.id !== ds.id && !p.id.startsWith('pw_') && !S.project_archive[p.id]).sort((x, y) => ((x.state === 'done') - (y.state === 'done')) * -1 || byName(x, y)).map((p) => ({ label: p.name, sub: [p.number, STATES[p.state], p.city].filter(Boolean).join(' · '), value: p.id }));
-      openMenu(t, { search: true, placeholder: 'איזה פרויקט במאגר המשרד זה?', items, onPick: async (it) => {
-        const data = Object.assign({}, ar); delete data.id; delete data.createdAt; delete data.updatedAt; delete data.updatedBy; data.needsReview = false; data.notes = (data.notes ? data.notes + '\n' : '') + `קושר ל"${S.projects[it.value].name}" ${fmtDate(todayStr())}`;
-        pressOf(ds.id).forEach((x) => patchDoc('press_items', x.id, { projectId: it.value }));
-        await createDoc('project_archive', it.value, data);
-        await deleteDoc('project_archive', ds.id); await deleteDoc('projects', ds.id);
-        openArchivePage(it.value); toast('הכרטיס עבר לפרויקט במאגר המשרד');
-      } });
       return true;
     }
     case 'arc-delete': { // two steps, like every deletion
