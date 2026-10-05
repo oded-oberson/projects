@@ -1068,6 +1068,24 @@
     .drawer-body, .drawer-head, .drawer-foot { padding-inline: 16px; }
     .auth-card { padding: 32px 22px 24px; }
   }
+
+  /* ---------- registries: one row of type chips clustered under their group label; duplicates panel ---------- */
+  .ctabs { display: flex; flex-wrap: wrap; gap: 10px 26px; align-items: flex-end; margin: 2px 0 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .ctab-group { display: flex; flex-direction: column; gap: 6px; }
+  .ctab-group-label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+  .ctab-group .chips { gap: 4px; }
+  .ctabs + .filters .count-note { margin-inline-start: auto; }
+  .dupes { display: flex; flex-direction: column; gap: 10px; }
+  .dupe-row { border: 1px solid var(--line-2); padding: 10px 12px; }
+  .dupe-why { font-size: 12px; color: var(--ink-3); margin-bottom: 6px; }
+  .dupe-pair { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: start; }
+  .dupe-card { min-width: 0; }
+  .dupe-name { font-weight: 500; color: var(--ink); text-decoration: none; }
+  .dupe-name:hover { text-decoration: underline; }
+  .dupe-sub { font-size: 12px; color: var(--ink-3); overflow-wrap: anywhere; }
+  .dupe-actions { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
+  .dupe-actions .btn { white-space: normal; max-width: 220px; }
+  @media (max-width: 720px) { .dupe-pair { grid-template-columns: 1fr; } .dupe-actions { flex-direction: row; flex-wrap: wrap; } }
 </style>
 </head>
 <body>
@@ -1135,18 +1153,31 @@ const HEALTH = {
 };
 const STATES = { active: 'פעיל', frozen: 'מוקפא', done: 'הושלם' };
 const CTYPES = {
-  employee: { label: 'עובד/ת', plural: 'עובדים', new: 'עובד/ת חדש/ה' },
-  client: { label: 'לקוח', plural: 'לקוחות', new: 'לקוח חדש' },
-  person: { label: 'איש קשר', plural: 'אנשי קשר', new: 'איש קשר חדש' },
-  lead: { label: 'ליד', plural: 'לידים', new: 'ליד חדש' },
-  supplier: { label: 'ספק', plural: 'ספקים', new: 'ספק חדש' },
-  contractor: { label: 'קבלן', plural: 'קבלנים', new: 'קבלן חדש' },
-  consultant: { label: 'יועץ', plural: 'יועצים', new: 'יועץ חדש' },
-  pm: { label: 'ניהול פרויקט', plural: 'מנהלי פרויקט', new: 'מנהל פרויקט חדש' },
-  partner: { label: 'שיתוף פעולה', plural: 'שיתופי פעולה', new: 'שיתוף פעולה חדש' },
+  employee: { label: 'עובד/ת', plural: 'עובדים', new: 'עובד/ת חדש/ה', sub: 'צוות המשרד, פרילנסרים ומי שעבדו כאן' },
+  client: { label: 'לקוח', plural: 'לקוחות', new: 'לקוח חדש', sub: 'מי שמזמין עבודה — אדם, משפחה או חברה' },
+  person: { label: 'איש קשר', plural: 'אנשי קשר', new: 'איש קשר חדש', sub: 'אנשים אצל לקוח, ספק או משרד — כל אחד שייך לארגון שלו' },
+  lead: { label: 'ליד', plural: 'לידים', new: 'ליד חדש', sub: 'פניות שעוד לא הפכו ללקוח' },
+  supplier: { label: 'ספק', plural: 'ספקים', new: 'ספק חדש', sub: 'מי שהמשרד קונה ממנו או מזמין ממנו — לפי תחום, כולל צלמים, יחסי ציבור ושירותים למשרד' },
+  contractor: { label: 'קבלן', plural: 'קבלנים', new: 'קבלן חדש', sub: 'קבלני ביצוע' },
+  consultant: { label: 'יועץ', plural: 'יועצים', new: 'יועץ חדש', sub: 'יועצי תכנון — קונסטרוקציה, אינסטלציה, חשמל, נוף…' },
+  pm: { label: 'ניהול פרויקט ופיקוח', plural: 'ניהול פרויקט ופיקוח', new: 'חברת ניהול / פיקוח חדשה', sub: 'חברות ניהול פרויקטים ופיקוח' },
+  partner: { label: 'שיתוף פעולה', plural: 'שיתופי פעולה', new: 'משרד עמית חדש', sub: 'משרדים עמיתים בלבד — אדריכלות, עיצוב ונוף. צלמים, יחסי ציבור ושירותים נמצאים בספקים' },
 };
+/* the registry groups: one row of chips, the types clustered under their group label */
+const CGROUPS = [
+  { id: 'office', label: 'המשרד', types: ['employee'] },
+  { id: 'clients', label: 'לקוחות', types: ['client', 'person', 'lead'] },
+  { id: 'vendors', label: 'ספקים ונותני שירות', types: ['supplier', 'contractor', 'consultant', 'pm'] },
+  { id: 'partners', label: 'שיתופי פעולה', types: ['partner'] },
+];
+const groupOfType = (t) => CGROUPS.find((g) => g.types.includes(t)) || null;
 const ORG_TYPES = ['client', 'supplier', 'contractor', 'consultant', 'pm', 'partner'];
 const CAT_LIST = { supplier: 'supplierCategories', consultant: 'consultantTypes', partner: 'partnerTypes' };
+/* employees: contacts.category is the status — '' = צוות המשרד, FREELANCE = פרילנסר/ית (counted as involved, not in capacity or presence unless scheduled) */
+const FREELANCE = 'פרילנסר/ית';
+const isFreelancer = (c) => !!c && c.type === 'employee' && c.category === FREELANCE;
+const EMP_FACETS = { staff: 'צוות המשרד', freelance: 'פרילנסרים', former: 'לשעבר' };
+const empFacet = (c) => (c.active === false ? 'former' : isFreelancer(c) ? 'freelance' : 'staff');
 /* ----- social links (contacts.socials: { network: url }) — one paste box, the network is recognised from the address ----- */
 const SOCIALS = [
   { id: 'instagram', label: 'Instagram', hosts: ['instagram.com', 'instagr.am'], handle: true, base: 'https://www.instagram.com/' },
@@ -1247,9 +1278,10 @@ const DEFAULT_SETTINGS = {
   unknownPhaseWeight: 1,
   sizes: [{ id: 'xs', name: 'XS', weight: 0.25 }, { id: 's', name: 'S', weight: 0.5 }, { id: 'm', name: 'M', weight: 1 }, { id: 'l', name: 'L', weight: 2 }, { id: 'xl', name: 'XL', weight: 3 }],
   types: ['מגורים', 'התחדשות עירונית', 'בית פרטי', 'עיצוב פנים', 'דירה לדוגמא', 'מלונאות', 'דיור מוגן', 'משרדים', 'מסחר / אולם תצוגה', 'משרד מכירות', 'תעשייה / תיירות', 'מעורב', 'ייעוץ', 'פנימי'],
-  supplierCategories: ['מטבחים', 'ריצוף וחיפויים', 'תאורה', 'סניטריה וברזים', 'ריהוט', 'אלומיניום', 'נגרות', 'מסגרות', 'מיזוג אוויר', 'מערכות בניין', 'וילונות והצללה', 'דלתות', 'צבע וטיח', 'הדמיות', 'ספקים ייחודיים', 'אחר'],
+  supplierCategories: ['מטבחים', 'ריצוף וחיפויים', 'תאורה', 'סניטריה וברזים', 'ריהוט', 'אלומיניום', 'נגרות', 'מסגרות', 'מיזוג אוויר', 'מערכות בניין', 'וילונות והצללה', 'דלתות', 'צבע וטיח', 'הדמיות', 'ספקים ייחודיים', 'צילום', 'יחסי ציבור ותקשורת', 'עיצוב ואמנות', 'שירותים למשרד', 'רשויות ומוסדות', 'אחר'],
   consultantTypes: ['קונסטרוקציה', 'אינסטלציה', 'חשמל', 'מיזוג אוויר', 'נגישות', 'בטיחות', 'תנועה', 'אקוסטיקה', 'נוף', 'תאורה', 'שילוט', 'מלונאות', 'מעליות', 'אחר'],
-  partnerTypes: ['אדריכלות', 'עיצוב פנים', 'עיצוב ואמנות', 'יחסי ציבור ותקשורת', 'צילום', 'רשויות', 'שירותים למשרד', 'אחר'],
+  partnerTypes: ['אדריכלות', 'עיצוב פנים', 'אדריכלות נוף', 'אחר'],
+  dupeIgnore: [], // pairs "idA|idB" a manager marked as "not a duplicate"
   staleDays: 14,
   loadPerLevel: 4,
   leadCapacityShare: 0.25,
@@ -1516,14 +1548,14 @@ const DEFAULT_DAY = { from: '08:30', to: '17:30', where: 'office' };
 const scheduleRow = (cid) => S.work_schedules[cid] || null;
 const hasSchedule = (c) => { const r = scheduleRow(c.id); return !!r && !!r.days && Object.keys(r.days).length > 0; };
 function dayPlan(c, d) {
-  if (!hasSchedule(c)) return d <= 4 ? Object.assign({}, DEFAULT_DAY) : null;
+  if (!hasSchedule(c)) return (d <= 4 && !isFreelancer(c)) ? Object.assign({}, DEFAULT_DAY) : null; // a freelancer has no office default
   const v = scheduleRow(c.id).days[String(d)]; return v && typeof v === 'object' ? v : null;
 }
 const minutesOf = (t) => { const m = /^(\d{1,2}):(\d{2})$/.exec(t || ''); return m ? Number(m[1]) * 60 + Number(m[2]) : null; };
 const hoursOf = (plan) => { if (!plan) return 0; const a = minutesOf(plan.from) ?? minutesOf(DEFAULT_DAY.from), b = minutesOf(plan.to) ?? minutesOf(DEFAULT_DAY.to); return Math.max(0, (b - a) / 60); };
 const weeklyHours = (c) => [0, 1, 2, 3, 4, 5].reduce((s, d) => s + hoursOf(dayPlan(c, d)), 0);
 const fullWeekHours = () => Number(settings().fullWeekHours) || 42;
-const fteOf = (c) => (hasSchedule(c) ? Math.min(1, weeklyHours(c) / fullWeekHours()) : 1);
+const fteOf = (c) => (hasSchedule(c) ? Math.min(1, weeklyHours(c) / fullWeekHours()) : (isFreelancer(c) ? 0 : 1));
 const workingDays = (c) => [0, 1, 2, 3, 4, 5].filter((d) => !!dayPlan(c, d));
 const remoteDays = (c) => [0, 1, 2, 3, 4, 5].filter((d) => dayPlan(c, d)?.where === 'remote');
 const daysLabel = (ds) => ds.map((d) => DAY_SHORT[d]).join(' ');
@@ -1531,7 +1563,7 @@ const canEditSchedule = (c) => !!c && c.type === 'employee' && (isManager() || m
 /* who is where on a given date, from the fixed schedules (leave / sickness come on top later) */
 function whereToday(date = new Date()) {
   const d = date.getDay(); const out = { office: [], remote: [], off: [] };
-  employees().forEach((c) => { const plan = d <= 5 ? dayPlan(c, d) : null; (plan ? (plan.where === 'remote' ? out.remote : out.office) : out.off).push(c); });
+  employees().forEach((c) => { if (isFreelancer(c) && !hasSchedule(c)) return; const plan = d <= 5 ? dayPlan(c, d) : null; (plan ? (plan.where === 'remote' ? out.remote : out.office) : out.off).push(c); });
   return out;
 }
 /* capacity: experience level × the team-lead share × the size of the position (weekly hours ÷ a full week) */
@@ -2003,9 +2035,9 @@ const REGISTRY_LISTS = [
   { key: 'phases', title: 'תבנית שלבי פרויקט' },
   { key: 'teamRoles', title: 'הגדרות תפקיד בצוות', sub: 'לבחירה בכרטיס העובד ובמסך הצוותים' },
   { key: 'types', title: 'סוגי פרויקטים', sub: 'מגורים, מלונאות, עיצוב פנים…' },
-  { key: 'supplierCategories', title: 'קטגוריות ספקים', sub: 'לסינון ספקים לפי תחום' },
+  { key: 'supplierCategories', title: 'תחומי ספקים', sub: 'לסינון ספקים לפי תחום — כולל צילום, יחסי ציבור ושירותים למשרד' },
   { key: 'consultantTypes', title: 'תחומי יועצים', sub: 'קונסטרוקציה, אינסטלציה…' },
-  { key: 'partnerTypes', title: 'תחומי שיתופי פעולה', sub: 'אדריכלות, יחסי ציבור, רשויות…' },
+  { key: 'partnerTypes', title: 'תחומי שיתופי פעולה', sub: 'משרדים עמיתים: אדריכלות, עיצוב פנים, נוף…' },
 ];
 function listEditor(key, title, sub) {
   const st = settings(); const ro = !isManager();
@@ -2067,45 +2099,92 @@ function activeProjectCounts() {
   });
   return m;
 }
-/* category facet of a contact for the chips row: registry category for suppliers/consultants/partners, parent type for people */
+/* facet of a contact for the chips row: status for employees (צוות / פרילנסרים / לשעבר), registry category for suppliers/consultants/partners, parent type for people */
 function contactFacet(tab, c) {
+  if (tab === 'employee') return empFacet(c);
   if (CAT_LIST[tab]) return c.category || NO_CAT;
   if (tab === 'person') return (c.parentId && S.contacts[c.parentId]) ? S.contacts[c.parentId].type : NO_CAT;
   return '';
 }
 function facetLabel(tab, key) {
   if (key === NO_CAT) return CAT_LIST[tab] ? 'ללא תחום' : 'ללא שיוך';
+  if (tab === 'employee') return EMP_FACETS[key] || key;
   if (tab === 'person') return CTYPES[key]?.plural || key;
   return key;
 }
 function facetChips(tab, pool) {
-  if (!CAT_LIST[tab] && tab !== 'person') return '';
+  if (!CAT_LIST[tab] && tab !== 'person' && tab !== 'employee') return '';
   const counts = {};
   pool.forEach((c) => { const k = contactFacet(tab, c); counts[k] = (counts[k] || 0) + 1; });
-  const ordered = CAT_LIST[tab] ? (settings()[CAT_LIST[tab]] || []).slice() : ORG_TYPES.slice();
+  const ordered = tab === 'employee' ? Object.keys(EMP_FACETS) : CAT_LIST[tab] ? (settings()[CAT_LIST[tab]] || []).slice() : ORG_TYPES.slice();
   Object.keys(counts).forEach((k) => { if (k !== NO_CAT && !ordered.includes(k)) ordered.push(k); });
-  const keys = ordered.filter((k) => counts[k]).concat(counts[NO_CAT] ? [NO_CAT] : []);
-  if (keys.length < 2) return '';
+  const keys = ordered.filter((k) => counts[k] || (tab === 'employee' && k !== 'former')).concat(counts[NO_CAT] ? [NO_CAT] : []);
+  if (keys.length < 2 && tab !== 'employee') return '';
   const cur = S.ui.ccat;
   const chip = (k, label, n) => `<span class="chip btn-chip ${cur === k ? 'accent' : ''}" data-action="ccat" data-cat="${esc(k)}" role="button" tabindex="0">${esc(label)} <small>${n}</small></span>`;
-  return `<div class="chips chips-sub" aria-label="${CAT_LIST[tab] ? 'סינון לפי תחום' : 'סינון לפי סוג הארגון'}">${chip('', 'הכל', pool.length)}${keys.map((k) => chip(k, facetLabel(tab, k), counts[k])).join('')}</div>`;
+  const all = tab === 'employee' ? pool.filter((c) => c.active !== false).length : pool.length;
+  return `<div class="chips chips-sub" aria-label="${tab === 'employee' ? 'סינון לפי מעמד' : CAT_LIST[tab] ? 'סינון לפי תחום' : 'סינון לפי סוג הארגון'}">${tab === 'employee' ? chip('', 'כל הפעילים', all) : chip('', 'הכל', all)}${keys.map((k) => chip(k, facetLabel(tab, k), counts[k] || 0)).join('')}</div>`;
 }
 const notePreview = (s, n = 110) => { const t = String(s || '').replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1) + '…' : t; };
+/* ----- duplicates: candidate pairs inside one registry (same phone / email / name; people also by their organisation) ----- */
+const normName = (s) => String(s || '').toLowerCase().replace(/["'׳״’.,\-–\s]+/g, '');
+const normPhone = (s) => String(s || '').replace(/\D+/g, '').replace(/^972/, '0');
+const normMail = (s) => String(s || '').trim().toLowerCase();
+const dupeKey = (a, b) => [a, b].sort().join('|');
+function findDuplicateContacts() {
+  const ignore = new Set(settings().dupeIgnore || []);
+  const pairs = {}; // key → { a, b, why: Set }
+  const hit = (a, b, why) => { if (a.id === b.id) return; const k = dupeKey(a.id, b.id); if (ignore.has(k)) return; (pairs[k] = pairs[k] || { a, b, why: new Set() }).why.add(why); };
+  const byKey = (list, fn, why) => { const m = {}; list.forEach((c) => { const k = fn(c); if (!k) return; (m[k] = m[k] || []).push(c); }); Object.values(m).forEach((g) => { for (let i = 0; i < g.length; i++) for (let j = i + 1; j < g.length; j++) hit(g[i], g[j], why); }); };
+  const all = C();
+  Object.keys(CTYPES).forEach((type) => {
+    const list = all.filter((c) => c.type === type);
+    if (type === 'person') { // same person inside the same organisation, or a shared mobile / personal mail anywhere
+      byKey(list, (c) => (normName(c.name) ? normName(c.name) + '@' + (c.parentId || '') : ''), 'אותו שם באותו ארגון');
+      byKey(list, (c) => { const p = normPhone(c.phone); return p.length >= 9 && /^05/.test(p) ? p : ''; }, 'אותו נייד');
+      byKey(list, (c) => normMail(c.email), 'אותו מייל');
+    } else {
+      byKey(list, (c) => normName(c.name), 'אותו שם');
+      byKey(list, (c) => { const p = normPhone(c.phone); return p.length >= 7 ? p : ''; }, 'אותו טלפון');
+      byKey(list, (c) => normMail(c.email), 'אותו מייל');
+    }
+  });
+  // a person and an organisation with the same mobile / mail are usually the same party entered twice as two types
+  byKey(all.filter((c) => c.type !== 'person' && c.type !== 'employee'), (c) => { const p = normPhone(c.phone); return p.length >= 9 && /^05/.test(p) ? p : ''; }, 'אותו נייד');
+  return Object.values(pairs).map((p) => ({ a: p.a, b: p.b, why: [...p.why].join(' · ') })).sort((x, y) => byName(x.a, y.a));
+}
+function renderDuplicates() {
+  const pairs = findDuplicateContacts();
+  const card = (c, other) => `<div class="dupe-card"><a href="#" data-action="open-contact" data-id="${c.id}" class="dupe-name">${esc(c.name)}</a><div class="dupe-sub">${esc([CTYPES[c.type]?.label, c.category, c.company, c.type === 'person' ? personOrg(c) : '', c.role].filter(Boolean).join(' · '))}</div><div class="dupe-sub ltr">${esc([c.phone, c.phone2, c.email].filter(Boolean).join(' · '))}</div><div class="dupe-sub">${projectsOfContact(c.id).length} פרויקטים${c.active === false ? ' · לא פעיל' : ''}</div>
+      <button class="btn small" style="margin-top:6px" data-action="dupe-merge" data-from="${other.id}" data-into="${c.id}" title="הרשומה הזו נשארת; השנייה נמחקת וכל הקישורים שלה עוברים לכאן">השאר את זו ומזג את השנייה לתוכה</button></div>`;
+  const row = (p) => `<div class="dupe-row" data-key="${esc(dupeKey(p.a.id, p.b.id))}">
+      <div class="dupe-why">${esc(p.why)}</div>
+      <div class="dupe-pair">${card(p.a, p.b)}<div class="dupe-actions"><button class="btn small ghost" data-action="dupe-ignore" data-a="${p.a.id}" data-b="${p.b.id}">לא כפילות</button></div>${card(p.b, p.a)}</div>
+    </div>`;
+  const ignored = (settings().dupeIgnore || []).length;
+  return `<div class="panel">
+    <div class="panel-head"><h2 class="panel-title">כפילויות אפשריות <small>${pairs.length}</small></h2><span class="panel-sub">אותו שם, טלפון או מייל באותו מאגר. מיזוג מעביר את כל הקישורים (פרויקטים, אנשי קשר, צילומים, עמלות) לרשומה שנשארת ומוחק את השנייה — לא ניתן לבטל.</span></div>
+    ${pairs.length ? `<div class="dupes">${pairs.slice(0, 150).map(row).join('')}</div>${pairs.length > 150 ? `<div class="inline-note">מוצגות 150 מתוך ${pairs.length}.</div>` : ''}` : '<div class="empty">לא נמצאו כפילויות. ' + (ignored ? `${ignored} זוגות סומנו "לא כפילות".` : '') + '</div>'}
+    ${ignored ? `<div class="inline-note" style="margin-top:8px">${ignored} זוגות סומנו "לא כפילות" <button class="btn small ghost" data-action="dupe-ignore-reset">הצג אותם שוב</button></div>` : ''}
+  </div>`;
+}
 function renderContacts() {
   const tab = S.ui.ctab; const q = norm(S.ui.cq);
   const all = C();
-  const visible = all.filter((c) => S.ui.showInactive || c.active !== false);
-  const counts = {}; visible.forEach((c) => { counts[c.type] = (counts[c.type] || 0) + 1; });
-  const inactiveCount = all.length - all.filter((c) => c.active !== false).length;
-  const isLists = tab === 'lists';
-  const pool = isLists ? [] : visible.filter((c) => c.type === tab);
-  const cat = S.ui.ccat;
-  const rows = isLists ? [] : pool.filter((c) => (!cat || contactFacet(tab, c) === cat) && (!q || norm([c.name, c.company, c.role, c.category, c.phone, c.phone2, c.email, c.emailPersonal, c.type === 'lead' ? c.notes : '', tname(c.teamId, ''), c.type === 'person' ? personOrg(c) : '', ...Object.values(socialsOf(c))].join(' ')).includes(q))).sort(byName);
   const isEmp = tab === 'employee';
   const isPerson = tab === 'person';
   const isLead = tab === 'lead';
-  const canAdd = !isLists && canWriteContact(tab);
-  const projCounts = isLists ? {} : activeProjectCounts();
+  const isLists = tab === 'lists';
+  const isDupes = tab === 'dupes';
+  const isTable = !isLists && !isDupes;
+  const counts = {}; all.forEach((c) => { if (c.active !== false || (S.ui.showInactive && c.type !== 'employee')) counts[c.type] = (counts[c.type] || 0) + 1; });
+  const inactiveCount = all.filter((c) => c.active === false && c.type !== 'employee').length;
+  const cat = S.ui.ccat;
+  // employees: the status chips replace the "show inactive" switch — "לשעבר" is a chip; other registries keep the switch
+  const pool = !isTable ? [] : all.filter((c) => c.type === tab && (isEmp || S.ui.showInactive || c.active !== false));
+  const rows = !isTable ? [] : pool.filter((c) => (isEmp ? (cat ? empFacet(c) === cat : c.active !== false) : (!cat || contactFacet(tab, c) === cat)) && (!q || norm([c.name, c.company, c.role, c.category, c.phone, c.phone2, c.email, c.emailPersonal, c.type === 'lead' ? c.notes : '', tname(c.teamId, ''), c.type === 'person' ? personOrg(c) : '', ...Object.values(socialsOf(c))].join(' ')).includes(q))).sort(byName);
+  const canAdd = isTable && canWriteContact(tab);
+  const projCounts = !isTable ? {} : activeProjectCounts();
   const peopleCounts = {}; if (tab === 'client') all.forEach((c) => { if (c.type === 'person' && c.parentId && c.active !== false) peopleCounts[c.parentId] = (peopleCounts[c.parentId] || 0) + 1; });
   const leadIds = isEmp ? new Set(T().map((t) => t.leadId)) : null;
   const limit = Math.max(CONTACT_PAGE, S.ui.climit || 0);
@@ -2113,7 +2192,7 @@ function renderContacts() {
   const head = isEmp ? '<th>הגדרה / תפקיד</th><th>צוות</th>' : isPerson ? '<th>לקוח / חברה</th><th>תפקיד</th>' : isLead ? '<th>חברה</th><th>הערות</th>' : '<th>חברה</th><th>' + (CAT_LIST[tab] ? 'תחום' : 'איש קשר / תפקיד') + '</th>';
   const lastHead = isLead ? 'עודכן' : 'פרויקטים פעילים';
   const row = (c) => `<tr class="row-click ${c.active === false ? 'row-inactive' : ''}" data-action="open-contact" data-id="${c.id}">
-      <td class="col-main"><div class="cell-main">${esc(c.name)}${c.active === false ? '<span class="tag internal">לא פעיל</span>' : ''}${isEmp && leadIds.has(c.id) ? '<span class="tag internal">ראש צוות</span>' : ''}</div>${isEmp && c.employeeNumber ? `<div class="cell-sub">מס' עובד ${esc(c.employeeNumber)}</div>` : ''}</td>
+      <td class="col-main"><div class="cell-main">${esc(c.name)}${c.active === false ? '<span class="tag internal">' + (isEmp ? 'לשעבר' : 'לא פעיל') + '</span>' : ''}${isEmp && isFreelancer(c) ? '<span class="tag internal">פרילנסר/ית</span>' : ''}${isEmp && leadIds.has(c.id) ? '<span class="tag internal">ראש צוות</span>' : ''}</div>${isEmp && c.employeeNumber ? `<div class="cell-sub">מס' עובד ${esc(c.employeeNumber)}</div>` : ''}</td>
       ${isEmp ? `<td>${esc(c.role || '')}</td><td>${isManager() ? menuChip(tname(c.teamId), `data-action="menu" data-menu="ctam" data-id="${c.id}"`, c.teamId ? '' : 'dim') : esc(tname(c.teamId))}</td>`
         : isPerson ? `<td>${c.parentId && S.contacts[c.parentId] ? `<a href="#" data-action="open-contact" data-id="${c.parentId}" style="color:inherit">${esc(personOrg(c))}</a>` : esc(c.company || '')}</td><td>${esc(c.role || '')}</td>`
         : isLead ? `<td>${esc(c.company || '')}${c.role ? `<div class="cell-sub">${esc(c.role)}</div>` : ''}</td><td class="cell-note" title="${esc(notePreview(c.notes, 400))}">${esc(notePreview(c.notes)) || '<span class="muted">—</span>'}</td>`
@@ -2122,22 +2201,23 @@ function renderContacts() {
       <td><span class="ltr">${esc(c.email || '')}</span></td>
       <td class="num">${isLead ? `<span class="muted">${fmtDate(c.updatedAt || c.createdAt)}</span>` : (projCounts[c.id] || '<span class="muted">0</span>')}</td>
     </tr>`;
+  const dupeCount = isManager() ? findDuplicateContacts().length : 0;
+  const groups = CGROUPS.map((g) => `<div class="ctab-group"><div class="ctab-group-label">${g.label}</div><div class="chips">${g.types.map((t) => `<span class="chip btn-chip ${t === tab ? 'accent' : ''}" data-action="ctab" data-tab="${t}" role="button" tabindex="0" title="${esc(CTYPES[t].sub || '')}">${CTYPES[t].plural} <small>${counts[t] || 0}</small></span>`).join('')}</div></div>`).join('');
   return `
   <div class="view-head">
-    <div><h1 class="view-title">מאגרים</h1><div class="view-sub">כל הנתונים שמזינים את הפרויקטים: אנשים, ספקים ורשימות. כל רשומה מופיעה פעם אחת ומקושרת לפרויקטים שלה.</div></div>
+    <div><h1 class="view-title">מאגרים</h1><div class="view-sub">${isTable ? esc(CTYPES[tab].sub || '') : isDupes ? 'איתור רשומות כפולות ומיזוגן.' : 'הרשימות שמזינות את הטפסים: שלבים, תפקידים, סוגי פרויקטים ותחומים.'} כל רשומה מופיעה פעם אחת ומקושרת לפרויקטים שלה.</div></div>
     <div class="view-actions">
+      ${isManager() ? `<button class="btn ${isDupes ? 'primary' : ''}" data-action="ctab" data-tab="dupes" title="אותו שם, טלפון או מייל באותו מאגר">כפילויות${dupeCount ? ` <small>${dupeCount}</small>` : ''}</button><button class="btn ${isLists ? 'primary' : ''}" data-action="ctab" data-tab="lists">רשימות ותחומים</button>` : ''}
       ${canAdd ? `${canImportContacts(tab) ? `<button class="btn" data-action="open-import" data-type="${tab}">ייבוא מהדבקה</button>` : ''}<button class="btn primary" data-action="new-contact" data-type="${tab}">${ICON.plus} ${CTYPES[tab].new}</button>` : ''}
     </div>
   </div>
-  <div class="filters">
-    <div class="chips">${Object.entries(CTYPES).map(([t, m]) => `<span class="chip btn-chip ${t === tab ? 'accent' : ''}" data-action="ctab" data-tab="${t}" role="button" tabindex="0">${m.plural} <small>${counts[t] || 0}</small></span>`).join('')}
-      <span class="chip btn-chip ${isLists ? 'accent' : ''}" data-action="ctab" data-tab="lists" role="button" tabindex="0">רשימות</span></div>
-    ${isLists ? '' : `<div class="search">${ICON.search}<input type="search" id="c-q" placeholder="חיפוש…" value="${esc(S.ui.cq)}"></div>
-    <label class="switch"><input type="checkbox" id="c-inactive" ${S.ui.showInactive ? 'checked' : ''}> הצג לא פעילים${inactiveCount ? ` (${inactiveCount})` : ''}</label>
-    <span class="count-note">${rows.length} ${CTYPES[tab].plural}${cat ? ` · ${esc(facetLabel(tab, cat))}` : ''}</span>`}
-  </div>
-  ${isLists ? '' : facetChips(tab, pool)}
-  ${isLists ? `<div class="grid-2">${phasesTemplateEditor()}${REGISTRY_LISTS.filter((l) => l.key !== 'phases').map((l) => listEditor(l.key, l.title, l.sub)).join('')}</div>` : `
+  <div class="ctabs">${groups}</div>
+  ${isTable ? `<div class="filters">
+    <div class="search">${ICON.search}<input type="search" id="c-q" placeholder="חיפוש ב${CTYPES[tab].plural}…" value="${esc(S.ui.cq)}"></div>
+    ${isEmp ? '' : `<label class="switch"><input type="checkbox" id="c-inactive" ${S.ui.showInactive ? 'checked' : ''}> הצג לא פעילים${inactiveCount ? ` (${inactiveCount})` : ''}</label>`}
+    <span class="count-note">${rows.length} ${CTYPES[tab].plural}${cat ? ` · ${esc(facetLabel(tab, cat))}` : ''}</span>
+  </div>${facetChips(tab, pool)}` : ''}
+  ${isLists ? `<div class="grid-2">${phasesTemplateEditor()}${REGISTRY_LISTS.filter((l) => l.key !== 'phases').map((l) => listEditor(l.key, l.title, l.sub)).join('')}</div>` : isDupes ? renderDuplicates() : `
   <div class="table-wrap"><table>
     <thead><tr><th>שם</th>${head}<th>טלפון</th><th>מייל</th><th>${lastHead}</th></tr></thead>
     <tbody>${rows.length ? shown.map(row).join('') : `<tr><td colspan="6"><div class="empty">${q || cat ? 'לא נמצאו תוצאות.' : `אין עדיין ${CTYPES[tab].plural} במאגר.`}${canAdd ? ` <button class="btn small" data-action="new-contact" data-type="${tab}">${ICON.plus} ${CTYPES[tab].new}</button>` : ''}</div></td></tr>`}</tbody>
@@ -5726,7 +5806,7 @@ function closeDrawer(force) {
 
 function pickerChips(p, role, col = 'projects') {
   const ids = role.single ? (p[role.field] ? [p[role.field]] : []) : (p[role.field] || []);
-  const chips = ids.map((id) => `<span class="chip ${contact(id) ? '' : 'dim'}" ${contact(id)?.active === false ? 'title="עובד/ת לשעבר"' : ''}><a href="#" data-action="open-contact" data-id="${id}" style="color:inherit;text-decoration:none">${esc(cname(id, 'איש קשר שנמחק'))}${contact(id)?.type === 'employee' && contact(id)?.active === false ? ' <small class="muted">(לשעבר)</small>' : ''}</a><button class="x" data-action="pick-remove" data-col="${col}" data-doc="${p.id}" data-field="${role.field}" data-value="${id}" data-single="${role.single ? 1 : 0}" title="הסר">${ICON.x}</button></span>`);
+  const chips = ids.map((id) => `<span class="chip ${contact(id) ? '' : 'dim'}" ${contact(id)?.active === false ? 'title="עובד/ת לשעבר"' : ''}><a href="#" data-action="open-contact" data-id="${id}" style="color:inherit;text-decoration:none">${esc(cname(id, 'איש קשר שנמחק'))}${contact(id)?.type === 'employee' && contact(id)?.active === false ? ' <small class="muted">(לשעבר)</small>' : isFreelancer(contact(id)) ? ' <small class="muted">(פרילנסר/ית)</small>' : ''}</a><button class="x" data-action="pick-remove" data-col="${col}" data-doc="${p.id}" data-field="${role.field}" data-value="${id}" data-single="${role.single ? 1 : 0}" title="הסר">${ICON.x}</button></span>`);
   const add = (!role.single || !ids.length) ? `<button class="btn small ghost" data-action="pick-add" data-col="${col}" data-doc="${p.id}" data-field="${role.field}" data-type="${role.type}" data-single="${role.single ? 1 : 0}">${ICON.plus} ${role.single ? 'בחר' : 'הוסף'}</button>` : '';
   return `<div class="chips">${chips.join('')}${add}</div>`;
 }
@@ -6152,22 +6232,15 @@ async function mergeContacts(fromId, intoId) {
   if (fromId === intoId) return;
   const from = S.contacts[fromId], into = S.contacts[intoId];
   if (!from || !into) return;
-  let n = 0;
-  for (const p of P()) {
-    const patch = {};
-    if (p.clientId === fromId) patch.clientId = intoId;
-    if (p.leadId === fromId) patch.leadId = intoId;
-    if (p.pmId === fromId) patch.pmId = intoId;
-    ['memberIds', 'contractorIds', 'consultantIds', 'supplierIds', 'partnerIds'].forEach((f) => { const arr = p[f] || []; if (arr.includes(fromId)) patch[f] = [...new Set(arr.map((x) => x === fromId ? intoId : x))]; });
-    if (Object.keys(patch).length) { await patchDoc('projects', p.id, patch); n++; }
-  }
-  for (const k of K()) if (k.supplierId === fromId) await patchDoc('commissions', k.id, { supplierId: intoId });
-  for (const t of T()) if (t.leadId === fromId) await patchDoc('teams', t.id, { leadId: intoId });
-  const fill = {}; ['phone', 'email', 'company', 'role', 'category', 'notes', 'employeeNumber', 'startDate', 'teamId'].forEach((f) => { if ((into[f] == null || into[f] === '') && from[f]) fill[f] = from[f]; });
-  if (Object.keys(fill).length) await patchDoc('contacts', intoId, fill);
-  await deleteDoc('contacts', fromId);
-  toast(`"${from.name}" מוזג לתוך "${into.name}" (${n} פרויקטים עודכנו)`);
-  openDrawer('contact', intoId);
+  if (!isManager()) { toast('מיזוג — מנהלים בלבד'); return; }
+  // the server moves every reference (projects, people of the organisation, shoots, archive, commissions, materials, requests, hours…) and deletes the source
+  const res = await sb.rpc('merge_contact', { from_id: fromId, into_id: intoId });
+  if (res.error) { toast('המיזוג נכשל: ' + res.error.message); return; }
+  const fromName = from.name, intoName = into.name;
+  await Promise.all(['contacts', 'projects', 'commissions', 'teams'].map((t) => fetchTable(t)));
+  ['shoots', 'project_archive', 'materials', 'requests', 'sunday_requests'].forEach((t) => { if (S.loaded[t]) fetchTable(t); });
+  toast(`"${fromName}" מוזג לתוך "${intoName}"${res.data ? ` (${res.data} קישורים בפרויקטים עודכנו)` : ''}`);
+  if (S.ui.drawer && S.ui.drawer.kind === 'contact') openDrawer('contact', intoId); else render();
 }
 /* two steps for every deletion; with { password: true } the second step also asks for the user's own password (re-authentication) */
 function confirmButton(action, attrs, label, opts = {}) {
@@ -6197,21 +6270,26 @@ function drawerContact(id) {
   const isPerson = c.type === 'person';
   const catOptions = CAT_LIST[c.type] ? st[CAT_LIST[c.type]] : null;
   const leadOf = T().filter((t) => t.leadId === c.id);
-  const orgs = C().filter((x) => ORG_TYPES.includes(x.type) && (x.active !== false || x.id === c.parentId)).sort(byName);
+  const parent = isPerson && c.parentId ? S.contacts[c.parentId] : null;
+  const grp = groupOfType(c.type);
+  const typeSelect = `<select id="c-type" data-bind="contacts:${c.id}:type">${CGROUPS.map((g) => `<optgroup label="${esc(g.label)}">${g.types.map((t) => `<option value="${t}" ${t === c.type ? 'selected' : ''}>${esc(CTYPES[t].label)}</option>`).join('')}</optgroup>`).join('')}</select>`;
   return `
   <div class="drawer-head">
     <div style="flex:1;min-width:0">
       <h2 class="drawer-title"><input type="text" id="c-name" value="${esc(S.ui.drafts['c-name'] ?? c.name)}" data-bind="contacts:${c.id}:name" aria-label="שם"></h2>
-      <div class="drawer-sub">${esc(CTYPES[c.type]?.label || c.type)}${leadOf.length ? ' · ראש ' + esc(leadOf.map((t) => t.name).join(', ')) : ''}</div>
+      <div class="drawer-sub">${esc((grp && grp.types.length > 1 ? grp.label + ' · ' : '') + (CTYPES[c.type]?.label || c.type))}${isEmp && isFreelancer(c) ? ' · פרילנסר/ית' : ''}${c.category && !isEmp ? ' · ' + esc(c.category) : ''}${leadOf.length ? ' · ראש ' + esc(leadOf.map((t) => t.name).join(', ')) : ''}</div>
     </div>
     <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
   </div>
   <div class="drawer-body">
     <div class="section">
       <div class="field-row">
-        ${field('סוג', selectHtml('c-type', c.type, Object.entries(CTYPES).map(([value, m]) => ({ value, label: m.label })), { attrs: `data-bind="contacts:${c.id}:type"` }))}
-        ${isEmp ? field('צוות', selectHtml('c-team', c.teamId || '', T().map((t) => ({ value: t.id, label: t.name })), { blank: 'ללא צוות', attrs: `data-bind="contacts:${c.id}:teamId"` })) : isPerson ? field('שייך/ת ל (לקוח / חברה מהמאגר)', selectHtml('c-parent', c.parentId || '', orgs.map((x) => ({ value: x.id, label: x.name + ' · ' + (CTYPES[x.type]?.label || '') })), { blank: 'ללא שיוך', attrs: `data-bind="contacts:${c.id}:parentId"` })) : field('חברה', textInput('c-company', c.company, `data-bind="contacts:${c.id}:company"`))}
+        ${field('סוג', typeSelect)}
+        ${isEmp ? field('מעמד', `<span class="seg" role="group" aria-label="מעמד">${[['', 'צוות המשרד'], [FREELANCE, 'פרילנסר/ית']].map(([v, l]) => `<button type="button" class="${(c.category || '') === v ? 'on' : ''}" data-action="emp-status" data-id="${c.id}" data-value="${esc(v)}">${l}</button>`).join('')}</span>`, isFreelancer(c) ? 'לא נספר/ת בקיבולת וב"היום במשרד" אלא אם הוגדרו ימי עבודה' : '')
+          : isPerson ? field('שייך/ת ל (לקוח / ספק / משרד מהמאגר)', `<div class="chips">${parent ? `<span class="chip"><a href="#" data-action="open-contact" data-id="${parent.id}" style="color:inherit;text-decoration:none">${esc(parent.name)}</a> <small class="muted">${esc(CTYPES[parent.type]?.label || '')}</small></span>` : ''}<button class="btn small ghost" data-action="pick-parent" data-id="${c.id}">${parent ? 'החלף…' : ICON.plus + ' בחר ארגון…'}</button>${parent ? `<button class="btn small ghost" data-action="set-parent" data-id="${c.id}" data-parent="">ללא שיוך</button>` : ''}</div>`)
+          : field('חברה', textInput('c-company', c.company, `data-bind="contacts:${c.id}:company"`))}
       </div>
+      ${isEmp ? `<div class="field-row">${field('צוות', selectHtml('c-team', c.teamId || '', T().map((t) => ({ value: t.id, label: t.name })), { blank: 'ללא צוות', attrs: `data-bind="contacts:${c.id}:teamId"` }))}${field('תחילת עבודה', `<input type="date" id="c-startDate" value="${dateInput(c.startDate)}" data-bind="contacts:${c.id}:startDate">`)}</div>` : ''}
       ${isPerson ? `<div class="field-row">${field('חברה (טקסט חופשי)', textInput('c-company', c.company, `data-bind="contacts:${c.id}:company" placeholder="אם לא מופיעה במאגר"`))}${field('כתובת', textInput('c-address', c.address, `data-bind="contacts:${c.id}:address"`))}</div>` : ''}
       <div class="field-row">
         ${isEmp ? field('הגדרה / תפקיד בצוות', textInput('c-role', c.role, `data-bind="contacts:${c.id}:role" list="dl-roles" placeholder="אדריכל/ית, מעצב/ת פנים, מתמחה…"`), 'הרשימה ניתנת לעריכה בהגדרות')
@@ -6225,7 +6303,7 @@ function drawerContact(id) {
       </div>
       ${isEmp ? `<div class="field-row">
         ${field('מס\' עובד', textInput('c-employeeNumber', c.employeeNumber, `data-bind="contacts:${c.id}:employeeNumber" dir="ltr" style="text-align:end"`))}
-        ${field('תחילת עבודה', `<input type="date" id="c-startDate" value="${dateInput(c.startDate)}" data-bind="contacts:${c.id}:startDate">`)}
+        ${field('כתובת', textInput('c-address', c.address, `data-bind="contacts:${c.id}:address"`))}
       </div>` : isPerson ? '' : `<div class="field-row">
         ${field('כתובת', textInput('c-address', c.address, `data-bind="contacts:${c.id}:address"`))}
         ${field('טלפון נוסף', textInput('c-phone2', c.phone2, `data-bind="contacts:${c.id}:phone2" dir="ltr" style="text-align:end" inputmode="tel"`))}
@@ -6495,7 +6573,7 @@ function openPicker(anchor, { col, doc, field, type, single }) {
   const current = single ? (d[field] ? [d[field]] : []) : (d[field] || []);
   const options = C().filter((c) => c.type === type && (c.active !== false || type === 'employee') && !current.includes(c.id))
     .sort((x, y) => ((x.active === false) - (y.active === false)) || byName(x, y))
-    .map((c) => ({ label: c.name, sub: type === 'employee' ? (c.active === false ? 'לשעבר' + (c.role ? ' · ' + c.role : '') : tname(c.teamId, c.role || '')) : (c.category || c.company || ''), value: c.id }));
+    .map((c) => ({ label: c.name, sub: type === 'employee' ? (c.active === false ? 'לשעבר' + (c.role ? ' · ' + c.role : '') : isFreelancer(c) ? 'פרילנסר/ית' + (c.role ? ' · ' + c.role : '') : tname(c.teamId, c.role || '')) : (c.category || c.company || ''), value: c.id }));
   const apply = (id) => (col === 'teams' && field === 'leadId') ? setTeamLead(doc, id) : single ? patchDoc(col, doc, { [field]: id }) : patchDoc(col, doc, { [field]: [...current, id] });
   openMenu(anchor, {
     search: true, create: true, createLabel: 'כ' + (CTYPES[type]?.label || ''), placeholder: 'חיפוש ' + (CTYPES[type]?.plural || '') + '…',
@@ -6911,6 +6989,14 @@ document.addEventListener('click', async (e) => {
       openMenu(t, { search: true, placeholder: 'לתוך איזו רשומה למזג?', emptyText: 'אין רשומות מאותו סוג', items: C().filter((x) => x.type === c.type && x.id !== c.id).sort(byName).map((x) => ({ label: x.name, sub: x.company || x.role || x.category || '', value: x.id })), onPick: (it) => { S.ui.confirmMerge = { from: ds.id, into: it.value }; render(); } }); break; }
     case 'merge-confirm': { const m = S.ui.confirmMerge; S.ui.confirmMerge = null; if (m) await mergeContacts(m.from, m.into); break; }
     case 'merge-cancel': S.ui.confirmMerge = null; render(); break;
+    case 'dupe-merge': { if (!isManager()) { toast('מנהלים בלבד'); break; } S.ui.confirmMerge = { from: ds.from, into: ds.into }; render(); break; }
+    case 'dupe-ignore': { if (!isManager()) break; const k = dupeKey(ds.a, ds.b); const list = (settings().dupeIgnore || []).slice(); if (!list.includes(k)) list.push(k); patchSettings({ dupeIgnore: list }); break; }
+    case 'dupe-ignore-reset': { if (!isManager()) break; patchSettings({ dupeIgnore: [] }); break; }
+    case 'emp-status': { const c = S.contacts[ds.id]; if (!c || !canWriteContact('employee')) { toast('אין לך הרשאת עריכה'); break; } patchDoc('contacts', c.id, { category: ds.value || '' }); break; }
+    case 'set-parent': { const c = S.contacts[ds.id]; if (!c || !canWriteContact(c.type)) { toast('אין לך הרשאת עריכה'); break; } patchDoc('contacts', c.id, { parentId: ds.parent || null }); break; }
+    case 'pick-parent': { e.stopPropagation(); const c = S.contacts[ds.id]; if (!c || !canWriteContact(c.type)) { toast('אין לך הרשאת עריכה'); break; }
+      const orgs = C().filter((x) => ORG_TYPES.includes(x.type) && x.active !== false && x.id !== c.id).sort(byName);
+      openMenu(t, { search: true, placeholder: 'חיפוש לקוח, ספק או משרד…', emptyText: 'אין ארגון כזה במאגר', items: orgs.map((x) => ({ label: x.name, sub: [CTYPES[x.type]?.label, x.category].filter(Boolean).join(' · '), value: x.id })), onPick: (it) => patchDoc('contacts', c.id, { parentId: it.value }) }); break; }
     case 'open-import': { const ty = ds.type || S.ui.ctab; if (!canImportContacts(ty)) { toast('ייבוא מהדבקה — ראשי צוותים ומנהלים'); break; } S.ui.importState = { type: ty, text: '', rows: null }; openDrawer('import', null); break; }
     case 'import-parse': { const im = S.ui.importState; im.text = document.getElementById('import-text')?.value || im.text; const res = parseImport(im.text, im.type); if (res.error) { toast(res.error); break; } im.rows = res.rows; render(); break; }
     case 'import-reset': S.ui.importState.rows = null; render(); break;
