@@ -1037,7 +1037,12 @@
   .banner.info { background: var(--accent-soft); color: var(--ink); }
   .muted { color: var(--ink-3); }
   .nowrap { white-space: nowrap; }
-  .confirm-inline { display: inline-flex; gap: 6px; align-items: center; }
+  .confirm-inline { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .confirm-pw { width: 150px; padding: 5px 8px; font: inherit; font-size: 13.5px; border: 1px solid var(--line-2); direction: ltr; }
+  .arc-officename { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 2px 0 10px; }
+  .arc-officename input { font: inherit; font-size: 16px; padding: 5px 8px; border: 1px solid var(--line-2); min-width: 260px; }
+  .arc-officename-ro { font-size: 16px; }
+  .arc-internal { font-size: 11px; }
   .kbd { font-size: 11px; color: var(--ink-3); border: 1px solid var(--line-2); border-radius: 0; padding: 0 4px; }
   .loading { padding: 80px 0; text-align: center; color: var(--ink-3); font-weight: 200; font-size: 20px; letter-spacing: .06em; }
 
@@ -5346,13 +5351,18 @@ ICON.globe = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-
 const canSeeArchive = () => !!me() && (isManager() || myRole() === 'admin' || (typeof shootFns === 'function' && (shootFns().social.includes(me().id) || shootFns().pr.includes(me().id))));
 const canEditArchive = canSeeArchive;
 const archiveOf = (pid) => S.project_archive[pid] || null;
-/* the archive's projects: everything with an archive card, plus completed office projects that have none yet */
-const archiveProjects = () => P().filter((p) => S.project_archive[p.id] || p.state === 'done');
+/* the archive's projects: only projects with an archive card (the website's completed projects, plus whatever a manager added with "פרויקט לארכיון");
+   completed office projects without a card stay in the projects list and out of the archive (Oded, 5.10: no uncategorised rows in the archive) */
+const archiveProjects = () => P().filter((p) => !!S.project_archive[p.id]);
 const arcName = (p) => { const a = archiveOf(p.id); return (a && a.mediaName) || p.nameEn || p.name; };
 const arcNameHe = (p) => { const a = archiveOf(p.id); return (a && a.mediaNameHe) || (p.id.startsWith('pw_') ? '' : p.name); };
 const arcCover = (a) => (a ? (a.coverThumb || a.coverUrl || '') : '');
 const arcYear = (p) => { const a = archiveOf(p.id); return (a && a.completedYear) || (p.dueDate ? Number(p.dueDate.slice(0, 4)) : null) || null; };
 const arcCat = (p) => { const a = archiveOf(p.id); return (a && a.category) || ''; };
+/* the office name: the project as the office worked on it (a client's family name, say) — internal, never for publication unless it is
+   the approved public name (a hotel, say). For an office project it is the project's own name; a stub from the website has none until someone types it */
+const officeName = (p) => { const a = archiveOf(p.id); if (p.id.startsWith('pw_') && (!p.name || p.name === (a && a.mediaName))) return ''; return p.name || ''; };
+const officeNamePublic = (p) => { const n = officeName(p); const a = archiveOf(p.id); return !!n && (n === (a && a.mediaName) || n === (a && a.mediaNameHe)); };
 const catLabel = (c) => ARCHIVE_CATS[c] || c || '';
 const pressOf = (pid) => PI().filter((x) => x.projectId === pid).sort((a, b) => (b.publishedOn || '').localeCompare(a.publishedOn || '') || (b.createdAt || '').localeCompare(a.createdAt || ''));
 const pressPool = () => PI().filter((x) => !x.projectId).sort((a, b) => (b.publishedOn || '').localeCompare(a.publishedOn || ''));
@@ -5382,7 +5392,7 @@ function archiveCard(p) {
     <div class="arc-cover"><span class="arc-initial">${esc(arcName(p).slice(0, 1))}</span>${cover ? `<img src="${esc(cover)}" alt="" loading="lazy" onerror="this.remove()">` : ''}${a?.needsReview ? '<span class="tag arc-tag">לבדיקה</span>' : ''}${!a ? '<span class="tag arc-tag">ללא כרטיס</span>' : ''}</div>
     <div class="arc-body">
       <div class="arc-name" dir="auto">${esc(arcName(p))}</div>
-      ${he && he !== arcName(p) ? `<div class="arc-he">${esc(he)}</div>` : ''}
+      ${officeName(p) && officeName(p) !== arcName(p) ? `<div class="arc-he">${esc(officeName(p))}${officeNamePublic(p) ? '' : ' <span class="tag internal arc-internal" title="השם במשרד — לא לפרסום">פנימי</span>'}</div>` : (he && he !== arcName(p) ? `<div class="arc-he">${esc(he)}</div>` : '')}
       <div class="arc-meta">${[catLabel(arcCat(p)), year, p.city, a?.photographer ? 'צילום: ' + a.photographer : ''].filter(Boolean).map(esc).join(' · ')}</div>
       <div class="arc-counts">${[pressOf(p.id).length ? `${pressOf(p.id).length} פרסומים` : '', (a?.colors || []).length ? `${a.colors.length} גוונים` : '', typeof materialsOf === 'function' && materialsOf(p.id).length ? `${materialsOf(p.id).length} חומרים` : '', people ? `${people} מהמשרד` : ''].filter(Boolean).join(' · ')}</div>
     </div>
@@ -5473,7 +5483,8 @@ function renderArchivePage() {
       ${cover ? `<a class="arc-hero-img" href="${esc(a.websiteUrl || cover)}" target="_blank" rel="noopener"><img src="${esc(cover)}" alt=""></a>` : ''}
       <div class="arc-hero-body">
         <h1 class="view-title arc-title">${ro ? esc(arcName(p)) : `<input type="text" id="arc-mediaName" value="${esc(a.mediaName || arcName(p))}" data-arc="mediaName" data-pid="${p.id}" dir="auto" aria-label="שם המדיה" placeholder="שם המדיה">`}</h1>
-        <div class="arc-sub">${ro ? esc(arcNameHe(p) || '') : `<input type="text" id="arc-mediaNameHe" value="${esc(a.mediaNameHe || '')}" data-arc="mediaNameHe" data-pid="${p.id}" placeholder="שם בעברית (לפרסום)" aria-label="שם בעברית">`}</div>
+        <div class="arc-sub">${ro ? esc(a.mediaNameHe || '') : `<input type="text" id="arc-mediaNameHe" value="${esc(a.mediaNameHe || '')}" data-arc="mediaNameHe" data-pid="${p.id}" placeholder="שם בעברית (לפרסום)" aria-label="שם בעברית לפרסום">`}</div>
+        <div class="arc-officename">${canEditProject(p) ? `<input type="text" id="arc-officeName" value="${esc(officeName(p))}" data-arc="officeName" data-pid="${p.id}" dir="auto" placeholder="השם במשרד — למשל: משפחת כהן" aria-label="השם במשרד">` : `<span class="arc-officename-ro" dir="auto">${esc(officeName(p) || '—')}</span>`}<span class="tag internal arc-internal" title="כך קראנו לפרויקט במשרד. לא לפרסום — אלא אם זהה לשם המאושר לפרסום">${officeName(p) && officeNamePublic(p) ? 'השם במשרד · זהה לשם לפרסום' : 'השם במשרד · לא לפרסום'}</span></div>
         <div class="arc-facts">
           ${field('קטגוריה', selectHtml('arc-category', a.category || '', Object.entries(ARCHIVE_CATS).map(([v, l]) => ({ value: v, label: l })), { blank: 'ללא קטגוריה', attrs: `data-arc="category" data-pid="${p.id}" ${ro ? 'disabled' : ''}` }))}
           ${field('שנת סיום', arcInput(a, p.id, 'completedYear', { type: 'number', attrs: 'min="1990" max="2100" dir="ltr"', placeholder: String(new Date().getFullYear()) }))}
@@ -5535,7 +5546,7 @@ function renderArchivePage() {
         <div class="role-row"><div class="role-name">סט ביצוע</div><div class="role-body">${set ? (typeof setChip === 'function' ? setChip(set) : esc('סט ' + set.seq)) : '<span class="muted">עדיין לא יצא סט ביצוע</span>'}</div></div>
         ${a.websiteId ? `<div class="inline-note">מזהה באתר: ${a.websiteId}${a.websiteModified ? ' · עודכן באתר ' + esc(fmtDate(a.websiteModified.slice(0, 10))) : ''}</div>` : ''}
       </div>
-      <div class="section pp-foot"><span class="inline-note">${a.updatedAt ? 'הכרטיס עודכן ' + esc(fmtDate(a.updatedAt)) : 'עדיין אין כרטיס ארכיון — הוא נוצר עם העריכה הראשונה'}</span>${isManager() && stub ? confirmButton('arc-delete', `data-id="${p.id}"`, 'הסר מהארכיון') : ''}</div>
+      <div class="section pp-foot"><span class="inline-note">${a.updatedAt ? 'הכרטיס עודכן ' + esc(fmtDate(a.updatedAt)) : 'עדיין אין כרטיס ארכיון — הוא נוצר עם העריכה הראשונה'}</span>${isManager() ? confirmButton('arc-delete', `data-id="${p.id}"`, stub ? 'מחק מהארכיון' : 'הסר את הכרטיס מהארכיון', { password: true, prompt: stub ? 'מחיקת הפרויקט מהארכיון — לצמיתות. הסיסמה שלך:' : 'הסרת כרטיס הארכיון (הפרויקט עצמו נשאר במשרד). הסיסמה שלך:', yes: stub ? 'כן, מחק' : 'כן, הסר' }) : ''}</div>
     </aside>
   </div>`;
 }
@@ -5629,7 +5640,8 @@ async function archiveAction(a, ds, t, e) {
     }
     case 'arc-delete': { // two steps, like every deletion
       if (!isManager()) return true;
-      const key = a + `data-id="${ds.id}"`; if (!ds.confirmed) { S.ui.confirm = key; render(); return true; }
+      const key = a + `data-id="${ds.id}"`; if (!ds.confirmed) { S.ui.confirm = key; render(); setTimeout(() => document.getElementById('confirm-pw')?.focus(), 30); return true; }
+      if (!(await reauthWithPassword())) return true;
       pressOf(ds.id).forEach((x) => patchDoc('press_items', x.id, { projectId: null }));
       if (archiveOf(ds.id)) await deleteDoc('project_archive', ds.id); if (ds.id.startsWith('pw_')) await deleteDoc('projects', ds.id);
       S.ui.confirm = null; nav('archive'); toast('הוסר מהארכיון'); return true;
@@ -5675,6 +5687,7 @@ document.addEventListener('change', (e) => {
   if (el.dataset?.arc) {
     if (!canEditArchive()) { toast('אין לך הרשאת עריכה'); render(); return; }
     let v = el.value;
+    if (el.dataset.arc === 'officeName') { const p = S.projects[el.dataset.pid]; if (!p || !canEditProject(p)) { toast('אין לך הרשאת עריכה'); return; } patchDoc('projects', p.id, { name: v.trim() || arcName(p) }); return; }
     if (el.dataset.arc === 'completedYear') v = v === '' ? null : Number(v);
     if (el.dataset.arc === 'websiteUrl' || el.dataset.arc === 'photosUrl') { v = v.trim(); if (v && !/^https?:\/\//i.test(v)) v = 'https://' + v; }
     patchArchive(el.dataset.pid, { [el.dataset.arc]: v });
@@ -5838,7 +5851,7 @@ function projectNotesSection(p) {
 }
 function projectFoot(p) {
   return `<span class="inline-note">נוצר ${fmtDate(p.createdAt)} · עודכן ${fmtDate(p.updatedAt)}</span>
-    ${isManager() ? confirmButton('delete-doc', `data-col="projects" data-id="${p.id}"`, 'מחק פרויקט') : ''}`;
+    ${isManager() ? confirmButton('delete-doc', `data-col="projects" data-id="${p.id}"`, 'מחק פרויקט', { password: true, prompt: 'מחיקת הפרויקט על כל מה שבו — לצמיתות. הסיסמה שלך:' }) : ''}`;
 }
 function projectSubline(p) {
   return `${parentOf(p) ? `<a href="#" data-action="open-project" data-id="${parentOf(p).id}" style="color:inherit">תת-פרויקט של ${esc(parentOf(p).name)}</a> · ` : ''}${esc([p.number ? 'מס\' ' + p.number : '', p.type, p.typeDetail, p.city, cname(p.clientId, '')].filter(Boolean).join(' · '))}`;
@@ -6157,10 +6170,23 @@ async function mergeContacts(fromId, intoId) {
   toast(`"${from.name}" מוזג לתוך "${into.name}" (${n} פרויקטים עודכנו)`);
   openDrawer('contact', intoId);
 }
-function confirmButton(action, attrs, label) {
+/* two steps for every deletion; with { password: true } the second step also asks for the user's own password (re-authentication) */
+function confirmButton(action, attrs, label, opts = {}) {
   const key = action + attrs;
-  if (S.ui.confirm === key) return `<span class="confirm-inline"><span class="inline-note">למחוק לצמיתות?</span><button class="btn small danger" data-action="${action}" ${attrs} data-confirmed="1">כן, מחק</button><button class="btn small" data-action="cancel-confirm">בטל</button></span>`;
+  if (S.ui.confirm === key) {
+    if (opts.password) return `<span class="confirm-inline confirm-pw-wrap"><span class="inline-note">${esc(opts.prompt || 'למחיקה לצמיתות — הסיסמה שלך:')}</span><input type="password" id="confirm-pw" class="confirm-pw" autocomplete="current-password" placeholder="סיסמה" aria-label="סיסמה לאישור המחיקה" onkeydown="if(event.key==='Enter'){event.preventDefault();this.nextElementSibling.click();}"><button class="btn small danger" data-action="${action}" ${attrs} data-confirmed="1">${esc(opts.yes || 'כן, מחק')}</button><button class="btn small" data-action="cancel-confirm">בטל</button></span>`;
+    return `<span class="confirm-inline"><span class="inline-note">${esc(opts.prompt || 'למחוק לצמיתות?')}</span><button class="btn small danger" data-action="${action}" ${attrs} data-confirmed="1">${esc(opts.yes || 'כן, מחק')}</button><button class="btn small" data-action="cancel-confirm">בטל</button></span>`;
+  }
   return `<button class="btn small danger" data-action="${action}" ${attrs}>${label}</button>`;
+}
+/* the password check behind a protected deletion: the user signs in again with their own password; a wrong one stops the action */
+async function reauthWithPassword() {
+  const el = document.getElementById('confirm-pw'); const password = el ? el.value : '';
+  if (!password) { toast('להקליד את הסיסמה שלך כדי לאשר'); if (el) el.focus(); return false; }
+  const email = (me() && me().email) || (S.auth.session && S.auth.session.user && S.auth.session.user.email) || '';
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) { toast('הסיסמה שגויה — לא נמחק'); if (el) { el.value = ''; el.focus(); } return false; }
+  return true;
 }
 function drawerContact(id) {
   const c = S.contacts[id];
@@ -6864,9 +6890,9 @@ document.addEventListener('click', async (e) => {
     case 'pick-remove': { e.stopPropagation(); const d = S[ds.col][ds.doc]; if (ds.single === '1') patchDoc(ds.col, ds.doc, { [ds.field]: null }); else patchDoc(ds.col, ds.doc, { [ds.field]: (d[ds.field] || []).filter((x) => x !== ds.value) }); break; }
     case 'delete-doc': {
       const key = a + `data-col="${ds.col}" data-id="${ds.id}"`;
-      if (!ds.confirmed) { S.ui.confirm = key; render(); break; }
+      if (!ds.confirmed) { S.ui.confirm = key; render(); setTimeout(() => document.getElementById('confirm-pw')?.focus(), 30); break; }
+      if (ds.col === 'projects') { if (!(await reauthWithPassword())) break; commissionsOf(ds.id).forEach((k) => deleteDoc('commissions', k.id)); }
       S.ui.confirm = null;
-      if (ds.col === 'projects') { commissionsOf(ds.id).forEach((k) => deleteDoc('commissions', k.id)); }
       await deleteDoc(ds.col, ds.id);
       closeDrawer(true); toast('נמחק'); break;
     }
