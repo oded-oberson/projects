@@ -1270,9 +1270,10 @@ const VIEWS = [
 const visibleViews = () => VIEWS.filter((v) => (!v.managers || isManager()) && (!v.archive || (typeof canSeeArchive === 'function' && canSeeArchive())));
 const DEFAULT_SETTINGS = {
   officeName: 'OBERSON',
-  /* the office's stages, as the fee proposals define them (5.10.2026): opening · preliminary design (alternatives, layout, concept, renderings) ·
-     permit · tender = detailed design for tender (tender set, booklet, schedules, bills of quantities) · build = detailed design for construction
-     (construction set, joinery, finishes, elevations) · furniture (furniture, styling, accessories) · site supervision · handover */
+  /* the office's stages, as the fee proposals define them (5.10.2026; Oded's questionnaire 6.10): opening · preliminary design (alternatives,
+     layout, concept, renderings, sales plans) · permit · tender = detailed design for tender (tender set, booklet, schedules, bills of quantities,
+     joinery, finishes) · build = detailed design for construction (construction set, elevations, kitchen) · furniture (furniture, styling,
+     accessories) · site supervision · handover. "Review of consultants' / sales plans" (pre-rolling contracts) is not a stage. */
   phases: [
     { id: 'init', name: 'פתיחת פרויקט', weight: 0.5 }, { id: 'concept', name: 'תכנון ראשוני', weight: 1 },
     { id: 'permit', name: 'היתר', weight: 0.8 }, { id: 'tender', name: 'מכרז', weight: 1.5 }, { id: 'build', name: 'ביצוע', weight: 1.2 },
@@ -2090,7 +2091,7 @@ function phasesByTypeEditor() {
       </tr>`; }).join('')}</tbody>
     </table></div>
     <div class="inline-note" style="margin-top:8px">ברירת המחדל: כל השלבים לכל סוג, למעט "${esc(st.phases.find((x) => x.id === 'permit')?.name || 'היתר')}" שקיים רק ב${PERMIT_TYPES.join(', ')} ו"${esc(st.phases.find((x) => x.id === 'furniture')?.name || 'ריהוט')}" שאינו קיים ב${NO_FURNITURE_TYPES.join(' ו')}. פרויקט חדש מקבל את שלבי הסוג שלו; בפרויקט קיים לוחצים "התאם לסוג ולחוזה" בכרטיס הפרויקט. פרויקט ללא סוג מקבל את כל השלבים.</div>
-    <div class="inline-note" style="margin-top:8px">תכולת השלבים כמו בהצעות המחיר: <strong>תכנון ראשוני</strong> — חלופות, תכנית העמדה, קונספט, הדמיות · <strong>מכרז</strong> — תכנון מפורט למכרז: סט מכרז, חוברת, רשימות, מפרטים וכתבי כמויות, תיאום יועצים · <strong>ביצוע</strong> — תכנון מפורט לביצוע: סט ביצוע, נגרות, חומרי גמר, פריסות · <strong>ריהוט</strong> — בחירת ריהוט, סטיילינג ואביזרים · <strong>פיקוח עליון</strong> — ליווי הבנייה באתר · <strong>מסירה</strong>. אבן דרך מהחוזה נכנסת לשלב לפי הסוג האחיד שלה (הגדרות ← אבני דרך).</div>
+    <div class="inline-note" style="margin-top:8px">תכולת השלבים כמו בהצעות המחיר: <strong>תכנון ראשוני</strong> — חלופות, תכנית העמדה, קונספט, הדמיות, תכניות מכר · <strong>מכרז</strong> — תכנון מפורט למכרז: סט מכרז, חוברת, רשימות, מפרטים וכתבי כמויות, תיאום יועצים, נגרות, חומרי גמר · <strong>ביצוע</strong> — תכנון מפורט לביצוע: סט ביצוע, פריסות, מטבח · <strong>ריהוט</strong> — בחירת ריהוט, סטיילינג ואביזרים · <strong>פיקוח עליון</strong> — ליווי הבנייה באתר · <strong>מסירה</strong>. "בקרה על תכניות" (חוזי פרה-רולינג), תכנון תאורה ושינויים אינם שלב. אבן דרך מהחוזה נכנסת לשלב לפי הסוג האחיד שלה (הגדרות ← אבני דרך).</div>
   </div>`;
 }
 const CONTACT_PAGE = 250; // rows rendered before "show more" — keeps the person registry (1000+ rows) snappy
