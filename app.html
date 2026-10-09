@@ -1649,9 +1649,11 @@ function loadUi() {
 function saveUi() {
   try { localStorage.setItem('obr-ui', JSON.stringify({ filters: S.ui.filters, ctab: S.ui.ctab, sort: S.ui.sort, ttab: S.ui.ttab, tproject: S.ui.tproject })); } catch (e) { /* ignore */ }
 }
+/* a view change becomes a history entry, so the browser's Back (and the phone's) goes to the previous screen; the same hash is only replaced */
+function setHash(h) { try { if ((location.hash || '') === '#' + h) history.replaceState(null, '', '#' + h); else history.pushState(null, '', '#' + h); } catch (e) { /* ignore */ } }
 function nav(view) {
   S.ui.view = view; S.ui.menu = null;
-  try { history.replaceState(null, '', '#' + view); } catch (e) { /* ignore */ }
+  setHash(view);
   window.scrollTo({ top: 0 });
   render();
 }
@@ -3204,10 +3206,11 @@ function notifText(n) {
 function renderBell() {
   const el = document.getElementById('bell'); if (!el) return;
   const signedIn = S.auth.status === 'ready';
-  const unread = S.notifications.filter((n) => !n.readAt);
+  const live = S.notifications.filter((n) => !n.taskId || S.tasks[n.taskId] || n.requestId); // a deleted task takes its notifications with it
+  const unread = live.filter((n) => !n.readAt);
   document.title = (signedIn && unread.length ? `(${unread.length}) ` : '') + BASE_TITLE;
   if (!signedIn) { el.innerHTML = ''; return; }
-  const items = S.notifications.slice(0, 30);
+  const items = live.slice(0, 30);
   el.innerHTML = `<button type="button" class="bell-btn ${unread.length ? 'has' : ''}" data-action="bell-toggle" title="התראות" aria-label="התראות">${ICON.bell}${unread.length ? `<span class="bell-count">${unread.length}</span>` : ''}</button>
   ${S.ui.bell ? `<div class="bell-pop" role="dialog" aria-label="התראות">
     <div class="bell-head"><strong>התראות</strong>${unread.length ? `<button class="btn ghost small" data-action="notif-read-all">סמן הכול כנקרא</button>` : ''}</div>
@@ -3790,7 +3793,7 @@ async function fieldAction(a, ds, t, e) {
     case 'file-open': { e.stopPropagation(); const f = S.files[ds.id]; if (!f) return true; const url = fileUrl(f); if (!url) { toast('טוען את הקובץ…'); return true; } if (f.kind === 'image') { S.ui.lightbox = ds.id; render(); } else window.open(url, '_blank', 'noopener'); return true; }
     case 'lightbox-close': S.ui.lightbox = null; render(); return true;
     case 'open-report': { S.ui.reportId = ds.id; S.ui.returnDrawer = S.ui.drawer; S.ui.returnView = ['project', 'meetings', 'overview', 'tasks'].includes(S.ui.view) ? S.ui.view : 'field'; S.ui.drawer = null; nav('report'); return true; }
-    case 'report-back': { const back = S.ui.returnDrawer; S.ui.returnDrawer = null; S.ui.view = S.ui.returnView || 'field'; if (back) S.ui.drawer = back; try { history.replaceState(null, '', S.ui.view === 'project' ? '#project/' + S.ui.pageId : '#' + S.ui.view); } catch (err) { /* ignore */ } render(); return true; }
+    case 'report-back': { const back = S.ui.returnDrawer; S.ui.returnDrawer = null; S.ui.view = S.ui.returnView || 'field'; if (back) S.ui.drawer = back; setHash(S.ui.view === 'project' ? 'project/' + S.ui.pageId : S.ui.view); render(); return true; }
     case 'report-print': window.print(); return true;
     case 'rec-start': if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } await startRecording(ds.id); return true;
     case 'rec-stop': stopRecording(); return true;
@@ -4288,7 +4291,7 @@ function openProjectPage(id) {
   if (!S.projects[id]) { toast('הפרויקט לא נמצא'); return; }
   if (S.ui.drawer) { closeDrawer(); if (S.ui.confirmClose) return; }
   S.ui.pageId = id; S.ui.view = 'project'; S.ui.menu = null;
-  try { history.replaceState(null, '', '#project/' + id); } catch (e) { /* ignore */ }
+  setHash('project/' + id);
   window.scrollTo({ top: 0 });
   render();
 }
@@ -5506,7 +5509,7 @@ function openArchivePage(id) {
   if (!S.projects[id]) { toast('הפרויקט לא נמצא'); return; }
   if (S.ui.drawer) { closeDrawer(); if (S.ui.confirmClose) return; }
   S.ui.arcPage = id; S.ui.view = 'archive-page'; S.ui.menu = null;
-  try { history.replaceState(null, '', '#archive/' + id); } catch (e) { /* ignore */ }
+  setHash('archive/' + id);
   window.scrollTo({ top: 0 });
   render();
 }
