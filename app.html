@@ -469,35 +469,59 @@
   .stg-body .ms-add { margin-top: 6px; }
   .stg-body .ms-add input { flex: 1; min-width: 120px; }
   .stg-empty { font-size: 12.5px; color: var(--ink-3); padding: 2px 0 4px; }
-  .seat-panel { padding: 10px; }
+  /* ---- the seating plan: an architect's drawing in the app's own black and white; the desks and all text are HTML over the SVG ---- */
+  .seat-panel { padding: 12px 12px 10px; }
   .seat-wrap { overflow-x: auto; }
-  .seat-plan { display: block; width: 100%; min-width: 980px; height: auto; font-family: inherit; }
+  .seat-stage { --k: .62; position: relative; width: 100%; min-width: 980px; }
+  .seat-plan { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   .sp-floor { fill: var(--surface); }
-  .sp-outline { fill: none; stroke: var(--ink); stroke-width: 10; stroke-linejoin: miter; }
-  .sp-wall { stroke: var(--ink); stroke-width: 6; }
-  .sp-door { fill: none; stroke: var(--ink-3); stroke-width: 2; }
-  .sp-furn { fill: #f1f1f1; stroke: #cfcfcf; stroke-width: 1.5; }
-  .sp-column { fill: #777; stroke: none; }
-  .sp-rug { fill: #f7f7f7; stroke-dasharray: 6 4; }
-  .sp-ped { fill: none; stroke: #dedede; stroke-dasharray: 3 4; }
-  .sp-chair { fill: none; stroke: #cfcfcf; stroke-width: 2; }
-  .sp-room-hit { fill: transparent; }
+  .sp-room-fill { fill: #f5f5f5; }
+  .sp-outline { fill: none; stroke: var(--ink); stroke-width: 9; stroke-linejoin: miter; }
+  .sp-wall { stroke: var(--ink); stroke-width: 5; stroke-linecap: square; }
+  .sp-gap { fill: var(--surface); }
+  .sp-door { fill: none; stroke: #9c9c9c; stroke-width: 1.6; }
+  .sp-door-out { stroke-dasharray: 8 6; }
+  .sp-furn { fill: #ebebeb; stroke: #cfcfcf; stroke-width: 1.5; }
+  .sp-sofa { fill: #e2e2e2; }
+  .sp-column { fill: #4a4a4a; stroke: none; }
+  .sp-rug { fill: #f3f3f3; stroke: #d4d4d4; stroke-dasharray: 6 4; }
+  .sp-ped { fill: none; stroke: #cdcdcd; stroke-dasharray: 3 4; }
+  .sp-chair { fill: var(--surface); stroke: #c2c2c2; stroke-width: 1.8; }
+  .sp-seat rect { fill: var(--ink); }
+  .sp-seat.free rect { fill: #bfbfbf; }
+  .sp-labels { position: absolute; inset: 0; }
+  .sp-room, .sp-room-tag { position: absolute; display: flex; justify-content: center; align-items: flex-start; padding-top: calc(9px * var(--k)); }
+  .sp-room-tag { align-items: center; padding: 0; pointer-events: none; }
   .sp-room.can { cursor: pointer; }
-  .sp-room.can:hover .sp-room-hit { fill: rgba(0,0,0,.025); }
-  .sp-room-label { font-size: 21px; font-weight: 300; fill: var(--ink-2); text-anchor: middle; letter-spacing: .04em; pointer-events: none; }
-  .sp-entrance { font-size: 16px; fill: var(--ink-3); text-anchor: middle; }
-  .sp-seat.can { cursor: pointer; }
-  .sp-desk { fill: #fff; stroke: var(--ink); stroke-width: 1.6; }
-  .sp-seat.free .sp-desk { stroke: #9a9a9a; stroke-dasharray: 5 4; fill: #fafafa; }
-  .sp-seat rect:not(.sp-desk) { fill: var(--ink); }
-  .sp-seat.free rect:not(.sp-desk) { fill: #c4c4c4; }
-  .sp-seat.can:hover .sp-desk { stroke: var(--accent); stroke-width: 2.4; }
-  .sp-name { font-size: 15px; font-weight: 500; fill: var(--ink); text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
-  .sp-name.tiny { font-size: 12px; }
-  .sp-seat.free .sp-name { fill: #9a9a9a; font-weight: 400; }
-  .sp-ext { font-size: 12px; fill: var(--ink-2); text-anchor: middle; dominant-baseline: middle; pointer-events: none; font-family: var(--font-num, inherit); }
-  .seat-table td.num { font-family: var(--font-num, inherit); }
-  @media (prefers-color-scheme: dark) { .sp-furn { fill: #2a2a2a; stroke: #444; } .sp-desk { fill: #1c1c1c; } .sp-seat.free .sp-desk { fill: #202020; } }
+  .sp-room.can:hover { background: rgba(0, 0, 0, .03); }
+  .sp-room-label { font-family: var(--font-display); font-weight: 200; font-size: max(13px, calc(25px * var(--k))); letter-spacing: .08em; color: var(--ink-2); line-height: 1.1; white-space: nowrap; }
+  .sp-entrance { position: absolute; display: flex; justify-content: center; align-items: center; font-size: max(11px, calc(17px * var(--k))); letter-spacing: .08em; color: var(--ink-3); white-space: nowrap; }
+  .sp-label { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 1px 3px;
+    background: var(--surface); border: 1.5px solid var(--ink); border-radius: 3px; color: var(--ink); font-size: max(10px, calc(15.5px * var(--k))); line-height: 1.12; }
+  .sp-label.free { border: 1.5px dashed #b4b4b4; background: #fcfcfc; color: #a0a0a0; }
+  .sp-label.tall { transform: rotate(-90deg); }
+  .sp-label.tiny { font-size: max(9px, calc(13px * var(--k))); }
+  .sp-label.can { cursor: pointer; }
+  .sp-label.can:hover, .sp-label.can:focus-visible { border-color: var(--ink); border-style: solid; box-shadow: 0 0 0 1.5px var(--ink); outline: none; z-index: 2; }
+  .sp-label .nm { display: flex; flex-direction: column; align-items: center; max-width: 100%; min-width: 0; }
+  .sp-label .nm > span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sp-label .ln { font-size: .86em; color: var(--ink-2); }
+  .sp-label .fr { font-weight: 200; letter-spacing: .06em; }
+  .sp-label.tiny .nm > span { max-width: none; overflow: visible; }
+  .sp-label.tiny { padding-inline: 0; }
+  /* the extension sits on the corner at the chair's side, away from the desk the one next to it */
+  .sp-label .ex { position: absolute; top: -6px; right: -5px; font-family: var(--font-num); font-variant-numeric: tabular-nums; font-size: max(8.5px, calc(11.5px * var(--k))); line-height: 1;
+    padding: 1.5px 4.5px 1px; border-radius: 999px; background: var(--ink); color: var(--accent-ink); letter-spacing: .04em; direction: ltr; }
+  .sp-label.ch-down .ex { top: auto; bottom: -6px; }
+  .sp-label.ch-left .ex { right: auto; left: -5px; }
+  .sp-label.tall .ex { transform: rotate(90deg); top: -8px; bottom: auto; right: auto; left: -7px; }
+  .seat-legend { display: flex; flex-wrap: wrap; gap: 6px 20px; margin-top: 12px; padding: 0 4px; font-size: 12.5px; color: var(--ink-2); }
+  .seat-legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .seat-legend i { display: inline-block; width: 24px; height: 14px; border: 1.5px solid var(--ink); border-radius: 3px; background: var(--surface); font-style: normal; }
+  .seat-legend .lg-free { border: 1.5px dashed #b4b4b4; background: #fcfcfc; }
+  .seat-legend .lg-chair { width: 16px; height: 6px; border: none; border-radius: 3px; background: var(--ink); }
+  .seat-legend .lg-ext { width: auto; height: auto; border: none; border-radius: 999px; background: var(--ink); color: var(--accent-ink); font-family: var(--font-num); font-size: 10.5px; line-height: 1; padding: 2px 6px 1px; direction: ltr; }
+  .seat-table td.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
   .stg-own { margin: 0 0 8px; }
   .stg-own-body { border: 1px solid var(--rule); padding: 10px 12px; margin-top: 6px; display: grid; gap: 10px; }
   .stg-own-body .field { margin: 0; }
@@ -5858,7 +5882,7 @@ document.addEventListener('input', (e) => { const el = e.target; if (el.id === '
    coordinate system, so the proportions never drift). Owners, managers and administration only: the rows live in `seats`
    (RLS by role); a desk row = { contact_id, extension, note }, a room row (id 'room:<id>') carries the room's label. */
 S.seats = {};
-const SEAT_PLAN = {"w":1897,"h":972,"outline":[[20,320],[395,320],[395,15],[1470,15],[1470,320],[1835,320],[1835,905],[20,905]],"walls":[[[315,335],[315,530]],[[315,600],[315,630]],[[45,630],[315,630]],[[930,15],[930,320]],[[1072,15],[1072,320]],[[1245,15],[1245,320]],[[1245,185],[1470,185]],[[1360,15],[1360,185]],[[1360,185],[1360,320]],[[395,320],[545,320]],[[815,320],[1150,320]],[[1245,320],[1470,320]],[[1245,335],[1245,725]],[[1530,335],[1530,885]],[[1320,725],[1450,725]],[[1245,740],[1245,885]],[[1530,585],[1815,585]]],"doors":[{"c":[315,600],"r":75,"a0":180,"a1":270},{"c":[545,320],"r":135,"a0":0,"a1":90},{"c":[815,320],"r":135,"a0":90,"a1":180},{"c":[1245,725],"r":75,"a0":270,"a1":360},{"c":[1530,725],"r":75,"a0":180,"a1":270},{"c":[1535,585],"r":85,"a0":270,"a1":360},{"c":[1535,745],"r":85,"a0":0,"a1":90}],"rooms":[{"id":"materials","label":"חדר חומרים","box":[418,35,500,265]},{"id":"kitchen","label":"מטבחון","box":[945,35,120,265]},{"id":"storage","label":"מחסן","box":[1085,35,155,265]},{"id":"wc","label":"שירותים","box":[1250,35,215,265]},{"id":"office_left","label":"חדר","box":[45,345,270,280]},{"id":"lounge","label":"פינת ישיבה","box":[350,400,250,120]},{"id":"meeting","label":"חדר ישיבות","box":[1250,340,275,380]},{"id":"lounge2","label":"פינת ישיבה","box":[1250,745,275,135]},{"id":"office_right_top","label":"חדר","box":[1540,340,275,240]},{"id":"office_right_bottom","label":"חדר","box":[1540,595,275,285]}],"furniture":[{"kind":"table","box":[575,125,190,120]},{"kind":"table","box":[1345,430,80,215]},{"kind":"sofa","box":[1302,770,168,100]},{"kind":"rug","box":[352,410,248,100]},{"kind":"chair","box":[385,435,40,40]},{"kind":"chair","box":[520,435,40,40]},{"kind":"round","box":[455,445,32,32]},{"kind":"block","box":[340,603,28,47]},{"kind":"block","box":[588,603,24,46]},{"kind":"column","box":[918,490,27,290]},{"kind":"counter","box":[945,35,120,65]},{"kind":"counter","box":[945,160,45,45]},{"kind":"shelf","box":[1085,45,65,135]},{"kind":"shelf","box":[1160,40,80,120]},{"kind":"block","box":[1253,602,19,45]},{"kind":"block","box":[1498,602,20,45]},{"kind":"block","box":[1775,780,37,50]},{"kind":"ped","box":[490,735,32,65]},{"kind":"ped","box":[545,735,32,65]},{"kind":"ped","box":[787,680,46,80]},{"kind":"ped","box":[1035,680,46,80]}],"chairs":[[1335,475],[1335,520],[1335,562],[1335,607],[1440,475],[1440,520],[1440,562],[1440,607],[1385,662],[612,118],[670,118],[725,118],[612,252],[670,252],[725,252],[95,480],[215,450],[215,515],[1620,410],[1620,480],[1620,630],[1620,845]],"seats":[{"id":"L0","box":[120,425,60,120],"chair":"left","group":"החדר השמאלי"},{"id":"L1","box":[95,715,72,46],"chair":"up","group":"שמאל"},{"id":"L2","box":[200,715,72,46],"chair":"up","group":"שמאל"},{"id":"L3","box":[95,762,72,46],"chair":"down","group":"שמאל"},{"id":"L4","box":[200,762,72,46],"chair":"down","group":"שמאל"},{"id":"L5","box":[320,715,46,92],"chair":"right","group":"שמאל"},{"id":"M1","box":[487,605,98,46],"chair":"up","group":"מרכז-שמאל"},{"id":"M2","box":[487,666,48,48],"chair":"left","group":"מרכז-שמאל"},{"id":"M3","box":[537,666,48,48],"chair":"right","group":"מרכז-שמאל"},{"id":"M4","box":[487,822,48,48],"chair":"left","group":"מרכז-שמאל"},{"id":"M5","box":[537,822,48,48],"chair":"right","group":"מרכז-שמאל"},{"id":"C1","box":[806,450,96,42],"chair":"up","group":"מרכז עליון"},{"id":"C2","box":[952,450,104,42],"chair":"up","group":"מרכז עליון"},{"id":"C3","box":[720,494,90,46],"chair":"down","group":"מרכז עליון"},{"id":"C4","box":[810,494,92,46],"chair":"down","group":"מרכז עליון"},{"id":"C5","box":[952,494,100,46],"chair":"down","group":"מרכז עליון"},{"id":"C6","box":[1052,494,93,46],"chair":"down","group":"מרכז עליון"},{"id":"D1","box":[692,667,94,50],"chair":"up","group":"מרכז תחתון"},{"id":"D2","box":[835,667,70,50],"chair":"up","group":"מרכז תחתון"},{"id":"D3","box":[956,667,78,50],"chair":"up","group":"מרכז תחתון"},{"id":"D4","box":[1083,667,82,50],"chair":"up","group":"מרכז תחתון"},{"id":"D5","box":[692,719,94,50],"chair":"down","group":"מרכז תחתון"},{"id":"D6","box":[835,719,70,50],"chair":"down","group":"מרכז תחתון"},{"id":"D7","box":[956,719,78,50],"chair":"down","group":"מרכז תחתון"},{"id":"D8","box":[1083,719,82,50],"chair":"down","group":"מרכז תחתון"},{"id":"R1","box":[1662,375,75,150],"chair":"right","group":"החדר הימני העליון"},{"id":"R2","box":[1640,590,50,110],"chair":"right","group":"החדר הימני התחתון"},{"id":"R3","box":[1640,780,50,110],"chair":"right","group":"החדר הימני התחתון"}],"entrance":{"box":[1300,905,180,0],"label":"כניסה"}};
+const SEAT_PLAN = {"w": 1897, "h": 972, "view": [5, 0, 1845, 1012], "outline": [[20, 320], [395, 320], [395, 15], [930, 15], [930, 320], [1835, 320], [1835, 905], [20, 905]], "walls": [[[315, 335], [315, 530]], [[315, 600], [315, 630]], [[45, 630], [315, 630]], [[395, 320], [545, 320]], [[815, 320], [930, 320]], [[1245, 335], [1245, 725]], [[1530, 335], [1530, 885]], [[1320, 725], [1450, 725]], [[1245, 740], [1245, 885]], [[1530, 585], [1815, 585]]], "doors": [{"c": [315, 600], "r": 75, "a0": 180, "a1": 270}, {"c": [545, 320], "r": 135, "a0": 0, "a1": 90}, {"c": [815, 320], "r": 135, "a0": 90, "a1": 180}, {"c": [1245, 725], "r": 75, "a0": 270, "a1": 360}, {"c": [1530, 725], "r": 75, "a0": 180, "a1": 270}, {"c": [1535, 585], "r": 85, "a0": 270, "a1": 360}, {"c": [1535, 745], "r": 85, "a0": 0, "a1": 90}], "rooms": [{"id": "materials", "label": "חדר חומרים", "box": [418, 35, 500, 265], "fill": [395, 15, 535, 305]}, {"id": "office_left", "label": "חדר", "box": [45, 345, 270, 280], "fill": [20, 320, 295, 310]}, {"id": "lounge", "label": "פינת ישיבה", "box": [350, 400, 250, 120]}, {"id": "meeting", "label": "חדר ישיבות", "box": [1250, 340, 275, 380], "fill": [1245, 320, 285, 405]}, {"id": "lounge2", "label": "פינת ישיבה", "box": [1250, 745, 275, 135], "fill": [1245, 725, 285, 180], "lbox": [1250, 854, 275, 46]}, {"id": "office_right_top", "label": "חדר", "box": [1540, 340, 275, 240], "fill": [1530, 320, 305, 265]}, {"id": "office_right_bottom", "label": "חדר", "box": [1540, 595, 275, 285], "fill": [1530, 585, 305, 320], "lbox": [1700, 600, 110, 40]}], "furniture": [{"kind": "table", "box": [575, 125, 190, 120]}, {"kind": "table", "box": [1345, 430, 80, 215]}, {"kind": "sofa", "box": [1302, 768, 168, 84]}, {"kind": "rug", "box": [352, 410, 248, 100]}, {"kind": "chair", "box": [385, 435, 40, 40]}, {"kind": "chair", "box": [520, 435, 40, 40]}, {"kind": "round", "box": [455, 445, 32, 32]}, {"kind": "block", "box": [340, 603, 28, 47]}, {"kind": "block", "box": [588, 603, 24, 46]}, {"kind": "column", "box": [918, 490, 27, 290]}, {"kind": "block", "box": [1253, 602, 19, 45]}, {"kind": "block", "box": [1498, 602, 20, 45]}, {"kind": "block", "box": [1775, 780, 37, 50]}, {"kind": "ped", "box": [490, 735, 32, 65]}, {"kind": "ped", "box": [545, 735, 32, 65]}, {"kind": "ped", "box": [787, 680, 46, 80]}, {"kind": "ped", "box": [1035, 680, 46, 80]}], "chairs": [[1335, 475], [1335, 520], [1335, 562], [1335, 607], [1440, 475], [1440, 520], [1440, 562], [1440, 607], [1385, 662], [612, 118], [670, 118], [725, 118], [612, 252], [670, 252], [725, 252], [95, 480], [215, 450], [215, 515], [1620, 410], [1620, 480], [1620, 630], [1620, 845]], "seats": [{"id": "L0", "box": [120, 425, 60, 120], "chair": "left", "group": "החדר השמאלי"}, {"id": "L1", "box": [95, 715, 72, 46], "chair": "up", "group": "שמאל"}, {"id": "L2", "box": [200, 715, 72, 46], "chair": "up", "group": "שמאל"}, {"id": "L3", "box": [95, 762, 72, 46], "chair": "down", "group": "שמאל"}, {"id": "L4", "box": [200, 762, 72, 46], "chair": "down", "group": "שמאל"}, {"id": "L5", "box": [320, 715, 46, 92], "chair": "right", "group": "שמאל"}, {"id": "M1", "box": [487, 605, 98, 46], "chair": "up", "group": "מרכז-שמאל"}, {"id": "M2", "box": [487, 666, 48, 48], "chair": "left", "group": "מרכז-שמאל"}, {"id": "M3", "box": [537, 666, 48, 48], "chair": "right", "group": "מרכז-שמאל"}, {"id": "M4", "box": [487, 822, 48, 48], "chair": "left", "group": "מרכז-שמאל"}, {"id": "M5", "box": [537, 822, 48, 48], "chair": "right", "group": "מרכז-שמאל"}, {"id": "C1", "box": [806, 450, 96, 42], "chair": "up", "group": "מרכז עליון"}, {"id": "C2", "box": [952, 450, 104, 42], "chair": "up", "group": "מרכז עליון"}, {"id": "C3", "box": [720, 494, 90, 46], "chair": "down", "group": "מרכז עליון"}, {"id": "C4", "box": [810, 494, 92, 46], "chair": "down", "group": "מרכז עליון"}, {"id": "C5", "box": [952, 494, 100, 46], "chair": "down", "group": "מרכז עליון"}, {"id": "C6", "box": [1052, 494, 93, 46], "chair": "down", "group": "מרכז עליון"}, {"id": "D1", "box": [692, 667, 94, 50], "chair": "up", "group": "מרכז תחתון"}, {"id": "D2", "box": [835, 667, 70, 50], "chair": "up", "group": "מרכז תחתון"}, {"id": "D3", "box": [956, 667, 78, 50], "chair": "up", "group": "מרכז תחתון"}, {"id": "D4", "box": [1083, 667, 82, 50], "chair": "up", "group": "מרכז תחתון"}, {"id": "D5", "box": [692, 719, 94, 50], "chair": "down", "group": "מרכז תחתון"}, {"id": "D6", "box": [835, 719, 70, 50], "chair": "down", "group": "מרכז תחתון"}, {"id": "D7", "box": [956, 719, 78, 50], "chair": "down", "group": "מרכז תחתון"}, {"id": "D8", "box": [1083, 719, 82, 50], "chair": "down", "group": "מרכז תחתון"}, {"id": "R1", "box": [1662, 375, 75, 150], "chair": "right", "group": "החדר הימני העליון"}, {"id": "R2", "box": [1640, 590, 50, 110], "chair": "right", "group": "החדר הימני התחתון"}, {"id": "R3", "box": [1640, 780, 50, 110], "chair": "right", "group": "החדר הימני התחתון"}], "entrance": {"box": [1318, 905, 137, 0], "label": "כניסה"}};
 const canSeeSeating = () => !!me() && (isManager() || myRole() === 'admin');
 const seatRow = (id) => S.seats[id] || null;
 const seatDef = (id) => SEAT_PLAN.seats.find((s) => s.id === id) || null;
@@ -5887,46 +5911,65 @@ async function seatContact(id, cid) {
   });
 }
 const shortName = (name) => String(name || '').trim().split(/\s+/)[0] || '';
-/* ---------- the drawing ---------- */
-function seatSvg() {
-  const P = SEAT_PLAN; const can = canSeeSeating();
-  const out = [`<svg class="seat-plan" viewBox="0 0 ${P.w} ${P.h}" role="img" aria-label="תוכנית הושבה" direction="rtl">`];
-  // floor, outline, walls, doors
-  out.push(`<polygon points="${P.outline.map(([x, y]) => x + ',' + y).join(' ')}" class="sp-floor"/>`);
-  P.furniture.forEach((f) => { const [x, y, w, h] = f.box; out.push(f.kind === 'round' ? `<circle cx="${x + w / 2}" cy="${y + h / 2}" r="${w / 2}" class="sp-furn sp-${f.kind}"/>` : `<rect x="${x}" y="${y}" width="${w}" height="${h}" class="sp-furn sp-${f.kind}"/>`); });
-  P.chairs.forEach(([x, y]) => out.push(`<circle cx="${x}" cy="${y}" r="11" class="sp-chair"/>`));
-  P.doors.forEach((d) => { const [cx, cy] = d.c; const r = d.r; const a0 = d.a0 * Math.PI / 180, a1 = d.a1 * Math.PI / 180; out.push(`<path d="M${cx},${cy} L${(cx + r * Math.cos(a0)).toFixed(0)},${(cy + r * Math.sin(a0)).toFixed(0)} A${r},${r} 0 0 1 ${(cx + r * Math.cos(a1)).toFixed(0)},${(cy + r * Math.sin(a1)).toFixed(0)}" class="sp-door"/>`); });
-  P.walls.forEach(([a, b]) => out.push(`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" class="sp-wall"/>`));
-  out.push(`<polygon points="${P.outline.map(([x, y]) => x + ',' + y).join(' ')}" class="sp-outline"/>`);
-  // rooms: label at the top, the whole box is the click target (rename)
-  P.rooms.forEach((r) => { const [x, y, w, h] = r.box; const lbl = roomLabel(r); out.push(`<g class="sp-room ${can ? 'can' : ''}" ${can ? `data-action="seat-room" data-id="${r.id}" role="button" tabindex="0"` : ''}><rect x="${x}" y="${y}" width="${w}" height="${h}" class="sp-room-hit"/>${lbl ? `<text x="${x + w / 2}" y="${y + 26}" class="sp-room-label">${esc(lbl)}</text>` : ''}<title>${esc(lbl || 'חדר')} — לחיצה לשינוי השם</title></g>`); });
-  const e = P.entrance; out.push(`<text x="${e.box[0] + e.box[2] / 2}" y="${e.box[1] + 34}" class="sp-entrance">${esc(e.label)} ↑</text>`);
-  // seats
+/* ---------- the drawing ----------
+   Geometry (walls, doors, furniture, the chair-side markers) is one SVG in plan units; the desks and every piece of text are HTML boxes
+   positioned over it in percent, so Hebrew renders the way the rest of the app does in every browser (SVG text came out reversed on some).
+   --k = screen px per plan unit, for the type sizes. */
+const pct = (v, total) => (100 * v / total).toFixed(3) + '%';
+function seatStage() {
+  const P = SEAT_PLAN; const can = canSeeSeating(); const [vx, vy, vw, vh] = P.view;
+  const box = (x, y, w, h) => `left:${pct(x - vx, vw)};top:${pct(y - vy, vh)};width:${pct(w, vw)};height:${pct(h, vh)}`;
+  const pt = (cx, cy, r, a) => `${(cx + r * Math.cos(a * Math.PI / 180)).toFixed(0)},${(cy + r * Math.sin(a * Math.PI / 180)).toFixed(0)}`;
+  const arc = (cx, cy, r, a0, a1, cls) => `<path d="M${cx},${cy} L${pt(cx, cy, r, a0)} A${r},${r} 0 0 ${a1 > a0 ? 1 : 0} ${pt(cx, cy, r, a1)}" class="${cls}"/>`;
+  const poly = P.outline.map(([x, y]) => x + ',' + y).join(' ');
+  const svg = [`<svg class="seat-plan" viewBox="${vx} ${vy} ${vw} ${vh}" preserveAspectRatio="none" aria-hidden="true">`];
+  svg.push(`<polygon points="${poly}" class="sp-floor"/>`);
+  P.rooms.forEach((r) => { if (r.fill) { const [x, y, w, h] = r.fill; svg.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" class="sp-room-fill"/>`); } });
+  P.furniture.forEach((f) => { const [x, y, w, h] = f.box; svg.push(f.kind === 'round' ? `<circle cx="${x + w / 2}" cy="${y + h / 2}" r="${w / 2}" class="sp-furn sp-${f.kind}"/>` : `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${f.kind === 'sofa' ? 10 : 2}" class="sp-furn sp-${f.kind}"/>`); });
+  P.chairs.forEach(([x, y]) => svg.push(`<circle cx="${x}" cy="${y}" r="11" class="sp-chair"/>`));
+  P.doors.forEach((d) => svg.push(arc(d.c[0], d.c[1], d.r, d.a0, d.a1, 'sp-door')));
+  P.walls.forEach(([a, b]) => svg.push(`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" class="sp-wall"/>`));
+  svg.push(`<polygon points="${poly}" class="sp-outline"/>`);
+  // the entrance: an opening in the front wall, a double door swinging out
+  const en = P.entrance; const [ex, ey, ew] = en.box; const er = ew / 2;
+  svg.push(`<rect x="${ex}" y="${ey - 8}" width="${ew}" height="16" class="sp-gap"/>`, arc(ex, ey, er, 90, 0, 'sp-door sp-door-out'), arc(ex + ew, ey, er, 90, 180, 'sp-door sp-door-out'));
+  // where the chair is, per desk (the desk itself is an HTML box, below)
   P.seats.forEach((s) => {
-    const [x, y, w, h] = s.box; const row = seatRow(s.id); const c = row?.contactId ? contact(row.contactId) : null;
-    const ext = row?.extension || '';
-    const cls = c ? 'taken' : 'free';
-    // chair marker on the side the person sits
-    const ch = s.chair === 'up' ? `<rect x="${x + w / 2 - 11}" y="${y - 9}" width="22" height="7" rx="3"/>` : s.chair === 'down' ? `<rect x="${x + w / 2 - 11}" y="${y + h + 2}" width="22" height="7" rx="3"/>` : s.chair === 'left' ? `<rect x="${x - 9}" y="${y + h / 2 - 11}" width="7" height="22" rx="3"/>` : `<rect x="${x + w + 2}" y="${y + h / 2 - 11}" width="7" height="22" rx="3"/>`;
-    const tall = h > w + 20; const tiny = w < 60 && !tall;
-    const name = c ? (tiny ? shortName(c.name) : c.name) : 'פנוי';
-    const cx = x + w / 2, cy = y + h / 2;
-    let txt;
-    if (tall) {
-      const fit = h - 14, est = name.length * 8.5;
-      // a tall desk: the name runs top to bottom (the page turned a quarter to the right), the extension beside it
-      txt = `<text transform="translate(${cx + (ext ? 6 : 0)} ${cy}) rotate(90)" class="sp-name" ${est > fit ? `textLength="${fit}" lengthAdjust="spacingAndGlyphs"` : ''}>${esc(name)}</text>${ext ? `<text transform="translate(${cx - 10} ${cy}) rotate(90)" class="sp-ext">${esc(ext)}</text>` : ''}`;
-    } else {
-      const fit = w - 10, est = name.length * (tiny ? 6.5 : 7.5);
-      txt = `<text x="${cx}" y="${cy + (ext ? -2 : 5)}" class="sp-name ${tiny ? 'tiny' : ''}" ${est > fit ? `textLength="${fit}" lengthAdjust="spacingAndGlyphs"` : ''}>${esc(name)}</text>${ext ? `<text x="${cx}" y="${cy + 14}" class="sp-ext">${esc(ext)}</text>` : ''}`;
-    }
-    out.push(`<g class="sp-seat ${cls} ${can ? 'can' : ''}" id="seat-${s.id}" ${can ? `data-action="seat-open" data-id="${s.id}" role="button" tabindex="0"` : ''}><rect x="${x}" y="${y}" width="${w}" height="${h}" class="sp-desk"/>${ch}${txt}<title>${esc(seatLabel(s.id))}${c ? ' · ' + esc(c.name) : ' · פנוי'}${ext ? ' · שלוחה ' + esc(ext) : ''}</title></g>`);
+    const [x, y, w, h] = s.box; const row = seatRow(s.id); const taken = !!(row?.contactId && contact(row.contactId));
+    const ch = s.chair === 'up' ? `<rect x="${x + w / 2 - 12}" y="${y - 11}" width="24" height="7" rx="3.5"/>` : s.chair === 'down' ? `<rect x="${x + w / 2 - 12}" y="${y + h + 4}" width="24" height="7" rx="3.5"/>` : s.chair === 'left' ? `<rect x="${x - 11}" y="${y + h / 2 - 12}" width="7" height="24" rx="3.5"/>` : `<rect x="${x + w + 4}" y="${y + h / 2 - 12}" width="7" height="24" rx="3.5"/>`;
+    svg.push(`<g class="sp-seat ${taken ? 'taken' : 'free'}">${ch}</g>`);
   });
-  out.push('</svg>');
-  return out.join('');
+  svg.push('</svg>');
+  // the labels: rooms (click = rename), the entrance, and the desks (click = who sits here)
+  const lab = [];
+  P.rooms.forEach((r) => {
+    const [x, y, w, h] = r.box; const l = roomLabel(r); const lb = r.lbox;
+    lab.push(`<div class="sp-room${can ? ' can' : ''}" style="${box(x, y, w, h)}"${can ? ` data-action="seat-room" data-id="${r.id}" role="button" tabindex="0" title="לחיצה לשינוי השם"` : ''}>${lb ? '' : `<span class="sp-room-label">${esc(l)}</span>`}</div>`);
+    if (lb) lab.push(`<div class="sp-room-tag" style="${box(lb[0], lb[1], lb[2], lb[3])}"><span class="sp-room-label">${esc(l)}</span></div>`);
+  });
+  lab.push(`<div class="sp-entrance" style="${box(ex - 60, ey + er + 6, ew + 120, 30)}">${esc(en.label)} ↑</div>`);
+  P.seats.forEach((s) => {
+    const [x, y, w, h] = s.box; const row = seatRow(s.id); const c = row?.contactId ? contact(row.contactId) : null; const ext = row?.extension || '';
+    const tall = h > w + 20; const tiny = w < 60 && !tall;
+    const parts = c ? c.name.trim().split(/\s+/) : [];
+    const nm = !c ? '<span class="fr">פנוי</span>' : tiny ? `<span class="fn">${esc(parts[0])}</span>` : `<span class="fn">${esc(parts[0] || '')}</span>${parts.length > 1 ? ` <span class="ln">${esc(parts.slice(1).join(' '))}</span>` : ''}`;
+    // a tall desk gets a box of its own proportions turned a quarter, centred on the desk, so the name runs along it
+    const style = tall ? box(x + w / 2 - h / 2, y + h / 2 - w / 2, h, w) : box(x, y, w, h);
+    lab.push(`<div class="sp-label ${c ? 'taken' : 'free'} ch-${s.chair}${tall ? ' tall' : ''}${tiny ? ' tiny' : ''}${can ? ' can' : ''}" id="seat-${s.id}" style="${style}"${can ? ` data-action="seat-open" data-id="${s.id}" role="button" tabindex="0"` : ''} title="${esc(seatLabel(s.id))}${c ? ' · ' + esc(c.name) : ' · פנוי'}${ext ? ' · שלוחה ' + esc(ext) : ''}"><span class="nm">${nm}</span>${ext ? `<span class="ex">${esc(ext)}</span>` : ''}</div>`);
+  });
+  // the previous stage, if any, already knows the width → no flash of a wrong type size on re-render
+  const prev = document.getElementById('seat-stage'); const k0 = prev ? prev.getBoundingClientRect().width / vw : 0;
+  return `<div class="seat-stage" id="seat-stage" style="aspect-ratio:${vw}/${vh}${k0 ? `;--k:${k0.toFixed(4)}` : ''}">${svg.join('')}<div class="sp-labels">${lab.join('')}</div></div>`;
 }
+/* px per plan unit for the labels' type sizes — set after each render and on resize */
+function fitSeatStage() {
+  const st = document.getElementById('seat-stage'); if (!st) return;
+  st.style.setProperty('--k', (st.getBoundingClientRect().width / SEAT_PLAN.view[2]).toFixed(4));
+}
+window.addEventListener('resize', fitSeatStage);
 /* ---------- the view ---------- */
 function renderSeating() {
+  setTimeout(fitSeatStage, 0);
   if (!canSeeSeating()) return `<div class="view-head"><div><h1 class="view-title">הושבה</h1></div></div><div class="panel"><div class="empty">סכמת ההושבה פתוחה להנהלה ולאדמיניסטרציה.</div></div>`;
   const seats = SEAT_PLAN.seats; const taken = seats.filter((s) => seatRow(s.id)?.contactId);
   const seated = new Set(seatedIds());
@@ -5936,7 +5979,8 @@ function renderSeating() {
     <div><h1 class="view-title">הושבה</h1><div class="view-sub">מי יושב איפה ושלוחות הטלפון · לחיצה על שולחן משבצת, לחיצה על שם חדר משנה אותו · להנהלה ולאדמיניסטרציה בלבד</div></div>
     <div class="view-tools"><span class="chip ${taken.length === seats.length ? 'green' : ''}">${taken.length} / ${seats.length} שולחנות מאוישים</span></div>
   </div>
-  <div class="panel seat-panel"><div class="seat-wrap">${seatSvg()}</div></div>
+  <div class="panel seat-panel"><div class="seat-wrap">${seatStage()}</div>
+    <div class="seat-legend"><span><i class="lg-taken"></i> מאויש</span><span><i class="lg-free"></i> פנוי</span><span><i class="lg-chair"></i> הצד שבו יושבים</span><span><i class="lg-ext">104</i> שלוחה</span></div></div>
   <div class="grid-2" style="margin-top:14px">
     <div class="panel">
       <div class="panel-head"><h2 class="panel-title">שלוחות</h2><span class="panel-sub">לפי שולחן</span></div>
