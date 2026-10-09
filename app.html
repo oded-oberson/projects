@@ -469,6 +469,16 @@
   .stg-body .ms-add { margin-top: 6px; }
   .stg-body .ms-add input { flex: 1; min-width: 120px; }
   .stg-empty { font-size: 12.5px; color: var(--ink-3); padding: 2px 0 4px; }
+  .stg-own { margin: 0 0 8px; }
+  .stg-own-body { border: 1px solid var(--rule); padding: 10px 12px; margin-top: 6px; display: grid; gap: 10px; }
+  .stg-own-body .field { margin: 0; }
+  .email-list { display: flex; flex-direction: column; gap: 6px; }
+  .email-row { display: flex; align-items: center; gap: 6px; }
+  .email-row a { direction: ltr; unicode-bidi: isolate; color: var(--ink); text-decoration: underline; text-underline-offset: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+  .email-row .icon-btn { flex: 0 0 auto; }
+  .email-add { display: flex; gap: 6px; }
+  .email-add input { flex: 1; min-width: 0; }
+  a.mail-link, a.tel-link { color: inherit; text-decoration: underline; text-underline-offset: 2px; text-decoration-color: var(--ink-3); }
   .msr-ctx { display: block; font-size: 11.5px; color: var(--ink-3); }
   /* stage list editor (team leads and up) */
   .stage-editor { border: 1px dashed var(--line-2); padding: 10px; margin-bottom: 10px; background: var(--surface-2); }
@@ -1768,6 +1778,17 @@ function textInput(id, value, attrs = '') {
   const v = S.ui.drafts[id] != null ? S.ui.drafts[id] : (value ?? '');
   return `<input type="text" id="${id}" value="${esc(v)}" ${attrs}>`;
 }
+/* a contact may have several addresses: kept in the one email field, separated by commas; shown as links, added one by one */
+const emailsOf = (c) => String(c?.email || '').split(/[,;\s]+/).map((x) => x.trim()).filter(Boolean);
+const mailLink = (addr) => `<a class="mail-link ltr" href="mailto:${esc(addr)}">${esc(addr)}</a>`;
+const telLink = (num) => `<a class="tel-link ltr" href="tel:${esc(String(num).replace(/[^+\d]/g, ''))}">${esc(num)}</a>`;
+function emailList(c, ro) {
+  const list = emailsOf(c);
+  return `<div class="email-list" id="emails-${c.id}">
+    ${list.map((a, i) => `<div class="email-row">${mailLink(a)}${ro ? '' : `<button type="button" class="icon-btn" data-action="email-remove" data-id="${c.id}" data-index="${i}" title="הסר כתובת">${ICON.x}</button>`}</div>`).join('')}
+    ${ro ? (list.length ? '' : '<span class="muted">—</span>') : `<div class="email-add"><input type="text" id="email-add-${c.id}" data-emailadd="${c.id}" dir="ltr" inputmode="email" placeholder="${list.length ? 'מייל נוסף… (Enter)' : 'name@company.com (Enter)'}"><button type="button" class="btn small" data-action="email-add" data-id="${c.id}" title="הוסף כתובת">${ICON.plus}</button></div>`}
+  </div>`;
+}
 function textArea(id, value, attrs = '') {
   const v = S.ui.drafts[id] != null ? S.ui.drafts[id] : (value ?? '');
   return `<textarea id="${id}" ${attrs}>${esc(v)}</textarea>`;
@@ -2918,7 +2939,7 @@ ICON.check = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-
 ICON.flag = '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 2.5h1.5v15H4zM6.5 3h9l-2.2 3.5 2.2 3.5h-9z"/></svg>';
 
 S.tasks = {}; S.taskComments = {}; S.notifications = [];
-Object.assign(S.ui, { msOpen: {}, stgOpen: {}, showBilling: {}, msAddOpen: {}, stageEdit: {}, stageConfirm: null, ttab: 'mine', tproject: '', tfilter: { q: '', assignee: '', project: '', status: '', priority: '', done: false }, bell: false, mentions: {}, mentionMenu: null });
+Object.assign(S.ui, { msOpen: {}, stgOpen: {}, stgOwnOpen: {}, showBilling: {}, msAddOpen: {}, stageEdit: {}, stageConfirm: null, ttab: 'mine', tproject: '', tfilter: { q: '', assignee: '', project: '', status: '', priority: '', done: false }, bell: false, mentions: {}, mentionMenu: null });
 
 const isMember = () => ['owner', 'manager', 'team_lead', 'staff', 'admin'].includes(myRole());
 const canWriteTasks = () => isMember();
@@ -3337,12 +3358,12 @@ async function uploadFiles(fileList, ctx) {
     // folder per context: project / visit | set | task | presentation | general; a task without a project lives under tasks/
     let pressId = ctx.pressId || null;
     if (ctx.pressNew && !pressId && typeof createDoc === 'function') { pressId = uid('pr'); await createDoc('press_items', pressId, { projectId: ctx.projectId || null, kind: 'print', title: file.name.replace(/\.[^.]+$/, ''), outlet: '', url: '', imageUrl: '', publishedOn: null, websiteId: null, notes: '' }); } // a scan uploaded to the archive gets a press card of its own
-    const path = `${ctx.projectId || 'tasks'}/${ctx.visitId || ctx.setId || ctx.materialId || ctx.taskId || (pressId ? 'press' : '') || ctx.slot || 'general'}/${id}.${ext}`;
+    const path = `${ctx.projectId || 'tasks'}/${ctx.visitId || ctx.setId || ctx.materialId || ctx.milestoneId || ctx.taskId || (pressId ? 'press' : '') || ctx.slot || 'general'}/${id}.${ext}`;
     try {
       const { error } = await sb.storage.from(FILE_BUCKET).upload(path, blob, { contentType: mime, upsert: false });
       if (error) throw error;
-      const ok = await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: ctx.projectId || null, visitId: ctx.visitId || null, itemId: ctx.itemId || null, taskId: ctx.taskId || null, slot: ctx.slot || null, setId: ctx.setId || null, materialId: ctx.materialId || null, pressId, kind: isImg ? 'image' : isAud ? 'audio' : isVid ? 'video' : isPdf ? 'pdf' : 'file', mime, size: blob.size, width: w, height: h, caption: ctx.caption || ((isImg || isAud) && (ctx.visitId || ctx.itemId) ? '' : file.name) /* visit photos stay caption-less; documents keep their file name */, takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : null, uploadedBy: me()?.id || null, durationSec: ctx.durationSec || null, transcript: '', transcribeStatus: '', transcribeError: '' });
-      if (!ok) throw new Error('row');
+      const ok = await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: ctx.projectId || null, visitId: ctx.visitId || null, itemId: ctx.itemId || null, taskId: ctx.taskId || null, slot: ctx.slot || null, setId: ctx.setId || null, materialId: ctx.materialId || null, milestoneId: ctx.milestoneId || null, pressId, kind: isImg ? 'image' : isAud ? 'audio' : isVid ? 'video' : isPdf ? 'pdf' : 'file', mime, size: blob.size, width: w, height: h, caption: ctx.caption || ((isImg || isAud) && (ctx.visitId || ctx.itemId) ? '' : file.name) /* visit photos stay caption-less; documents keep their file name */, takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : null, uploadedBy: me()?.id || null, durationSec: ctx.durationSec || null, transcript: '', transcribeStatus: '', transcribeError: '' });
+      if (!ok) { sb.storage.from(FILE_BUCKET).remove([path]).catch(() => {}); throw new Error('row'); } // no orphan in storage when the row is refused
       up.done++;
     } catch (e) { console.warn('upload failed', e); up.failed++; toast('העלאה נכשלה: ' + friendlyError(e)); }
     up.active--; renderUploadNote();
@@ -3780,7 +3801,7 @@ async function fieldAction(a, ds, t, e) {
 }
 document.addEventListener('change', (e) => {
   const el = e.target;
-  if (el.dataset.upload) { let ctx = null; try { ctx = JSON.parse(el.dataset.upload); } catch (err) { ctx = null; } if (ctx && el.files && el.files.length) uploadFiles(el.files, ctx); el.value = ''; }
+  if (el.dataset.upload) { let ctx = null; try { ctx = JSON.parse(el.dataset.upload); } catch (err) { ctx = null; } if (ctx && ctx.stageRow && typeof stageRowFor === 'function') { const m = stageRowFor(ctx.stageRow.pid, ctx.stageRow.sid); if (m) ctx.milestoneId = m.id; delete ctx.stageRow; } if (ctx && el.files && el.files.length) uploadFiles(el.files, ctx); el.value = ''; }
 });
 document.addEventListener('input', (e) => { const el = e.target; if (el.id === 'fq') { S.ui.fq = el.value; render(); } });
 document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.dataset?.viadd) { e.preventDefault(); document.querySelector(`[data-action="vi-add"][data-id="${e.target.dataset.viadd}"]`)?.click(); } });
@@ -4086,7 +4107,8 @@ const latestSet = (pid) => setsOf(pid)[0] || null;
 const setFiles = (sid) => filesOf({ setId: sid });
 const presentationsOf = (pid) => filesOf({ projectId: pid, slot: 'presentation' }).reverse(); // newest first
 const taskFiles = (tid) => filesOf({ taskId: tid });
-const generalFiles = (pid) => FL().filter((f) => f.projectId === pid && !f.visitId && !f.itemId && !f.taskId && !f.slot && !f.setId && !f.pressId && f.kind !== 'audio').sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+const milestoneFiles = (mid) => filesOf({ milestoneId: mid });
+const generalFiles = (pid) => FL().filter((f) => f.projectId === pid && !f.visitId && !f.itemId && !f.taskId && !f.milestoneId && !f.slot && !f.setId && !f.pressId && f.kind !== 'audio').sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
 const canDeleteFile = (f) => !!f && isMember() && (isManager() || myRole() === 'team_lead' || f.uploadedBy === me()?.id);
 const canDeleteSet = (s) => !!s && isMember() && (isManager() || myRole() === 'team_lead' || s.createdBy === me()?.id);
 const fileExt = (f) => ((f.path || f.caption || '').split('.').pop() || '').toLowerCase().slice(0, 5);
@@ -4186,6 +4208,15 @@ function projectFilesSection(p) {
       ${otherOpen && other.length ? `<div class="file-list">${other.map((f) => fileRow(f)).join('')}</div>` : ''}
       <div class="add-row">${uploadControl({ projectId: p.id }, { label: 'העלה קבצים', camera: true })}</div>
     </div>
+  </div>`;
+}
+/* documents attached to a milestone — the signed order, the latest supervision report, the approved selection */
+function milestoneFilesField(p, m, ro, opts = {}) {
+  const files = m ? milestoneFiles(m.id) : [];
+  const ctx = m ? { projectId: p.id, milestoneId: m.id } : { projectId: p.id, stageRow: opts.stageRow };
+  return `<div class="field"><label>${esc(opts.label || 'מסמכים')} <small class="muted">${files.length ? files.length : ''}</small></label>
+    ${files.length ? `<div class="file-list">${files.map((f) => fileRow(f)).join('')}</div>` : `<div class="inline-note">${esc(opts.empty || 'הזמנה חתומה, דוח, אישור — כל מה שמתעד את אבן הדרך.')}</div>`}
+    ${ro ? '' : `<div class="add-row">${uploadControl(ctx, { label: 'צרף מסמך', camera: true })}</div>`}
   </div>`;
 }
 function taskFilesSection(t) {
@@ -5823,7 +5854,7 @@ function pickerChips(p, role, col = 'projects') {
 /* people of an organisation contact (client / supplier / consultant…) */
 function personRow(x, extra = '') {
   return `<div class="list-item" data-action="open-contact" data-id="${x.id}">
-    <div class="li-body"><div class="li-title">${esc(x.name)}${x.role ? ` <span class="muted">· ${esc(x.role)}</span>` : ''}</div><div class="li-sub"><span class="ltr">${esc([x.phone || x.phone2, x.email].filter(Boolean).join(' · '))}</span></div></div>
+    <div class="li-body"><div class="li-title">${esc(x.name)}${x.role ? ` <span class="muted">· ${esc(x.role)}</span>` : ''}</div><div class="li-sub"><span class="ltr">${[x.phone || x.phone2 ? telLink(x.phone || x.phone2) : '', ...emailsOf(x).map(mailLink)].filter(Boolean).join(' · ')}</span></div></div>
     ${extra}<div class="li-side">${ICON.back}</div></div>`;
 }
 function orgPeopleSection(c) {
@@ -5846,7 +5877,7 @@ function clientPeopleSection(p) {
   return `<div class="role-row"><div class="role-name">אנשי קשר מטעם הלקוח</div><div class="role-body">
     ${all.length ? `<div class="list">${all.map((x) => `<div class="list-item" style="cursor:default">
       <label class="switch" style="flex:none" title="מסומן = איש קשר של הפרויקט הזה"><input type="checkbox" data-action="toggle-person" data-id="${p.id}" data-person="${x.id}" ${chosen.includes(x.id) ? 'checked' : ''} ${ro ? 'disabled' : ''}></label>
-      <div class="li-body"><div class="li-title"><a href="#" data-action="open-contact" data-id="${x.id}" style="color:inherit;text-decoration:none">${esc(x.name)}</a>${x.role ? ` <span class="muted">· ${esc(x.role)}</span>` : ''}${x.parentId !== p.clientId ? ' <span class="tag internal">' + esc(personOrg(x) || 'ללא שיוך') + '</span>' : ''}</div><div class="li-sub"><span class="ltr">${esc([x.phone || x.phone2, x.email].filter(Boolean).join(' · '))}</span></div></div>
+      <div class="li-body"><div class="li-title"><a href="#" data-action="open-contact" data-id="${x.id}" style="color:inherit;text-decoration:none">${esc(x.name)}</a>${x.role ? ` <span class="muted">· ${esc(x.role)}</span>` : ''}${x.parentId !== p.clientId ? ' <span class="tag internal">' + esc(personOrg(x) || 'ללא שיוך') + '</span>' : ''}</div><div class="li-sub"><span class="ltr">${[x.phone || x.phone2 ? telLink(x.phone || x.phone2) : '', ...emailsOf(x).map(mailLink)].filter(Boolean).join(' · ')}</span></div></div>
     </div>`).join('')}</div>` : '<div class="inline-note">ללקוח הזה אין עדיין אנשי קשר במאגר.</div>'}
     ${canWriteContact('person') && !isReduced(p) ? `<button class="btn small ghost" data-action="new-person" data-parent="${p.clientId}" data-project="${p.id}" title="${ro ? 'נשמר אצל הלקוח במאגרים; לשיוך לפרויקט — ראש/ת הצוות' : ''}">${ICON.plus} איש קשר חדש אצל הלקוח</button>` : ''}
   </div></div>`;
@@ -6007,6 +6038,7 @@ function milestoneRow(p, m, ro) {
   const cl = msChecklist(m); const clDone = cl.filter((c) => c.done).length;
   const tks = tasksOfMilestone(m.id); const tOpen = tks.filter(isOpenTask);
   const due = m.dueDate ? dueInfo({ dueDate: m.dueDate, status: m.state === 'done' ? 'done' : 'todo' }) : { label: '', cls: '' };
+  const nFiles = typeof milestoneFiles === 'function' ? milestoneFiles(m.id).length : 0;
   const tname_ = msTypeName(m);
   const ctx = [m.contract, m.section].filter((x, i, arr) => x && arr.indexOf(x) === i && !MS_CONTRACTS.slice(0, 1).includes(x)).join(' › ');
   const hint = [tname_ !== m.name ? `בחוזה: ${m.name}` : '', ctx].filter(Boolean).join(' · ');
@@ -6014,7 +6046,7 @@ function milestoneRow(p, m, ro) {
     <div class="msr-head">
       <button type="button" class="phase-state" data-action="ms-state" data-id="${m.id}" title="${st.label} — לחיצה משנה ל: ${MS_STATE[st.next].label}" ${ro ? 'disabled' : ''}>${ICON[st.icon]}</button>
       <div class="msr-name" data-action="ms-toggle" data-id="${m.id}" ${hint ? `title="${esc(hint)}"` : ''}>${esc(tname_)}</div>
-      <div class="msr-meta">${tOpen.length ? `<span title="משימות פתוחות">${tOpen.length} משימות</span>` : ''}${cl.length ? `<span title="צ'קליסט">${clDone}/${cl.length} ✓</span>` : ''}${due.label ? `<span class="due ${due.cls}">${esc(due.label)}</span>` : ''}</div>
+      <div class="msr-meta">${tOpen.length ? `<span title="משימות פתוחות">${tOpen.length} משימות</span>` : ''}${cl.length ? `<span title="צ'קליסט">${clDone}/${cl.length} ✓</span>` : ''}${nFiles ? `<span title="מסמכים">${ICON.doc} ${nFiles}</span>` : ''}${due.label ? `<span class="due ${due.cls}">${esc(due.label)}</span>` : ''}</div>
       <button type="button" class="icon-btn msr-caret" data-action="ms-toggle" data-id="${m.id}" title="${open ? 'סגור' : 'פתח'}">${open ? '▴' : '▾'}</button>
     </div>
     ${open ? `<div class="msr-body">
@@ -6033,9 +6065,38 @@ function milestoneRow(p, m, ro) {
         ${canWriteTasks() ? quickAdd('mstask-add-' + m.id, 'משימה חדשה באבן הדרך… (Enter)', `data-scope="milestone" data-project="${p.id}" data-milestone="${m.id}"`) : ''}
       </div>
       ${field('הערות', textArea('msnote-' + m.id, m.notes, `rows="2" data-bind="project_milestones:${m.id}:notes" ${ro ? 'disabled' : ''}`))}
+      ${milestoneFilesField(p, m, ro)}
       ${canEditMilestones() ? `<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap">
         ${selectHtml('msst-' + m.id, msStage(m) === STAGE_NONE ? '' : msStage(m), stageList(p).map((id) => ({ value: id, label: stageName(id, p) })), { blank: 'ללא שלב', attrs: `data-msstage="${m.id}" style="max-width:200px" title="השלב של אבן הדרך"` })}
         <button class="btn ghost small" data-action="ms-del" data-id="${m.id}">הסר אבן דרך</button></div>` : ''}
+    </div>` : ''}
+  </div>`;
+}
+/* the stage's own notes, checklist and documents (the supervision stage holds its reports here, say) live on the stage's own row;
+   the row is created on first use in the state the stage is in, so the derived stage does not move */
+function stageRowFor(pid, sid) {
+  const p = S.projects[pid]; if (!p || !isMember()) return null;
+  const have = milestonesOf(pid).filter((m) => msIsWork(m) && msStage(m) === sid).find(msIsStageRow);
+  if (have) return have;
+  const sg = projectStages(p).find((x) => x.id === sid); if (!sg) return null;
+  return ensureStageRow(p, sid, sg.current ? 'active' : sg.state === 'done' ? 'done' : 'todo');
+}
+function stageOwnBlock(p, sg, ro) {
+  const m = sg.stageRow || null;
+  const key = p.id + ':' + sg.id;
+  const open = !!S.ui.stgOwnOpen[key];
+  const cl = m ? msChecklist(m) : []; const clDone = cl.filter((c) => c.done).length;
+  const nFiles = m ? milestoneFiles(m.id).length : 0;
+  const summary = [m && m.notes ? 'הערות' : '', cl.length ? `${clDone}/${cl.length} ✓` : '', nFiles ? `${nFiles} מסמכים` : ''].filter(Boolean).join(' · ');
+  return `<div class="stg-own ${open ? 'open' : ''}">
+    <button type="button" class="btn ghost small" data-action="stg-own-toggle" data-key="${esc(key)}">${ICON.doc} הערות, צ'קליסט ומסמכים לשלב${summary ? ` <small class="muted">· ${esc(summary)}</small>` : ''} ${open ? '▴' : '▾'}</button>
+    ${open ? `<div class="stg-own-body">
+      ${field('הערות לשלב', m ? textArea('msnote-' + m.id, m.notes, `rows="2" data-bind="project_milestones:${m.id}:notes" placeholder="מה קורה בשלב — סיכומים, החלטות, מה נשאר" ${ro ? 'disabled' : ''}`) : `<textarea id="stgnote-${esc(key)}" rows="2" data-stgnote="${p.id}:${sg.id}" placeholder="מה קורה בשלב — סיכומים, החלטות, מה נשאר" ${ro ? 'disabled' : ''}></textarea>`)}
+      <div class="field"><label>צ'קליסט לשלב</label>
+        ${cl.length ? `<div class="checklist">${cl.map((c) => `<div class="check-row ${c.done ? 'done' : ''}"><label><input type="checkbox" ${c.done ? 'checked' : ''} data-mscheck="${m.id}:${c.id}" ${ro ? 'disabled' : ''}><span>${esc(c.text)}</span></label>${ro ? '' : `<button class="icon-btn" data-action="ms-check-remove" data-id="${m.id}" data-item="${c.id}" title="הסר">${ICON.x}</button>`}</div>`).join('')}</div>` : ''}
+        ${ro ? '' : `<div class="add-row"><input type="text" id="stgcheck-add-${esc(key)}" placeholder="פריט לבדיקה… (Enter)" data-stgcheckadd="${p.id}:${sg.id}"><button class="btn small" data-action="stg-check-add" data-id="${p.id}" data-stage="${sg.id}">${ICON.plus}</button></div>`}
+      </div>
+      ${milestoneFilesField(p, m, ro, { label: 'מסמכים לשלב', empty: 'למשל דוח הפיקוח האחרון, אישור הלקוח, סיכום פגישה — מצטבר לפי תאריך.', stageRow: { pid: p.id, sid: sg.id } })}
     </div>` : ''}
   </div>`;
 }
@@ -6135,6 +6196,7 @@ function journeySection(p) {
           ${field('יעד לסיום השלב', `<input type="date" id="stgt-${esc(key)}" value="${dateInput(sg.target)}" data-stgtarget="${p.id}:${sg.id}">`)}
           ${sg.current ? `<button type="button" class="btn small primary" data-action="stage-finish" data-id="${p.id}" data-stage="${sg.id}">${ICON.check} ${next ? `סיימנו — הלאה ל«${esc(next.name)}»` : 'סיימנו את הפרויקט'}</button>` : ''}
         </div>` : ''}
+        ${!kids.length ? stageOwnBlock(p, sg, ro) : ''}
         ${sg.real.map((m) => milestoneRow(p, m, ro)).join('')}
         ${!sg.real.length && !kidBits ? `<div class="stg-empty">${sg.state === 'done' ? 'השלב הושלם.' : 'אין אבני דרך בשלב — אפשר לעבוד גם בלי.'}</div>` : ''}
         ${can ? `<div class="stg-foot">${addOpen ? `<div class="add-row ms-add" style="flex:1"><input type="text" id="ms-add-${p.id}-${sg.id}" placeholder="אבן דרך חדשה בשלב… (Enter)" data-msadd="${p.id}" data-stage="${sg.id}" list="dl-mstypes"><button class="btn small" data-action="ms-add" data-id="${p.id}" data-stage="${sg.id}">${ICON.plus}</button></div>` : `<button type="button" class="btn ghost small" data-action="ms-add-open" data-key="${esc(key)}" data-id="${p.id}" data-stage="${sg.id}">${ICON.plus} אבן דרך</button>`}</div>` : ''}
@@ -6307,7 +6369,7 @@ function drawerContact(id) {
         ${field('טלפון', textInput('c-phone', c.phone, `data-bind="contacts:${c.id}:phone" dir="ltr" style="text-align:end" inputmode="tel"`))}
       </div>
       <div class="field-row">
-        ${field('מייל', textInput('c-email', c.email, `data-bind="contacts:${c.id}:email" dir="ltr" style="text-align:end" inputmode="email"`))}
+        ${field('מייל', emailList(c, false), emailsOf(c).length > 1 ? '' : 'אפשר כמה כתובות — כל אחת בשורה משלה, לחיצה פותחת מייל.')}
         ${isEmp ? field('מייל אישי', textInput('c-emailPersonal', c.emailPersonal, `data-bind="contacts:${c.id}:emailPersonal" dir="ltr" style="text-align:end" inputmode="email"`)) : isPerson ? field('טלפון נוסף', textInput('c-phone2', c.phone2, `data-bind="contacts:${c.id}:phone2" dir="ltr" style="text-align:end" inputmode="tel"`)) : !catOptions ? '' : field('איש קשר', textInput('c-role', c.role, `data-bind="contacts:${c.id}:role" placeholder="שם איש הקשר אצל הספק"`))}
       </div>
       ${isEmp ? `<div class="field-row">
@@ -6404,7 +6466,7 @@ function drawerContactReadOnly(c) {
     <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
   </div>
   <div class="drawer-body">
-    <div class="section">${row('צוות', esc(tname(c.teamId, '')))}${row('תפקיד', esc(c.role))}${row(c.type === 'person' ? 'לקוח / חברה' : 'חברה', c.type === 'person' && c.parentId && S.contacts[c.parentId] ? `<a href="#" data-action="open-contact" data-id="${c.parentId}">${esc(personOrg(c))}</a>` : esc(c.company))}${row('תחום', esc(c.category))}${row('טלפון', c.phone ? `<span class="ltr">${esc(c.phone)}</span>` : '')}${row('טלפון נוסף', c.phone2 ? `<span class="ltr">${esc(c.phone2)}</span>` : '')}${row('מייל', c.email ? `<span class="ltr">${esc(c.email)}</span>` : '')}${row('כתובת', esc(c.address))}${row('רשתות ואתר', socialChips(c, false) ? `<div class="chips">${socialChips(c, false)}</div>` : '')}${row('הערות', esc(c.notes))}
+    <div class="section">${row('צוות', esc(tname(c.teamId, '')))}${row('תפקיד', esc(c.role))}${row(c.type === 'person' ? 'לקוח / חברה' : 'חברה', c.type === 'person' && c.parentId && S.contacts[c.parentId] ? `<a href="#" data-action="open-contact" data-id="${c.parentId}">${esc(personOrg(c))}</a>` : esc(c.company))}${row('תחום', esc(c.category))}${row('טלפון', c.phone ? telLink(c.phone) : '')}${row('טלפון נוסף', c.phone2 ? telLink(c.phone2) : '')}${row('מייל', emailsOf(c).length ? emailsOf(c).map(mailLink).join('<br>') : '')}${row('כתובת', esc(c.address))}${row('רשתות ואתר', socialChips(c, false) ? `<div class="chips">${socialChips(c, false)}</div>` : '')}${row('הערות', esc(c.notes))}
       <div class="inline-note" style="margin-top:8px">עריכת ${esc(CTYPES[c.type]?.plural || '')} שמורה למנהלים.</div></div>
     ${scheduleSection(c)}
     ${levelSection(c)}
@@ -6655,6 +6717,7 @@ document.addEventListener('change', (e) => {
   if (el.dataset.userRole) { const pid = el.dataset.userRole; const role = el.value; patchDoc('profiles', pid, { role }).then((ok) => { if (ok) toast('התפקיד עודכן'); }); return; }
   if (id === 'k-supplier') { S.ui.kfilter.supplier = el.value; render(); return; }
   if (id.startsWith('tf-')) { const k = id.slice(3); S.ui.tfilter[k] = el.type === 'checkbox' ? el.checked : el.value; render(); return; }
+  if (el.dataset.stgnote) { const [pid, sid] = el.dataset.stgnote.split(':'); const notes = el.value; if (!notes.trim()) return; const m = stageRowFor(pid, sid); if (m) patchDoc('project_milestones', m.id, { notes }); return; }
   if (el.dataset.mscheck) { const [mid, cid] = el.dataset.mscheck.split(':'); const m = S.project_milestones[mid]; if (!m || !isMember()) return; patchDoc('project_milestones', mid, { checklist: msChecklist(m).map((c) => c.id === cid ? Object.assign({}, c, { done: el.checked }) : c) }); return; }
   if (el.dataset.check) { const [tid, cid] = el.dataset.check.split(':'); const t = S.tasks[tid]; if (!t || !canWriteTasks()) return; patchDoc('tasks', tid, { checklist: checklistOf(t).map((c) => c.id === cid ? Object.assign({}, c, { done: el.checked }) : c) }); return; }
   if (el.dataset.action === 'toggle-person') { const p = S.projects[el.dataset.id]; if (!p || !canWriteProjects()) { render(); return; } const cur = p.clientPersonIds || []; patchDoc('projects', p.id, { clientPersonIds: el.checked ? [...new Set([...cur, el.dataset.person])] : cur.filter((x) => x !== el.dataset.person) }); return; }
@@ -6699,6 +6762,8 @@ document.addEventListener('keydown', (e) => {
     if (el.dataset.quick) { e.preventDefault(); document.querySelector(`[data-action="task-quick-add"][data-input="${el.id}"]`)?.click(); return; }
     if (el.dataset.msadd) { e.preventDefault(); document.querySelector(`[data-action="ms-add"][data-id="${el.dataset.msadd}"][data-stage="${el.dataset.stage || ''}"]`)?.click(); return; }
     if (el.dataset.mscheckadd) { e.preventDefault(); document.querySelector(`[data-action="ms-check-add"][data-id="${el.dataset.mscheckadd}"]`)?.click(); return; }
+    if (el.dataset.emailadd) { e.preventDefault(); document.querySelector(`[data-action="email-add"][data-id="${el.dataset.emailadd}"]`)?.click(); return; }
+    if (el.dataset.stgcheckadd) { e.preventDefault(); const [pid, sid] = el.dataset.stgcheckadd.split(':'); document.querySelector(`[data-action="stg-check-add"][data-id="${pid}"][data-stage="${sid}"]`)?.click(); return; }
     if (el.dataset.socialadd) { e.preventDefault(); addSocial(el.dataset.socialadd, el.value); return; }
     if (el.id?.startsWith('check-add-')) { e.preventDefault(); document.querySelector(`[data-action="check-add"][data-id="${el.id.slice(10)}"]`)?.click(); return; }
     if (el.dataset.rqc && el.tagName === 'INPUT') { e.preventDefault(); document.querySelector('[data-action="rq-newc-add"]')?.click(); return; }
@@ -6718,6 +6783,7 @@ document.addEventListener('paste', (e) => {
   e.preventDefault(); addSocial(el.dataset.socialadd, text);
 });
 document.addEventListener('click', async (e) => {
+  if (e.target.closest('a.mail-link, a.tel-link')) { e.stopPropagation(); return; } // a mail / phone link does its own thing, the row around it stays put
   // menu interactions
   const menuEl = document.getElementById('menu');
   if (menuEl && menuEl.contains(e.target)) {
@@ -6772,6 +6838,10 @@ document.addEventListener('click', async (e) => {
     }
     case 'ms-template': { if (!canEditMilestones()) break; startJourney(ds.id); break; }
     case 'stg-toggle': { S.ui.stgOpen[ds.key] = ds.open !== '1'; render(); break; }
+    case 'email-add': { const c = S.contacts[ds.id]; const inp = document.getElementById('email-add-' + ds.id); const v = (inp?.value || '').trim(); if (!c || !v) break; if (!/^\S+@\S+\.\S+$/.test(v)) { toast('כתובת מייל לא תקינה'); break; } const list = emailsOf(c); if (list.some((x) => normMail(x) === normMail(v))) { inp.value = ''; break; } inp.value = ''; await patchDoc('contacts', c.id, { email: [...list, v].join(', ') }); setTimeout(() => document.getElementById('email-add-' + ds.id)?.focus(), 30); break; }
+    case 'email-remove': { const c = S.contacts[ds.id]; if (!c) break; const list = emailsOf(c); list.splice(Number(ds.index), 1); patchDoc('contacts', c.id, { email: list.join(', ') }); break; }
+    case 'stg-own-toggle': { S.ui.stgOwnOpen[ds.key] = !S.ui.stgOwnOpen[ds.key]; render(); break; }
+    case 'stg-check-add': { const key = ds.id + ':' + ds.stage; const inp = document.getElementById('stgcheck-add-' + key); const text = (inp?.value || '').trim(); if (!text || !isMember()) break; const m = stageRowFor(ds.id, ds.stage); if (!m) break; inp.value = ''; await patchDoc('project_milestones', m.id, { checklist: [...msChecklist(m), { id: uid('c'), text, done: false }] }); setTimeout(() => document.getElementById('stgcheck-add-' + key)?.focus(), 30); break; }
     case 'ms-add-open': { S.ui.msAddOpen[ds.key] = true; S.ui.stgOpen[ds.key] = true; render(); setTimeout(() => document.getElementById(`ms-add-${ds.id}-${ds.stage}`)?.focus(), 30); break; }
     // ----- stages: "we are here", finish, edit the list -----
     case 'stage-open': { const key = ds.id + ':' + ds.stage; S.ui.stgOpen[key] = true; render(); setTimeout(() => document.getElementById('stg-' + key)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }), 40); break; }
