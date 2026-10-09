@@ -517,6 +517,26 @@
   .seat-legend .lg-taken { background: #dad7ff; }
   .seat-legend .lg-ext { width: auto; height: auto; border: none; border-radius: 999px; background: #3029df; color: #fff; font-family: var(--font-num); font-size: 10.5px; line-height: 1; padding: 2px 6px 1px; direction: ltr; }
   .seat-table td.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+  /* ---- the seating plan on paper: an A3 landscape sheet (PDF via the browser's print dialog) ---- */
+  #print-plan { display: none; }
+  @media print {
+    body > *:not(#print-plan) { display: none !important; }
+    html, body { height: auto; background: #fff; }
+    #print-plan { display: block; width: 100%; color: #29367f; font-family: var(--font-ui); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    #print-plan * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .pp-head { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 3mm; border-bottom: .4pt solid #8d94c4; padding-bottom: 1.5mm; }
+    .pp-title { font-family: var(--font-display); font-weight: 400; font-size: 15pt; letter-spacing: .06em; }
+    .pp-meta { font-size: 10pt; color: #4a53a8; font-variant-numeric: tabular-nums; }
+    .pp-plan .seat-stage { min-width: 0; width: 100%; }
+    .pp-list { columns: 4; column-gap: 7mm; margin-top: 3mm; font-size: 8.5pt; line-height: 1.3; }
+    .pp-group { break-inside: avoid; margin-bottom: 1.6mm; }
+    .pp-group-name { font-size: 7.5pt; letter-spacing: .08em; color: #4a53a8; border-bottom: .3pt solid #c7c1ff; margin-bottom: .6mm; }
+    .pp-row { display: flex; gap: 2mm; align-items: baseline; }
+    .pp-num { width: 6mm; font-family: var(--font-num); color: #4a53a8; font-variant-numeric: tabular-nums; }
+    .pp-name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pp-name.muted { color: #9a9fc9; }
+    .pp-ext { font-family: var(--font-num); font-variant-numeric: tabular-nums; direction: ltr; min-width: 8mm; text-align: end; }
+  }
   /* ---- opening accounts (users view, owners) + the password drawer ---- */
   .acct-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 4px 14px; margin: 10px 0 6px; }
   .acct-row { display: flex; align-items: center; gap: 8px; font-size: 13.5px; padding: 3px 2px; cursor: pointer; min-width: 0; }
@@ -5932,7 +5952,8 @@ const SEAT_PLAN = {"w": 1897, "h": 972, "view": [0, 0, 1897, 972], "rooms": [{"i
    zone). Owners, managers and administration only: the rows live in `seats` (RLS by role); a desk row = { contact_id, extension, note },
    a room row (id 'room:<id>') carries the room's label. Every piece of text is HTML over the SVG (SVG text came out reversed on some browsers). */
 S.seats = {};
-const canSeeSeating = () => !!me() && (isManager() || myRole() === 'admin');
+const canEditSeating = () => !!me() && (isManager() || myRole() === 'admin');
+const canSeeSeating = () => canEditSeating() || myRole() === 'team_lead'; // team leads look, they do not touch
 const seatRow = (id) => S.seats[id] || null;
 const seatDef = (id) => SEAT_PLAN.seats.find((s) => s.id === id) || null;
 const roomDef = (id) => SEAT_PLAN.rooms.find((r) => r.id === id) || null;
@@ -5962,10 +5983,10 @@ async function seatContact(id, cid) {
    the plan over the SVG (pointer-events none, so the workstation underneath takes the click and its hover works). --k = screen px per
    plan unit, for the type sizes. */
 const pct = (v, total) => (100 * v / total).toFixed(3) + '%';
-function seatStage() {
-  const P = SEAT_PLAN; const can = canSeeSeating(); const [vx, vy, vw, vh] = P.view;
+function seatStage(opts = {}) {
+  const P = SEAT_PLAN; const print = !!opts.print; const can = !print && canEditSeating(); const [vx, vy, vw, vh] = P.view;
   const box = (x, y, w, h) => `left:${pct(x - vx, vw)};top:${pct(y - vy, vh)};width:${pct(w, vw)};height:${pct(h, vh)}`;
-  const open = S.ui.drawer && S.ui.drawer.kind === 'seat' ? S.ui.drawer.id : null;
+  const open = !print && S.ui.drawer && S.ui.drawer.kind === 'seat' ? S.ui.drawer.id : null;
   const svg = SEAT_SVG.replace(/\{\{(desk-\d\d)\}\}/g, (m, id) => {
     const row = seatRow(id); const c = row?.contactId ? contact(row.contactId) : null;
     return `data-status="${c ? 'occupied' : 'available'}" data-selected="${open === id ? 'true' : 'false'}"${can ? ` data-action="seat-open" data-id="${id}" role="button" tabindex="0"` : ''} aria-label="${esc(seatLabel(id))}${c ? ' · ' + esc(c.name) : ' · פנוי'}"`;
@@ -5987,6 +6008,7 @@ function seatStage() {
     lab.push(`<div class="sp-label ch-${s.chair}${tall ? ' tall' : ''}${tiny ? ' tiny' : ''}${short ? ' short' : ''}" id="seat-${s.id}" style="${style}"><span class="nm">${nm}</span>${ext ? `<span class="ex">${esc(ext)}</span>` : ''}</div>`);
   });
   // the previous stage, if any, already knows the width → no flash of a wrong type size on re-render
+  if (print) return `<div class="seat-stage" style="aspect-ratio:${vw}/${vh};--k:${(PRINT_PLAN_PX / vw).toFixed(4)}">${svg}<div class="sp-labels">${lab.join('')}</div></div>`;
   const prev = document.getElementById('seat-stage'); const k0 = prev ? prev.getBoundingClientRect().width / vw : 0;
   return `<div class="seat-stage" id="seat-stage" style="aspect-ratio:${vw}/${vh}${k0 ? `;--k:${k0.toFixed(4)}` : ''}">${svg}<div class="sp-labels">${lab.join('')}</div></div>`;
 }
@@ -6003,14 +6025,15 @@ document.addEventListener('keydown', (e) => {
 /* ---------- the view ---------- */
 function renderSeating() {
   setTimeout(fitSeatStage, 0);
-  if (!canSeeSeating()) return `<div class="view-head"><div><h1 class="view-title">הושבה</h1></div></div><div class="panel"><div class="empty">סכמת ההושבה פתוחה להנהלה ולאדמיניסטרציה.</div></div>`;
+  if (!canSeeSeating()) return `<div class="view-head"><div><h1 class="view-title">הושבה</h1></div></div><div class="panel"><div class="empty">סכמת ההושבה פתוחה להנהלה, לאדמיניסטרציה ולראשי צוותים.</div></div>`;
+  const edit = canEditSeating();
   const seats = SEAT_PLAN.seats; const taken = seats.filter((s) => seatRow(s.id)?.contactId);
   const seated = new Set(seatedIds());
   const unseated = employees().filter((c) => !seated.has(c.id) && !isFreelancer(c));
   const groups = [...new Set(seats.map((s) => s.group))];
   return `<div class="view-head">
-    <div><h1 class="view-title">הושבה</h1><div class="view-sub">מי יושב איפה ושלוחות הטלפון · לחיצה על עמדה משבצת, לחיצה על שם חדר משנה אותו · להנהלה ולאדמיניסטרציה בלבד</div></div>
-    <div class="view-tools"><span class="chip ${taken.length === seats.length ? 'green' : ''}">${taken.length} / ${seats.length} שולחנות מאוישים</span></div>
+    <div><h1 class="view-title">הושבה</h1><div class="view-sub">מי יושב איפה ושלוחות הטלפון${edit ? ' · לחיצה על עמדה משבצת, לחיצה על שם חדר משנה אותו' : ' · לצפייה (שינויים: הנהלה ואדמיניסטרציה)'}</div></div>
+    <div class="view-tools"><span class="chip ${taken.length === seats.length ? 'green' : ''}">${taken.length} / ${seats.length} שולחנות מאוישים</span><button class="btn small" data-action="seat-print" title="נפתח חלון ההדפסה של הדפדפן בגודל A3 לרוחב — בוחרים 'שמור כ-PDF'"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4M4 16h12"/></svg> PDF A3</button></div>
   </div>
   <div class="panel seat-panel"><div class="seat-wrap">${seatStage()}</div>
     <div class="seat-legend"><span><i class="lg-taken"></i> מאויש</span><span><i class="lg-free"></i> פנוי</span><span><i class="lg-ext">104</i> שלוחה</span><span class="muted">חדר ישיבות · חדר חומרים · כיסאות הישיבות, המטבחון והשירותים אינם עמדות</span></div></div>
@@ -6028,15 +6051,42 @@ function renderSeating() {
     </div>
   </div>`;
 }
+/* ---------- PDF: the browser's print dialog on an A3 landscape sheet (save as PDF) ----------
+   A print-only copy of the plan is appended to the body; print CSS hides everything else; @page sets A3 landscape; it is removed after. */
+const PRINT_PLAN_PX = (420 - 20) * 96 / 25.4; // the plan's width on the sheet (A3 landscape minus the margins), in CSS px — sets the type sizes
+function printSeating() {
+  if (!canSeeSeating()) return;
+  const old = document.getElementById('print-plan'); if (old) old.remove();
+  const oldStyle = document.getElementById('print-a3'); if (oldStyle) oldStyle.remove();
+  const seats = SEAT_PLAN.seats; const taken = seats.filter((s) => seatRow(s.id)?.contactId);
+  const groups = [...new Set(seats.map((s) => s.group))];
+  const list = groups.map((g) => `<div class="pp-group"><div class="pp-group-name">${esc(g)}</div>${seats.filter((s) => s.group === g).map((s) => { const row = seatRow(s.id); const c = row?.contactId ? contact(row.contactId) : null; return `<div class="pp-row"><span class="pp-num">${esc(s.num)}</span><span class="pp-name${c ? '' : ' muted'}">${c ? esc(c.name) : 'פנוי'}</span><span class="pp-ext">${esc(row?.extension || '')}</span></div>`; }).join('')}</div>`).join('');
+  const wrap = document.createElement('div'); wrap.id = 'print-plan'; wrap.dir = 'rtl';
+  wrap.innerHTML = `<div class="pp-head"><div class="pp-title">הושבה · OBERSON</div><div class="pp-meta">${esc(fmtDate(todayStr()))} · ${taken.length} / ${seats.length} עמדות מאוישות</div></div>
+    <div class="pp-plan">${seatStage({ print: true })}</div>
+    <div class="pp-list">${list}</div>`;
+  document.body.prepend(wrap); // first in the document, so its pattern fills (url(#parquet-blue)…) resolve to its own defs and not to the hidden on-screen copy's
+  const style = document.createElement('style'); style.id = 'print-a3'; style.textContent = '@page { size: A3 landscape; margin: 8mm 10mm; }';
+  document.head.appendChild(style);
+  const cleanup = () => { wrap.remove(); style.remove(); window.removeEventListener('afterprint', cleanup); };
+  window.addEventListener('afterprint', cleanup);
+  setTimeout(() => window.print(), 60);
+}
 /* ---------- drawers ---------- */
 function drawerSeat(id) {
   const s = seatDef(id); if (!s) return '<div class="drawer-body"><div class="empty">השולחן לא נמצא.</div></div>';
   const row = seatRow(id) || { contactId: null, extension: '', note: '' };
   const c = row.contactId ? contact(row.contactId) : null;
-  return `<div class="drawer-head">
+  const head = `<div class="drawer-head">
     <div><h2 class="drawer-title">${esc(seatLabel(id))}</h2><div class="drawer-sub">${esc(seatZone(id))} · תוכנית ההושבה</div></div>
     <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
-  </div>
+  </div>`;
+  if (!canEditSeating()) return `${head}<div class="drawer-body"><div class="section">
+      ${field('מי יושב/ת כאן', c ? `<div class="chips"><span class="chip"><a href="#" data-action="open-contact" data-id="${c.id}" style="color:inherit;text-decoration:none">${esc(c.name)}</a>${c.teamId ? ` <small class="muted">· ${esc(tname(c.teamId, ''))}</small>` : ''}</span></div>` : '<div class="muted">פנוי</div>')}
+      <div class="field-row">${field('שלוחת טלפון', `<div class="ltr num">${esc(row.extension || '') || '<span class="muted">—</span>'}</div>`)}${field('הערה', `<div>${esc(row.note || '') || '<span class="muted">—</span>'}</div>`)}</div>
+      <div class="inline-note">צפייה בלבד — שינויים בהושבה: הנהלה ואדמיניסטרציה.</div>
+    </div></div>`;
+  return `${head}
   <div class="drawer-body">
     <div class="section">
       <div class="field"><label>מי יושב/ת כאן</label>
@@ -6063,10 +6113,11 @@ function drawerRoom(id) {
 async function seatingAction(a, ds, t, e) {
   switch (a) {
     case 'seat-open': { if (!canSeeSeating()) return true; openDrawer('seat', ds.id); return true; }
-    case 'seat-room': { if (!canSeeSeating()) return true; openDrawer('room', ds.id); return true; }
-    case 'seat-clear': { if (!canSeeSeating()) return true; await ensureSeatRow(ds.id, 'desk'); patchDoc('seats', ds.id, { contactId: null }); return true; }
+    case 'seat-room': { if (!canEditSeating()) return true; openDrawer('room', ds.id); return true; }
+    case 'seat-print': { if (!canSeeSeating()) return true; printSeating(); return true; }
+    case 'seat-clear': { if (!canEditSeating()) { toast('צפייה בלבד'); return true; } await ensureSeatRow(ds.id, 'desk'); patchDoc('seats', ds.id, { contactId: null }); return true; }
     case 'seat-pick': {
-      if (!canSeeSeating()) return true;
+      if (!canEditSeating()) { toast('צפייה בלבד'); return true; }
       const id = ds.id; const cur = seatRow(id)?.contactId || null;
       const items = C().filter((c) => c.type === 'employee' && c.active !== false && c.id !== cur).sort((x, y) => (isFreelancer(x) - isFreelancer(y)) || byName(x, y))
         .map((c) => { const where = seatOfContact(c.id); return { label: c.name, sub: [isFreelancer(c) ? 'פרילנסר/ית' : tname(c.teamId, ''), where ? 'יושב/ת ב' + seatLabel(where.id) + ' (' + seatZone(where.id) + ')' : ''].filter(Boolean).join(' · '), value: c.id }; });
@@ -6989,8 +7040,8 @@ document.addEventListener('change', (e) => {
   if (el.dataset.userRole) { const pid = el.dataset.userRole; const role = el.value; patchDoc('profiles', pid, { role }).then((ok) => { if (ok) toast('התפקיד עודכן'); }); return; }
   if (id === 'k-supplier') { S.ui.kfilter.supplier = el.value; render(); return; }
   if (id.startsWith('tf-')) { const k = id.slice(3); S.ui.tfilter[k] = el.type === 'checkbox' ? el.checked : el.value; render(); return; }
-  if (el.dataset.seatfield) { const [sid, f] = el.dataset.seatfield.split(':'); if (!canSeeSeating()) return; ensureSeatRow(sid, 'desk').then(() => patchDoc('seats', sid, { [f]: el.value.trim() })); return; }
-  if (el.dataset.roomlabel) { if (!canSeeSeating()) return; const rid = 'room:' + el.dataset.roomlabel; ensureSeatRow(rid, 'room').then(() => patchDoc('seats', rid, { label: el.value.trim() })); return; }
+  if (el.dataset.seatfield) { const [sid, f] = el.dataset.seatfield.split(':'); if (!canEditSeating()) return; ensureSeatRow(sid, 'desk').then(() => patchDoc('seats', sid, { [f]: el.value.trim() })); return; }
+  if (el.dataset.roomlabel) { if (!canEditSeating()) return; const rid = 'room:' + el.dataset.roomlabel; ensureSeatRow(rid, 'room').then(() => patchDoc('seats', rid, { label: el.value.trim() })); return; }
   if (el.dataset.stgnote) { const [pid, sid] = el.dataset.stgnote.split(':'); const notes = el.value; if (!notes.trim()) return; const m = stageRowFor(pid, sid); if (m) patchDoc('project_milestones', m.id, { notes }); return; }
   if (el.dataset.mscheck) { const [mid, cid] = el.dataset.mscheck.split(':'); const m = S.project_milestones[mid]; if (!m || !isMember()) return; patchDoc('project_milestones', mid, { checklist: msChecklist(m).map((c) => c.id === cid ? Object.assign({}, c, { done: el.checked }) : c) }); return; }
   if (el.dataset.check) { const [tid, cid] = el.dataset.check.split(':'); const t = S.tasks[tid]; if (!t || !canWriteTasks()) return; patchDoc('tasks', tid, { checklist: checklistOf(t).map((c) => c.id === cid ? Object.assign({}, c, { done: el.checked }) : c) }); return; }
