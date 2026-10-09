@@ -528,6 +528,12 @@
     .pp-title { font-family: var(--font-display); font-weight: 400; font-size: 15pt; letter-spacing: .06em; }
     .pp-meta { font-size: 10pt; color: #4a53a8; font-variant-numeric: tabular-nums; }
     .pp-plan .seat-stage { min-width: 0; width: 100%; }
+    /* pattern fills become flat on paper: Chrome turns every pattern-filled shape into a page-sized bitmap in the PDF (47 hatched walls = 10 MB) */
+    #print-plan .seat-plan .wall, #print-plan .seat-plan [fill="url(#column-hatch)"] { fill: #dcdff7; }
+    #print-plan .seat-plan [fill="url(#parquet-blue)"] { fill: #f0f0fd; }
+    #print-plan .seat-plan [fill="url(#service-tile)"] { fill: #f7f7ff; }
+    #print-plan .seat-plan [fill="url(#rug-blue-weave)"] { fill: #eeeefa; }
+    #print-plan .sp-label .nm { box-shadow: none; outline: .35pt solid #6b73b5; } /* a box-shadow is rasterised into the PDF (≈2 MB per label) — an outline stays vector */
     .pp-list { columns: 4; column-gap: 7mm; margin-top: 3mm; font-size: 8.5pt; line-height: 1.3; }
     .pp-group { break-inside: avoid; margin-bottom: 1.6mm; }
     .pp-group-name { font-size: 7.5pt; letter-spacing: .08em; color: #4a53a8; border-bottom: .3pt solid #c7c1ff; margin-bottom: .6mm; }
