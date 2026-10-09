@@ -469,6 +469,35 @@
   .stg-body .ms-add { margin-top: 6px; }
   .stg-body .ms-add input { flex: 1; min-width: 120px; }
   .stg-empty { font-size: 12.5px; color: var(--ink-3); padding: 2px 0 4px; }
+  .seat-panel { padding: 10px; }
+  .seat-wrap { overflow-x: auto; }
+  .seat-plan { display: block; width: 100%; min-width: 980px; height: auto; font-family: inherit; }
+  .sp-floor { fill: var(--surface); }
+  .sp-outline { fill: none; stroke: var(--ink); stroke-width: 10; stroke-linejoin: miter; }
+  .sp-wall { stroke: var(--ink); stroke-width: 6; }
+  .sp-door { fill: none; stroke: var(--ink-3); stroke-width: 2; }
+  .sp-furn { fill: #f1f1f1; stroke: #cfcfcf; stroke-width: 1.5; }
+  .sp-column { fill: #777; stroke: none; }
+  .sp-rug { fill: #f7f7f7; stroke-dasharray: 6 4; }
+  .sp-ped { fill: none; stroke: #dedede; stroke-dasharray: 3 4; }
+  .sp-chair { fill: none; stroke: #cfcfcf; stroke-width: 2; }
+  .sp-room-hit { fill: transparent; }
+  .sp-room.can { cursor: pointer; }
+  .sp-room.can:hover .sp-room-hit { fill: rgba(0,0,0,.025); }
+  .sp-room-label { font-size: 21px; font-weight: 300; fill: var(--ink-2); text-anchor: middle; letter-spacing: .04em; pointer-events: none; }
+  .sp-entrance { font-size: 16px; fill: var(--ink-3); text-anchor: middle; }
+  .sp-seat.can { cursor: pointer; }
+  .sp-desk { fill: #fff; stroke: var(--ink); stroke-width: 1.6; }
+  .sp-seat.free .sp-desk { stroke: #9a9a9a; stroke-dasharray: 5 4; fill: #fafafa; }
+  .sp-seat rect:not(.sp-desk) { fill: var(--ink); }
+  .sp-seat.free rect:not(.sp-desk) { fill: #c4c4c4; }
+  .sp-seat.can:hover .sp-desk { stroke: var(--accent); stroke-width: 2.4; }
+  .sp-name { font-size: 15px; font-weight: 500; fill: var(--ink); text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+  .sp-name.tiny { font-size: 12px; }
+  .sp-seat.free .sp-name { fill: #9a9a9a; font-weight: 400; }
+  .sp-ext { font-size: 12px; fill: var(--ink-2); text-anchor: middle; dominant-baseline: middle; pointer-events: none; font-family: var(--font-num, inherit); }
+  .seat-table td.num { font-family: var(--font-num, inherit); }
+  @media (prefers-color-scheme: dark) { .sp-furn { fill: #2a2a2a; stroke: #444; } .sp-desk { fill: #1c1c1c; } .sp-seat.free .sp-desk { fill: #202020; } }
   .stg-own { margin: 0 0 8px; }
   .stg-own-body { border: 1px solid var(--rule); padding: 10px 12px; margin-top: 6px; display: grid; gap: 10px; }
   .stg-own-body .field { margin: 0; }
@@ -1270,6 +1299,7 @@ const VIEWS = [
   { id: 'field', label: 'שטח' },
   { id: 'projects', label: 'פרויקטים' },
   { id: 'teams', label: 'צוותים' },
+  { id: 'seating', label: 'הושבה', seating: true },
   { id: 'contacts', label: 'מאגרים' },
   { id: 'requests', label: 'בקשות' },
   { id: 'archive', label: 'ארכיון', archive: true },
@@ -1277,7 +1307,7 @@ const VIEWS = [
   { id: 'users', label: 'משתמשים', managers: true },
   { id: 'settings', label: 'הגדרות' },
 ];
-const visibleViews = () => VIEWS.filter((v) => (!v.managers || isManager()) && (!v.archive || (typeof canSeeArchive === 'function' && canSeeArchive())));
+const visibleViews = () => VIEWS.filter((v) => (!v.managers || isManager()) && (!v.archive || (typeof canSeeArchive === 'function' && canSeeArchive())) && (!v.seating || (typeof canSeeSeating === 'function' && canSeeSeating())));
 const DEFAULT_SETTINGS = {
   officeName: 'OBERSON',
   /* the office's stages, as the fee proposals define them (5.10.2026; Oded's questionnaire 6.10): opening · preliminary design (alternatives,
@@ -1680,7 +1710,7 @@ function render() {
   document.body.classList.toggle('report-view', S.ui.view === 'report');
   if (S.dbState === 'error') page.innerHTML = `<div class="banner">טעינת הנתונים נכשלה (${esc(S.error)}). <button class="btn small" data-action="reload-data">נסה שוב</button></div>`;
   else if (S.dbState === 'connecting') page.innerHTML = '<div class="loading">טוען את נתוני המשרד…</div>';
-  else page.innerHTML = { overview: renderOverview, tasks: renderTasks, time: renderTime, meetings: renderMeetings, field: renderField, report: renderReport, projects: renderProjects, project: renderProjectPage, teams: renderTeams, contacts: renderContacts, requests: renderRequests, archive: renderArchive, 'archive-page': renderArchivePage, commissions: renderCommissions, users: renderUsers, settings: renderSettings }[S.ui.view]();
+  else page.innerHTML = { overview: renderOverview, tasks: renderTasks, time: renderTime, meetings: renderMeetings, field: renderField, report: renderReport, projects: renderProjects, project: renderProjectPage, teams: renderTeams, contacts: renderContacts, requests: renderRequests, archive: renderArchive, 'archive-page': renderArchivePage, seating: renderSeating, commissions: renderCommissions, users: renderUsers, settings: renderSettings }[S.ui.view]();
   if (S.ui.view === 'report') paginateReport();
   renderOverlay();
   renderPendingBar();
@@ -2528,7 +2558,7 @@ const snake = (k) => k.replace(/[A-Z]/g, (m) => '_' + m.toLowerCase());
 const camel = (k) => k.replace(/_([a-z])/g, (m, c) => c.toUpperCase());
 const toRow = (obj) => { const o = {}; Object.entries(obj).forEach(([k, v]) => { if (k === 'updatedAt' || k === 'createdAt' || k === 'updatedBy') return; o[snake(k)] = v; }); return o; };
 const fromRow = (row) => { const o = {}; Object.entries(row).forEach(([k, v]) => { o[camel(k)] = v; }); return o; };
-const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items'];
+const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items', 'seats'];
 
 S.auth = { status: 'loading', session: null, profile: null, notice: '', error: '' };
 S.profiles = {}; S.invitations = {}; S.audit = [];
@@ -2656,7 +2686,7 @@ function subscribeRealtime() {
     }, 250);
   };
   rtChannel = sb.channel('office-live');
-  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items'].forEach((table) => {
+  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items', 'seats'].forEach((table) => {
     rtChannel.on('postgres_changes', { event: '*', schema: 'public', table }, () => scheduleRefetch(table));
   });
   rtChannel.subscribe();
@@ -5823,13 +5853,159 @@ document.addEventListener('change', (e) => {
   }
 });
 document.addEventListener('input', (e) => { const el = e.target; if (el.id === 'arc-q') { S.ui.arcq = el.value; render(); } });
+/* ===================== seating plan (9.10.2026) =====================
+   Who sits where, with the phone extension — the office plan traced to scale from the architect's drawing (plan pixels are the
+   coordinate system, so the proportions never drift). Owners, managers and administration only: the rows live in `seats`
+   (RLS by role); a desk row = { contact_id, extension, note }, a room row (id 'room:<id>') carries the room's label. */
+S.seats = {};
+const SEAT_PLAN = {"w":1897,"h":972,"outline":[[20,320],[395,320],[395,15],[1470,15],[1470,320],[1835,320],[1835,905],[20,905]],"walls":[[[315,335],[315,530]],[[315,600],[315,630]],[[45,630],[315,630]],[[930,15],[930,320]],[[1072,15],[1072,320]],[[1245,15],[1245,320]],[[1245,185],[1470,185]],[[1360,15],[1360,185]],[[1360,185],[1360,320]],[[395,320],[545,320]],[[815,320],[1150,320]],[[1245,320],[1470,320]],[[1245,335],[1245,725]],[[1530,335],[1530,885]],[[1320,725],[1450,725]],[[1245,740],[1245,885]],[[1530,585],[1815,585]]],"doors":[{"c":[315,600],"r":75,"a0":180,"a1":270},{"c":[545,320],"r":135,"a0":0,"a1":90},{"c":[815,320],"r":135,"a0":90,"a1":180},{"c":[1245,725],"r":75,"a0":270,"a1":360},{"c":[1530,725],"r":75,"a0":180,"a1":270},{"c":[1535,585],"r":85,"a0":270,"a1":360},{"c":[1535,745],"r":85,"a0":0,"a1":90}],"rooms":[{"id":"materials","label":"חדר חומרים","box":[418,35,500,265]},{"id":"kitchen","label":"מטבחון","box":[945,35,120,265]},{"id":"storage","label":"מחסן","box":[1085,35,155,265]},{"id":"wc","label":"שירותים","box":[1250,35,215,265]},{"id":"office_left","label":"חדר","box":[45,345,270,280]},{"id":"lounge","label":"פינת ישיבה","box":[350,400,250,120]},{"id":"meeting","label":"חדר ישיבות","box":[1250,340,275,380]},{"id":"lounge2","label":"פינת ישיבה","box":[1250,745,275,135]},{"id":"office_right_top","label":"חדר","box":[1540,340,275,240]},{"id":"office_right_bottom","label":"חדר","box":[1540,595,275,285]}],"furniture":[{"kind":"table","box":[575,125,190,120]},{"kind":"table","box":[1345,430,80,215]},{"kind":"sofa","box":[1302,770,168,100]},{"kind":"rug","box":[352,410,248,100]},{"kind":"chair","box":[385,435,40,40]},{"kind":"chair","box":[520,435,40,40]},{"kind":"round","box":[455,445,32,32]},{"kind":"block","box":[340,603,28,47]},{"kind":"block","box":[588,603,24,46]},{"kind":"column","box":[918,490,27,290]},{"kind":"counter","box":[945,35,120,65]},{"kind":"counter","box":[945,160,45,45]},{"kind":"shelf","box":[1085,45,65,135]},{"kind":"shelf","box":[1160,40,80,120]},{"kind":"block","box":[1253,602,19,45]},{"kind":"block","box":[1498,602,20,45]},{"kind":"block","box":[1775,780,37,50]},{"kind":"ped","box":[490,735,32,65]},{"kind":"ped","box":[545,735,32,65]},{"kind":"ped","box":[787,680,46,80]},{"kind":"ped","box":[1035,680,46,80]}],"chairs":[[1335,475],[1335,520],[1335,562],[1335,607],[1440,475],[1440,520],[1440,562],[1440,607],[1385,662],[612,118],[670,118],[725,118],[612,252],[670,252],[725,252],[95,480],[215,450],[215,515],[1620,410],[1620,480],[1620,630],[1620,845]],"seats":[{"id":"L0","box":[120,425,60,120],"chair":"left","group":"החדר השמאלי"},{"id":"L1","box":[95,715,72,46],"chair":"up","group":"שמאל"},{"id":"L2","box":[200,715,72,46],"chair":"up","group":"שמאל"},{"id":"L3","box":[95,762,72,46],"chair":"down","group":"שמאל"},{"id":"L4","box":[200,762,72,46],"chair":"down","group":"שמאל"},{"id":"L5","box":[320,715,46,92],"chair":"right","group":"שמאל"},{"id":"M1","box":[487,605,98,46],"chair":"up","group":"מרכז-שמאל"},{"id":"M2","box":[487,666,48,48],"chair":"left","group":"מרכז-שמאל"},{"id":"M3","box":[537,666,48,48],"chair":"right","group":"מרכז-שמאל"},{"id":"M4","box":[487,822,48,48],"chair":"left","group":"מרכז-שמאל"},{"id":"M5","box":[537,822,48,48],"chair":"right","group":"מרכז-שמאל"},{"id":"C1","box":[806,450,96,42],"chair":"up","group":"מרכז עליון"},{"id":"C2","box":[952,450,104,42],"chair":"up","group":"מרכז עליון"},{"id":"C3","box":[720,494,90,46],"chair":"down","group":"מרכז עליון"},{"id":"C4","box":[810,494,92,46],"chair":"down","group":"מרכז עליון"},{"id":"C5","box":[952,494,100,46],"chair":"down","group":"מרכז עליון"},{"id":"C6","box":[1052,494,93,46],"chair":"down","group":"מרכז עליון"},{"id":"D1","box":[692,667,94,50],"chair":"up","group":"מרכז תחתון"},{"id":"D2","box":[835,667,70,50],"chair":"up","group":"מרכז תחתון"},{"id":"D3","box":[956,667,78,50],"chair":"up","group":"מרכז תחתון"},{"id":"D4","box":[1083,667,82,50],"chair":"up","group":"מרכז תחתון"},{"id":"D5","box":[692,719,94,50],"chair":"down","group":"מרכז תחתון"},{"id":"D6","box":[835,719,70,50],"chair":"down","group":"מרכז תחתון"},{"id":"D7","box":[956,719,78,50],"chair":"down","group":"מרכז תחתון"},{"id":"D8","box":[1083,719,82,50],"chair":"down","group":"מרכז תחתון"},{"id":"R1","box":[1662,375,75,150],"chair":"right","group":"החדר הימני העליון"},{"id":"R2","box":[1640,590,50,110],"chair":"right","group":"החדר הימני התחתון"},{"id":"R3","box":[1640,780,50,110],"chair":"right","group":"החדר הימני התחתון"}],"entrance":{"box":[1300,905,180,0],"label":"כניסה"}};
+const canSeeSeating = () => !!me() && (isManager() || myRole() === 'admin');
+const seatRow = (id) => S.seats[id] || null;
+const seatDef = (id) => SEAT_PLAN.seats.find((s) => s.id === id) || null;
+const roomDef = (id) => SEAT_PLAN.rooms.find((r) => r.id === id) || null;
+const roomLabel = (r) => { const row = S.seats['room:' + r.id]; return row && row.label ? row.label : r.label; };
+/* a desk's name for people: its group and its number within the group ("מרכז עליון 3") */
+function seatLabel(id) {
+  const s = seatDef(id); if (!s) return id;
+  const sibs = SEAT_PLAN.seats.filter((x) => x.group === s.group);
+  return sibs.length > 1 ? `${s.group} ${sibs.indexOf(s) + 1}` : s.group;
+}
+const seatOfContact = (cid) => SEAT_PLAN.seats.find((s) => seatRow(s.id)?.contactId === cid) || null;
+const seatedIds = () => SEAT_PLAN.seats.map((s) => seatRow(s.id)?.contactId).filter(Boolean);
+/* the row is created when a desk or room is first touched */
+async function ensureSeatRow(id, kind) {
+  if (S.seats[id]) return S.seats[id];
+  await createDoc('seats', id, { kind, contactId: null, extension: '', label: '', note: '' });
+  return S.seats[id];
+}
+/* one person, one desk: seating someone here frees any other desk they held */
+async function seatContact(id, cid) {
+  await ensureSeatRow(id, 'desk');
+  batchEdits(() => {
+    SEAT_PLAN.seats.forEach((s) => { if (s.id !== id && seatRow(s.id)?.contactId === cid) patchDoc('seats', s.id, { contactId: null }); });
+    patchDoc('seats', id, { contactId: cid });
+  });
+}
+const shortName = (name) => String(name || '').trim().split(/\s+/)[0] || '';
+/* ---------- the drawing ---------- */
+function seatSvg() {
+  const P = SEAT_PLAN; const can = canSeeSeating();
+  const out = [`<svg class="seat-plan" viewBox="0 0 ${P.w} ${P.h}" role="img" aria-label="תוכנית הושבה" direction="rtl">`];
+  // floor, outline, walls, doors
+  out.push(`<polygon points="${P.outline.map(([x, y]) => x + ',' + y).join(' ')}" class="sp-floor"/>`);
+  P.furniture.forEach((f) => { const [x, y, w, h] = f.box; out.push(f.kind === 'round' ? `<circle cx="${x + w / 2}" cy="${y + h / 2}" r="${w / 2}" class="sp-furn sp-${f.kind}"/>` : `<rect x="${x}" y="${y}" width="${w}" height="${h}" class="sp-furn sp-${f.kind}"/>`); });
+  P.chairs.forEach(([x, y]) => out.push(`<circle cx="${x}" cy="${y}" r="11" class="sp-chair"/>`));
+  P.doors.forEach((d) => { const [cx, cy] = d.c; const r = d.r; const a0 = d.a0 * Math.PI / 180, a1 = d.a1 * Math.PI / 180; out.push(`<path d="M${cx},${cy} L${(cx + r * Math.cos(a0)).toFixed(0)},${(cy + r * Math.sin(a0)).toFixed(0)} A${r},${r} 0 0 1 ${(cx + r * Math.cos(a1)).toFixed(0)},${(cy + r * Math.sin(a1)).toFixed(0)}" class="sp-door"/>`); });
+  P.walls.forEach(([a, b]) => out.push(`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" class="sp-wall"/>`));
+  out.push(`<polygon points="${P.outline.map(([x, y]) => x + ',' + y).join(' ')}" class="sp-outline"/>`);
+  // rooms: label at the top, the whole box is the click target (rename)
+  P.rooms.forEach((r) => { const [x, y, w, h] = r.box; const lbl = roomLabel(r); out.push(`<g class="sp-room ${can ? 'can' : ''}" ${can ? `data-action="seat-room" data-id="${r.id}" role="button" tabindex="0"` : ''}><rect x="${x}" y="${y}" width="${w}" height="${h}" class="sp-room-hit"/>${lbl ? `<text x="${x + w / 2}" y="${y + 26}" class="sp-room-label">${esc(lbl)}</text>` : ''}<title>${esc(lbl || 'חדר')} — לחיצה לשינוי השם</title></g>`); });
+  const e = P.entrance; out.push(`<text x="${e.box[0] + e.box[2] / 2}" y="${e.box[1] + 34}" class="sp-entrance">${esc(e.label)} ↑</text>`);
+  // seats
+  P.seats.forEach((s) => {
+    const [x, y, w, h] = s.box; const row = seatRow(s.id); const c = row?.contactId ? contact(row.contactId) : null;
+    const ext = row?.extension || '';
+    const cls = c ? 'taken' : 'free';
+    // chair marker on the side the person sits
+    const ch = s.chair === 'up' ? `<rect x="${x + w / 2 - 11}" y="${y - 9}" width="22" height="7" rx="3"/>` : s.chair === 'down' ? `<rect x="${x + w / 2 - 11}" y="${y + h + 2}" width="22" height="7" rx="3"/>` : s.chair === 'left' ? `<rect x="${x - 9}" y="${y + h / 2 - 11}" width="7" height="22" rx="3"/>` : `<rect x="${x + w + 2}" y="${y + h / 2 - 11}" width="7" height="22" rx="3"/>`;
+    const tall = h > w + 20; const tiny = w < 60 && !tall;
+    const name = c ? (tiny ? shortName(c.name) : c.name) : 'פנוי';
+    const cx = x + w / 2, cy = y + h / 2;
+    let txt;
+    if (tall) {
+      const fit = h - 14, est = name.length * 8.5;
+      // a tall desk: the name runs top to bottom (the page turned a quarter to the right), the extension beside it
+      txt = `<text transform="translate(${cx + (ext ? 6 : 0)} ${cy}) rotate(90)" class="sp-name" ${est > fit ? `textLength="${fit}" lengthAdjust="spacingAndGlyphs"` : ''}>${esc(name)}</text>${ext ? `<text transform="translate(${cx - 10} ${cy}) rotate(90)" class="sp-ext">${esc(ext)}</text>` : ''}`;
+    } else {
+      const fit = w - 10, est = name.length * (tiny ? 6.5 : 7.5);
+      txt = `<text x="${cx}" y="${cy + (ext ? -2 : 5)}" class="sp-name ${tiny ? 'tiny' : ''}" ${est > fit ? `textLength="${fit}" lengthAdjust="spacingAndGlyphs"` : ''}>${esc(name)}</text>${ext ? `<text x="${cx}" y="${cy + 14}" class="sp-ext">${esc(ext)}</text>` : ''}`;
+    }
+    out.push(`<g class="sp-seat ${cls} ${can ? 'can' : ''}" id="seat-${s.id}" ${can ? `data-action="seat-open" data-id="${s.id}" role="button" tabindex="0"` : ''}><rect x="${x}" y="${y}" width="${w}" height="${h}" class="sp-desk"/>${ch}${txt}<title>${esc(seatLabel(s.id))}${c ? ' · ' + esc(c.name) : ' · פנוי'}${ext ? ' · שלוחה ' + esc(ext) : ''}</title></g>`);
+  });
+  out.push('</svg>');
+  return out.join('');
+}
+/* ---------- the view ---------- */
+function renderSeating() {
+  if (!canSeeSeating()) return `<div class="view-head"><div><h1 class="view-title">הושבה</h1></div></div><div class="panel"><div class="empty">סכמת ההושבה פתוחה להנהלה ולאדמיניסטרציה.</div></div>`;
+  const seats = SEAT_PLAN.seats; const taken = seats.filter((s) => seatRow(s.id)?.contactId);
+  const seated = new Set(seatedIds());
+  const unseated = employees().filter((c) => !seated.has(c.id) && !isFreelancer(c));
+  const groups = [...new Set(seats.map((s) => s.group))];
+  return `<div class="view-head">
+    <div><h1 class="view-title">הושבה</h1><div class="view-sub">מי יושב איפה ושלוחות הטלפון · לחיצה על שולחן משבצת, לחיצה על שם חדר משנה אותו · להנהלה ולאדמיניסטרציה בלבד</div></div>
+    <div class="view-tools"><span class="chip ${taken.length === seats.length ? 'green' : ''}">${taken.length} / ${seats.length} שולחנות מאוישים</span></div>
+  </div>
+  <div class="panel seat-panel"><div class="seat-wrap">${seatSvg()}</div></div>
+  <div class="grid-2" style="margin-top:14px">
+    <div class="panel">
+      <div class="panel-head"><h2 class="panel-title">שלוחות</h2><span class="panel-sub">לפי שולחן</span></div>
+      <div class="table-wrap"><table class="seat-table"><thead><tr><th>שולחן</th><th>מי</th><th>שלוחה</th><th>צוות</th></tr></thead><tbody>
+        ${groups.map((g) => seats.filter((s) => s.group === g).map((s) => { const row = seatRow(s.id); const c = row?.contactId ? contact(row.contactId) : null; return `<tr class="row-click" data-action="seat-open" data-id="${s.id}"><td class="muted">${esc(seatLabel(s.id))}</td><td>${c ? esc(c.name) : '<span class="muted">פנוי</span>'}</td><td class="ltr num">${esc(row?.extension || '')}</td><td class="muted">${c ? esc(tname(c.teamId, '')) : ''}</td></tr>`; }).join('')).join('')}
+      </tbody></table></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h2 class="panel-title">בלי שולחן</h2><span class="panel-sub">עובדי המשרד הפעילים שעדיין לא שובצו</span></div>
+      ${unseated.length ? `<div class="chips">${unseated.map((c) => `<span class="chip">${esc(c.name)}</span>`).join('')}</div>` : '<div class="inline-note">כולם שובצו.</div>'}
+      <div class="inline-note" style="margin-top:10px">פרילנסרים לא נספרים כאן; אפשר לשבץ אותם לשולחן כמו כל אחד.</div>
+    </div>
+  </div>`;
+}
+/* ---------- drawers ---------- */
+function drawerSeat(id) {
+  const s = seatDef(id); if (!s) return '<div class="drawer-body"><div class="empty">השולחן לא נמצא.</div></div>';
+  const row = seatRow(id) || { contactId: null, extension: '', note: '' };
+  const c = row.contactId ? contact(row.contactId) : null;
+  return `<div class="drawer-head">
+    <div><h2 class="drawer-title">${esc(seatLabel(id))}</h2><div class="drawer-sub">שולחן בתוכנית ההושבה</div></div>
+    <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
+  </div>
+  <div class="drawer-body">
+    <div class="section">
+      <div class="field"><label>מי יושב/ת כאן</label>
+        <div class="chips">${c ? `<span class="chip"><a href="#" data-action="open-contact" data-id="${c.id}" style="color:inherit;text-decoration:none">${esc(c.name)}</a>${isFreelancer(c) ? ' <small class="muted">· פרילנסר/ית</small>' : c.teamId ? ` <small class="muted">· ${esc(tname(c.teamId, ''))}</small>` : ''}</span><button class="btn small ghost" data-action="seat-pick" data-id="${id}">החלף</button><button class="btn small ghost" data-action="seat-clear" data-id="${id}">פנה את השולחן</button>` : `<button class="btn small primary" data-action="seat-pick" data-id="${id}">${ICON.plus} שבץ עובד/ת</button>`}</div>
+      </div>
+      <div class="field-row">
+        ${field('שלוחת טלפון', `<input type="text" id="seat-ext-${id}" value="${esc(row.extension || '')}" data-seatfield="${id}:extension" dir="ltr" style="text-align:end" inputmode="numeric" placeholder="למשל 104">`)}
+        ${field('הערה', `<input type="text" id="seat-note-${id}" value="${esc(row.note || '')}" data-seatfield="${id}:note" placeholder="מסך שני, עמדה זמנית…">`)}
+      </div>
+    </div>
+  </div>`;
+}
+function drawerRoom(id) {
+  const r = roomDef(id); if (!r) return '<div class="drawer-body"><div class="empty">החדר לא נמצא.</div></div>';
+  return `<div class="drawer-head">
+    <div><h2 class="drawer-title">${esc(roomLabel(r))}</h2><div class="drawer-sub">חדר בתוכנית ההושבה</div></div>
+    <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
+  </div>
+  <div class="drawer-body"><div class="section">
+    ${field('שם החדר כפי שיופיע בתוכנית', `<input type="text" id="room-label-${id}" value="${esc(roomLabel(r))}" data-roomlabel="${id}" placeholder="${esc(r.label)}">`, 'השם נשמר לבד. ריק = השם המקורי.')}
+  </div></div>`;
+}
+/* ---------- actions ---------- */
+async function seatingAction(a, ds, t, e) {
+  switch (a) {
+    case 'seat-open': { if (!canSeeSeating()) return true; openDrawer('seat', ds.id); return true; }
+    case 'seat-room': { if (!canSeeSeating()) return true; openDrawer('room', ds.id); return true; }
+    case 'seat-clear': { if (!canSeeSeating()) return true; await ensureSeatRow(ds.id, 'desk'); patchDoc('seats', ds.id, { contactId: null }); return true; }
+    case 'seat-pick': {
+      if (!canSeeSeating()) return true;
+      const id = ds.id; const cur = seatRow(id)?.contactId || null;
+      const items = C().filter((c) => c.type === 'employee' && c.active !== false && c.id !== cur).sort((x, y) => (isFreelancer(x) - isFreelancer(y)) || byName(x, y))
+        .map((c) => { const where = seatOfContact(c.id); return { label: c.name, sub: [isFreelancer(c) ? 'פרילנסר/ית' : tname(c.teamId, ''), where ? 'יושב/ת ב' + seatLabel(where.id) : ''].filter(Boolean).join(' · '), value: c.id }; });
+      openMenu(t, { search: true, placeholder: 'חיפוש עובד/ת…', emptyText: 'אין תוצאות', items, onPick: (it) => seatContact(id, it.value) });
+      return true;
+    }
+    default: return false;
+  }
+}
 /* ===================== overlay: drawer + menu ===================== */
 function renderOverlay() {
   const ov = document.getElementById('overlay');
   const d = S.ui.drawer;
   let html = '';
   if (d) {
-    const body = d.kind === 'project' ? drawerProject(d.id) : d.kind === 'contact' ? drawerContact(d.id) : d.kind === 'import' ? drawerImport() : d.kind === 'task' ? drawerTask(d.id) : d.kind === 'visit' ? drawerVisit(d.id) : d.kind === 'request' ? drawerRequest(d.id) : d.kind === 'request-new' ? drawerNewRequest() : d.kind === 'material' ? drawerMaterial(d.id) : drawerCommission(d.id);
+    const body = d.kind === 'project' ? drawerProject(d.id) : d.kind === 'contact' ? drawerContact(d.id) : d.kind === 'import' ? drawerImport() : d.kind === 'task' ? drawerTask(d.id) : d.kind === 'visit' ? drawerVisit(d.id) : d.kind === 'request' ? drawerRequest(d.id) : d.kind === 'request-new' ? drawerNewRequest() : d.kind === 'material' ? drawerMaterial(d.id) : d.kind === 'seat' ? drawerSeat(d.id) : d.kind === 'room' ? drawerRoom(d.id) : drawerCommission(d.id);
     const pend = hasPending() && S.ui.autoSaveFailed ? `<div class="drawer-save"><span>${pendingCount() === 1 ? 'שינוי אחד לא נשמר' : pendingCount() + ' שינויים לא נשמרו'} — אין חיבור?</span><button class="btn primary small" data-action="pending-save" ${S.ui.committing ? 'disabled' : ''}>${S.ui.committing ? 'שומר…' : 'שמור שוב'}</button><button class="btn small" data-action="pending-discard" ${S.ui.committing ? 'disabled' : ''}>בטל</button></div>` : '';
     html += `<div class="scrim" data-action="close-drawer"></div><aside class="drawer" role="dialog" aria-modal="true" data-key="${esc(drawerKey())}">${body}${pend}</aside>`;
   }
@@ -6720,6 +6896,8 @@ document.addEventListener('change', (e) => {
   if (el.dataset.userRole) { const pid = el.dataset.userRole; const role = el.value; patchDoc('profiles', pid, { role }).then((ok) => { if (ok) toast('התפקיד עודכן'); }); return; }
   if (id === 'k-supplier') { S.ui.kfilter.supplier = el.value; render(); return; }
   if (id.startsWith('tf-')) { const k = id.slice(3); S.ui.tfilter[k] = el.type === 'checkbox' ? el.checked : el.value; render(); return; }
+  if (el.dataset.seatfield) { const [sid, f] = el.dataset.seatfield.split(':'); if (!canSeeSeating()) return; ensureSeatRow(sid, 'desk').then(() => patchDoc('seats', sid, { [f]: el.value.trim() })); return; }
+  if (el.dataset.roomlabel) { if (!canSeeSeating()) return; const rid = 'room:' + el.dataset.roomlabel; ensureSeatRow(rid, 'room').then(() => patchDoc('seats', rid, { label: el.value.trim() })); return; }
   if (el.dataset.stgnote) { const [pid, sid] = el.dataset.stgnote.split(':'); const notes = el.value; if (!notes.trim()) return; const m = stageRowFor(pid, sid); if (m) patchDoc('project_milestones', m.id, { notes }); return; }
   if (el.dataset.mscheck) { const [mid, cid] = el.dataset.mscheck.split(':'); const m = S.project_milestones[mid]; if (!m || !isMember()) return; patchDoc('project_milestones', mid, { checklist: msChecklist(m).map((c) => c.id === cid ? Object.assign({}, c, { done: el.checked }) : c) }); return; }
   if (el.dataset.check) { const [tid, cid] = el.dataset.check.split(':'); const t = S.tasks[tid]; if (!t || !canWriteTasks()) return; patchDoc('tasks', tid, { checklist: checklistOf(t).map((c) => c.id === cid ? Object.assign({}, c, { done: el.checked }) : c) }); return; }
@@ -6810,6 +6988,7 @@ document.addEventListener('click', async (e) => {
   if (await meetingsAction(a, ds, t, e)) return;
   if (await sundayAction(a, ds, t, e)) return;
   if (await archiveAction(a, ds, t, e)) return;
+  if (await seatingAction(a, ds, t, e)) return;
   if (await timeAction(a, ds, t, e)) return;
   switch (a) {
     case 'ext': break; // an external link inside a clickable row: the browser opens it, the row stays closed
