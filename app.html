@@ -522,6 +522,20 @@
   .seat-legend .lg-chair { width: 16px; height: 6px; border: none; border-radius: 3px; background: var(--ink); }
   .seat-legend .lg-ext { width: auto; height: auto; border: none; border-radius: 999px; background: var(--ink); color: var(--accent-ink); font-family: var(--font-num); font-size: 10.5px; line-height: 1; padding: 2px 6px 1px; direction: ltr; }
   .seat-table td.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+  /* ---- opening accounts (users view, owners) + the password drawer ---- */
+  .acct-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 4px 14px; margin: 10px 0 6px; }
+  .acct-row { display: flex; align-items: center; gap: 8px; font-size: 13.5px; padding: 3px 2px; cursor: pointer; min-width: 0; }
+  .acct-row input { margin: 0; }
+  .acct-name { white-space: nowrap; }
+  .acct-mail { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .acct-tools { display: flex; gap: 4px; margin-bottom: 4px; }
+  .acct-pw-row { display: flex; gap: 6px; align-items: center; }
+  .acct-pw-row input { flex: 1; min-width: 0; font-family: var(--font-num); letter-spacing: .04em; }
+  .acct-result { border: 1px solid var(--rule); padding: 10px 12px; margin-bottom: 12px; display: grid; gap: 8px; }
+  .acct-result-head { font-size: 13.5px; }
+  .acct-result .chips .chip { cursor: default; }
+  .acct-result > .btn { justify-self: start; }
+  .drawer-actions { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
   .stg-own { margin: 0 0 8px; }
   .stg-own-body { border: 1px solid var(--rule); padding: 10px 12px; margin-top: 6px; display: grid; gap: 10px; }
   .stg-own-body .field { margin: 0; }
@@ -1747,7 +1761,7 @@ function render() {
 function renderUserBox() {
   const el = document.getElementById('user-box'); if (!el) return;
   const p = me();
-  el.innerHTML = p ? `<span class="user-name" title="${esc(p.email)}">${esc(p.fullName || p.email)}</span><span class="chip dim" style="font-size:11px">${esc(ROLE_LABELS[p.role] || p.role)}</span><button class="btn ghost small" data-action="logout" title="התנתקות">יציאה</button>` : '';
+  el.innerHTML = p ? `<span class="user-name" title="${esc(p.email)}">${esc(p.fullName || p.email)}</span><span class="chip dim" style="font-size:11px">${esc(ROLE_LABELS[p.role] || p.role)}</span><button class="btn ghost small" data-action="change-pw" title="החלפת סיסמה">סיסמה</button><button class="btn ghost small" data-action="logout" title="התנתקות">יציאה</button>` : '';
 }
 /* every render rebuilds the page and the drawer from scratch — keep the person's place: the drawer's scroll position (as long as it is the
    same drawer), the page scroll, and the focused field with its caret */
@@ -2311,6 +2325,40 @@ function renderContacts() {
 }
 
 /* ===================== users (managers) ===================== */
+/* ---- opening accounts (owners): employees who have no account yet get one with a starting password the owner types here ----
+   The create-users edge function (service role) creates the auth users with the email confirmed; the handle_new_user trigger builds the
+   profile from an invitation row (role + link to the employee). The typed password lives only in S.ui.acct until the call returns. */
+function employeesWithoutAccount() {
+  const profiles = Object.values(S.profiles);
+  const taken = new Set(profiles.map((p) => String(p.email || '').trim().toLowerCase()));
+  const linked = new Set(profiles.map((p) => p.contactId).filter(Boolean));
+  return employees().filter((c) => c.active !== false && !linked.has(c.id))
+    .map((c) => ({ c, email: (emailsOf(c)[0] || '').toLowerCase(), has: emailsOf(c).some((e) => taken.has(e.toLowerCase())) }))
+    .filter((x) => x.email && !x.has).sort((a, b) => byName(a.c, b.c));
+}
+const OFFICE_MAIL = /@oberson-arch\.com$/i;
+function accountsPanel() {
+  const rows = employeesWithoutAccount(); const st = S.ui.acct || {}; const res = S.ui.acctResult;
+  const picked = st.emails ? new Set(st.emails) : new Set(rows.filter((r) => OFFICE_MAIL.test(r.email)).map((r) => r.email));
+  const armed = S.ui.confirm === 'accounts';
+  const result = res ? `<div class="acct-result">
+      <div class="acct-result-head">${res.created ? `נפתחו ${res.created} חשבונות.` : 'לא נפתח אף חשבון.'} ${res.created ? 'הודיעו לעובדים: כניסה עם המייל והסיסמה ההתחלתית, ואז "סיסמה" ליד השם כדי לבחור סיסמה משלהם.' : ''}</div>
+      <div class="chips">${(res.results || []).map((r) => `<span class="chip ${r.ok ? 'green' : 'dim'}" title="${esc(r.email)}">${r.ok ? '✓' : '✗'} ${esc(r.name || r.email)}${r.ok ? '' : ' · ' + esc(r.error || '')}</span>`).join('')}</div>
+      <button class="btn ghost small" data-action="acct-result-close">סגור</button></div>` : '';
+  return `<div class="panel span-2" id="accounts-panel">
+    <div class="panel-head"><h2 class="panel-title">פתיחת חשבונות לעובדים</h2><span class="panel-sub">${rows.length ? `${rows.length} עובדים פעילים עדיין בלי חשבון` : 'לכל העובדים הפעילים יש חשבון'}</span></div>
+    ${result}
+    ${rows.length ? `<div class="inline-note">מסמנים למי לפתוח, מקלידים סיסמה התחלתית אחידה ולוחצים פעם אחת. הפרופיל, התפקיד והקישור לעובד/ת נוצרים לבד והכניסה עובדת מיד, בלי מייל אישור. מומלץ שכל אחד/ת יחליף/תחליף אותה אחר כך דרך "סיסמה" שליד השם.</div>
+    <div class="acct-list">${rows.map((r) => `<label class="acct-row"><input type="checkbox" class="acct-pick" value="${esc(r.email)}" ${picked.has(r.email) ? 'checked' : ''}><span class="acct-name">${esc(r.c.name)}</span><span class="ltr muted acct-mail">${esc(r.email)}</span></label>`).join('')}</div>
+    <div class="acct-tools"><button class="btn ghost small" data-action="acct-all" data-on="1">סמן הכל</button><button class="btn ghost small" data-action="acct-all" data-on="0">נקה</button></div>
+    <div class="field-row">
+      <div class="field"><label>תפקיד במערכת</label>${selectHtml('acct-role', st.role || 'staff', ['staff', 'team_lead', 'manager', 'admin'].map((k) => ({ value: k, label: ROLE_LABELS[k] || k })))}</div>
+      <div class="field"><label>סיסמה התחלתית (לפחות 8 תווים)</label><div class="acct-pw-row"><input type="${st.show ? 'text' : 'password'}" id="acct-pw" dir="ltr" autocomplete="off" spellcheck="false" value="${esc(st.pw || '')}"><button type="button" class="btn ghost small" data-action="acct-show">${st.show ? 'הסתר' : 'הצג'}</button></div></div>
+    </div>
+    ${armed ? `<span class="confirm-inline"><span class="inline-note">לפתוח ${(st.emails || []).length} חשבונות עם הסיסמה שהוקלדה?</span><button class="btn small primary" data-action="accounts-open" data-confirmed="1">כן, פתח</button><button class="btn small" data-action="cancel-confirm">בטל</button></span>`
+      : `<button class="btn primary small" data-action="accounts-open" ${st.busy ? 'disabled' : ''}>${st.busy ? 'פותח חשבונות…' : 'פתח חשבונות'}</button>`}` : ''}
+  </div>`;
+}
 function renderUsers() {
   const profiles = Object.values(S.profiles).sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
   const invites = Object.values(S.invitations);
@@ -2336,6 +2384,7 @@ function renderUsers() {
       </table></div>
       <div class="inline-note" style="margin-top:10px">בעלים ומנהלים רואים הכול כולל עמלות ויומן שינויים. ראש/ת צוות מעדכן/ת פרויקטים ומוסיף/ה ספקים, קבלנים, יועצים ולקוחות, אבל לא עובדים, צוותים והגדרות. עובד/ת: משימות, צ'קליסטים ותגובות במלואם, וצפייה בכל השאר. חסום/ה: אין כניסה.</div>
     </div>
+    ${isOwner() ? accountsPanel() : ''}
     <div class="panel">
       <div class="panel-head"><h2 class="panel-title">הזמנה מראש</h2><span class="panel-sub">מייל שנרשם מקבל את התפקיד אוטומטית</span></div>
       <div class="field-row">
@@ -2353,7 +2402,7 @@ function renderUsers() {
         <li>הוא/היא לוחצ/ת "הרשמה", ממלא/ת שם, מייל וסיסמה, ומאשר/ת את המייל מהקישור שנשלח.</li>
         <li>אם המייל הוזמן מראש, התפקיד נקבע אוטומטית. אחרת המשתמש/ת מופיע/ה כאן כ"ממתין/ה לאישור" ובוחרים לו/לה תפקיד.</li>
       </ol>
-      <div class="inline-note">שכחו סיסמה? בדף הכניסה יש "שכחתי סיסמה" שמשלח קישור לאיפוס.</div>
+      <div class="inline-note">שכחו סיסמה? בדף הכניסה יש "שכחתי סיסמה" שמשלח קישור לאיפוס. מי שמחובר/ת מחליפ/ה סיסמה דרך "סיסמה" שליד השם למעלה.${isOwner() ? ' בעלים יכולים גם לפתוח חשבונות ישירות (למעלה), בלי הרשמה ובלי מייל אישור.' : ''}</div>
     </div>
   </div>`;
 }
@@ -6049,7 +6098,7 @@ function renderOverlay() {
   const d = S.ui.drawer;
   let html = '';
   if (d) {
-    const body = d.kind === 'project' ? drawerProject(d.id) : d.kind === 'contact' ? drawerContact(d.id) : d.kind === 'import' ? drawerImport() : d.kind === 'task' ? drawerTask(d.id) : d.kind === 'visit' ? drawerVisit(d.id) : d.kind === 'request' ? drawerRequest(d.id) : d.kind === 'request-new' ? drawerNewRequest() : d.kind === 'material' ? drawerMaterial(d.id) : d.kind === 'seat' ? drawerSeat(d.id) : d.kind === 'room' ? drawerRoom(d.id) : drawerCommission(d.id);
+    const body = d.kind === 'project' ? drawerProject(d.id) : d.kind === 'contact' ? drawerContact(d.id) : d.kind === 'import' ? drawerImport() : d.kind === 'task' ? drawerTask(d.id) : d.kind === 'visit' ? drawerVisit(d.id) : d.kind === 'request' ? drawerRequest(d.id) : d.kind === 'request-new' ? drawerNewRequest() : d.kind === 'material' ? drawerMaterial(d.id) : d.kind === 'seat' ? drawerSeat(d.id) : d.kind === 'room' ? drawerRoom(d.id) : d.kind === 'password' ? drawerPassword() : drawerCommission(d.id);
     const pend = hasPending() && S.ui.autoSaveFailed ? `<div class="drawer-save"><span>${pendingCount() === 1 ? 'שינוי אחד לא נשמר' : pendingCount() + ' שינויים לא נשמרו'} — אין חיבור?</span><button class="btn primary small" data-action="pending-save" ${S.ui.committing ? 'disabled' : ''}>${S.ui.committing ? 'שומר…' : 'שמור שוב'}</button><button class="btn small" data-action="pending-discard" ${S.ui.committing ? 'disabled' : ''}>בטל</button></div>` : '';
     html += `<div class="scrim" data-action="close-drawer"></div><aside class="drawer" role="dialog" aria-modal="true" data-key="${esc(drawerKey())}">${body}${pend}</aside>`;
   }
@@ -6453,6 +6502,20 @@ function subProjectsSection(p) {
     ${kids.length ? kids.map((k) => `<div class="task-item" data-action="open-project" data-id="${k.id}"><div class="li-body"><div class="li-title">${esc(k.name)}${k.number ? ` <small class="muted">${esc(k.number)}</small>` : ''}</div><div class="li-sub">${esc([phaseLabel(k), cname(k.leadId, ''), STATES[k.state] !== 'פעיל' ? STATES[k.state] : ''].filter(Boolean).join(' · '))}</div></div><div class="li-side">${ICON.back}</div></div>`).join('') : ''}
     ${canWriteProjects() ? `<button class="btn small" style="margin-top:8px" data-action="new-subproject" data-id="${p.id}">${ICON.plus} תת-פרויקט חדש</button>` : ''}
   </div>`;
+}
+/* the signed-in user picks a new password (no email round-trip) */
+function drawerPassword() {
+  const st = S.ui.pw || {};
+  return `<div class="drawer-head">
+    <div><h2 class="drawer-title">החלפת סיסמה</h2><div class="drawer-sub">${esc(me()?.email || '')}</div></div>
+    <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
+  </div>
+  <div class="drawer-body"><div class="section">
+    ${field('סיסמה חדשה (לפחות 8 תווים)', `<input type="password" id="pw-new" minlength="8" autocomplete="new-password" dir="ltr">`)}
+    ${field('שוב, לאימות', `<input type="password" id="pw-new2" minlength="8" autocomplete="new-password" dir="ltr">`)}
+    <div class="drawer-actions"><button class="btn primary" data-action="password-save" ${st.busy ? 'disabled' : ''}>${st.busy ? 'שומר…' : 'שמור סיסמה'}</button><button class="btn ghost" data-action="close-drawer">בטל</button></div>
+    <div class="inline-note" style="margin-top:10px">הסיסמה מתחלפת מיד לכניסות הבאות בכל המכשירים.</div>
+  </div></div>`;
 }
 function drawerImport() {
   const im = S.ui.importState || (S.ui.importState = { type: S.ui.ctab, text: '', rows: null });
@@ -6927,6 +6990,7 @@ document.addEventListener('input', (e) => {
   if (el.dataset.rqc) { const f = S.ui.reqForm; if (f?.newContact) f.newContact[el.dataset.rqc] = el.value; return; } // the new-contact mini-form survives a re-render
   if (el.dataset.req && el.dataset.req !== 'projectId') { const f = S.ui.reqForm; if (f) f[el.dataset.req] = el.value; return; } // a title typed and not yet blurred is kept when a participant is added
   if (el.id === 'import-text') { S.ui.importState.text = el.value; return; }
+  if (el.id === 'acct-pw') { S.ui.acct = Object.assign({}, S.ui.acct || {}, { pw: el.value }); return; }
   if (el.dataset.bind && (el.tagName === 'TEXTAREA' || el.type === 'text')) S.ui.drafts[el.id] = el.value;
   if (el.id === 'p-statusNote') { S.ui.drafts[el.id] = el.value; const b = document.querySelector('[data-action="update-status"]'); if (b) b.textContent = 'שמור ועדכן סטטוס'; }
 });
@@ -6937,6 +7001,7 @@ document.addEventListener('change', (e) => {
   if (id === 'k-status') { S.ui.kfilter.status = el.value; render(); return; }
   if (id === 'c-inactive') { S.ui.showInactive = el.checked; render(); return; }
   if (id === 'import-type') { S.ui.importState.type = el.value; render(); return; }
+  if (el.classList.contains('acct-pick') || id === 'acct-role') { S.ui.acct = Object.assign({}, S.ui.acct || {}, { emails: [...document.querySelectorAll('.acct-pick:checked')].map((i) => i.value), role: document.getElementById('acct-role')?.value || 'staff' }); return; }
   if (el.dataset.userRole) { const pid = el.dataset.userRole; const role = el.value; patchDoc('profiles', pid, { role }).then((ok) => { if (ok) toast('התפקיד עודכן'); }); return; }
   if (id === 'k-supplier') { S.ui.kfilter.supplier = el.value; render(); return; }
   if (id.startsWith('tf-')) { const k = id.slice(3); S.ui.tfilter[k] = el.type === 'checkbox' ? el.checked : el.value; render(); return; }
@@ -7309,6 +7374,45 @@ document.addEventListener('click', async (e) => {
     case 'invite-add': { const email = (document.getElementById('inv-email')?.value || '').trim().toLowerCase(); const role = document.getElementById('inv-role')?.value || 'staff'; const contactId = document.getElementById('inv-contact')?.value || null; if (!/^\S+@\S+\.\S+$/.test(email)) { toast('כתובת מייל לא תקינה'); break; }
       const ok = await write(() => sb.from('invitations').upsert({ email, role, contact_id: contactId })); if (ok) { await fetchProfiles(); render(); toast('ההזמנה נשמרה'); } break; }
     case 'invite-remove': { const ok = await write(() => sb.from('invitations').delete().eq('email', ds.email)); if (ok) { await fetchProfiles(); render(); } break; }
+    // opening accounts (owners) — two steps; the password is read from the field on the first click and kept in S.ui.acct until the call returns
+    case 'acct-all': { document.querySelectorAll('.acct-pick').forEach((i) => { i.checked = ds.on === '1'; }); S.ui.acct = Object.assign({}, S.ui.acct || {}, { emails: [...document.querySelectorAll('.acct-pick:checked')].map((i) => i.value) }); break; }
+    case 'acct-show': { S.ui.acct = Object.assign({}, S.ui.acct || {}, { pw: document.getElementById('acct-pw')?.value || '', show: !(S.ui.acct && S.ui.acct.show) }); render(); break; }
+    case 'acct-result-close': S.ui.acctResult = null; render(); break;
+    case 'accounts-open': {
+      if (!isOwner()) { toast('בעלים בלבד'); break; }
+      if (!ds.confirmed) {
+        const emails = [...document.querySelectorAll('.acct-pick:checked')].map((i) => i.value);
+        const pw = document.getElementById('acct-pw')?.value || ''; const role = document.getElementById('acct-role')?.value || 'staff';
+        if (!emails.length) { toast('לא סומן אף עובד/ת'); break; }
+        if (pw.length < 8) { toast('סיסמה התחלתית: לפחות 8 תווים'); document.getElementById('acct-pw')?.focus(); break; }
+        S.ui.acct = { emails, pw, role, show: !!(S.ui.acct && S.ui.acct.show) }; S.ui.acctResult = null; S.ui.confirm = 'accounts'; render(); break;
+      }
+      const a = S.ui.acct; if (!a || !a.emails || !a.emails.length || !a.pw) { S.ui.confirm = null; render(); break; }
+      S.ui.confirm = null; a.busy = true; render();
+      let data = null, error = null;
+      try { ({ data, error } = await sb.functions.invoke('create-users', { body: { emails: a.emails, password: a.pw, role: a.role } })); } catch (err) { error = err; }
+      a.busy = false;
+      if (error || !data || data.error) {
+        let msg = data && data.error ? data.error : '';
+        if (!msg && error && error.context && typeof error.context.json === 'function') { try { msg = (await error.context.json())?.error || ''; } catch (_) { /* no body */ } }
+        toast('פתיחת החשבונות נכשלה: ' + (msg || friendlyError(error))); render(); break;
+      }
+      S.ui.acctResult = data; S.ui.acct = { show: false }; // the password is not kept
+      try { await fetchProfiles(); } catch (_) { /* the realtime catches up */ }
+      render(); toast(data.created ? `נפתחו ${data.created} חשבונות` : 'לא נפתח אף חשבון'); break;
+    }
+    // the signed-in user's own password
+    case 'change-pw': { S.ui.pw = {}; openDrawer('password', null); setTimeout(() => document.getElementById('pw-new')?.focus(), 30); break; }
+    case 'password-save': {
+      const p1 = document.getElementById('pw-new')?.value || '', p2 = document.getElementById('pw-new2')?.value || '';
+      if (p1.length < 8) { toast('סיסמה: לפחות 8 תווים'); break; }
+      if (p1 !== p2) { toast('הסיסמאות לא זהות'); break; }
+      S.ui.pw = { busy: true }; render();
+      const { error } = await sb.auth.updateUser({ password: p1 });
+      S.ui.pw = {};
+      if (error) { toast('הסיסמה לא הוחלפה: ' + friendlyError(error)); render(); break; }
+      closeDrawer(true); toast('הסיסמה הוחלפה'); break;
+    }
     // settings
     case 'add-team': { const i = document.getElementById('add-team'); const name = i.value.trim(); if (!name) break; const id = uid('t'); await createDoc('teams', id, { name, leadId: null, sortOrder: T().length + 1 }); i.value = ''; break; }
     case 'delete-team': {
