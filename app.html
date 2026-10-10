@@ -474,6 +474,24 @@
   .seat-wrap { overflow-x: auto; }
   .seat-stage { --k: .62; position: relative; width: 100%; min-width: 980px; }
   .seat-plan { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  /* personal permissions (owner) */
+  .perm-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+  .perm-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 6px 24px; margin-bottom: 10px; }
+  .perm-group .section-title { margin: 12px 0 4px; }
+  .perm-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+  .perm-row:last-child { border-bottom: 0; }
+  .perm-label { min-width: 0; }
+  .perm-no .perm-label strong { color: var(--ink-3); }
+  .perm-switch { flex: none; }
+  .perm-switch button.on.yes { background: var(--good-ink); color: #fff; }
+  .perm-switch button.on.no { background: var(--crit-ink); color: #fff; }
+  /* frozen project fields: plain text instead of disabled-looking inputs */
+  .frozen .frozen-field:disabled { background: transparent; border-color: transparent; color: inherit; opacity: 1; padding-inline-start: 0; box-shadow: none; cursor: default; -webkit-text-fill-color: currentColor; }
+  .frozen select.frozen-field:disabled { appearance: none; -webkit-appearance: none; background-image: none; }
+  .frozen input[type="checkbox"].frozen-field:disabled { opacity: .7; }
+  .frozen textarea.frozen-field:disabled { resize: none; }
+  .frozen .frozen-field:disabled::placeholder { color: transparent; }
+  .status-note { white-space: pre-wrap; padding: 4px 0; }
   /* kit-css start */
   .seat-plan .fine { fill: none; stroke: #354394; stroke-width: .9; stroke-linecap: round; stroke-linejoin: round; }
   .seat-plan .furniture { fill: #ffffff; stroke: #354394; stroke-width: 1.25; stroke-linejoin: round; }
@@ -517,6 +535,13 @@
   .seat-legend .lg-taken { background: #dad7ff; }
   .seat-legend .lg-ext { width: auto; height: auto; border: none; border-radius: 999px; background: #3029df; color: #fff; font-family: var(--font-num); font-size: 10.5px; line-height: 1; padding: 2px 6px 1px; direction: ltr; }
   .seat-table td.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+  /* ---- the scope switch: שלי · הצוות · המשרד ---- */
+  .scope { display: inline-flex; border: 1px solid var(--ink); border-radius: 999px; padding: 2px; gap: 2px; background: var(--surface); }
+  .scope button { border: 0; background: transparent; color: var(--ink-2); font: inherit; font-size: 13px; letter-spacing: .03em; padding: 3px 12px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; line-height: 1.3; }
+  .scope button:hover { color: var(--ink); }
+  .scope button.on { background: var(--ink); color: var(--accent-ink); }
+  .scope button small { font-size: 11px; opacity: .75; font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+  .view-actions .scope { margin-inline-end: 4px; }
   /* ---- opening accounts (users view, owners) + the password drawer ---- */
   .acct-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 4px 14px; margin: 10px 0 6px; }
   .acct-row { display: flex; align-items: center; gap: 8px; font-size: 13.5px; padding: 3px 2px; cursor: pointer; min-width: 0; }
@@ -1331,16 +1356,83 @@ const VIEWS = [
   { id: 'meetings', label: 'פגישות' },
   { id: 'field', label: 'שטח' },
   { id: 'projects', label: 'פרויקטים' },
-  { id: 'teams', label: 'צוותים' },
+  { id: 'teams', label: 'צוותים', cap: 'teams_view' },
   { id: 'seating', label: 'הושבה', seating: true },
   { id: 'contacts', label: 'מאגרים' },
   { id: 'requests', label: 'בקשות' },
   { id: 'archive', label: 'ארכיון', archive: true },
-  { id: 'commissions', label: 'עמלות', managers: true },
-  { id: 'users', label: 'משתמשים', managers: true },
-  { id: 'settings', label: 'הגדרות' },
+  { id: 'commissions', label: 'עמלות', cap: 'money' },
+  { id: 'users', label: 'משתמשים', cap: 'users' },
+  { id: 'settings', label: 'הגדרות', cap: 'settings_view' },
 ];
-const visibleViews = () => VIEWS.filter((v) => (!v.managers || isManager()) && (!v.archive || (typeof canSeeArchive === 'function' && canSeeArchive())) && (!v.seating || (typeof canSeeSeating === 'function' && canSeeSeating())));
+/* a tab exists only for someone who may do something there (capabilities; the archive and the seating have their own rules) */
+const visibleViews = () => VIEWS.filter((v) => (!v.cap || can(v.cap)) && (!v.archive || (typeof canSeeArchive === 'function' && canSeeArchive())) && (!v.seating || (typeof canSeeSeating === 'function' && canSeeSeating())));
+/* ===================== scope: שלי · הצוות · המשרד (10.10.2026) =====================
+   Every list opens on what belongs to the person — the role's default — and the switch at its head widens it to the team or the office when
+   the person may see that much. The choice is remembered per person (user_prefs.scope): everyone sets their own default by using the switch,
+   and "ההעדפות שלי" shows it explicitly. */
+const SCOPE_LABELS = { mine: 'שלי', team: 'הצוות', office: 'המשרד' };
+const SCOPE_LISTS = ['overview', 'projects', 'tasks', 'meetings', 'field'];
+function scopeOptions(list) {
+  const opts = ['mine']; const hasTeam = myTeamIds().length > 0;
+  switch (list) {
+    case 'overview': if (hasTeam && (can('overview_team') || can('overview_office'))) opts.push('team'); if (can('overview_office')) opts.push('office'); break;
+    case 'projects': case 'meetings': case 'field': if (hasTeam) opts.push('team'); if (can('projects_all')) opts.push('office'); break;
+    case 'tasks': if (hasTeam && (can('overview_team') || can('tasks_all'))) opts.push('team'); if (can('tasks_all')) opts.push('office'); break;
+    default: break;
+  }
+  return opts;
+}
+/* the role's own default: management, finance and administration open on the office, a team lead on the team, everyone else on themselves */
+function roleScope(list) {
+  const r = myRole();
+  if (list === 'tasks') return 'mine';
+  if (['owner', 'manager', 'finance', 'admin'].includes(r)) return 'office';
+  if (r === 'team_lead') return 'team';
+  return 'mine';
+}
+function scopeOf(list) {
+  const opts = scopeOptions(list); const ok = (v) => (v && opts.includes(v) ? v : null);
+  return ok(S.ui.scope && S.ui.scope[list]) || ok(S.prefs.scope && S.prefs.scope[list]) || ok(roleScope(list)) || opts[0];
+}
+function setScope(list, v) {
+  if (!scopeOptions(list).includes(v)) return;
+  S.ui.scope = S.ui.scope || {}; S.ui.scope[list] = v;
+  savePrefs({ scope: Object.assign({}, S.prefs.scope || {}, { [list]: v }) });
+  render();
+}
+function scopeSwitch(list, counts) {
+  const opts = scopeOptions(list); if (opts.length < 2) return '';
+  const cur = scopeOf(list);
+  return `<div class="scope" role="group" aria-label="היקף">${opts.map((o) => `<button type="button" class="${cur === o ? 'on' : ''}" data-action="scope" data-list="${list}" data-scope="${o}">${SCOPE_LABELS[o]}${counts && counts[o] != null ? `<small>${counts[o]}</small>` : ''}</button>`).join('')}</div>`;
+}
+/* involvement in a project: lead, project manager, member, a task of mine in it, an explicit share with me or my team, or a parent I am in;
+   for people outside management the database already says it (a full row = involved) */
+function involvedIn(p) {
+  if (!p) return false;
+  if (!['owner', 'manager', 'admin', 'finance'].includes(myRole()) && p.reduced === false) return true;
+  const cid = myContactId(), uid = me()?.id;
+  if (cid && (p.leadId === cid || p.pmId === cid || (p.memberIds || []).includes(cid))) return true;
+  if (uid && typeof TK === 'function' && TK().some((t) => t.projectId === p.id && (t.assigneeId === uid || t.createdBy === uid))) return true;
+  const teams = myTeamIds();
+  if (S.project_shares && Object.values(S.project_shares).some((sh) => sh.projectId === p.id && (sh.userId === uid || (sh.teamId && teams.includes(sh.teamId))))) return true;
+  if (p.parentId && p.parentId !== p.id && S.projects[p.parentId]) return involvedIn(S.projects[p.parentId]);
+  return false;
+}
+/* is the project inside the scope the list is set to? (the team scope also keeps what I am involved in elsewhere) */
+function projectInScope(list, p) {
+  const sc = scopeOf(list);
+  if (sc === 'office') return true;
+  if (sc === 'team') return (!!p && myTeamIds().includes(p.teamId)) || involvedIn(p);
+  return involvedIn(p);
+}
+/* a meeting or a site report: by its project; a general meeting (no project) is mine when I wrote it, and the team's or the office's otherwise */
+function visitInScope(list, v) {
+  const sc = scopeOf(list); if (sc === 'office') return true;
+  if (!v.projectId) return sc === 'team' || v.authorId === me()?.id;
+  return projectInScope(list, S.projects[v.projectId]);
+}
+const scopeCounts = (list, arr) => ({ mine: arr.filter(involvedIn).length, team: arr.filter((p) => myTeamIds().includes(p.teamId) || involvedIn(p)).length, office: arr.length });
 const DEFAULT_SETTINGS = {
   officeName: 'OBERSON',
   /* the office's stages, as the fee proposals define them (5.10.2026; Oded's questionnaire 6.10): opening · preliminary design (alternatives,
@@ -1602,9 +1694,14 @@ const isStale = (p) => { const d = daysSince(p.statusUpdatedAt); return d == nul
    a manual value (0–2) overrides the calculation. team capacity = Σ levels × load points per level (settings.loadPerLevel). */
 const LEVEL_MAX = 2;
 const LEVEL_STEPS = [{ months: 6, level: 0.5, label: 'עד חצי שנה' }, { months: 12, level: 0.75, label: 'עד שנה' }, { months: 36, level: 1, label: 'משנה' }, { months: 60, level: 1.25, label: 'מ-3 שנים' }, { months: Infinity, level: 1.5, label: 'מ-5 שנים' }];
-const canSeeLevels = () => ['owner', 'manager', 'team_lead'].includes(myRole());
 const myContactId = () => me()?.contactId || null;
-const canEditLevel = (c) => !!c && c.type === 'employee' && (isManager() || (myRole() === 'team_lead' && !!c.teamId && T().some((t) => t.id === c.teamId && t.leadId === myContactId())));
+/* the teams the person belongs to or leads */
+const myTeamIds = () => { const cid = myContactId(); const ids = T().filter((t) => t.leadId === cid).map((t) => t.id); const own = cid ? S.contacts[cid]?.teamId : null; if (own && !ids.includes(own)) ids.push(own); return ids; };
+const leadsTeamOf = (c) => !!c && !!c.teamId && T().some((t) => t.id === c.teamId && t.leadId === myContactId());
+/* experience levels: a management tool. All of the office with levels_all, the own team with levels_team; nobody else sees a level anywhere */
+const canSeeLevels = () => can('levels_all') || can('levels_team');
+const canSeeLevelOf = (c) => !!c && c.type === 'employee' && (can('levels_all') || (can('levels_team') && leadsTeamOf(c)));
+const canEditLevel = (c) => canSeeLevelOf(c) && (isManager() || leadsTeamOf(c));
 const tenureMonths = (startDate) => { if (!startDate) return null; const d = new Date(startDate); if (isNaN(d)) return null; return Math.max(0, (Date.now() - d.getTime()) / (365.25 * 86400000 / 12)); };
 const autoLevel = (startDate) => { const m = tenureMonths(startDate); if (m == null) return 1; return LEVEL_STEPS.find((s) => m < s.months).level; };
 const levelRow = (cid) => S.employee_levels[cid] || null;
@@ -1746,6 +1843,7 @@ function render() {
   else page.innerHTML = { overview: renderOverview, tasks: renderTasks, time: renderTime, meetings: renderMeetings, field: renderField, report: renderReport, projects: renderProjects, project: renderProjectPage, teams: renderTeams, contacts: renderContacts, requests: renderRequests, archive: renderArchive, 'archive-page': renderArchivePage, seating: renderSeating, commissions: renderCommissions, users: renderUsers, settings: renderSettings }[S.ui.view]();
   if (S.ui.view === 'report') paginateReport();
   renderOverlay();
+  applyFrozen();
   renderPendingBar();
   restoreFocus(focus);
   const exp = document.getElementById('btn-export');
@@ -1753,10 +1851,17 @@ function render() {
   const rq = document.getElementById('btn-request');
   if (rq) { rq.hidden = !(ready() && isMember()); const n = ready() && isMember() ? pendingForMe().length : 0; rq.classList.toggle('has', n > 0); rq.title = n ? `${n} בקשות ממתינות לאישורך` : 'בקשה או עדכון: פגישה, חופשה, מחלה, איחור'; }
 }
+/* frozen = see, don't touch: inside a .frozen block (a project page or drawer of someone who may not edit the project) the project's own
+   fields become plain text — no inputs that would only answer "אין לך הרשאת עריכה". Tasks, visits, files and materials there keep their own rules. */
+function applyFrozen() {
+  document.querySelectorAll('.frozen').forEach((root) => {
+    root.querySelectorAll('[data-bind^="projects:"]').forEach((el) => { el.disabled = true; el.classList.add('frozen-field'); });
+  });
+}
 function renderUserBox() {
   const el = document.getElementById('user-box'); if (!el) return;
   const p = me();
-  el.innerHTML = p ? `<span class="user-name" title="${esc(p.email)}">${esc(p.fullName || p.email)}</span><span class="chip dim" style="font-size:11px">${esc(ROLE_LABELS[p.role] || p.role)}</span><button class="btn ghost small" data-action="change-pw" title="החלפת סיסמה">סיסמה</button><button class="btn ghost small" data-action="logout" title="התנתקות">יציאה</button>` : '';
+  el.innerHTML = p ? `<span class="user-name" title="${esc(p.email)}">${esc(p.fullName || p.email)}</span><span class="chip dim" style="font-size:11px">${esc(ROLE_LABELS[p.role] || p.role)}</span><button class="btn ghost small" data-action="prefs" title="ההעדפות שלי: מסך הכניסה ועל מה כל רשימה נפתחת">העדפות</button><button class="btn ghost small" data-action="change-pw" title="החלפת סיסמה">סיסמה</button><button class="btn ghost small" data-action="logout" title="התנתקות">יציאה</button>` : '';
 }
 /* every render rebuilds the page and the drawer from scratch — keep the person's place: the drawer's scroll position (as long as it is the
    same drawer), the page scroll, and the focused field with its caret */
@@ -1878,11 +1983,132 @@ function todayPanel(date = new Date()) {
     </div>
   </div>`;
 }
+/* ===================== the overview: the office, the team, or myself (10.10.2026) =====================
+   Management, finance and administration open on the office; a team lead on the team; everyone else on their own day. The switch at the top
+   moves between what the person may see; the choice is remembered. */
 function renderOverview() {
+  const sc = scopeOf('overview'); const sw = scopeSwitch('overview');
+  if (sc === 'office') return renderOfficeOverview(sw);
+  if (sc === 'team') return renderTeamOverview(sw);
+  return renderPersonalOverview(sw);
+}
+/* ---------- my own overview: today, this week, my projects ---------- */
+function renderPersonalOverview(sw) {
+  const uid = me()?.id, cid = myContactId();
+  const open = sortTasks(myOpenTasks()); const overdue = open.filter(isOverdue), todayT = open.filter((t) => dueInfo(t).key === 'today'), week = open.filter((t) => dueInfo(t).key === 'week');
+  const mine = activeProjects().filter(involvedIn).sort(byName);
+  const roleIn = (p) => [p.leadId === cid ? 'מוביל/ה' : '', p.pmId === cid ? 'ניהול פרויקט' : '', (p.memberIds || []).includes(cid) ? 'חבר/ת צוות' : ''].filter(Boolean).join(' · ') || 'משימה / שיתוף';
+  const reqs = (typeof myRequests === 'function' ? myRequests() : []).filter((r) => r.status === 'open');
+  const pend = typeof pendingForMe === 'function' ? pendingForMe() : [];
+  const meetings = (typeof upcomingMeetings === 'function' ? upcomingMeetings(7) : []).filter((m) => !m.projectId || involvedIn(S.projects[m.projectId]));
+  const onSite = mine.filter((p) => hasActivePhaseNamed(p, siteStageName()));
+  const hours = cid && typeof iLogHours === 'function' && iLogHours() && typeof weekSummary === 'function' ? weekSummary(cid, todayStr()) : '';
+  return `
+  <div class="view-head">
+    <div><h1 class="view-title">הסקירה שלי</h1><div class="view-sub">${open.length ? `${open.length} משימות פתוחות` : 'אין משימות פתוחות'} · ${mine.length} פרויקטים שלי · יום ${DAY_NAMES[new Date().getDay()] || ''}</div></div>
+    <div class="view-actions">${sw}${canWriteTasks() ? `<button class="btn primary" data-action="new-task">${ICON.plus} משימה חדשה</button>` : ''}</div>
+  </div>
+  ${typeof timePanel === 'function' ? timePanel() : ''}
+  <div class="tiles">
+    ${tile('המשימות שלי', open.length, overdue.length ? `${overdue.length} באיחור` : (todayT.length ? `${todayT.length} להיום` : 'אין באיחור'), { cls: overdue.length ? 'crit' : (todayT.length ? 'warn' : 'hero'), click: { action: 'goto-tasks', attrs: 'data-tab="mine"' } })}
+    ${tile('הפרויקטים שלי', mine.length, onSite.length ? `${onSite.length} בפיקוח עליון` : 'פעילים', { click: { action: 'goto-projects', attrs: 'data-scope="mine"' } })}
+    ${pend.length ? tile('בקשות ממתינות לך', pend.length, 'לאישור / לקביעה', { cls: 'warn', click: { action: 'nav', attrs: 'data-view="requests"' } }) : ''}
+    ${tile('הבקשות שלי', reqs.length, reqs.length ? 'פתוחות' : 'אין בקשות פתוחות', { click: { action: 'nav', attrs: 'data-view="requests"' } })}
+    ${tile('פגישות השבוע', meetings.length, meetings.length ? `הקרובה: ${fmtDate(meetings[0].date)}` : 'אין פגישות קרובות', { click: { action: 'nav', attrs: 'data-view="meetings"' } })}
+  </div>
+  ${typeof sundayPanel === 'function' ? sundayPanel() : ''}
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-head"><h2 class="panel-title">המשימות שלי</h2><span class="panel-sub">לפי דחיפות <button class="btn ghost small" data-action="goto-tasks" data-tab="mine">לכל המשימות</button></span></div>
+      ${open.length ? `${taskGroup('באיחור', overdue, { cls: 'crit' })}${taskGroup('היום', todayT, { cls: 'warn' })}${taskGroup('השבוע', week)}${taskGroup('בהמשך', open.filter((t) => !overdue.includes(t) && !todayT.includes(t) && !week.includes(t)).slice(0, 6))}` : '<div class="empty">אין לך משימות פתוחות.</div>'}
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h2 class="panel-title">הפרויקטים שלי</h2><span class="panel-sub">${mine.length} פעילים <button class="btn ghost small" data-action="goto-projects" data-scope="mine">לרשימה</button></span></div>
+      ${mine.length ? `<div class="list">${mine.map((p) => `<div class="list-item" data-action="open-project" data-id="${p.id}">
+          ${healthChip(p.health)}
+          <div class="li-body"><div class="li-title">${esc(p.name)}</div><div class="li-sub">${esc(roleIn(p))} · ${esc(phaseLabel(p))}${p.statusNote ? ' · ' + esc(p.statusNote) : ''}</div></div>
+          <div class="li-side">${tasksOfProject(p.id).filter((t) => t.assigneeId === uid && isOpenTask(t)).length || ''}</div>
+        </div>`).join('')}</div>` : '<div class="empty">עדיין לא שובצת לפרויקט. ראש/ת הצוות או ההנהלה משבצים.</div>'}
+    </div>
+    ${hours ? `<div class="panel">${hours}<div class="inline-note" style="margin-top:8px"><button class="btn ghost small" data-action="nav" data-view="time">לרישום השעות</button></div></div>` : ''}
+    ${typeof meetingsPanel === 'function' ? meetingsPanel() : ''}
+  </div>
+  ${todayPanel()}`;
+}
+/* ---------- the team's overview: its projects, its people, what is late ---------- */
+function renderTeamOverview(sw) {
+  const teams = myTeamIds().map(team).filter(Boolean); const tids = teams.map((t) => t.id);
+  const act = activeProjects().filter((p) => tids.includes(p.teamId) || involvedIn(p));
+  const members = employees().filter((c) => tids.includes(c.teamId));
+  const uidOf = {}; Object.values(S.profiles).forEach((pr) => { if (pr.contactId) uidOf[pr.contactId] = pr.id; });
+  const memberUids = new Set(members.map((c) => uidOf[c.id]).filter(Boolean));
+  const red = act.filter((p) => p.health === 'red'), yellow = act.filter((p) => p.health === 'yellow'), stale = act.filter(isStale);
+  const onSite = act.filter((p) => hasActivePhaseNamed(p, siteStageName()));
+  const stageRows = act.map((p) => currentStageRow(p));
+  const lateStage = act.filter((p, i) => stageRows[i]?.state === 'late'), stuckStage = act.filter((p, i) => stageRows[i]?.state === 'stuck');
+  const teamTasks = TK().filter((t) => isOpenTask(t) && (memberUids.has(t.assigneeId) || (t.projectId && tids.includes(S.projects[t.projectId]?.teamId))));
+  const overdue = teamTasks.filter(isOverdue);
+  const pend = typeof pendingForMe === 'function' ? pendingForMe() : [];
+  const attention = [...red.sort((a, b) => (a.statusUpdatedAt || '').localeCompare(b.statusUpdatedAt || '')), ...yellow.filter(isStale)].slice(0, 8);
+  const phaseCounts = {}; act.forEach((p) => activePhases(p).forEach((x) => { phaseCounts[x.name] = (phaseCounts[x.name] || 0) + 1; }));
+  const phaseRows = settings().phases.map((x) => x.name).filter((n) => phaseCounts[n]).map((n) => ({ label: n, value: phaseCounts[n], click: { action: 'goto-projects', attrs: `data-scope="team" data-phase="${esc(n)}"` } }));
+  const levels = teams.some(levelsOfTeam); const loads = levels ? personalLoads(act) : {};
+  const noPhase = act.filter((p) => !activePhases(p).length && !allPhasesDone(p)), noLead = act.filter((p) => !p.leadId), review = act.filter((p) => p.needsReview);
+  const memberRow = (c) => {
+    const uid = uidOf[c.id]; const open = TK().filter((t) => t.assigneeId === uid && isOpenTask(t)); const late = open.filter(isOverdue).length;
+    const leads = act.filter((p) => p.leadId === c.id).length, part = act.filter((p) => (p.memberIds || []).includes(c.id)).length;
+    const u = levels && canSeeLevelOf(c) ? utilInfo(loads[c.id] || 0, capacityLevel(c)) : null;
+    return `<div class="list-item" data-action="open-contact" data-id="${c.id}">
+      <div class="li-body"><div class="li-title">${esc(c.name)}${c.id === teams.find((t) => t.leadId === c.id)?.leadId ? ' <span class="chip accent" style="font-size:11px">ראש/ת צוות</span>' : ''}</div><div class="li-sub">${esc(c.role || '')}${c.role ? ' · ' : ''}${leads} מוביל/ה · ${part} משתתף/ת${u ? ` · ניצולת ${u.pct == null ? u.label : u.pct + '%'}` : ''}</div></div>
+      <div class="li-side">${late ? `<span class="chip red">${late} באיחור</span> ` : ''}${open.length} משימות</div>
+    </div>`;
+  };
+  return `
+  <div class="view-head">
+    <div><h1 class="view-title">סקירת הצוות</h1><div class="view-sub">${esc(teams.map((t) => t.name).join(' · ')) || 'ללא צוות'} · ${act.length} פרויקטים פעילים · ${members.length} אנשים</div></div>
+    <div class="view-actions">${sw}${canWriteProjects() ? `<button class="btn primary" data-action="new-project">${ICON.plus} פרויקט חדש</button>` : ''}</div>
+  </div>
+  ${typeof timePanel === 'function' ? timePanel() : ''}
+  <div class="tiles">
+    ${tile('פרויקטים פעילים', act.length, `${onSite.length} בפיקוח עליון`, { cls: 'hero', click: { action: 'goto-projects', attrs: 'data-scope="team"' } })}
+    ${tile(`${HEALTH.red.icon} דחוף`, red.length, `${yellow.length} לתשומת לב`, { cls: red.length ? 'crit' : '', click: { action: 'goto-projects', attrs: 'data-scope="team" data-health="red"' } })}
+    ${tile('המשימות שלי', myOpenTasks().length, myOpenTasks().filter(isOverdue).length ? `${myOpenTasks().filter(isOverdue).length} באיחור` : 'אין באיחור', { cls: myOpenTasks().some(isOverdue) ? 'warn' : '', click: { action: 'goto-tasks', attrs: 'data-tab="mine"' } })}
+    ${tile('משימות הצוות באיחור', overdue.length, `${teamTasks.length} פתוחות בצוות`, { cls: overdue.length ? 'crit' : '', click: { action: 'goto-tasks', attrs: 'data-tab="team"' } })}
+    ${tile('ללא עדכון סטטוס', stale.length, `מעל ${settings().staleDays} ימים`, { cls: stale.length ? 'warn' : '', click: { action: 'goto-projects', attrs: 'data-scope="team" data-flag="stale"' } })}
+    ${pend.length ? tile('בקשות ממתינות לך', pend.length, 'לאישור / לקביעה', { cls: 'warn', click: { action: 'nav', attrs: 'data-view="requests"' } }) : ''}
+    ${tile('שלבים באיחור', lateStage.length, `${stuckStage.length} תקועים ללא תנועה`, { cls: lateStage.length ? 'crit' : (stuckStage.length ? 'warn' : ''), click: { action: 'goto-projects', attrs: `data-scope="team" data-flag="${lateStage.length ? 'late' : 'stuck'}"` } })}
+  </div>
+  ${typeof sundayPanel === 'function' ? sundayPanel() : ''}
+  ${(noPhase.length || noLead.length || review.length) ? `<div class="panel" style="margin-bottom:14px">
+    <div class="panel-head"><h2 class="panel-title">השלמת נתונים בצוות</h2><span class="panel-sub">לחיצה פותחת את הרשימה המסוננת</span></div>
+    <div class="todo-grid">
+      <button type="button" class="todo-card ${noPhase.length ? '' : 'done'}" data-action="goto-projects" data-scope="team" data-flag="noPhase"><strong>${noPhase.length}</strong><span>ללא שלב נוכחי</span></button>
+      <button type="button" class="todo-card ${noLead.length ? '' : 'done'}" data-action="goto-projects" data-scope="team" data-flag="noLead"><strong>${noLead.length}</strong><span>ללא מוביל פרויקט</span></button>
+      <button type="button" class="todo-card ${review.length ? '' : 'done'}" data-action="goto-projects" data-scope="team" data-flag="review"><strong>${review.length}</strong><span>ממתינים לאימות פרטים</span></button>
+    </div></div>` : ''}
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-head"><h2 class="panel-title">דורשים תשומת לב</h2><span class="panel-sub">אדומים, ואחריהם צהובים שלא עודכנו</span></div>
+      ${attention.length ? `<div class="list">${attention.map((p) => `<div class="list-item" data-action="open-project" data-id="${p.id}">${healthChip(p.health)}<div class="li-body"><div class="li-title">${esc(p.name)}</div><div class="li-sub">${esc(p.statusNote || 'אין הערת סטטוס')}</div></div><div class="li-side">${p.statusUpdatedAt ? fmtDate(p.statusUpdatedAt) : 'לא עודכן'}</div></div>`).join('')}</div>` : '<div class="empty">אין כרגע פרויקטים אדומים בצוות.</div>'}
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h2 class="panel-title">הצוות</h2><span class="panel-sub">משימות פתוחות ופרויקטים לכל אחד/ת${levels ? ' · ניצולת לפי רמות' : ''}</span></div>
+      ${members.length ? `<div class="list">${members.sort((a, b) => (teams.some((t) => t.leadId === b.id) - teams.some((t) => t.leadId === a.id)) || byName(a, b)).map(memberRow).join('')}</div>` : '<div class="empty">אין חברי צוות.</div>'}
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h2 class="panel-title">פרויקטים לפי שלב</h2><span class="panel-sub">לפי השלב הפעיל</span></div>
+      ${phaseRows.length ? bars(phaseRows) : '<div class="empty">אין שלבים פעילים.</div>'}
+    </div>
+    ${typeof meetingsPanel === 'function' ? meetingsPanel() : ''}
+  </div>
+  ${todayPanel()}`;
+}
+/* ---------- the office: everything (management; finance and administration without the workload panels) ---------- */
+function renderOfficeOverview(sw) {
   const st = settings();
   const act = activeProjects();
   const all = P();
-  if (!all.length) return `<div class="view-head"><div><h1 class="view-title">סקירת משרד</h1></div></div>
+  if (!all.length) return `<div class="view-head"><div><h1 class="view-title">סקירת משרד</h1></div><div class="view-actions">${sw}</div></div>
     <div class="panel"><div class="empty">אין עדיין פרויקטים. <button class="btn primary" data-action="new-project">${ICON.plus} פרויקט ראשון</button></div></div>`;
   const red = act.filter((p) => p.health === 'red');
   const yellow = act.filter((p) => p.health === 'yellow');
@@ -1913,8 +2139,8 @@ function renderOverview() {
     { label: 'ללא רמזור', value: act.filter((p) => !p.health).length, cls: 'muted', click: { action: 'goto-projects', attrs: 'data-health="none"' } },
   ];
 
-  // workload by team — team leads and up see utilisation (load ÷ capacity by experience levels); staff see the weighted load only
-  const levels = canSeeLevels();
+  // workload by team — with the office's experience levels (management); administration and finance get no workload panels at all
+  const levels = can('levels_all');
   const teamRows = T().map((t) => {
     const ps = act.filter((p) => p.teamId === t.id); const load = sum(ps, projectWeight);
     const click = { action: 'goto-projects', attrs: `data-team="${t.id}"` };
@@ -1953,7 +2179,7 @@ function renderOverview() {
   return `
   <div class="view-head">
     <div><h1 class="view-title">סקירת משרד</h1><div class="view-sub">${act.length} פרויקטים פעילים מתוך ${all.length} · ${employees().length} אנשי צוות · ${T().length} צוותים</div></div>
-    <div class="view-actions">${canWriteProjects() ? `<button class="btn primary" data-action="new-project">${ICON.plus} פרויקט חדש</button>` : ''}</div>
+    <div class="view-actions">${sw}${canWriteProjects() ? `<button class="btn primary" data-action="new-project">${ICON.plus} פרויקט חדש</button>` : ''}</div>
   </div>
   ${typeof timePanel === 'function' ? timePanel() : ''}
   <div class="tiles">
@@ -1964,7 +2190,7 @@ function renderOverview() {
     ${tile('ללא עדכון סטטוס', stale.length, never.length === stale.length ? 'לא עודכנו אף פעם' : `מעל ${st.staleDays} ימים · ${never.length} אף פעם`, { cls: stale.length ? 'warn' : '', click: { action: 'goto-projects', attrs: 'data-flag="stale"' } })}
     ${pendingForMe().length ? tile('בקשות ממתינות לך', pendingForMe().length, 'לאישור / לקביעה', { cls: 'warn', click: { action: 'nav', attrs: 'data-view="requests"' } }) : ''}
     ${tile('שלבים באיחור', lateStage.length, `${stuckStage.length} תקועים ללא תנועה`, { cls: lateStage.length ? 'crit' : (stuckStage.length ? 'warn' : ''), click: { action: 'goto-projects', attrs: lateStage.length ? 'data-flag="late"' : 'data-flag="stuck"' } })}
-    ${isManager() ? tile('עמלות פתוחות', fmtMoney(openSum) || '0 ₪', `${openComm.length} שורות · ${K().filter((k) => k.status === 'paid').length} שולמו`, { click: { action: 'nav', attrs: 'data-view="commissions"' } }) : ''}
+    ${can('money') ? tile('עמלות פתוחות', fmtMoney(openSum) || '0 ₪', `${openComm.length} שורות · ${K().filter((k) => k.status === 'paid').length} שולמו`, { click: { action: 'nav', attrs: 'data-view="commissions"' } }) : ''}
     ${tile('לקוחות פעילים', Object.keys(clientMap).length, `${C().filter((c) => c.type === 'supplier').length} ספקים · ${C().filter((c) => c.type === 'contractor').length} קבלנים במאגר`, { click: { action: 'nav', attrs: 'data-view="contacts"' } })}
   </div>
 
@@ -1972,7 +2198,7 @@ function renderOverview() {
 
   ${todayPanel()}
 
-  ${(noPhase.length || noTeam.length || noLead.length || review.length) ? `
+  ${isManager() && (noPhase.length || noTeam.length || noLead.length || review.length) ? `
   <div class="panel" style="margin-bottom:14px">
     <div class="panel-head"><h2 class="panel-title">השלמת נתונים</h2><span class="panel-sub">לחיצה פותחת את הרשימה המסוננת</span></div>
     <div class="todo-grid">
@@ -1997,14 +2223,14 @@ function renderOverview() {
           <div class="li-side">${p.statusUpdatedAt ? fmtDate(p.statusUpdatedAt) : 'לא עודכן'}</div>
         </div>`).join('')}</div>` : `<div class="empty">אין כרגע פרויקטים אדומים. ${act.filter((p) => !p.health).length ? 'רוב הפרויקטים עדיין ללא רמזור — כדאי לעבור עליהם.' : 'כל הכבוד.'}</div>`}
     </div>
-    <div class="panel">
-      <div class="panel-head"><h2 class="panel-title">עומס לפי צוות</h2><span class="panel-sub">${levels ? 'ניצולת · עומס / קיבולת לפי רמות ניסיון' : 'משוקלל לפי גודל ושלב'}${levels ? ' <button class="btn ghost small" data-action="nav" data-view="teams">למטריצה</button>' : ''}</span></div>
-      ${teamRows.length ? bars(teamRows, { max: levels ? 100 : 0 }) : '<div class="empty">עדיין לא הוגדרו צוותים.</div>'}
+    ${levels ? `<div class="panel">
+      <div class="panel-head"><h2 class="panel-title">עומס לפי צוות</h2><span class="panel-sub">ניצולת · עומס / קיבולת לפי רמות ניסיון <button class="btn ghost small" data-action="nav" data-view="teams">למטריצה</button></span></div>
+      ${teamRows.length ? bars(teamRows, { max: 100 }) : '<div class="empty">עדיין לא הוגדרו צוותים.</div>'}
     </div>
     <div class="panel">
       <div class="panel-head"><h2 class="panel-title">עומס לפי מוביל/ת פרויקט</h2><span class="panel-sub">ניקוד · מספר פרויקטים</span></div>
       ${bars(leadRows)}
-    </div>
+    </div>` : ''}
     <div class="panel">
       <div class="panel-head"><h2 class="panel-title">רמזור</h2><span class="panel-sub">מצב הפרויקטים הפעילים</span></div>
       ${bars(healthRows)}
@@ -2023,8 +2249,8 @@ function renderOverview() {
     </div>
     ${typeof meetingsPanel === 'function' ? meetingsPanel() : ''}
     ${typeof shootsPanel === 'function' ? shootsPanel() : ''}
-    ${isManager() ? `<div class="panel">
-      <div class="panel-head"><h2 class="panel-title">עמלות</h2><span class="panel-sub">לפי סטטוס גבייה · מנהלים בלבד</span></div>
+    ${can('money') ? `<div class="panel">
+      <div class="panel-head"><h2 class="panel-title">עמלות</h2><span class="panel-sub">לפי סטטוס גבייה</span></div>
       ${K().length ? bars(commByStatus.map((r) => ({ label: COMM_STATUS[r.s].label, value: r.amt, cls: r.s === 'paid' ? 'good' : r.s === 'invoiced' ? 'warn' : '', display: `<strong>${fmtMoney(r.amt)}</strong> · ${r.n}`, click: { action: 'goto-commissions', attrs: `data-status="${r.s}"` } }))) : `<div class="empty">עדיין אין עמלות רשומות. <button class="btn small" data-action="new-commission">${ICON.plus} עמלה ראשונה</button></div>`}
     </div>` : ''}
   </div>`;
@@ -2034,6 +2260,7 @@ function renderOverview() {
 function visibleProjects() {
   const f = S.ui.filters; const q = norm(f.q);
   let ps = P().filter((p) => {
+    if (!projectInScope('projects', p)) return false;
     if (f.state && p.state !== f.state) return false;
     if (f.team && p.teamId !== f.team) return false;
     if (f.lead && p.leadId !== f.lead) return false;
@@ -2079,6 +2306,7 @@ function renderProjects() {
     <div class="view-actions">${canWriteProjects() ? `<button class="btn primary" data-action="new-project">${ICON.plus} פרויקט חדש</button>` : ''}</div>
   </div>
   <div class="filters">
+    ${scopeSwitch('projects', scopeCounts('projects', P().filter((p) => !f.state || p.state === f.state)))}
     <div class="search">${ICON.search}<input type="search" id="f-q" placeholder="חיפוש פרויקט, לקוח, עיר…" value="${esc(f.q)}"></div>
     ${selectHtml('f-state', f.state, Object.entries(STATES).map(([value, label]) => ({ value, label })), { blank: 'כל המצבים' })}
     ${selectHtml('f-team', f.team, T().map((t) => ({ value: t.id, label: t.name })), { blank: 'כל הצוותים' })}
@@ -2354,6 +2582,36 @@ function accountsPanel() {
       : `<button class="btn primary small" data-action="accounts-open" ${st.busy ? 'disabled' : ''}>${st.busy ? 'פותח חשבונות…' : 'פתח חשבונות'}</button>`}` : ''}
   </div>`;
 }
+/* ---- personal permissions (owner): per person, every capability as "לפי תפקיד" (the default, shown as ✓/✗), "מותר" or "חסום" ---- */
+const CAP_GROUPS = [
+  { title: 'סקירה ופרויקטים', keys: ['overview_office', 'overview_team', 'projects_all', 'projects_edit', 'tasks_all'] },
+  { title: 'כסף ועובדים', keys: ['money', 'hr', 'levels_team', 'levels_all'] },
+  { title: 'שעות ובקשות', keys: ['hours_team', 'hours_all', 'requests_all'] },
+  { title: 'צוותים, הושבה וארכיון', keys: ['teams_view', 'teams_edit', 'seating_view', 'seating_edit', 'archive'] },
+  { title: 'הגדרות ומשתמשים', keys: ['settings_view', 'settings_edit', 'users', 'audit'] },
+];
+function permissionsPanel() {
+  const people = Object.values(S.profiles).filter((p) => p.id !== me().id && !['pending', 'disabled'].includes(p.role)).sort((a, b) => uname(a.id).localeCompare(uname(b.id), 'he'));
+  const sel = S.ui.permUser && S.profiles[S.ui.permUser] ? S.profiles[S.ui.permUser] : null;
+  const chips = people.map((p) => { const n = overridesOf(p.id).length; return `<span class="chip btn-chip ${sel && sel.id === p.id ? 'accent' : ''}" data-action="perm-user" data-id="${p.id}" role="button" tabindex="0" title="${esc(ROLE_LABELS[p.role] || p.role)}">${esc(uname(p.id))}${n ? ` <small>${n}</small>` : ''}</span>`; }).join('');
+  const row = (key) => {
+    const c = CAPS.find((x) => x.key === key); const def = roleHas(sel.role, key); const o = permissionOf(sel.id, key);
+    const eff = o === null ? def : o;
+    const b = (val, label, cls) => `<button type="button" class="${(o === val) ? 'on' : ''} ${cls || ''}" data-action="perm-set" data-user="${sel.id}" data-key="${key}" data-value="${val === null ? '' : (val ? '1' : '0')}">${label}</button>`;
+    return `<div class="perm-row ${eff ? 'perm-yes' : 'perm-no'}">
+      <div class="perm-label"><strong>${esc(c.label)}</strong>${c.sub ? `<div class="cell-sub">${esc(c.sub)}</div>` : ''}</div>
+      <div class="scope perm-switch">${b(null, `לפי תפקיד ${def ? '✓' : '✗'}`)}${b(true, 'מותר', 'yes')}${b(false, 'חסום', 'no')}</div>
+    </div>`;
+  };
+  const n = sel ? overridesOf(sel.id).length : 0;
+  return `<div class="panel span-2" id="permissions-panel">
+    <div class="panel-head"><h2 class="panel-title">הרשאות אישיות</h2><span class="panel-sub">ברירת המחדל נקבעת לפי התפקיד; כאן מעניקים או מונעים הרשאה מסוימת לאדם מסוים. בעלים בלבד.</span></div>
+    <div class="chips" style="margin-bottom:12px">${chips || '<span class="muted">אין עדיין משתמשים נוספים.</span>'}</div>
+    ${sel ? `<div class="perm-head"><div><strong>${esc(uname(sel.id))}</strong> <span class="chip dim" style="font-size:11px">${esc(ROLE_LABELS[sel.role] || sel.role)}</span> <span class="muted">${n ? `${n} הרשאות אישיות` : 'הכול לפי התפקיד'}</span></div>${n ? `<button class="btn ghost small" data-action="perm-reset" data-user="${sel.id}">בטל את כל ההרשאות האישיות</button>` : ''}</div>
+    <div class="perm-groups">${CAP_GROUPS.map((g) => `<div class="perm-group"><h3 class="section-title">${g.title}</h3>${g.keys.map(row).join('')}</div>`).join('')}</div>
+    <div class="inline-note">שינוי נשמר מיד ונכנס לתוקף אצל המשתמש/ת בלי להתנתק. "לפי תפקיד" מחזיר לברירת המחדל של התפקיד (✓ מותר, ✗ חסום).</div>` : '<div class="inline-note">בחרו אדם כדי לראות ולשנות את ההרשאות שלו/ה.</div>'}
+  </div>`;
+}
 function renderUsers() {
   const profiles = Object.values(S.profiles).sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
   const invites = Object.values(S.invitations);
@@ -2377,8 +2635,9 @@ function renderUsers() {
           <td class="num muted">${fmtDate(p.createdAt)}</td>
         </tr>`).join('') || `<tr><td colspan="5"><div class="empty">אין משתמשים.</div></td></tr>`}</tbody>
       </table></div>
-      <div class="inline-note" style="margin-top:10px">בעלים ומנהלים רואים הכול כולל עמלות ויומן שינויים. ראש/ת צוות מעדכן/ת פרויקטים ומוסיף/ה ספקים, קבלנים, יועצים ולקוחות, אבל לא עובדים, צוותים והגדרות. עובד/ת: משימות, צ'קליסטים ותגובות במלואם, וצפייה בכל השאר. חסום/ה: אין כניסה.</div>
+      <div class="inline-note" style="margin-top:10px">בעלים ומנהלים רואים את כל המשרד כולל כסף ויומן שינויים. כספים: סקירת המשרד, עמלות ושעות. אדמיניסטרציה: סקירת המשרד, בקשות, הושבה וארכיון. ראש/ת צוות: סקירת הצוות, עריכת פרויקטים, רמות ושעות של הצוות. עובד/ת: הסקירה האישית, המשימות והפרויקטים שלו/ה — בלי רמות ובלי הגדרות. חסום/ה: אין כניסה.${isOwner() ? ' חריגים לאדם מסוים — בהרשאות האישיות למטה.' : ''}</div>
     </div>
+    ${isOwner() ? permissionsPanel() : ''}
     ${isOwner() ? accountsPanel() : ''}
     <div class="panel">
       <div class="panel-head"><h2 class="panel-title">הזמנה מראש</h2><span class="panel-sub">מייל שנרשם מקבל את התפקיד אוטומטית</span></div>
@@ -2444,10 +2703,31 @@ function renderCommissions() {
 }
 
 /* ===================== settings ===================== */
+/* a team lead's settings: the office lists as they are, read-only, with the two rules that touch her work — no weights, no capacity parameters, no inputs */
+function renderSettingsLists() {
+  const st = settings();
+  const chips = (vals) => (vals && vals.length ? `<div class="chips">${vals.map((v) => `<span class="chip">${esc(v)}</span>`).join('')}</div>` : '<div class="empty">הרשימה ריקה.</div>');
+  const panel = (title, sub, vals) => `<div class="panel"><div class="panel-head"><h2 class="panel-title">${title}</h2><span class="panel-sub">${sub || ''}</span></div>${chips(vals)}</div>`;
+  const partner = st.partnerUserId && S.profiles[st.partnerUserId] ? uname(st.partnerUserId) : 'הבעלים';
+  return `
+  <div class="view-head">
+    <div><h1 class="view-title">הגדרות</h1><div class="view-sub">הרשימות של המשרד כפי שהן מופיעות בטפסים (צפייה בלבד; עריכה למנהלים).</div></div>
+  </div>
+  <div class="panel" style="margin-bottom:14px">
+    <div class="panel-head"><h2 class="panel-title">כללים שנוגעים לצוות</h2></div>
+    <div class="inline-note">פרויקט מסומן "ללא עדכון סטטוס" אחרי ${st.staleDays || 14} ימים בלי עדכון. חופשה עד ${leaveLeadDays()} ימי עבודה מאושרת על ידי ראש/ת הצוות לבד; מעבר לכך גם על ידי ${esc(partner)}. בקשות פגישה ועדכוני מחלה/איחור מגיעים לאדמיניסטרציה.</div>
+  </div>
+  <div class="grid-2">
+    ${panel('תבנית שלבי פרויקט', 'לפי הסדר', (st.phases || []).map((ph) => ph.name))}
+    ${panel('גדלי פרויקט', '', (st.sizes || []).map((sz) => sz.name))}
+    ${REGISTRY_LISTS.filter((l) => l.key !== 'phases').map((l) => panel(l.title, l.sub, st[l.key] || [])).join('')}
+  </div>`;
+}
 function renderSettings() {
-  const st = settings(); const ro = !isManager();
-  const tabs = isManager() ? `<div class="tabs"><button type="button" class="${(S.ui.stab || 'general') === 'general' ? 'on' : ''}" data-action="stab" data-tab="general">כללי</button><button type="button" class="${S.ui.stab === 'milestones' ? 'on' : ''}" data-action="stab" data-tab="milestones">אבני דרך — שמות אחידים <small class="muted">${list('milestone_types').length}</small></button></div>` : '';
-  if (isManager() && S.ui.stab === 'milestones') return `
+  const st = settings(); const ro = !can('settings_edit');
+  if (ro) return renderSettingsLists();
+  const tabs = can('settings_edit') ? `<div class="tabs"><button type="button" class="${(S.ui.stab || 'general') === 'general' ? 'on' : ''}" data-action="stab" data-tab="general">כללי</button><button type="button" class="${S.ui.stab === 'milestones' ? 'on' : ''}" data-action="stab" data-tab="milestones">אבני דרך — שמות אחידים <small class="muted">${list('milestone_types').length}</small></button></div>` : '';
+  if (can('settings_edit') && S.ui.stab === 'milestones') return `
   <div class="view-head">
     <div><h1 class="view-title">הגדרות</h1><div class="view-sub">שמות אחידים לאבני הדרך שבחוזים: כל שם שמופיע בחוזים שויך לסוג אחד; אפשר לשנות שם, לקבוע שלב, ולמזג סוגים שמשמעותם זהה.</div></div>
   </div>
@@ -2536,14 +2816,16 @@ function shortVal(v) {
 /* one line under a person's name: experience level and personal load (team leads and up), then the project counts */
 function memberSub(c, act, loads) {
   const counts = `${act.filter((p) => p.leadId === c.id).length} מוביל/ה · ${act.filter((p) => (p.memberIds || []).includes(c.id)).length} משתתף/ת`;
-  if (!canSeeLevels()) return counts;
+  if (!canSeeLevelOf(c)) return counts;
   const lvl = empLevel(c); const manual = manualLevel(c) != null; const lead = isTeamLead(c.id); const cl = capacityLevel(c); const u = utilInfo(loads[c.id] || 0, cl);
   return `<span class="lvl ${manual ? 'manual' : ''}" title="${manual ? 'רמה ידנית' : 'רמה אוטומטית לפי ותק: ' + esc(tenureLabel(c.startDate))}">רמה ${fmtNum(lvl, 2)}${manual ? '' : ' (אוטו׳)'}</span>${lead ? ` · <span title="ראש/ת צוות: רק ${Math.round(leadShare() * 100)}% מהמשרה נספרים לקיבולת הפרויקטים">ראש/ת צוות ${Math.round(leadShare() * 100)}% → ${fmtNum(cl, 2)}</span>` : ''} · <span class="util ${u.cls}" title="עומס אישי ${fmtNum(loads[c.id] || 0)} מתוך ${fmtNum(u.cap)}">${u.pct == null ? u.label : u.pct + '%'}</span> · ${counts}`;
 }
 /* load matrix: people, capacity (Σ levels × points per level), projects, load and utilisation per team */
+const levelsOfTeam = (t) => can('levels_all') || (can('levels_team') && t.leadId === myContactId());
 function loadMatrix(act) {
-  const rows = T().map((t) => { const ms = teamMembers(t.id); const ps = act.filter((p) => p.teamId === t.id); const load = sum(ps, projectWeight); const lv = sum(ms, capacityLevel); return { id: t.id, name: t.name, lead: cname(t.leadId, ''), n: ms.length, lv, ps: ps.length, load, u: utilInfo(load, lv), noStart: ms.filter((e) => !e.startDate && manualLevel(e) == null).length }; });
-  const noTeam = act.filter((p) => !p.teamId);
+  const rows = T().filter(levelsOfTeam).map((t) => { const ms = teamMembers(t.id); const ps = act.filter((p) => p.teamId === t.id); const load = sum(ps, projectWeight); const lv = sum(ms, capacityLevel); return { id: t.id, name: t.name, lead: cname(t.leadId, ''), n: ms.length, lv, ps: ps.length, load, u: utilInfo(load, lv), noStart: ms.filter((e) => !e.startDate && manualLevel(e) == null).length }; });
+  const office = can('levels_all'); // a team lead sees her own row only: no unassigned projects, no office total
+  const noTeam = office ? act.filter((p) => !p.teamId) : [];
   const tot = { n: sum(rows, (r) => r.n), lv: sum(rows, (r) => r.lv), ps: sum(rows, (r) => r.ps) + noTeam.length, load: sum(rows, (r) => r.load) + sum(noTeam, projectWeight) };
   tot.u = utilInfo(tot.load, tot.lv);
   const unknown = sum(rows, (r) => r.noStart);
@@ -2557,7 +2839,7 @@ function loadMatrix(act) {
       </tr>`).join('')}
       ${noTeam.length ? `<tr class="muted clickable" data-action="goto-projects" data-flag="noTeam"><td>ללא צוות</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">${noTeam.length}</td><td class="num">${fmtNum(sum(noTeam, projectWeight))}</td><td class="num">—</td><td><span class="chip dim">לא משויך</span></td></tr>` : ''}
       </tbody>
-      <tfoot><tr><td>סה"כ המשרד</td><td class="num">${tot.n}</td><td class="num">${fmtNum(tot.lv, 2)}</td><td class="num">${fmtNum(tot.u.cap)}</td><td class="num">${tot.ps}</td><td class="num">${fmtNum(tot.load)}</td><td class="num">${tot.u.pct == null ? '—' : tot.u.pct + '%'}</td><td>${utilChip(tot.u)}</td></tr></tfoot>
+      ${office ? `<tfoot><tr><td>סה"כ המשרד</td><td class="num">${tot.n}</td><td class="num">${fmtNum(tot.lv, 2)}</td><td class="num">${fmtNum(tot.u.cap)}</td><td class="num">${tot.ps}</td><td class="num">${fmtNum(tot.load)}</td><td class="num">${tot.u.pct == null ? '—' : tot.u.pct + '%'}</td><td>${utilChip(tot.u)}</td></tr></tfoot>` : ''}
     </table></div>
     <div class="inline-note" style="margin-top:8px">רמה אוטומטית לפי ותק: ${LEVEL_STEPS.map((s) => `${fmtNum(s.level, 2)} ${s.label}`).join(' · ')}. ערך ידני (עד ${LEVEL_MAX}) נקבע בכרטיס העובד/ת. ראש/ת צוות מנהל/ת את הצוות, ולכן רק ${Math.round(leadShare() * 100)}% מהרמה שלו/ה נספרים לקיבולת הפרויקטים.${unknown ? ` <strong>${unknown} עובדים ללא תאריך תחילת עבודה</strong> נספרים כרמה 1 עד שיוזן תאריך או ערך ידני.` : ''}${isManager() ? ' הנקודות לרמה וחלק ראש הצוות נקבעים בהגדרות.' : ''}</div>
   </div>`;
@@ -2566,7 +2848,7 @@ function renderTeams() {
   const emp = employees();
   const act = activeProjects();
   const unassigned = emp.filter((e) => !e.teamId);
-  const mgr = isManager();
+  const mgr = can('teams_edit');
   const levels = canSeeLevels();
   const loads = levels ? personalLoads(act) : {};
   const roleInput = (c) => mgr ? `<input type="text" list="dl-roles" id="role-${c.id}" value="${esc(S.ui.drafts['role-' + c.id] ?? (c.role || ''))}" data-bind="contacts:${c.id}:role" placeholder="הגדרה בצוות…">` : `<span class="muted">${esc(c.role || '')}</span>`;
@@ -2575,15 +2857,15 @@ function renderTeams() {
     const members = emp.filter((e) => e.teamId === t.id && e.id !== t.leadId);
     const ps = act.filter((p) => p.teamId === t.id);
     const load = sum(ps, projectWeight);
-    const u = levels ? utilInfo(load, teamCapacity(t.id)) : null;
+    const u = levelsOfTeam(t) ? utilInfo(load, teamCapacity(t.id)) : null;
     return `<div class="panel team-card">
       <div class="panel-head">
         <div class="team-name">${mgr ? `<input type="text" id="team-name-${t.id}" value="${esc(t.name)}" data-team-name="${t.id}" aria-label="שם הצוות">` : `<span style="font-weight:600;font-size:16px">${esc(t.name)}</span>`}</div>
-        <div class="team-stats"><span>${members.length + (lead ? 1 : 0)} אנשים</span><span>${ps.length} פרויקטים פעילים</span><span>עומס ${fmtNum(load)}${u ? ` / ${fmtNum(u.cap)}` : ''}</span>${u ? utilChip(u) : ''}</div>
+        <div class="team-stats"><span>${members.length + (lead ? 1 : 0)} אנשים</span><span>${ps.length} פרויקטים פעילים</span>${u ? `<span>עומס ${fmtNum(load)} / ${fmtNum(u.cap)}</span>` : ''}${u ? utilChip(u) : ''}</div>
       </div>
       <div class="team-lead">
         <span class="chip accent">${ICON.star} ראש/ת צוות</span>
-        ${lead ? `<a href="#" class="member-name" data-action="open-contact" data-id="${lead.id}" style="text-decoration:none;color:inherit">${esc(lead.name)}</a>${levels && lead.teamId === t.id ? `<span class="member-sub">${memberSub(lead, act, loads)}</span>` : ''}
+        ${lead ? `<a href="#" class="member-name" data-action="open-contact" data-id="${lead.id}" style="text-decoration:none;color:inherit">${esc(lead.name)}</a>${levelsOfTeam(t) && lead.teamId === t.id ? `<span class="member-sub">${memberSub(lead, act, loads)}</span>` : ''}
           ${mgr ? `<button class="btn ghost small" data-action="pick-add" data-col="teams" data-doc="${t.id}" data-field="leadId" data-type="employee" data-single="1">החלף</button>` : ''}`
           : (mgr ? `<button class="btn small" data-action="pick-add" data-col="teams" data-doc="${t.id}" data-field="leadId" data-type="employee" data-single="1">${ICON.plus} בחר ראש צוות</button>` : '<span class="muted">לא הוגדר</span>')}
       </div>
@@ -2640,7 +2922,7 @@ const me = () => S.auth.profile;
 const myRole = () => me()?.role || 'anon';
 const isManager = () => ['owner', 'manager'].includes(myRole());
 const isOwner = () => myRole() === 'owner';
-const canWriteProjects = () => ['owner', 'manager', 'team_lead'].includes(myRole());
+const canWriteProjects = () => can('projects_edit'); // the capability (team leads and up by default; the owner may grant it to anyone)
 /* need-to-know: a project row that came only from projects_summary is "reduced" — the person is not involved in it */
 const isReduced = (p) => !!p && p.reduced === true;
 const canEditProject = (p) => canWriteProjects() && !isReduced(p);
@@ -2651,7 +2933,87 @@ const canTaskOn = (p) => !p || !isReduced(p) || ['owner', 'manager', 'admin'].in
 const canWriteContact = (type) => isManager() || (isMember() && type !== 'employee');
 const canCreateContact = canWriteContact;
 const canImportContacts = (type) => isManager() || (myRole() === 'team_lead' && type !== 'employee');
-const ROLE_LABELS = { owner: 'בעלים', manager: 'מנהל/ת', team_lead: 'ראש/ת צוות', staff: 'עובד/ת', admin: 'אדמיניסטרציה', pending: 'ממתין/ה לאישור', disabled: 'חסום/ה' };
+const ROLE_LABELS = { owner: 'בעלים', manager: 'מנהל/ת', finance: 'כספים', team_lead: 'ראש/ת צוות', staff: 'עובד/ת', admin: 'אדמיניסטרציה', pending: 'ממתין/ה לאישור', disabled: 'חסום/ה' };
+/* ===================== capabilities (10.10.2026) =====================
+   A capability is something a person may see or do. Every role has a default set (the matrix Oded approved: management and finance see the
+   whole office, a team lead the team, an employee only what is theirs); the owner may grant or deny any capability to one person
+   (user_permissions). can(key) = the person's override when there is one, else the role default. The database keeps the same rules
+   (RLS by role; per-person grants through has_cap() once that SQL runs) — the client only decides what to show. */
+const CAPS = [
+  { key: 'overview_office', label: 'סקירת המשרד', sub: 'כל הפרויקטים והעומסים בסקירה ובמתג "המשרד"' },
+  { key: 'overview_team', label: 'סקירת הצוות', sub: 'סקירה ומתג "הצוות" על הצוות שהמשתמש/ת בו או מוביל/ה' },
+  { key: 'projects_all', label: 'כל הפרויקטים', sub: 'רשימת כל פרויקטי המשרד — מצומצם במה שהמשתמש/ת לא מעורב/ת בו' },
+  { key: 'projects_edit', label: 'עריכת פרויקטים', sub: 'בפרויקטים שהמשתמש/ת מעורב/ת בהם' },
+  { key: 'money', label: 'כסף', sub: 'עמלות, מימון צילומים, שלבי תשלום' },
+  { key: 'hr', label: 'פרטי עובדים (HR)', sub: 'מספר עובד, תאריך תחילה, פרטים אישיים — של כל המשרד' },
+  { key: 'levels_team', label: 'רמות ניסיון — הצוות', sub: 'הרמות והקיבולת של הצוות שהמשתמש/ת מוביל/ה' },
+  { key: 'levels_all', label: 'רמות ניסיון — כל המשרד', sub: '' },
+  { key: 'hours_team', label: 'שעות הצוות', sub: 'צפייה ורישום לחברי הצוות' },
+  { key: 'hours_all', label: 'שעות של כולם', sub: 'צפייה וייצוא' },
+  { key: 'tasks_all', label: 'כל המשימות', sub: 'כל המשימות במשרד, לא רק של הפרויקטים שלי' },
+  { key: 'requests_all', label: 'כל הבקשות', sub: 'טיפול בבקשות של כולם' },
+  { key: 'teams_view', label: 'צוותים', sub: 'לשונית הצוותים' },
+  { key: 'teams_edit', label: 'עריכת צוותים', sub: 'שמות, ראשי צוותים, שיוך עובדים' },
+  { key: 'seating_view', label: 'הושבה — צפייה', sub: '' },
+  { key: 'seating_edit', label: 'הושבה — עריכה', sub: '' },
+  { key: 'archive', label: 'ארכיון', sub: 'פרויקטים שהסתיימו, צילומים ופרסומים' },
+  { key: 'settings_view', label: 'הגדרות — צפייה', sub: 'הרשימות בלבד: שלבים, סוגים, קטגוריות' },
+  { key: 'settings_edit', label: 'הגדרות — עריכה', sub: '' },
+  { key: 'users', label: 'משתמשים', sub: 'אישור משתמשים ותפקידים' },
+  { key: 'audit', label: 'יומן שינויים', sub: '' },
+];
+const ALL_CAPS = CAPS.map((c) => c.key);
+const ROLE_CAPS = {
+  owner: ALL_CAPS, manager: ALL_CAPS,
+  finance: ['overview_office', 'projects_all', 'money', 'hours_all', 'seating_view'],
+  admin: ['overview_office', 'projects_all', 'hours_all', 'requests_all', 'teams_view', 'seating_view', 'seating_edit', 'archive'],
+  team_lead: ['overview_team', 'projects_all', 'projects_edit', 'levels_team', 'hours_team', 'teams_view', 'seating_view', 'settings_view'],
+  staff: ['projects_all'],
+};
+S.perms = {}; // the signed-in person's overrides { key: true | false }
+S.user_permissions = {}; // every override row (user_<id>_<key>), for the owner's permissions screen
+const roleHas = (role, key) => (ROLE_CAPS[role] || []).includes(key);
+const can = (key) => { if (!me()) return false; const o = S.perms[key]; return o === true || o === false ? o : roleHas(myRole(), key); };
+const capLabel = (key) => CAPS.find((c) => c.key === key)?.label || key;
+/* ---------- personal defaults (user_prefs): the landing view and the scope each list opens on ---------- */
+S.prefs = {};
+async function fetchPrefs() {
+  const uid = me()?.id; if (!uid) { S.prefs = {}; return; }
+  const { data, error } = await sb.from('user_prefs').select('*').eq('id', uid).maybeSingle();
+  if (error) { console.warn(error); return; }
+  S.prefs = data && data.data ? data.data : {};
+}
+let prefsTimer = null;
+function savePrefs(patch) {
+  S.prefs = Object.assign({}, S.prefs, patch);
+  clearTimeout(prefsTimer);
+  prefsTimer = setTimeout(async () => { const uid = me()?.id; if (!uid) return; const { error } = await sb.from('user_prefs').upsert({ id: uid, data: S.prefs, updated_at: nowIso() }); if (error) console.warn('prefs', error); }, 600);
+}
+async function fetchPermissions() {
+  const uid = me()?.id; if (!uid) { S.perms = {}; S.user_permissions = {}; return; }
+  const { data, error } = await sb.from('user_permissions').select('*');
+  if (error) { console.warn(error); return; }
+  S.user_permissions = {}; S.perms = {};
+  (data || []).forEach((r) => { const o = fromRow(r); S.user_permissions[o.userId + ':' + o.key] = o; if (o.userId === uid) S.perms[o.key] = !!o.allowed; });
+}
+/* the owner grants (true) / denies (false) / clears (null → back to the role default) one capability for one person; the row id is user:key.
+   Written straight to the table (not through the pending queue): small, rare, and the other person's screen picks it up through realtime. */
+async function setPermission(userId, key, allowed) {
+  if (!isOwner() || !userId || !ALL_CAPS.includes(key)) return;
+  const id = userId + ':' + key;
+  if (allowed === null) {
+    delete S.user_permissions[id]; if (userId === me()?.id) delete S.perms[key]; render();
+    const { error } = await sb.from('user_permissions').delete().eq('id', id);
+    if (error) { toast(friendlyError(error)); await fetchPermissions(); render(); }
+    return;
+  }
+  const row = { id, userId, key, allowed: !!allowed, setBy: me()?.id || null, setAt: nowIso() };
+  S.user_permissions[id] = row; if (userId === me()?.id) S.perms[key] = !!allowed; render();
+  const { error } = await sb.from('user_permissions').upsert(toRow(row));
+  if (error) { toast(friendlyError(error)); await fetchPermissions(); render(); }
+}
+const permissionOf = (userId, key) => { const o = S.user_permissions[userId + ':' + key]; return o ? !!o.allowed : null; };
+const overridesOf = (userId) => Object.values(S.user_permissions).filter((o) => o.userId === userId);
 const ready = () => S.dbState === 'ready' && S.auth.status === 'ready';
 
 function friendlyError(e) {
@@ -2717,7 +3079,7 @@ async function fetchMilestones(projectId) {
   S.milestonesLoaded[projectId] = true;
 }
 async function fetchAudit() {
-  if (!isManager()) { S.audit = []; return; }
+  if (!can('audit')) { S.audit = []; return; }
   const { data, error } = await sb.from('audit_log').select('*').order('id', { ascending: false }).limit(150);
   if (error) throw error;
   S.audit = (data || []).map(fromRow);
@@ -2725,7 +3087,7 @@ async function fetchAudit() {
 async function loadAll() {
   S.dbState = 'connecting'; render();
   try {
-    const jobs = [...TABLES.map(fetchTable), fetchSettings(), fetchProfiles(), fetchNotifications()];
+    const jobs = [...TABLES.map(fetchTable), fetchSettings(), fetchProfiles(), fetchNotifications(), fetchPrefs(), fetchPermissions()];
     let finished = 0;
     await Promise.all(jobs.map((p) => p.then((v) => { finished++; bootStep(0.68 + 0.29 * (finished / jobs.length)); return v; })));
     S.dbState = 'ready';
@@ -2746,6 +3108,8 @@ function subscribeRealtime() {
         if (table === 'settings') await fetchSettings();
         else if (table === 'profiles') { await refreshProfile(); await fetchProfiles(); }
         else if (table === 'notifications') await fetchNotifications();
+        else if (table === 'user_permissions') await fetchPermissions();
+        else if (table === 'user_prefs') { /* my own writes */ }
         else if (table === 'task_comments') { if (S.ui.drawer?.kind === 'task') await fetchComments(S.ui.drawer.id); }
         else if (table === 'project_milestones') { S.milestonesLoaded = {}; if (S.ui.drawer?.kind === 'project') await fetchMilestones(S.ui.drawer.id); }
         else await fetchTable(table);
@@ -2754,7 +3118,7 @@ function subscribeRealtime() {
     }, 250);
   };
   rtChannel = sb.channel('office-live');
-  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items', 'seats'].forEach((table) => {
+  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items', 'seats', 'user_permissions'].forEach((table) => {
     rtChannel.on('postgres_changes', { event: '*', schema: 'public', table }, () => scheduleRefetch(table));
   });
   rtChannel.subscribe();
@@ -2918,8 +3282,9 @@ async function afterSignIn(session) {
   if (r === 'disabled') { S.auth.status = 'disabled'; S.auth.startingFor = null; render(); return; }
   S.auth.status = 'ready';
   if (!VIEWS.some((v) => v.id === S.ui.view)) S.ui.view = 'overview';
-  if (r === 'staff' && !location.hash) S.ui.view = 'tasks';
+  if (!location.hash) S.ui.view = 'overview'; // a fresh sign-in opens on the person's overview (their own, the team's or the office's); the preferences may say otherwise below
   await loadAll();
+  if (!location.hash && S.prefs.landing && VIEWS.some((v) => v.id === S.prefs.landing) && visibleViews().some((v) => v.id === S.prefs.landing)) { S.ui.view = S.prefs.landing; render(); }
 }
 async function initAuth() {
   sb.auth.onAuthStateChange((event, session) => {
@@ -2972,7 +3337,7 @@ async function doSetPassword(password) {
   await afterSignIn(data.session);
   toast('הסיסמה עודכנה');
 }
-async function doLogout() { await sb.auth.signOut(); }
+async function doLogout() { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ignore */ } await sb.auth.signOut(); } // the hash goes too, so the next sign-in opens on the person's own landing view
 
 function renderAuth() {
   const a = S.auth; const mode = a.mode || 'login';
@@ -3041,12 +3406,12 @@ ICON.flag = '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 2.5h1.5v15
 S.tasks = {}; S.taskComments = {}; S.notifications = [];
 Object.assign(S.ui, { msOpen: {}, stgOpen: {}, stgOwnOpen: {}, showBilling: {}, msAddOpen: {}, stageEdit: {}, stageConfirm: null, ttab: 'mine', tproject: '', tfilter: { q: '', assignee: '', project: '', status: '', priority: '', done: false }, bell: false, mentions: {}, mentionMenu: null });
 
-const isMember = () => ['owner', 'manager', 'team_lead', 'staff', 'admin'].includes(myRole());
+const isMember = () => ['owner', 'manager', 'team_lead', 'staff', 'admin', 'finance'].includes(myRole());
 const canWriteTasks = () => isMember();
 const TK = () => list('tasks');
 const profileOf = (uid) => (uid && S.profiles[uid]) || null;
 const uname = (uid, fallback = '—') => { const p = profileOf(uid); if (!p) return fallback; return p.fullName || cname(p.contactId, '') || p.email || fallback; };
-const activeUsers = () => Object.values(S.profiles).filter((p) => ['owner', 'manager', 'team_lead', 'staff', 'admin'].includes(p.role)).sort((a, b) => uname(a.id).localeCompare(uname(b.id), 'he'));
+const activeUsers = () => Object.values(S.profiles).filter((p) => ['owner', 'manager', 'team_lead', 'staff', 'admin', 'finance'].includes(p.role)).sort((a, b) => uname(a.id).localeCompare(uname(b.id), 'he'));
 const todayStr = (d = new Date()) => { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const addDays = (ymd, n) => { const d = new Date(ymd + 'T00:00:00'); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 const checklistOf = (t) => (Array.isArray(t.checklist) ? t.checklist : []);
@@ -3158,9 +3523,24 @@ function renderTasks() {
   const myId = me()?.id;
   const mine = TK().filter((t) => t.assigneeId === myId);
   const overdueMine = mine.filter(isOverdue).length;
-  const tabs = [['mine', 'היום שלי', overdueMine], ['project', 'לפי פרויקט', 0], ['office', 'משרד', 0], ['all', 'הכול', 0]];
+  const teamTab = scopeOptions('tasks').includes('team');
+  const tids = myTeamIds(); const uidOf = {}; Object.values(S.profiles).forEach((pr) => { if (pr.contactId) uidOf[pr.contactId] = pr.id; });
+  const teamMembersList = employees().filter((c) => tids.includes(c.teamId));
+  const teamUids = new Set(teamMembersList.map((c) => uidOf[c.id]).filter(Boolean));
+  const teamTasks = teamTab ? TK().filter((t) => isOpenTask(t) && (teamUids.has(t.assigneeId) || (t.projectId && tids.includes(S.projects[t.projectId]?.teamId)))) : [];
+  const tabs = [['mine', 'היום שלי', overdueMine], ...(teamTab ? [['team', 'הצוות', teamTasks.filter(isOverdue).length]] : []), ['project', 'לפי פרויקט', 0], ['office', 'משרד', 0], ['all', 'הכול', 0]];
   let body = '';
-  if (tab === 'mine') {
+  if (tab === 'team' && teamTab) {
+    // the team's open tasks, a group per person (the lead first), then what sits on the team's projects with no owner
+    const people = [...teamMembersList].sort((a, b) => (isTeamLead(b.id) - isTeamLead(a.id)) || byName(a, b));
+    const groups = people.map((c) => { const uid = uidOf[c.id]; return { c, arr: sortTasks(teamTasks.filter((t) => t.assigneeId === uid)) }; }).filter((g) => g.arr.length);
+    const seen = new Set(groups.flatMap((g) => g.arr.map((t) => t.id)));
+    const rest = sortTasks(teamTasks.filter((t) => !seen.has(t.id)));
+    body = `${quickAdd('task-quick', 'משימה חדשה לצוות… (Enter)', 'data-scope="mine"')}
+      ${groups.length || rest.length ? '' : '<div class="panel"><div class="empty">אין משימות פתוחות בצוות.</div></div>'}
+      ${groups.map((g) => taskGroup(`${esc(g.c.name)}${isTeamLead(g.c.id) ? ' · ראש/ת צוות' : ''}`, g.arr, { cls: g.arr.some(isOverdue) ? 'warn' : '' })).join('')}
+      ${taskGroup('ללא אחראי / מחוץ לצוות', rest)}`;
+  } else if (tab === 'mine') {
     const open = sortTasks(mine.filter(isOpenTask));
     const g = { overdue: [], today: [], week: [], later: [], none: [] };
     open.forEach((t) => { const k = dueInfo(t).key; (g[k] || g.none).push(t); });
@@ -3206,7 +3586,7 @@ function renderTasks() {
   }
   return `
   <div class="view-head">
-    <div><h1 class="view-title">משימות</h1><div class="view-sub">${tab === 'mine' ? 'מה מחכה לך, לפי דחיפות ותאריך. לחיצה על העיגול מסמנת כבוצע.' : tab === 'project' ? 'לוח משימות לכל פרויקט: לביצוע, בעבודה, ממתין, בוצע.' : tab === 'office' ? 'משימות שלא שייכות לפרויקט: אדמיניסטרציה, שיווק, משרד.' : 'כל המשימות במשרד, עם סינון.'}</div></div>
+    <div><h1 class="view-title">משימות</h1><div class="view-sub">${tab === 'mine' ? 'מה מחכה לך, לפי דחיפות ותאריך. לחיצה על העיגול מסמנת כבוצע.' : tab === 'team' ? 'המשימות הפתוחות של הצוות, לפי אנשים.' : tab === 'project' ? 'לוח משימות לכל פרויקט: לביצוע, בעבודה, ממתין, בוצע.' : tab === 'office' ? 'משימות שלא שייכות לפרויקט: אדמיניסטרציה, שיווק, משרד.' : 'כל המשימות במשרד, עם סינון.'}</div></div>
     <div class="view-actions">${canWriteTasks() ? `<button class="btn primary" data-action="new-task">${ICON.plus} משימה חדשה</button>` : ''}</div>
   </div>
   <div class="tabs">${tabs.map(([id, l, n]) => `<button type="button" class="${tab === id ? 'on' : ''}" data-action="ttab" data-tab="${id}">${l}${n ? `<span class="tab-badge">${n}</span>` : ''}</button>`).join('')}</div>
@@ -3548,9 +3928,9 @@ function projectVisitsSection(p) {
 /* ---------- view: שטח (site visits and inspection reports; meetings have their own tab) ---------- */
 function renderField() {
   const uid_ = me()?.id;
-  const recent = SV().filter((v) => v.kind !== 'meeting').sort((a, b) => (b.visitDate || '').localeCompare(a.visitDate || '') || (b.createdAt || '').localeCompare(a.createdAt || ''));
+  const recent = SV().filter((v) => v.kind !== 'meeting' && visitInScope('field', v)).sort((a, b) => (b.visitDate || '').localeCompare(a.visitDate || '') || (b.createdAt || '').localeCompare(a.createdAt || ''));
   const drafts = recent.filter((v) => v.status !== 'final' && v.authorId === uid_);
-  const openItems = VI().filter(isOpenItem).map((it) => ({ it, v: S.site_visits[it.visitId] })).filter((x) => x.v && x.v.kind !== 'meeting' && S.projects[x.v.projectId]?.state === 'active')
+  const openItems = VI().filter(isOpenItem).map((it) => ({ it, v: S.site_visits[it.visitId] })).filter((x) => x.v && x.v.kind !== 'meeting' && S.projects[x.v.projectId]?.state === 'active' && visitInScope('field', x.v))
     .sort((a, b) => (a.it.dueDate || '9999').localeCompare(b.it.dueDate || '9999') || (b.v.visitDate || '').localeCompare(a.v.visitDate || ''));
   const byProject = {}; openItems.forEach((x) => { byProject[x.v.projectId] = (byProject[x.v.projectId] || 0) + 1; });
   const q = norm(S.ui.fq || '');
@@ -3568,7 +3948,7 @@ function renderField() {
     </div>
     <div class="task-group">
       <div class="task-group-head"><span>דוחות אחרונים</span><small>${shown.length}</small></div>
-      <div class="add-row" style="margin:6px 0 10px"><input type="search" id="fq" placeholder="חיפוש לפי פרויקט, דוח או עורך…" value="${esc(S.ui.fq || '')}"></div>
+      <div class="add-row" style="margin:6px 0 10px;align-items:center;gap:10px">${scopeSwitch('field')}<input type="search" id="fq" placeholder="חיפוש לפי פרויקט, דוח או עורך…" value="${esc(S.ui.fq || '')}"></div>
       ${shown.length ? shown.slice(0, 30).map((v) => visitItem(v)).join('') : '<div class="inline-note">עדיין אין דוחות פיקוח. התחילו מ"ביקור באתר".</div>'}
     </div>
   </div>`;
@@ -4498,12 +4878,12 @@ function renderProjectPage() {
         ${nameEn(p) ? `<div class="pp-en">${nameEnHtml(p, true)}</div>` : ''}
         <div class="view-sub">${projectSubline(p)}</div>
       </div>
-      <div class="pp-side-head">${healthChip(p.health, { cls: 'btn-chip', attrs: `data-action="menu" data-menu="health" data-id="${p.id}" role="button" tabindex="0"` })}${p.state !== 'active' ? `<span class="tag internal">${STATES[p.state]}</span>` : ''}</div>
+      <div class="pp-side-head">${ro ? healthChip(p.health) : healthChip(p.health, { cls: 'btn-chip', attrs: `data-action="menu" data-menu="health" data-id="${p.id}" role="button" tabindex="0"` })}${ro ? '<span class="tag internal" title="פרטי הפרויקט מתעדכנים על ידי מוביל/ת הפרויקט, ראש/ת הצוות או ההנהלה">צפייה</span>' : ''}${p.state !== 'active' ? `<span class="tag internal">${STATES[p.state]}</span>` : ''}</div>
     </div>
     ${projectQuickAccess(p)}
     <nav class="pp-jump" aria-label="קפיצה לסעיף">${jump.map(([id, l]) => `<a href="#" data-action="scroll-to" data-target="${id}">${l}</a>`).join('')}</nav>
   </div>
-  <div class="pp-grid">
+  <div class="pp-grid ${ro ? 'frozen' : ''}">
     <div class="pp-main panel">
       ${typeof shootCard === 'function' ? shootCard(p) : ''}
       ${journeyStrip(p)}
@@ -4809,7 +5189,7 @@ function shootCard(p) {
       <div class="chips">${(s.partnerIds || []).map((id) => `<span class="chip ${contact(id) ? '' : 'dim'}"><a href="#" data-action="open-contact" data-id="${id}" style="color:inherit;text-decoration:none">${esc(cname(id, 'נמחק'))}</a>${ro ? '' : `<button class="x" data-action="pick-remove" data-col="shoots" data-doc="${s.id}" data-field="partnerIds" data-value="${id}" data-single="0" title="הסר">${ICON.x}</button>`}</span>`).join('')}
         ${ro ? '' : `<button class="btn small ghost" data-action="shoot-partner-add" data-id="${s.id}" title="${partnerPool.length ? 'הקבלנים והספקים של הפרויקט קודם' : ''}">${ICON.plus} הוסף</button>`}</div>
     </div>
-    ${isManager() ? `<div class="field"><label>מימון יום הצילום <small class="muted">מנהלים בלבד${funding.length ? ' · ' + fmtMoney(fundTotal) : ''}</small></label>
+    ${can('money') ? `<div class="field"><label>מימון יום הצילום <small class="muted">הנהלה וכספים${funding.length ? ' · ' + fmtMoney(fundTotal) : ''}</small></label>
       ${funding.length ? funding.map((f) => `<div class="fund-row">
         <span class="fund-who">${esc(cname(f.contactId, 'ללא שם'))}</span>
         <input type="number" min="0" step="100" id="fund-${f.id}" value="${f.amount ?? ''}" data-bind="shoot_funding:${f.id}:amount" placeholder="₪" inputmode="decimal">
@@ -4954,9 +5334,9 @@ const openMeetingItems = () => VI().filter(isOpenItem).map((it) => ({ it, v: S.s
 function upcomingMeetings(days = 14) {
   const today = todayStr(); const until = todayStr(new Date(Date.now() + days * 864e5));
   const out = MEETINGS().filter((v) => (v.visitDate || '') > today && (v.visitDate || '') <= until)
-    .map((v) => ({ date: v.visitDate, time: v.visitTime || '', label: visitLabel(v), sub: [visitProjectName(v), venueLabel(v), v.status === 'final' ? 'סוכם' : ''].filter(Boolean).join(' · '), attrs: `data-action="open-visit" data-id="${v.id}"`, icon: ICON.doc }));
+    .map((v) => ({ date: v.visitDate, time: v.visitTime || '', projectId: v.projectId || null, label: visitLabel(v), sub: [visitProjectName(v), venueLabel(v), v.status === 'final' ? 'סוכם' : ''].filter(Boolean).join(' · '), attrs: `data-action="open-visit" data-id="${v.id}"`, icon: ICON.doc }));
   (typeof R === 'function' ? R() : []).filter((r) => r.kind === 'meeting' && ['open', 'done'].includes(r.status) && r.startDate && r.startDate >= today && r.startDate <= until)
-    .forEach((r) => out.push({ date: r.startDate, time: r.atTime || '', label: r.title || 'פגישה', sub: [r.projectId && S.projects[r.projectId] ? S.projects[r.projectId].name : (REQ_SCOPES[r.scope] || ''), REQ_MEETING[r.meetingType] || '', r.status === 'open' ? 'ממתינה לקביעה' : 'נקבעה', uname(r.requesterId, '')].filter(Boolean).join(' · '), attrs: `data-action="open-request" data-id="${r.id}"`, icon: ICON.pin, pending: r.status === 'open' }));
+    .forEach((r) => out.push({ date: r.startDate, time: r.atTime || '', projectId: r.projectId || null, label: r.title || 'פגישה', sub: [r.projectId && S.projects[r.projectId] ? S.projects[r.projectId].name : (REQ_SCOPES[r.scope] || ''), REQ_MEETING[r.meetingType] || '', r.status === 'open' ? 'ממתינה לקביעה' : 'נקבעה', uname(r.requesterId, '')].filter(Boolean).join(' · '), attrs: `data-action="open-request" data-id="${r.id}"`, icon: ICON.pin, pending: r.status === 'open' }));
   return out.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
 }
 /* a meeting request administration still has to schedule: who asked, for what, how urgent */
@@ -4985,10 +5365,9 @@ function renderMeetings() {
   const uid_ = me()?.id;
   const all = meetingsSorted();
   const counts = {}; all.forEach((v) => { counts[venueOf(v)] = (counts[venueOf(v)] || 0) + 1; });
-  const venue = S.ui.mvenue, mine = S.ui.mmine, q = norm(S.ui.mq || '');
-  let shown = all;
+  const venue = S.ui.mvenue, q = norm(S.ui.mq || '');
+  let shown = all.filter((v) => visitInScope('meetings', v));
   if (venue) shown = shown.filter((v) => venueOf(v) === venue);
-  if (mine) shown = shown.filter((v) => v.authorId === uid_);
   if (q) shown = shown.filter((v) => norm([visitProjectName(v), visitLabel(v), visitTitle(v), uname(v.authorId, ''), v.attendees, v.summary].join(' ')).includes(q));
   const drafts = all.filter((v) => v.status !== 'final' && v.authorId === uid_);
   const openItems = openMeetingItems();
@@ -5013,7 +5392,7 @@ function renderMeetings() {
     </div>
     <div class="task-group" id="meetings-list">
       <div class="task-group-head"><span>סיכומים</span><small>${shown.length}${shown.length !== all.length ? ` מתוך ${all.length}` : ''}</small></div>
-      <div class="chips" style="margin:6px 0 8px">${venueChips}<span class="chip btn-chip ${mine ? 'accent' : ''}" data-action="mmine" role="button" tabindex="0">שלי</span></div>
+      <div class="chips" style="margin:6px 0 8px;align-items:center">${scopeSwitch('meetings')}${venueChips}</div>
       <div class="add-row" style="margin:0 0 10px"><input type="search" id="mq" placeholder="חיפוש לפי פרויקט, נושא, משתתפים או עורך…" value="${esc(S.ui.mq || '')}"></div>
       ${shown.length ? shown.slice(0, 40).map((v) => visitItem(v)).join('') + (shown.length > 40 ? '<div class="inline-note">מוצגים 40 האחרונים — צמצמו בחיפוש</div>' : '') : `<div class="inline-note">${all.length ? 'אין סיכומים שמתאימים לסינון.' : 'עדיין אין סיכומי פגישה. אחרי כל פגישה — סיכום קצר עם ההחלטות, ומי אחראי על מה.'}</div>`}
     </div>
@@ -5346,9 +5725,9 @@ const dayTotal = (cid, ymd) => entriesOf(cid, ymd).reduce((s, e) => s + (Number(
 const HOURS_ROLES = ['team_lead', 'staff'];
 const logsHours = (role) => HOURS_ROLES.includes(role);
 const iLogHours = () => logsHours(myRole());
-const hoursViewer = () => ['owner', 'manager', 'admin'].includes(myRole());
+const hoursViewer = () => can('hours_all'); // sees everyone's hours (management, administration, finance); has none to record
 const contactLogsHours = (cid) => { const p = profileByContact(cid); return !p || logsHours(p.role); }; // no account yet → will log once invited
-const leadsContact = (cid) => myRole() === 'team_lead' && !!S.contacts[cid]?.teamId && teamLeadId(S.contacts[cid].teamId) === myContactId();
+const leadsContact = (cid) => can('hours_team') && !!S.contacts[cid]?.teamId && teamLeadId(S.contacts[cid].teamId) === myContactId();
 const canTouchHours = (cid) => !!cid && iLogHours() && (cid === myContactId() || leadsContact(cid));
 const canSeeHours = (cid) => !!cid && (hoursViewer() || cid === myContactId() || leadsContact(cid));
 const previousWorkday = (c, ymd) => { for (let i = 1; i <= 7; i++) { const d = addDays(ymd, -i); if (isWorkday(c, d)) return d; } return null; };
@@ -5489,7 +5868,7 @@ function renderTime() {
   const cid = who || (viewer ? null : myCid); // a viewer (owner / manager / administration) has no hours of their own to show
   const ymd = S.ui.timeDate || (cid ? (openDaysOf(cid).slice(-1)[0] || todayStr()) : todayStr());
   const c = cid ? S.contacts[cid] : null;
-  const canPick = viewer || myRole() === 'team_lead';
+  const canPick = viewer || can('hours_team');
   const sub = viewer ? 'הרישום היומי של העובדים לפי פרויקט — צפייה וייצוא. מנהלים ואדמיניסטרציה לא רושמים שעות.' : `רישום יומי לפי פרויקט בחצאי שעות — היעד הוא שעות המשרה של כל אחד${myCid ? ` · <a href="#" data-action="te-who" data-cid="${myCid}">השעות שלי</a>` : ''}`;
   const person = !c ? '' : `
   <div class="panel">
@@ -5575,7 +5954,7 @@ const CREDIT_FIELDS = [['role', 'תפקיד', 'מטבח, עיצוב תאורה, 
 ICON.archive = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="4" width="14" height="4"/><path d="M4 8v8h12V8M8 11h4"/></svg>';
 ICON.globe = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10" cy="10" r="7"/><path d="M3 10h14M10 3c2.5 2.5 2.5 11.5 0 14M10 3c-2.5 2.5-2.5 11.5 0 14"/></svg>';
 /* who sees the archive (mirror of can_see_archive): managers, administration, the PR / social people */
-const canSeeArchive = () => !!me() && (isManager() || myRole() === 'admin' || (typeof shootFns === 'function' && (shootFns().social.includes(me().id) || shootFns().pr.includes(me().id))));
+const canSeeArchive = () => !!me() && (can('archive') || (typeof shootFns === 'function' && (shootFns().social.includes(me().id) || shootFns().pr.includes(me().id))));
 const canEditArchive = canSeeArchive;
 const archiveOf = (pid) => S.project_archive[pid] || null;
 /* the archive's projects: only projects with an archive card (the website's completed projects, plus whatever a manager added with "פרויקט לארכיון");
@@ -5933,8 +6312,8 @@ const SEAT_CSS = ".seat-plan .fine { fill: none; stroke: #354394; stroke-width: 
    zone). Owners, managers and administration only: the rows live in `seats` (RLS by role); a desk row = { contact_id, extension, note },
    a room row (id 'room:<id>') carries the room's label. Every piece of text is HTML over the SVG (SVG text came out reversed on some browsers). */
 S.seats = {};
-const canEditSeating = () => !!me() && (isManager() || myRole() === 'admin');
-const canSeeSeating = () => canEditSeating() || myRole() === 'team_lead'; // team leads look, they do not touch
+const canEditSeating = () => !!me() && can('seating_edit');
+const canSeeSeating = () => !!me() && (can('seating_view') || can('seating_edit'));
 const seatRow = (id) => S.seats[id] || null;
 const seatDef = (id) => SEAT_PLAN.seats.find((s) => s.id === id) || null;
 const roomDef = (id) => SEAT_PLAN.rooms.find((r) => r.id === id) || null;
@@ -6194,7 +6573,7 @@ function renderOverlay() {
   const d = S.ui.drawer;
   let html = '';
   if (d) {
-    const body = d.kind === 'project' ? drawerProject(d.id) : d.kind === 'contact' ? drawerContact(d.id) : d.kind === 'import' ? drawerImport() : d.kind === 'task' ? drawerTask(d.id) : d.kind === 'visit' ? drawerVisit(d.id) : d.kind === 'request' ? drawerRequest(d.id) : d.kind === 'request-new' ? drawerNewRequest() : d.kind === 'material' ? drawerMaterial(d.id) : d.kind === 'seat' ? drawerSeat(d.id) : d.kind === 'room' ? drawerRoom(d.id) : d.kind === 'password' ? drawerPassword() : drawerCommission(d.id);
+    const body = d.kind === 'project' ? drawerProject(d.id) : d.kind === 'contact' ? drawerContact(d.id) : d.kind === 'import' ? drawerImport() : d.kind === 'task' ? drawerTask(d.id) : d.kind === 'visit' ? drawerVisit(d.id) : d.kind === 'request' ? drawerRequest(d.id) : d.kind === 'request-new' ? drawerNewRequest() : d.kind === 'material' ? drawerMaterial(d.id) : d.kind === 'seat' ? drawerSeat(d.id) : d.kind === 'room' ? drawerRoom(d.id) : d.kind === 'password' ? drawerPassword() : d.kind === 'prefs' ? drawerPrefs() : drawerCommission(d.id);
     const pend = hasPending() && S.ui.autoSaveFailed ? `<div class="drawer-save"><span>${pendingCount() === 1 ? 'שינוי אחד לא נשמר' : pendingCount() + ' שינויים לא נשמרו'} — אין חיבור?</span><button class="btn primary small" data-action="pending-save" ${S.ui.committing ? 'disabled' : ''}>${S.ui.committing ? 'שומר…' : 'שמור שוב'}</button><button class="btn small" data-action="pending-discard" ${S.ui.committing ? 'disabled' : ''}>בטל</button></div>` : '';
     html += `<div class="scrim" data-action="close-drawer"></div><aside class="drawer" role="dialog" aria-modal="true" data-key="${esc(drawerKey())}">${body}${pend}</aside>`;
   }
@@ -6214,6 +6593,7 @@ function closeDrawer(force) {
 
 function pickerChips(p, role, col = 'projects') {
   const ids = role.single ? (p[role.field] ? [p[role.field]] : []) : (p[role.field] || []);
+  if (col === 'projects' && !canEditProject(p)) return `<div class="chips">${ids.length ? ids.map((id) => `<a href="#" class="chip ${contact(id) ? '' : 'dim'}" data-action="open-contact" data-id="${id}" style="color:inherit;text-decoration:none">${esc(cname(id, 'איש קשר שנמחק'))}</a>`).join('') : '<span class="muted">—</span>'}</div>`; // frozen: see, don't touch
   const chips = ids.map((id) => `<span class="chip ${contact(id) ? '' : 'dim'}" ${contact(id)?.active === false ? 'title="עובד/ת לשעבר"' : ''}><a href="#" data-action="open-contact" data-id="${id}" style="color:inherit;text-decoration:none">${esc(cname(id, 'איש קשר שנמחק'))}${contact(id)?.type === 'employee' && contact(id)?.active === false ? ' <small class="muted">(לשעבר)</small>' : isFreelancer(contact(id)) ? ' <small class="muted">(פרילנסר/ית)</small>' : ''}</a><button class="x" data-action="pick-remove" data-col="${col}" data-doc="${p.id}" data-field="${role.field}" data-value="${id}" data-single="${role.single ? 1 : 0}" title="הסר">${ICON.x}</button></span>`);
   const add = (!role.single || !ids.length) ? `<button class="btn small ghost" data-action="pick-add" data-col="${col}" data-doc="${p.id}" data-field="${role.field}" data-type="${role.type}" data-single="${role.single ? 1 : 0}">${ICON.plus} ${role.single ? 'בחר' : 'הוסף'}</button>` : '';
   return `<div class="chips">${chips.join('')}${add}</div>`;
@@ -6255,6 +6635,19 @@ function projectStatusBox(p) {
   const st = settings();
   const d = daysSince(p.statusUpdatedAt);
   const noteDraft = S.ui.drafts['p-statusNote'];
+  if (!canEditProject(p)) return `<div class="section" id="status-section">
+      <div class="status-box">
+        <div class="field-row" style="margin-bottom:6px">
+          ${field('מצב', `<div style="padding-top:5px"><span class="chip ${p.state === 'active' ? 'green' : 'dim'}">${esc(STATES[p.state] || p.state || '')}</span></div>`)}
+          ${field('גודל', `<div style="padding-top:5px">${esc(st.sizes.find((x) => x.id === (p.size || 'm'))?.name || '')}</div>`)}
+          ${field('שלב נוכחי', `<div style="padding-top:5px">${(() => { const c = S.milestonesLoaded[p.id] ? currentStageRow(p) : null; return menuChip(c ? c.name : phaseLabel(p), `data-action="goto-journey" data-id="${p.id}"`, c ? ({ active: 'stg-active', late: 'stg-late', stuck: 'stg-stuck' }[c.state] || '') : (allPhasesDone(p) ? 'green' : 'dim')); })()}</div>`, 'לחיצה: לשלבים ואבני הדרך')}
+          ${field('סט תוכניות אחרון', `<div style="padding-top:5px">${latestSetChip(p, { empty: true })}</div>`, 'לחיצה: לקבצים')}
+          ${field('רמזור', `<div style="padding-top:5px">${healthChip(p.health)}</div>`)}
+        </div>
+        ${p.statusNote ? `<div class="field"><label>הערת סטטוס</label><div class="status-note">${esc(p.statusNote)}</div></div>` : ''}
+        <span class="status-meta">${p.statusUpdatedAt ? `עודכן ${fmtDate(p.statusUpdatedAt)} (${d === 0 ? 'היום' : 'לפני ' + d + ' ימים'})` : 'הסטטוס עדיין לא עודכן'} · ${esc(cname(p.leadId, '') || cname(teamLeadId(p.teamId), '') || 'ראש/ת הצוות')} מעדכן/ת</span>
+      </div>
+    </div>`;
   return `<div class="section" id="status-section">
       <div class="status-box">
         <div class="field-row" style="margin-bottom:10px">
@@ -6356,13 +6749,13 @@ function drawerProject(id) {
   return `
   <div class="drawer-head">
     <div style="flex:1;min-width:0">
-      <h2 class="drawer-title"><input type="text" id="p-name" value="${esc(S.ui.drafts['p-name'] ?? p.name)}" data-bind="projects:${p.id}:name" aria-label="שם הפרויקט"></h2>
+      <h2 class="drawer-title">${canEditProject(p) ? `<input type="text" id="p-name" value="${esc(S.ui.drafts['p-name'] ?? p.name)}" data-bind="projects:${p.id}:name" aria-label="שם הפרויקט">` : esc(p.name)}</h2>
       ${nameEn(p) ? `<div class="drawer-en">${nameEnHtml(p, true)}</div>` : ''}
       <div class="drawer-sub">${projectSubline(p)} · <a href="#" data-action="open-project-page" data-id="${p.id}" style="color:inherit">דף הפרויקט</a></div>
     </div>
     <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
   </div>
-  <div class="drawer-body">
+  <div class="drawer-body ${canEditProject(p) ? '' : 'frozen'}">
     ${journeyStrip(p)}
     ${projectStatusBox(p)}
 
@@ -6599,6 +6992,27 @@ function subProjectsSection(p) {
     ${canWriteProjects() ? `<button class="btn small" style="margin-top:8px" data-action="new-subproject" data-id="${p.id}">${ICON.plus} תת-פרויקט חדש</button>` : ''}
   </div>`;
 }
+/* my own defaults: where the app opens, and the scope each list opens on (saved per person in user_prefs) */
+function drawerPrefs() {
+  const views = visibleViews().filter((v) => v.id !== 'users');
+  const lists = [['overview', 'סקירה'], ['projects', 'פרויקטים'], ['tasks', 'משימות'], ['meetings', 'פגישות'], ['field', 'שטח']].filter(([l]) => scopeOptions(l).length > 1);
+  const landing = (S.prefs.landing && views.some((v) => v.id === S.prefs.landing)) ? S.prefs.landing : '';
+  return `<div class="drawer-head">
+    <div><h2 class="drawer-title">ההעדפות שלי</h2><div class="drawer-sub">${esc(me()?.fullName || me()?.email || '')} · נשמר לבד</div></div>
+    <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
+  </div>
+  <div class="drawer-body">
+    <div class="section">
+      ${field('המסך שנפתח בכניסה', selectHtml('pref-landing', landing, views.map((v) => ({ value: v.id, label: v.label })), { blank: 'ברירת המחדל של התפקיד', attrs: 'data-pref="landing"' }))}
+    </div>
+    ${lists.length ? `<div class="section">
+      <h3 class="section-title">על מה כל רשימה נפתחת <small>שלי · הצוות · המשרד</small></h3>
+      <div class="inline-note" style="margin-bottom:8px">המתג בראש כל רשימה זוכר את הבחירה האחרונה; כאן אפשר לקבוע אותה במפורש.</div>
+      ${lists.map(([l, label]) => field(label, selectHtml('pref-scope-' + l, scopeOf(l), scopeOptions(l).map((o) => ({ value: o, label: SCOPE_LABELS[o] })), { attrs: `data-pref-scope="${l}"` }))).join('')}
+    </div>` : ''}
+    <div class="section"><button class="btn ghost small" data-action="prefs-reset">חזרה לברירות המחדל של התפקיד</button></div>
+  </div>`;
+}
 /* the signed-in user picks a new password (no email round-trip) */
 function drawerPassword() {
   const st = S.ui.pw || {};
@@ -6818,13 +7232,13 @@ function setEmpLevel(cid, patch) {
   createDoc('employee_levels', cid, Object.assign({ level: null, note: '' }, patch));
 }
 function levelSection(c) {
-  if (!canSeeLevels() || c.type !== 'employee') return '';
+  if (!canSeeLevelOf(c)) return ''; // the own team for a team lead, everyone for management, nobody else
   const row = levelRow(c.id); const manual = manualLevel(c); const auto = autoLevel(c.startDate); const lvl = empLevel(c);
   const edit = canEditLevel(c);
   const lead = isTeamLead(c.id); const cl = capacityLevel(c);
   const load = personalLoads(activeProjects())[c.id] || 0; const u = utilInfo(load, cl);
   return `<div class="section" id="level-section">
-    <h3 class="section-title">רמת ניסיון ועומס <small>לראשי צוותים ומעלה</small></h3>
+    <h3 class="section-title">רמת ניסיון ועומס <small>להנהלה ולראש/ת הצוות</small></h3>
     <div class="field-row">
       ${field('רמה ידנית (0–2, קפיצות של 0.25)', `<input type="number" id="c-level" min="0" max="${LEVEL_MAX}" step="0.25" value="${manual ?? ''}" placeholder="אוטומטי: ${fmtNum(auto, 2)}" data-bind="employee_levels:${c.id}:level" ${edit ? '' : 'disabled'}>`, `ותק: ${esc(tenureLabel(c.startDate))} · רמה אוטומטית ${fmtNum(auto, 2)}${c.startDate ? '' : ' (אין תאריך תחילת עבודה — נספר/ת כרמה 1)'}`)}
       ${field('הערה', textInput('c-level-note', row?.note || '', `data-bind="employee_levels:${c.id}:note" placeholder="למשל: ניסיון קודם ממשרד אחר" ${edit ? '' : 'disabled'}`))}
@@ -7097,6 +7511,8 @@ document.addEventListener('change', (e) => {
   if (id === 'k-status') { S.ui.kfilter.status = el.value; render(); return; }
   if (id === 'c-inactive') { S.ui.showInactive = el.checked; render(); return; }
   if (id === 'import-type') { S.ui.importState.type = el.value; render(); return; }
+  if (el.dataset.pref === 'landing') { savePrefs({ landing: el.value || null }); return; }
+  if (el.dataset.prefScope) { setScope(el.dataset.prefScope, el.value); return; }
   if (el.classList.contains('acct-pick') || id === 'acct-role') { S.ui.acct = Object.assign({}, S.ui.acct || {}, { emails: [...document.querySelectorAll('.acct-pick:checked')].map((i) => i.value), role: document.getElementById('acct-role')?.value || 'staff' }); return; }
   if (el.dataset.userRole) { const pid = el.dataset.userRole; const role = el.value; patchDoc('profiles', pid, { role }).then((ok) => { if (ok) toast('התפקיד עודכן'); }); return; }
   if (id === 'k-supplier') { S.ui.kfilter.supplier = el.value; render(); return; }
@@ -7371,6 +7787,7 @@ document.addEventListener('click', async (e) => {
     case 'req-cancel': { cancelRequest(ds.id); closeDrawer(true); toast('הבקשה בוטלה'); break; }
     case 'notif-read-all': e.stopPropagation(); markRead(S.notifications.filter((n) => !n.readAt).map((n) => n.id)); break;
     case 'goto-projects': {
+      if (ds.scope && scopeOptions('projects').includes(ds.scope)) { S.ui.scope = S.ui.scope || {}; S.ui.scope.projects = ds.scope; } // for this visit only; the switch itself sets the remembered default
       const f = S.ui.filters; Object.assign(f, { q: '', team: '', lead: '', phase: '', health: '', type: '', state: ds.state || 'active', flag: '' });
       if (ds.phase) f.phase = ds.phase; if (ds.health) f.health = ds.health; if (ds.team) f.team = ds.team; if (ds.lead) f.lead = ds.lead; if (ds.flag) f.flag = ds.flag;
       saveUi(); nav('projects'); break;
@@ -7474,6 +7891,10 @@ document.addEventListener('click', async (e) => {
     case 'acct-all': { document.querySelectorAll('.acct-pick').forEach((i) => { i.checked = ds.on === '1'; }); S.ui.acct = Object.assign({}, S.ui.acct || {}, { emails: [...document.querySelectorAll('.acct-pick:checked')].map((i) => i.value) }); break; }
     case 'acct-show': { S.ui.acct = Object.assign({}, S.ui.acct || {}, { pw: document.getElementById('acct-pw')?.value || '', show: !(S.ui.acct && S.ui.acct.show) }); render(); break; }
     case 'acct-result-close': S.ui.acctResult = null; render(); break;
+    // ----- personal permissions (owner) -----
+    case 'perm-user': S.ui.permUser = ds.id; render(); break;
+    case 'perm-set': { if (!isOwner()) break; const v = ds.value === '' ? null : ds.value === '1'; setPermission(ds.user, ds.key, v); break; }
+    case 'perm-reset': { if (!isOwner()) break; overridesOf(ds.user).forEach((o) => setPermission(ds.user, o.key, null)); toast('חזרה לברירת המחדל של התפקיד'); break; }
     case 'accounts-open': {
       if (!isOwner()) { toast('בעלים בלבד'); break; }
       if (!ds.confirmed) {
@@ -7497,6 +7918,10 @@ document.addEventListener('click', async (e) => {
       try { await fetchProfiles(); } catch (_) { /* the realtime catches up */ }
       render(); toast(data.created ? `נפתחו ${data.created} חשבונות` : 'לא נפתח אף חשבון'); break;
     }
+    // scope and personal defaults
+    case 'scope': setScope(ds.list, ds.scope); break;
+    case 'prefs': openDrawer('prefs', null); break;
+    case 'prefs-reset': { S.ui.scope = {}; savePrefs({ landing: null, scope: {} }); render(); toast('ההעדפות אופסו'); break; }
     // the signed-in user's own password
     case 'change-pw': { S.ui.pw = {}; openDrawer('password', null); setTimeout(() => document.getElementById('pw-new')?.focus(), 30); break; }
     case 'password-save': {
