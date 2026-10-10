@@ -3293,7 +3293,7 @@ async function afterSignIn(session) {
   if (r === 'pending') { S.auth.status = 'pending'; S.auth.startingFor = null; render(); return; }
   if (r === 'disabled') { S.auth.status = 'disabled'; S.auth.startingFor = null; render(); return; }
   S.auth.status = 'ready';
-  if (!VIEWS.some((v) => v.id === S.ui.view)) S.ui.view = 'overview';
+  if (!VIEWS.some((v) => v.id === S.ui.view) && !['project', 'archive-page', 'report'].includes(S.ui.view)) S.ui.view = 'overview'; // a deep link (#project/…) survives the sign-in
   if (!location.hash) S.ui.view = 'overview'; // a fresh sign-in opens on the person's overview (their own, the team's or the office's); the preferences may say otherwise below
   await loadAll();
   if (!location.hash && S.prefs.landing && VIEWS.some((v) => v.id === S.prefs.landing) && visibleViews().some((v) => v.id === S.prefs.landing)) { S.ui.view = S.prefs.landing; render(); }
