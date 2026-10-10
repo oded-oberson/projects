@@ -485,6 +485,7 @@
   .split-name { min-width: 0; }
   .split-meta { color: var(--ink-3); font-size: 12px; text-align: start; }
   .split-pick .confirm-inline { margin-top: 6px; }
+  .split-tools { display: flex; gap: 6px; }
   /* personal permissions (owner) */
   .perm-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
   .perm-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 6px 24px; margin-bottom: 10px; }
@@ -6958,6 +6959,7 @@ function journeySection(p) {
   const secInfo = (sec) => { const ms = all.filter((m) => m.section === sec && !msIsStageRow(m)); return { sec, n: ms.length, done: ms.filter((m) => m.state === 'done').length, render: RENDER_SECTION_RE.test(sec), billing: BILLING_SECTION_RE.test(sec) }; };
   const splitBlock = !canSplit ? '' : `<div class="inline-note fit-note">החוזה מחולק ל-${sections.length} מקטעים${kids.length ? ` (יש כבר ${kids.length} תת-פרויקטים)` : ''}. מקטע שהוא חבילת עבודה בפני עצמה — מגרש, דגם, הדמיות — יכול להיות תת-פרויקט. ${splitOpen ? '' : `<button type="button" class="btn small" data-action="split-sections" data-id="${p.id}">פצל לתת-פרויקטים…</button>`}
     ${splitOpen ? `<div class="split-pick">
+      <div class="split-tools"><button type="button" class="btn ghost small" data-action="split-all" data-on="1">סמן הכל</button><button type="button" class="btn ghost small" data-action="split-all" data-on="0">נקה</button></div>
       ${sections.map(secInfo).map((x) => `<label class="split-row"><input type="checkbox" class="split-sec" value="${esc(x.sec)}" ${x.billing || !x.n ? '' : 'checked'}><span class="split-name">${esc(x.sec)}</span><span class="split-meta">${x.n} אבני דרך${x.done ? ` · ${x.done} הושלמו` : ''}${x.render ? ' · <strong>הדמיות — שני שלבים: מקדמה · מסירה</strong>' : ''}${x.billing ? ' · <span class="muted">נראה כסעיף תשלום</span>' : ''}</span></label>`).join('')}
       <div class="inline-note">כל מקטע מסומן הופך לתת-פרויקט (אותו לקוח, צוות ומוביל/ה) ואבני הדרך שלו עוברות אליו. מקטע הדמיות מקבל את שני השלבים של המשרד: מקדמה ומסירה. מה שלא מסומן נשאר כאן.</div>
       <span class="confirm-inline"><button type="button" class="btn small primary" data-action="split-sections" data-id="${p.id}" data-confirmed="1">כן, פצל את המסומנים</button><button type="button" class="btn small" data-action="cancel-confirm">בטל</button></span>
@@ -7948,6 +7950,7 @@ document.addEventListener('click', async (e) => {
     case 'acct-result-close': S.ui.acctResult = null; render(); break;
     // ----- personal permissions (owner) -----
     case 'perm-user': S.ui.permUser = ds.id; render(); break;
+    case 'split-all': document.querySelectorAll('.split-pick .split-sec').forEach((i) => { i.checked = ds.on === '1'; }); break;
     case 'perm-set': { if (!isOwner()) break; const v = ds.value === '' ? null : ds.value === '1'; setPermission(ds.user, ds.key, v); break; }
     case 'perm-reset': { if (!isOwner()) break; overridesOf(ds.user).forEach((o) => setPermission(ds.user, o.key, null)); toast('חזרה לברירת המחדל של התפקיד'); break; }
     case 'accounts-open': {
