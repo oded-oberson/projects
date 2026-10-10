@@ -474,6 +474,17 @@
   .seat-wrap { overflow-x: auto; }
   .seat-stage { --k: .62; position: relative; width: 100%; min-width: 980px; }
   .seat-plan { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  /* milestone marks and the section picker */
+  .ms-mark { margin-inline-start: 6px; font-size: 11px; vertical-align: 1px; }
+  .ms-mark.changes { background: var(--warn-soft); color: var(--warn-ink); }
+  .ms-mark.addition { background: var(--accent-soft); color: var(--ink-2); }
+  .stg-meta .marks { color: var(--warn-ink); }
+  .split-pick { margin-top: 8px; display: grid; gap: 4px; }
+  .split-row { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: baseline; padding: 4px 0; border-bottom: 1px solid var(--line); font-weight: 400; }
+  .split-row:last-of-type { border-bottom: 0; }
+  .split-name { min-width: 0; }
+  .split-meta { color: var(--ink-3); font-size: 12px; text-align: start; }
+  .split-pick .confirm-inline { margin-top: 6px; }
   /* personal permissions (owner) */
   .perm-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
   .perm-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 6px 24px; margin-bottom: 10px; }
@@ -6788,6 +6799,15 @@ function drawerProject(id) {
    No money here — fees live in milestone_fees (managers only, for billing later). Status/checklist: every member; structure (add/rename/remove): team leads and up. */
 const MS_STATE = { todo: { label: 'טרם התחיל', icon: 'phTodo', next: 'active' }, active: { label: 'בתהליך', icon: 'phActive', next: 'done' }, done: { label: 'הושלם', icon: 'phDone', next: 'todo' } };
 const MS_CONTRACTS = ['חוזה', 'תוספת לחוזה', 'שינויים'];
+/* a marking on a milestone, not a stage (Oded, 6.10.2026): re-design / changes, or an addition to an existing agreement */
+const MS_MARKS = { changes: 'שינויים', addition: 'תוספת להסכם' };
+const msMarkLabel = (m) => (m && m.mark && MS_MARKS[m.mark]) || '';
+/* a contract section about renderings — by the office rule it becomes a sub-project with two stages: advance and delivery */
+const RENDER_SECTION_RE = /הדמי|render|visuali|סיור ו?וירטואלי|virtual tour/i;
+const ADVANCE_MS_RE = /מקדמ|advance|down payment|upfront|תחילת העבודה|התחלת העבודה|commencement/i;
+/* sections that read like billing lines rather than work packages — left in the parent when splitting, unless ticked */
+const BILLING_SECTION_RE = /שכ"?ט|שכר טרחה|תשלום|יתרת|יתרה|חשבון|שעות/;
+const RENDER_STAGES = () => [{ id: 'cs_advance', name: 'מקדמה' }, { id: 'cs_delivery', name: 'מסירה' }];
 const canEditMilestones = () => ['owner', 'manager', 'team_lead'].includes(myRole());
 const milestonesOf = (pid) => Object.values(S.project_milestones).filter((m) => m.projectId === pid).sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0) || (a.createdAt || '').localeCompare(b.createdAt || ''));
 const msTypeName = (m) => (m.typeId && S.milestone_types[m.typeId]?.name) || m.name;
@@ -6806,7 +6826,7 @@ function milestoneRow(p, m, ro) {
   return `<div class="msr ${m.state} ${open ? 'open' : ''}" id="msr-${m.id}">
     <div class="msr-head">
       <button type="button" class="phase-state" data-action="ms-state" data-id="${m.id}" title="${st.label} — לחיצה משנה ל: ${MS_STATE[st.next].label}" ${ro ? 'disabled' : ''}>${ICON[st.icon]}</button>
-      <div class="msr-name" data-action="ms-toggle" data-id="${m.id}" ${hint ? `title="${esc(hint)}"` : ''}>${esc(tname_)}</div>
+      <div class="msr-name" data-action="ms-toggle" data-id="${m.id}" ${hint ? `title="${esc(hint)}"` : ''}>${esc(tname_)}${msMarkLabel(m) ? ` <span class="tag internal ms-mark ${m.mark}">${msMarkLabel(m)}</span>` : ''}</div>
       <div class="msr-meta">${tOpen.length ? `<span title="משימות פתוחות">${tOpen.length} משימות</span>` : ''}${cl.length ? `<span title="צ'קליסט">${clDone}/${cl.length} ✓</span>` : ''}${nFiles ? `<span title="מסמכים">${ICON.doc} ${nFiles}</span>` : ''}${due.label ? `<span class="due ${due.cls}">${esc(due.label)}</span>` : ''}</div>
       <button type="button" class="icon-btn msr-caret" data-action="ms-toggle" data-id="${m.id}" title="${open ? 'סגור' : 'פתח'}">${open ? '▴' : '▾'}</button>
     </div>
@@ -6828,7 +6848,8 @@ function milestoneRow(p, m, ro) {
       ${field('הערות', textArea('msnote-' + m.id, m.notes, `rows="2" data-bind="project_milestones:${m.id}:notes" ${ro ? 'disabled' : ''}`))}
       ${milestoneFilesField(p, m, ro)}
       ${canEditMilestones() ? `<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap">
-        ${selectHtml('msst-' + m.id, msStage(m) === STAGE_NONE ? '' : msStage(m), stageList(p).map((id) => ({ value: id, label: stageName(id, p) })), { blank: 'ללא שלב', attrs: `data-msstage="${m.id}" style="max-width:200px" title="השלב של אבן הדרך"` })}
+        <span style="display:flex;gap:8px;flex-wrap:wrap">${selectHtml('msst-' + m.id, msStage(m) === STAGE_NONE ? '' : msStage(m), stageList(p).map((id) => ({ value: id, label: stageName(id, p) })), { blank: 'ללא שלב', attrs: `data-msstage="${m.id}" style="max-width:200px" title="השלב של אבן הדרך"` })}
+        ${selectHtml('msmark-' + m.id, m.mark || '', Object.entries(MS_MARKS).map(([value, label]) => ({ value, label })), { blank: 'ללא סימון', attrs: `data-bind="project_milestones:${m.id}:mark" style="max-width:160px" title="סימון: שינויים / תכנון מחדש, או תוספת להסכם קיים — לא שלב"` })}</span>
         <button class="btn ghost small" data-action="ms-del" data-id="${m.id}">הסר אבן דרך</button></div>` : ''}
     </div>` : ''}
   </div>`;
@@ -6932,15 +6953,26 @@ function journeySection(p) {
   const realAll = work.filter((m) => !msIsStageRow(m)); const realDone = realAll.filter((m) => m.state === 'done').length;
   const loose = realAll.filter((m) => msStage(m) === STAGE_NONE);
   const sections = [...new Set(all.map((m) => m.section).filter(Boolean))];
-  const canSplit = canWriteProjects() && !kids.length && sections.length > 1;
+  const canSplit = canWriteProjects() && sections.length > 1;
+  const splitOpen = S.ui.confirm === 'split:' + p.id;
+  const secInfo = (sec) => { const ms = all.filter((m) => m.section === sec && !msIsStageRow(m)); return { sec, n: ms.length, done: ms.filter((m) => m.state === 'done').length, render: RENDER_SECTION_RE.test(sec), billing: BILLING_SECTION_RE.test(sec) }; };
+  const splitBlock = !canSplit ? '' : `<div class="inline-note fit-note">החוזה מחולק ל-${sections.length} מקטעים${kids.length ? ` (יש כבר ${kids.length} תת-פרויקטים)` : ''}. מקטע שהוא חבילת עבודה בפני עצמה — מגרש, דגם, הדמיות — יכול להיות תת-פרויקט. ${splitOpen ? '' : `<button type="button" class="btn small" data-action="split-sections" data-id="${p.id}">פצל לתת-פרויקטים…</button>`}
+    ${splitOpen ? `<div class="split-pick">
+      ${sections.map(secInfo).map((x) => `<label class="split-row"><input type="checkbox" class="split-sec" value="${esc(x.sec)}" ${x.billing || !x.n ? '' : 'checked'}><span class="split-name">${esc(x.sec)}</span><span class="split-meta">${x.n} אבני דרך${x.done ? ` · ${x.done} הושלמו` : ''}${x.render ? ' · <strong>הדמיות — שני שלבים: מקדמה · מסירה</strong>' : ''}${x.billing ? ' · <span class="muted">נראה כסעיף תשלום</span>' : ''}</span></label>`).join('')}
+      <div class="inline-note">כל מקטע מסומן הופך לתת-פרויקט (אותו לקוח, צוות ומוביל/ה) ואבני הדרך שלו עוברות אליו. מקטע הדמיות מקבל את שני השלבים של המשרד: מקדמה ומסירה. מה שלא מסומן נשאר כאן.</div>
+      <span class="confirm-inline"><button type="button" class="btn small primary" data-action="split-sections" data-id="${p.id}" data-confirmed="1">כן, פצל את המסומנים</button><button type="button" class="btn small" data-action="cancel-confirm">בטל</button></span>
+    </div>` : ''}</div>`;
   const editing = !!S.ui.stageEdit[p.id];
   const stageBlock = (sg) => {
     const key = p.id + ':' + sg.id;
     const open = S.ui.stgOpen[key] ?? sg.current;
     const next = stages[sg.index + 1] || null;
     const kidBits = kids.length ? kids.map((k) => { const q = (stageProgressOf(k)[sg.id]) || emptyProg(); return q.total ? `<button type="button" class="chip ${q.done === q.total ? 'green' : q.done || q.active ? 'accent' : 'dim'}" data-action="open-project" data-id="${k.id}" title="${esc(k.name)}">${esc(k.name)} ${q.done}/${q.total}</button>` : ''; }).join('') : '';
+    const nChanges = sg.real.filter((m) => m.mark === 'changes').length, nAdd = sg.real.filter((m) => m.mark === 'addition').length;
     const meta = [
       sg.realTotal ? `<span title="אבני דרך">${sg.realDone}/${sg.realTotal}</span>` : '',
+      nChanges ? `<span class="marks" title="אבני דרך של שינויים / תכנון מחדש">${nChanges} שינויים</span>` : '',
+      nAdd ? `<span class="marks" title="אבני דרך של תוספת להסכם">${nAdd} תוספות</span>` : '',
       sg.state === 'late' ? `<span class="late">באיחור · יעד ${fmtDate(sg.target)}</span>` : sg.state === 'stuck' ? `<span class="stuck">ללא תנועה ${daysSince(sg.lastChange)} ימים</span>` : sg.target && sg.state !== 'done' ? `<span>יעד ${fmtDate(sg.target)}</span>` : '',
     ].filter(Boolean).join('');
     const addOpen = !!S.ui.msAddOpen[key];
@@ -6972,10 +7004,37 @@ function journeySection(p) {
     <h3 class="section-title">שלבים ואבני דרך <small>${cur ? `שלב ${cur.index + 1} מתוך ${stages.length}${realAll.length ? ` · ${realDone}/${realAll.length} אבני דרך` : ''}` : (allPhasesDone(p) ? 'הפרויקט הושלם' : 'טרם התחיל')}</small>
       ${can && !kids.length ? `<button type="button" class="btn ghost small" style="float:left" data-action="stage-edit" data-id="${p.id}">${editing ? 'סיום עריכה' : 'ערוך שלבים'}</button>` : ''}</h3>
     ${editing ? stageEditor(p) : ''}
-    ${canSplit ? `<div class="inline-note fit-note">החוזה מחולק ל-${sections.length} מקטעים (${esc(sections.slice(0, 4).join(', '))}${sections.length > 4 ? '…' : ''}). ${S.ui.confirm === 'split:' + p.id ? `<span class="confirm-inline"><span class="inline-note">ליצור ${sections.length} תת-פרויקטים ולהעביר אליהם את אבני הדרך?</span><button type="button" class="btn small primary" data-action="split-sections" data-id="${p.id}" data-confirmed="1">כן, פצל</button><button type="button" class="btn small" data-action="cancel-confirm">בטל</button></span>` : `<button type="button" class="btn small" data-action="split-sections" data-id="${p.id}">פצל לתת-פרויקטים</button>`}</div>` : ''}
+    ${splitBlock}
     <div class="stg-list">${stages.map(stageBlock).join('')}${looseBlock}</div>
     ${billing.length && isManager() ? `<div class="inline-note" style="margin-top:8px">${billing.length} אבני דרך לחיוב בלבד (מקדמות, תשלומים) מוסתרות מרשימת העבודה. ${S.ui.showBilling[p.id] ? `<button type="button" class="btn ghost small" data-action="toggle-billing" data-id="${p.id}">הסתר</button><div class="muted" style="margin-top:4px">${billing.map((m) => esc(msTypeName(m))).join(' · ')}</div>` : `<button type="button" class="btn ghost small" data-action="toggle-billing" data-id="${p.id}">הצג</button>`}</div>` : ''}
   </div>`;
+}
+/* the chosen contract sections become sub-projects (same client, team and lead) and take their milestones along. A renderings section
+   (the office rule from Oded's questionnaire, 6.10.2026) gets its own two stages — מקדמה and מסירה — its advance line in the first, the rest
+   in the second; a milestone that leaves its type's stage leaves the type too (the same rule as the stage select). */
+function splitSections(par, secs) {
+  let made = 0;
+  secs.forEach((sec) => {
+    const rows = milestonesOf(par.id).filter((m) => m.section === sec); if (!rows.length) return;
+    const render = RENDER_SECTION_RE.test(sec);
+    const id = uid('p'); const n = childrenOf(par.id).length + 1;
+    createDoc('projects', id, { name: sec, number: par.number ? `${par.number}.${n}` : '', parentId: par.id, clientId: par.clientId || null, clientPersonIds: par.clientPersonIds || [], teamId: par.teamId || null, leadId: par.leadId || null, memberIds: par.memberIds || [], pmId: par.pmId || null, contractorIds: [], consultantIds: [], supplierIds: [], partnerIds: [], type: par.type || '', typeDetail: par.typeDetail || '', address: par.address || '', city: par.city || '', clientContactName: '', clientContactPhone: '', state: par.state, phases: null, stages: render ? RENDER_STAGES() : null, health: null, statusNote: '', statusUpdatedAt: null, size: par.size || 'm', startDate: par.startDate || todayStr(), dueDate: par.dueDate || null, notes: '', needsReview: false, internal: false, sortIndex: (par.sortIndex || 0) + n });
+    rows.forEach((m) => {
+      if (!render) { patchDoc('project_milestones', m.id, { projectId: id }); return; }
+      const stage = ADVANCE_MS_RE.test(m.name || '') ? 'cs_advance' : 'cs_delivery';
+      patchDoc('project_milestones', m.id, { projectId: id, phase: stage, typeId: null });
+    });
+    S.milestonesLoaded[id] = true;
+    if (render) { // where the renderings stand: delivery under way or done → the advance is behind us; otherwise we are at the advance
+      const kid = S.projects[id]; const moved = milestonesOf(id);
+      const delivery = moved.filter((m) => m.phase === 'cs_delivery'); const advance = moved.filter((m) => m.phase === 'cs_advance');
+      const started = delivery.some((m) => m.state !== 'todo') || (advance.length && advance.every((m) => m.state === 'done'));
+      if (started) { ensureStageRow(kid, 'cs_advance', 'done'); ensureStageRow(kid, 'cs_delivery', delivery.length && delivery.every((m) => m.state === 'done') ? 'done' : 'active'); }
+      else ensureStageRow(kid, 'cs_advance', 'active');
+    }
+    made++;
+  });
+  return made;
 }
 /* sub-projects: a project can sit under a parent (e.g. a floor of a building) */
 const childrenOf = (pid) => P().filter((x) => x.parentId === pid).sort(byName);
@@ -7698,16 +7757,12 @@ document.addEventListener('click', async (e) => {
     case 'split-sections': {
       if (!canWriteProjects()) { toast('אין לך הרשאת עריכה'); break; }
       if (!ds.confirmed) { S.ui.confirm = 'split:' + ds.id; render(); break; }
-      S.ui.confirm = null;
       const par = S.projects[ds.id]; if (!par) break;
-      const secs = [...new Set(milestonesOf(par.id).map((m) => m.section).filter(Boolean))];
-      secs.forEach((sec, i) => {
-        const id = uid('p'); const n = childrenOf(par.id).length + 1;
-        createDoc('projects', id, { name: sec, number: par.number ? `${par.number}.${n}` : '', parentId: par.id, clientId: par.clientId || null, clientPersonIds: par.clientPersonIds || [], teamId: par.teamId || null, leadId: par.leadId || null, memberIds: par.memberIds || [], pmId: par.pmId || null, contractorIds: [], consultantIds: [], supplierIds: [], partnerIds: [], type: par.type || '', typeDetail: par.typeDetail || '', address: par.address || '', city: par.city || '', clientContactName: '', clientContactPhone: '', state: par.state, phases: null, health: null, statusNote: '', statusUpdatedAt: null, size: par.size || 'm', startDate: par.startDate || todayStr(), dueDate: par.dueDate || null, notes: '', needsReview: false, internal: false, sortIndex: (par.sortIndex || 0) + n });
-        milestonesOf(par.id).filter((m) => m.section === sec).forEach((m) => patchDoc('project_milestones', m.id, { projectId: id }));
-        S.milestonesLoaded[id] = true;
-      });
-      toast(`${secs.length} תת-פרויקטים נוצרו`); break;
+      const picked = [...document.querySelectorAll('.split-pick .split-sec:checked')].map((i) => i.value);
+      if (!picked.length) { toast('סמנו לפחות מקטע אחד'); break; }
+      S.ui.confirm = null;
+      const made = splitSections(par, picked);
+      toast(made === 1 ? 'תת-פרויקט אחד נוצר' : `${made} תת-פרויקטים נוצרו`); break;
     }
     case 'ms-state': { e.stopPropagation(); const m = S.project_milestones[ds.id]; if (!m || !isMember()) break; const next = MS_STATE[m.state]?.next || 'active'; patchDoc('project_milestones', ds.id, { state: next, doneAt: next === 'done' ? nowIso() : null }); break; }
     case 'ms-toggle': { e.stopPropagation(); S.ui.msOpen[ds.id] = !S.ui.msOpen[ds.id]; render(); break; }
