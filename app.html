@@ -474,6 +474,13 @@
   .seat-wrap { overflow-x: auto; }
   .seat-stage { --k: .62; position: relative; width: 100%; min-width: 980px; }
   .seat-plan { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  /* project members: active now / were involved */
+  .member-chip .chip-btn { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+  .member-chip.dim .chip-btn { text-decoration: line-through; text-decoration-color: var(--line-2); }
+  /* responsibility chips on report / meeting items */
+  .resp-chips { display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+  .resp-chip .x { margin-inline-start: 4px; }
+  .resp-chip small { opacity: .7; }
   /* milestone marks and the section picker */
   .ms-mark { margin-inline-start: 6px; font-size: 11px; vertical-align: 1px; }
   .ms-mark.changes { background: var(--warn-soft); color: var(--warn-ink); }
@@ -553,6 +560,8 @@
   .scope button:hover { color: var(--ink); }
   .scope button.on { background: var(--ink); color: var(--accent-ink); }
   .scope button small { font-size: 11px; opacity: .75; font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+  .scope { max-width: 100%; flex: 0 1 auto; }
+  @media (max-width: 480px) { .scope button { padding: 3px 9px; font-size: 12px; letter-spacing: 0; } }
   .view-actions .scope { margin-inline-end: 4px; }
   /* ---- opening accounts (users view, owners) + the password drawer ---- */
   .acct-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 4px 14px; margin: 10px 0 6px; }
@@ -948,7 +957,15 @@
   .ph:hover .ph-del, .ph:focus-within .ph-del { opacity: 1; }
   @media (hover: none) { .ph-del { opacity: 1; } }
   .ph-del svg { width: 12px; height: 12px; }
-  .ph-add { width: 96px; height: 96px; border: 1px dashed var(--line-2); display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--ink-2); cursor: pointer; font-size: 12px; text-align: center; padding: 4px; }
+  .ph-add { width: 96px; height: 96px; border: 1px dashed var(--line-2); background: transparent; font: inherit; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--ink-2); cursor: pointer; font-size: 12px; text-align: center; padding: 4px; }
+  .ph.pending { cursor: default; }
+  .ph.pending img { opacity: .75; }
+  .ph-state { position: absolute; inset-inline: 0; bottom: 0; background: rgba(255,255,255,.9); color: var(--ink-2); font-size: 11px; text-align: center; padding: 2px 4px; }
+  .ph-state.failed { color: var(--crit-ink); font-weight: 500; }
+  .ph.pending.uploading::after { content: ''; position: absolute; top: 6px; inset-inline-end: 6px; width: 12px; height: 12px; border: 2px solid var(--ink); border-inline-end-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ph.pending.failed .ph-confirm { background: rgba(255,255,255,.8); bottom: 18px; }
+  .upload-failed { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
   .ph-add:hover { border-color: var(--ink); color: var(--ink); }
   .ph-add svg { width: 22px; height: 22px; }
   .ph.armed { outline: 2px solid var(--crit-ink, #b3261e); }
@@ -1162,7 +1179,8 @@
     .brand .logo { width: 154px; }
     .nav { width: 100%; margin-inline-start: 0; overflow-x: auto; flex-wrap: nowrap; }
     .nav button { padding: 8px 9px 11px; }
-    .head-tools { margin-inline-start: auto; gap: 6px; min-width: 0; }
+    .head-tools { margin-inline-start: auto; gap: 6px; min-width: 0; flex-wrap: wrap; justify-content: flex-end; max-width: 100%; }
+    #user-box { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; min-width: 0; }
     #sync-text, #btn-export .btn-text, #btn-request .btn-text, #user-box .chip { display: none; }
     .today-grid.four { grid-template-columns: 1fr; }
     .user-name { max-width: 90px; }
@@ -1761,10 +1779,20 @@ const capacityLevel = (c) => empLevel(c) * (isTeamLead(c.id) ? leadShare() : 1) 
 const teamMembers = (tid) => employees().filter((e) => e.teamId === tid);
 const teamCapacity = (tid) => sum(teamMembers(tid), capacityLevel);
 /* a project's load is shared equally by the people assigned to it (lead + members); with nobody assigned it stays with the team */
+/* involved vs active (12.10.2026): member_ids = everyone who worked on the project (involved — they keep seeing it; only managers take someone off);
+   inactive_member_ids = involved people not working on it right now — no share of its load. The lead and the PM are always active. */
+const inactiveMemberIds = (p) => (Array.isArray(p?.inactiveMemberIds) ? p.inactiveMemberIds : []);
+const isActiveOn = (p, cid) => !!cid && !inactiveMemberIds(p).includes(cid);
+const activeMemberIds = (p) => (p.memberIds || []).filter((cid) => isActiveOn(p, cid));
+const activePeople = (p) => [...new Set([p.leadId, ...activeMemberIds(p)].filter((x) => x && S.contacts[x]))];
+function setMemberActive(p, cid, active) {
+  const cur = inactiveMemberIds(p); const next = active ? cur.filter((x) => x !== cid) : [...new Set([...cur, cid])];
+  return patchDoc('projects', p.id, { inactiveMemberIds: next });
+}
 function personalLoads(act) {
   const m = {};
   act.forEach((p) => {
-    const people = [...new Set([p.leadId, ...(p.memberIds || [])].filter((x) => x && S.contacts[x]))];
+    const people = activePeople(p);
     if (!people.length) return;
     const share = projectWeight(p) / people.length;
     people.forEach((id) => { m[id] = (m[id] || 0) + share; });
@@ -2009,7 +2037,7 @@ function renderPersonalOverview(sw) {
   const uid = me()?.id, cid = myContactId();
   const open = sortTasks(myOpenTasks()); const overdue = open.filter(isOverdue), todayT = open.filter((t) => dueInfo(t).key === 'today'), week = open.filter((t) => dueInfo(t).key === 'week');
   const mine = activeProjects().filter(involvedIn).sort(byName);
-  const roleIn = (p) => [p.leadId === cid ? 'מוביל/ה' : '', p.pmId === cid ? 'ניהול פרויקט' : '', (p.memberIds || []).includes(cid) ? 'חבר/ת צוות' : ''].filter(Boolean).join(' · ') || 'משימה / שיתוף';
+  const roleIn = (p) => [p.leadId === cid ? 'מוביל/ה' : '', p.pmId === cid ? 'ניהול פרויקט' : '', (p.memberIds || []).includes(cid) ? (isActiveOn(p, cid) ? 'חבר/ת צוות' : 'הייתי מעורב/ת (לא פעיל/ה כעת)') : ''].filter(Boolean).join(' · ') || 'משימה / שיתוף';
   const reqs = (typeof myRequests === 'function' ? myRequests() : []).filter((r) => r.status === 'open');
   const pend = typeof pendingForMe === 'function' ? pendingForMe() : [];
   const meetings = (typeof upcomingMeetings === 'function' ? upcomingMeetings(7) : []).filter((m) => !m.projectId || involvedIn(S.projects[m.projectId]));
@@ -2068,10 +2096,10 @@ function renderTeamOverview(sw) {
   const noPhase = act.filter((p) => !activePhases(p).length && !allPhasesDone(p)), noLead = act.filter((p) => !p.leadId), review = act.filter((p) => p.needsReview);
   const memberRow = (c) => {
     const uid = uidOf[c.id]; const open = TK().filter((t) => t.assigneeId === uid && isOpenTask(t)); const late = open.filter(isOverdue).length;
-    const leads = act.filter((p) => p.leadId === c.id).length, part = act.filter((p) => (p.memberIds || []).includes(c.id)).length;
+    const leads = act.filter((p) => p.leadId === c.id).length, part = act.filter((p) => activeMemberIds(p).includes(c.id)).length, idle = act.filter((p) => (p.memberIds || []).includes(c.id) && !isActiveOn(p, c.id)).length;
     const u = levels && canSeeLevelOf(c) ? utilInfo(loads[c.id] || 0, capacityLevel(c)) : null;
     return `<div class="list-item" data-action="open-contact" data-id="${c.id}">
-      <div class="li-body"><div class="li-title">${esc(c.name)}${c.id === teams.find((t) => t.leadId === c.id)?.leadId ? ' <span class="chip accent" style="font-size:11px">ראש/ת צוות</span>' : ''}</div><div class="li-sub">${esc(c.role || '')}${c.role ? ' · ' : ''}${leads} מוביל/ה · ${part} משתתף/ת${u ? ` · ניצולת ${u.pct == null ? u.label : u.pct + '%'}` : ''}</div></div>
+      <div class="li-body"><div class="li-title">${esc(c.name)}${c.id === teams.find((t) => t.leadId === c.id)?.leadId ? ' <span class="chip accent" style="font-size:11px">ראש/ת צוות</span>' : ''}</div><div class="li-sub">${esc(c.role || '')}${c.role ? ' · ' : ''}${leads} מוביל/ה · ${part} משתתף/ת${idle ? ` (+${idle} לא פעיל/ה)` : ''}${u ? ` · ניצולת ${u.pct == null ? u.label : u.pct + '%'}` : ''}</div></div>
       <div class="li-side">${late ? `<span class="chip red">${late} באיחור</span> ` : ''}${open.length} משימות</div>
     </div>`;
   };
@@ -2827,7 +2855,8 @@ function shortVal(v) {
 /* ===================== teams ===================== */
 /* one line under a person's name: experience level and personal load (team leads and up), then the project counts */
 function memberSub(c, act, loads) {
-  const counts = `${act.filter((p) => p.leadId === c.id).length} מוביל/ה · ${act.filter((p) => (p.memberIds || []).includes(c.id)).length} משתתף/ת`;
+  const idle = act.filter((p) => (p.memberIds || []).includes(c.id) && !isActiveOn(p, c.id)).length;
+  const counts = `${act.filter((p) => p.leadId === c.id).length} מוביל/ה · ${act.filter((p) => activeMemberIds(p).includes(c.id)).length} משתתף/ת${idle ? ` (+${idle} לא פעיל/ה)` : ''}`;
   if (!canSeeLevelOf(c)) return counts;
   const lvl = empLevel(c); const manual = manualLevel(c) != null; const lead = isTeamLead(c.id); const cl = capacityLevel(c); const u = utilInfo(loads[c.id] || 0, cl);
   return `<span class="lvl ${manual ? 'manual' : ''}" title="${manual ? 'רמה ידנית' : 'רמה אוטומטית לפי ותק: ' + esc(tenureLabel(c.startDate))}">רמה ${fmtNum(lvl, 2)}${manual ? '' : ' (אוטו׳)'}</span>${lead ? ` · <span title="ראש/ת צוות: רק ${Math.round(leadShare() * 100)}% מהמשרה נספרים לקיבולת הפרויקטים">ראש/ת צוות ${Math.round(leadShare() * 100)}% → ${fmtNum(cl, 2)}</span>` : ''} · <span class="util ${u.cls}" title="עומס אישי ${fmtNum(loads[c.id] || 0)} מתוך ${fmtNum(u.cap)}">${u.pct == null ? u.label : u.pct + '%'}</span> · ${counts}`;
@@ -3301,7 +3330,7 @@ async function afterSignIn(session) {
 async function initAuth() {
   sb.auth.onAuthStateChange((event, session) => {
     if (event === 'PASSWORD_RECOVERY') { S.auth.session = session; S.auth.status = 'recovery'; render(); return; }
-    if (event === 'SIGNED_OUT') { S.auth = { status: 'signedout', session: null, profile: null, notice: '', error: '', startingFor: null }; S.dbState = 'connecting'; TABLES.forEach((t) => { S[t] = {}; }); S.taskComments = {}; S.notifications = []; S.loaded = {}; S.pending = { ops: [], snaps: {} }; if (rtChannel) { sb.removeChannel(rtChannel); rtChannel = null; } render(); return; }
+    if (event === 'SIGNED_OUT') { S.auth = { status: 'signedout', session: null, profile: null, notice: '', error: '', startingFor: null }; S.dbState = 'connecting'; Object.assign(S.ui, { drawer: null, menu: null, confirm: null, lightbox: null, reportId: null, returnDrawer: null, stageConfirm: null }); /* nothing of the last person stays over the sign-in form */ TABLES.forEach((t) => { S[t] = {}; }); S.taskComments = {}; S.notifications = []; S.loaded = {}; S.pending = { ops: [], snaps: {} }; if (rtChannel) { sb.removeChannel(rtChannel); rtChannel = null; } render(); return; }
     if (event === 'SIGNED_IN' && S.auth.status !== 'ready' && S.auth.status !== 'recovery') { afterSignIn(session); return; }
     if (event === 'USER_UPDATED' && S.auth.status === 'recovery') { S.auth.status = 'loading'; afterSignIn(session); }
   });
@@ -3462,14 +3491,16 @@ async function fetchNotifications() {
 }
 function newTask(overrides = {}) {
   const id = uid('t');
-  const body = Object.assign({ title: '', description: '', projectId: null, phaseId: null, assigneeId: null, milestoneId: null, createdBy: me()?.id || null, status: 'todo', waitingOn: '', priority: 'normal', dueDate: null, checklist: [], doneAt: null, sortIndex: TK().length + 1 }, overrides);
+  const body = Object.assign({ title: '', description: '', projectId: null, phaseId: null, assigneeId: null, milestoneId: null, itemId: null, createdBy: me()?.id || null, status: 'todo', waitingOn: '', priority: 'normal', dueDate: null, checklist: [], doneAt: null, sortIndex: TK().length + 1 }, overrides);
   return createDoc('tasks', id, body).then((ok) => (ok ? id : null));
 }
 function setTaskStatus(id, status, waitingOn) {
   const patch = { status };
   if (status === 'done') patch.doneAt = nowIso(); else patch.doneAt = null;
   if (status !== 'waiting') patch.waitingOn = ''; else if (waitingOn != null) patch.waitingOn = waitingOn;
-  return patchDoc('tasks', id, patch);
+  const r = patchDoc('tasks', id, patch);
+  if (typeof itemFollowsTask === 'function') itemFollowsTask(S.tasks[id]); // a report / summary item closes when all its people are done
+  return r;
 }
 async function sendComment(taskId) {
   const ta = document.getElementById('comment-' + taskId);
@@ -3502,7 +3533,8 @@ function taskItem(t, opts = {}) {
   const p = t.projectId ? S.projects[t.projectId] : null;
   const cl = checklistOf(t);
   const ms_ = t.milestoneId ? S.project_milestones[t.milestoneId] : null;
-  const meta = [opts.hideProject ? '' : (p ? p.name : (t.projectId ? 'פרויקט שנמחק' : 'משימה משרדית')), ms_ && !opts.hideMilestone ? msTypeName(ms_) : '', opts.hideAssignee ? '' : uname(t.assigneeId, 'ללא אחראי'), t.status === 'waiting' && t.waitingOn ? 'ממתין ל' + t.waitingOn : ''].filter(Boolean).join(' · ');
+  const src = t.itemId && S.visit_items[t.itemId] && S.site_visits[S.visit_items[t.itemId].visitId] ? `${visitKind(S.site_visits[S.visit_items[t.itemId].visitId]).report} ${S.site_visits[S.visit_items[t.itemId].visitId].seq}` : '';
+  const meta = [opts.hideProject ? '' : (p ? p.name : (t.projectId ? 'פרויקט שנמחק' : 'משימה משרדית')), src, ms_ && !opts.hideMilestone ? msTypeName(ms_) : '', opts.hideAssignee ? '' : uname(t.assigneeId, 'ללא אחראי'), t.status === 'waiting' && t.waitingOn ? 'ממתין ל' + t.waitingOn : ''].filter(Boolean).join(' · ');
   return `<div class="task-item ${t.status === 'done' ? 'is-done' : ''}" data-action="open-task" data-id="${t.id}">
     <button type="button" class="task-check ${t.status}" data-action="task-toggle-done" data-id="${t.id}" title="${t.status === 'done' ? 'החזר לביצוע' : 'סמן כבוצע'}" aria-label="${t.status === 'done' ? 'החזר לביצוע' : 'סמן כבוצע'}">${t.status === 'done' ? ICON.check : ''}</button>
     <div class="li-body">
@@ -3625,7 +3657,7 @@ function drawerTask(id) {
   <div class="drawer-head">
     <div style="flex:1;min-width:0">
       <h2 class="drawer-title"><input type="text" id="t-title" value="${esc(S.ui.drafts['t-title'] ?? t.title)}" data-bind="tasks:${id}:title" placeholder="כותרת המשימה" aria-label="כותרת" ${dis}></h2>
-      <div class="drawer-sub">${p ? `<a href="#" data-action="open-project" data-id="${p.id}" style="color:inherit">${esc(p.name)}</a>` : 'משימה משרדית'}${t.phaseId && phases.find((x) => x.id === t.phaseId) ? ' · ' + esc(phases.find((x) => x.id === t.phaseId).name) : ''}${t.requestId && S.requests[t.requestId] ? ` · <a href="#" data-action="open-request" data-id="${t.requestId}">בקשת הפגישה</a>` : ''}</div>
+      <div class="drawer-sub">${p ? `<a href="#" data-action="open-project" data-id="${p.id}" style="color:inherit">${esc(p.name)}</a>` : 'משימה משרדית'}${t.phaseId && phases.find((x) => x.id === t.phaseId) ? ' · ' + esc(phases.find((x) => x.id === t.phaseId).name) : ''}${t.requestId && S.requests[t.requestId] ? ` · <a href="#" data-action="open-request" data-id="${t.requestId}">בקשת הפגישה</a>` : ''}${t.itemId && S.visit_items[t.itemId] && S.site_visits[S.visit_items[t.itemId].visitId] ? ` · <a href="#" data-action="open-visit" data-id="${S.visit_items[t.itemId].visitId}" data-item="${t.itemId}">${esc(visitLabel(S.site_visits[S.visit_items[t.itemId].visitId]))} · ${esc(itemNo(S.site_visits[S.visit_items[t.itemId].visitId], S.visit_items[t.itemId]))}</a>` : ''}</div>
     </div>
     <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
   </div>
@@ -3776,7 +3808,60 @@ const carriedItems = (v) => {
   const earlier = visitsOf(v.projectId, v.kind).filter((x) => x.id !== v.id && ((x.visitDate || '') < (v.visitDate || '') || ((x.visitDate || '') === (v.visitDate || '') && (x.seq || 0) < (v.seq || 0))));
   return earlier.flatMap((x) => itemsOf(x.id).filter(isOpenItem).map((it) => ({ it, from: x }))).sort((a, b) => (a.it.dueDate || '9999').localeCompare(b.it.dueDate || '9999'));
 };
-const responsibleName = (it) => it.responsibleId ? cname(it.responsibleId, it.responsibleText || '') : (it.responsibleText || '');
+/* ---------- responsibility (12.10.2026): one person, several people, the office as a whole (OBERSON), an external party, or free text ----------
+   responsibleIds = contacts (employees or externals); responsibleOffice = "OBERSON — המשרד"; responsibleText = free text. responsibleId stays the
+   first contact for older readers. Every office person on an open item gets a task of their own once the report / summary is issued. */
+const OFFICE_LABEL = 'OBERSON';
+const responsibleIds = (it) => (Array.isArray(it.responsibleIds) && it.responsibleIds.length ? it.responsibleIds : (it.responsibleId ? [it.responsibleId] : []));
+const responsibleParts = (it) => [...(it.responsibleOffice ? [OFFICE_LABEL] : []), ...responsibleIds(it).map((cid) => cname(cid, '')).filter(Boolean), ...((it.responsibleText || '').trim() ? [it.responsibleText.trim()] : [])];
+const responsibleName = (it) => responsibleParts(it).join(' · ');
+const hasResponsible = (it) => responsibleParts(it).length > 0;
+function setResponsibles(it, ids, extra = {}) { const list = [...new Set(ids.filter(Boolean))]; return patchDoc('visit_items', it.id, Object.assign({ responsibleIds: list, responsibleId: list[0] || null }, extra)); }
+/* the office people behind an item's responsibility, as users (an employee without an account gives no task; the office → the project lead, else the team lead) */
+function responsibleUsers(it, v) {
+  const users = new Set();
+  const userOf = (cid) => { if (!cid) return null; const pr = Object.values(S.profiles).find((x) => x.contactId === cid && !['pending', 'disabled'].includes(x.role)); return pr ? pr.id : null; };
+  responsibleIds(it).forEach((cid) => { const c = contact(cid); if (c && c.type === 'employee') { const u = userOf(cid); if (u) users.add(u); } });
+  if (it.responsibleOffice) { const p = v && v.projectId ? S.projects[v.projectId] : null; const u = userOf(p?.leadId) || userOf(p?.teamId ? teamLeadId(p.teamId) : null); if (u) users.add(u); }
+  return [...users];
+}
+/* the item's tasks: one per office person, kept in step with the item (title, due date, people, open / closed); task done by everyone ↔ item closed */
+const tasksOfItem = (itemId) => TK().filter((t) => t.itemId === itemId);
+const itemTaskTitle = (it, v) => { const body = (it.body || '').trim().split('\n')[0] || ITEM_KINDS[it.kind]?.label || 'משימה'; return body.length > 120 ? body.slice(0, 117) + '…' : body; };
+const visitIssued = (v) => !!v && (v.status === 'final' || !!v.issuedAt || itemsOf(v.id).some((it) => tasksOfItem(it.id).length));
+async function syncItemTasks(visitId, opts = {}) {
+  const v = S.site_visits[visitId]; if (!v || !canWriteTasks()) return 0;
+  let made = 0;
+  for (const it of itemsOf(visitId)) {
+    const wanted = ['defect', 'instruction', 'task', 'decision'].includes(it.kind) ? responsibleUsers(it, v) : [];
+    const have = tasksOfItem(it.id);
+    const title = itemTaskTitle(it, v);
+    const description = [`${visitKind(v).report} ${v.seq}${(v.title || '').trim() ? ' — ' + v.title.trim() : ''} · ${itemNo(v, it)}`, it.location ? `מיקום: ${it.location}` : '', visitProjectName(v)].filter(Boolean).join('\n');
+    for (const uid_ of wanted) {
+      const t = have.find((x) => x.assigneeId === uid_);
+      if (!t) { await newTask({ title, description, projectId: v.projectId || null, assigneeId: uid_, dueDate: it.dueDate || null, itemId: it.id, status: it.status === 'closed' ? 'done' : 'todo', doneAt: it.status === 'closed' ? nowIso() : null, priority: it.severity === 'high' ? 'urgent' : 'normal' }); made++; continue; }
+      const patch = {};
+      if (t.title !== title) patch.title = title;
+      if ((t.dueDate || null) !== (it.dueDate || null)) patch.dueDate = it.dueDate || null;
+      if (it.status === 'closed' && t.status !== 'done') { patch.status = 'done'; patch.doneAt = nowIso(); }
+      if (it.status === 'open' && t.status === 'done' && opts.reopen) { patch.status = 'todo'; patch.doneAt = null; }
+      if (Object.keys(patch).length) patchDoc('tasks', t.id, patch);
+    }
+    // a person who is no longer responsible: an untouched task goes away; a task with work on it stays but is released
+    have.filter((t) => !wanted.includes(t.assigneeId)).forEach((t) => { if (t.status === 'todo' && !(t.checklist || []).length) deleteDoc('tasks', t.id); else patchDoc('tasks', t.id, { itemId: null }); });
+  }
+  if (made) toast(made === 1 ? 'משימה אחת נפתחה לאחראי/ת' : `${made} משימות נפתחו לאחראים`);
+  return made;
+}
+/* responsibility changed: on a report that is already out, the tasks follow at once; a draft waits for its issue */
+function afterResponsibleChange(itemId) { const it = S.visit_items[itemId]; const v = it ? S.site_visits[it.visitId] : null; if (v && visitIssued(v)) syncItemTasks(v.id); }
+/* a task of an item was closed / reopened by its owner → the item follows when everyone is done */
+function itemFollowsTask(t) {
+  if (!t || !t.itemId) return; const it = S.visit_items[t.itemId]; if (!it) return;
+  const all = tasksOfItem(it.id);
+  if (all.length && all.every((x) => x.status === 'done') && it.status !== 'closed') patchDoc('visit_items', it.id, { status: 'closed', closedVisitId: null });
+  else if (all.some((x) => x.status !== 'done') && it.status === 'closed') patchDoc('visit_items', it.id, { status: 'open', closedVisitId: null });
+}
 
 /* ---------- data ---------- */
 async function newVisit(projectId, kind = 'site', extra = {}) {
@@ -3791,7 +3876,7 @@ async function newItem(visitId, kind, body = '') {
   const v = S.site_visits[visitId]; if (!v) return null;
   const seq = Math.max(0, ...itemsOf(visitId).map((i) => i.seq || 0)) + 1;
   const id = uid('vi');
-  const ok = await createDoc('visit_items', id, { visitId, seq, kind: kind || ITEM_KINDS_OF[v.kind || 'site'][0], location: '', body, responsibleId: null, responsibleText: '', dueDate: null, status: 'open', severity: '', closedVisitId: null });
+  const ok = await createDoc('visit_items', id, { visitId, seq, kind: kind || ITEM_KINDS_OF[v.kind || 'site'][0], location: '', body, responsibleId: null, responsibleIds: [], responsibleOffice: false, responsibleText: '', dueDate: null, status: 'open', severity: '', closedVisitId: null });
   return ok ? id : null;
 }
 function fileUrl(f) {
@@ -3836,36 +3921,96 @@ function shrinkImage(file, max = 1600, quality = 0.82) {
     img.src = url;
   });
 }
+/* ---------- uploads that cannot get lost (12.10.2026) ----------
+   What happened to the 1.1 photo of the בליליוס report: the camera was opened from a file input inside the page, the page re-rendered behind the
+   camera (an auto-save came back), and the photo returned to an input that no longer existed — no request ever left the phone. Now:
+   (1) one file input for the whole app, outside everything that re-renders (filePicker / openFilePicker); (2) every file goes into a queue
+   (S.ui.uploadQueue) the moment it is picked and shows as a tile at once — "מעלה…", then the real tile; a failure keeps the tile with
+   "נסה שוב" instead of vanishing; (3) the queue survives re-renders, drawer changes and navigation. */
+S.ui.uploadQueue = S.ui.uploadQueue || [];
+const pendingUploads = (where) => S.ui.uploadQueue.filter((q) => Object.entries(where || {}).every(([k, v]) => (q.ctx[k] || null) === (v || null)));
+const uploadKind = (file) => {
+  const isImg = /^image\//.test(file.type) || /\.(jpe?g|png|heic|heif|webp)$/i.test(file.name || '');
+  const isAud = /^audio\//.test(file.type) || /\.(m4a|mp3|wav|aac|ogg|opus|caf)$/i.test(file.name || '');
+  const isVid = !isAud && (/^video\//.test(file.type) || /\.(mp4|mov|m4v|webm)$/i.test(file.name || ''));
+  const isPdf = !isImg && !isAud && !isVid && (file.type === 'application/pdf' || /\.pdf$/i.test(file.name || ''));
+  return { isImg, isAud, isVid, isPdf, kind: isImg ? 'image' : isAud ? 'audio' : isVid ? 'video' : isPdf ? 'pdf' : 'file' };
+};
 async function uploadFiles(fileList, ctx) {
   if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return; }
   const files = [...(fileList || [])]; if (!files.length) return;
-  const up = S.ui.uploads; up.active += files.length; renderUploadNote();
-  for (const file of files) {
-    const isImg = /^image\//.test(file.type) || /\.(jpe?g|png|heic|heif|webp)$/i.test(file.name);
-    const isAud = /^audio\//.test(file.type) || /\.(m4a|mp3|wav|aac|ogg|opus|caf)$/i.test(file.name);
-    const isVid = !isAud && (/^video\//.test(file.type) || /\.(mp4|mov|m4v|webm)$/i.test(file.name));
-    const isPdf = !isImg && !isAud && !isVid && (file.type === 'application/pdf' || /\.pdf$/i.test(file.name));
-    const id = uid('f');
-    let blob = file, ext = (file.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 8) || 'bin', mime = file.type || 'application/octet-stream', w = null, h = null;
+  const entries = files.map((file) => { const k = uploadKind(file); return { id: uid('f'), file, ctx, name: file.name || '', kind: k.kind, flags: k, status: 'uploading', error: '', url: k.isImg ? URL.createObjectURL(file) : '', at: Date.now() }; });
+  S.ui.uploadQueue.push(...entries);
+  const up = S.ui.uploads; up.active += files.length; renderUploadNote(); render();
+  for (const q of entries) await uploadOne(q);
+  if (!up.active) { setTimeout(() => { if (!S.ui.uploads.active) { S.ui.uploads = { active: 0, done: 0, failed: 0 }; renderUploadNote(); } }, 2500); }
+}
+/* one queued file: shrink (photos), store, then the row; success removes the queue entry (the real tile takes its place), failure keeps it for a retry */
+async function uploadOne(q) {
+  const { file, ctx } = q; const { isImg, isAud, isVid, isPdf } = q.flags; const id = q.id; const up = S.ui.uploads;
+  q.status = 'uploading'; q.error = '';
+  try {
+    let blob = file, ext = ((file.name || '').split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 8) || 'bin', mime = file.type || 'application/octet-stream', w = null, h = null;
     if (isImg) { const s = await shrinkImage(file); if (s) { blob = s.blob; ext = 'jpg'; mime = 'image/jpeg'; w = s.w; h = s.h; } }
     // folder per context: project / visit | set | task | presentation | general; a task without a project lives under tasks/
     let pressId = ctx.pressId || null;
-    if (ctx.pressNew && !pressId && typeof createDoc === 'function') { pressId = uid('pr'); await createDoc('press_items', pressId, { projectId: ctx.projectId || null, kind: 'print', title: file.name.replace(/\.[^.]+$/, ''), outlet: '', url: '', imageUrl: '', publishedOn: null, websiteId: null, notes: '' }); } // a scan uploaded to the archive gets a press card of its own
+    if (ctx.pressNew && !pressId && typeof createDoc === 'function') { pressId = uid('pr'); await createDoc('press_items', pressId, { projectId: ctx.projectId || null, kind: 'print', title: (file.name || '').replace(/\.[^.]+$/, ''), outlet: '', url: '', imageUrl: '', publishedOn: null, websiteId: null, notes: '' }); ctx.pressId = pressId; delete ctx.pressNew; } // a scan uploaded to the archive gets a press card of its own
     const path = `${ctx.projectId || 'tasks'}/${ctx.visitId || ctx.setId || ctx.materialId || ctx.milestoneId || ctx.taskId || (pressId ? 'press' : '') || ctx.slot || 'general'}/${id}.${ext}`;
-    try {
-      const { error } = await sb.storage.from(FILE_BUCKET).upload(path, blob, { contentType: mime, upsert: false });
-      if (error) throw error;
-      const ok = await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: ctx.projectId || null, visitId: ctx.visitId || null, itemId: ctx.itemId || null, taskId: ctx.taskId || null, slot: ctx.slot || null, setId: ctx.setId || null, materialId: ctx.materialId || null, milestoneId: ctx.milestoneId || null, pressId, kind: isImg ? 'image' : isAud ? 'audio' : isVid ? 'video' : isPdf ? 'pdf' : 'file', mime, size: blob.size, width: w, height: h, caption: ctx.caption || ((isImg || isAud) && (ctx.visitId || ctx.itemId) ? '' : file.name) /* visit photos stay caption-less; documents keep their file name */, takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : null, uploadedBy: me()?.id || null, durationSec: ctx.durationSec || null, transcript: '', transcribeStatus: '', transcribeError: '' });
-      if (!ok) { sb.storage.from(FILE_BUCKET).remove([path]).catch(() => {}); throw new Error('row'); } // no orphan in storage when the row is refused
-      up.done++;
-    } catch (e) { console.warn('upload failed', e); up.failed++; toast('העלאה נכשלה: ' + friendlyError(e)); }
-    up.active--; renderUploadNote();
+    const { error } = await sb.storage.from(FILE_BUCKET).upload(path, blob, { contentType: mime, upsert: true });
+    if (error) throw error;
+    const ok = await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: ctx.projectId || null, visitId: ctx.visitId || null, itemId: ctx.itemId || null, taskId: ctx.taskId || null, slot: ctx.slot || null, setId: ctx.setId || null, materialId: ctx.materialId || null, milestoneId: ctx.milestoneId || null, pressId, kind: q.kind, mime, size: blob.size, width: w, height: h, caption: ctx.caption || ((isImg || isAud) && (ctx.visitId || ctx.itemId) ? '' : file.name) /* visit photos stay caption-less; documents keep their file name */, takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : null, uploadedBy: me()?.id || null, durationSec: ctx.durationSec || null, transcript: '', transcribeStatus: '', transcribeError: '' });
+    if (!ok) { sb.storage.from(FILE_BUCKET).remove([path]).catch(() => {}); throw new Error('השמירה נדחתה'); } // no orphan in storage when the row is refused
+    up.done++; up.active--;
+    dropUpload(q.id);
+  } catch (e) {
+    console.warn('upload failed', e); up.failed++; up.active--;
+    q.status = 'failed'; q.error = friendlyError(e);
+    toast('העלאה נכשלה — התמונה נשארת כאן, אפשר לנסות שוב');
   }
-  if (!up.active) { setTimeout(() => { if (!S.ui.uploads.active) { S.ui.uploads = { active: 0, done: 0, failed: 0 }; renderUploadNote(); } }, 2500); }
+  renderUploadNote(); render();
 }
+function dropUpload(id) { const i = S.ui.uploadQueue.findIndex((q) => q.id === id); if (i < 0) return; const q = S.ui.uploadQueue[i]; if (q.url) { try { URL.revokeObjectURL(q.url); } catch (e) { /* ignore */ } } S.ui.uploadQueue.splice(i, 1); }
+async function retryUpload(id) { const q = S.ui.uploadQueue.find((x) => x.id === id); if (!q || q.status === 'uploading') return; S.ui.uploads.active++; S.ui.uploads.failed = Math.max(0, S.ui.uploads.failed - 1); renderUploadNote(); render(); await uploadOne(q); }
+/* the tile of a file still on its way (or stuck): the photo itself from the phone's memory, a state line, and retry / discard when it failed */
+function pendingTile(q) {
+  const img = q.url ? `<img src="${esc(q.url)}" alt="">` : `<span class="ph-file">${q.kind === 'video' ? ICON.video : ICON.doc}<small>${esc(q.kind === 'audio' ? 'אודיו' : q.kind === 'video' ? 'וידאו' : (q.name.split('.').pop() || 'קובץ'))}</small></span>`;
+  const state = q.status === 'failed'
+    ? `<span class="ph-state failed" title="${esc(q.error)}">לא הועלה</span><span class="ph-confirm"><button type="button" class="btn small primary" data-action="upload-retry" data-id="${q.id}">נסה שוב</button><button type="button" class="btn small" data-action="upload-discard" data-id="${q.id}">הסר</button></span>`
+    : '<span class="ph-state">מעלה…</span>';
+  return `<figure class="ph pending ${q.status}" title="${esc(q.status === 'failed' ? 'ההעלאה נכשלה: ' + q.error : 'מעלה…')}">${img}${state}</figure>`;
+}
+/* the whole app's one file input, outside everything that re-renders */
+let pickerEl = null;
+function filePicker() {
+  if (pickerEl && document.body.contains(pickerEl)) return pickerEl;
+  pickerEl = document.createElement('input'); pickerEl.type = 'file'; pickerEl.id = 'file-picker'; pickerEl.hidden = true; pickerEl.setAttribute('aria-hidden', 'true');
+  pickerEl.addEventListener('change', () => { const ctx = pickerEl.__ctx; const files = [...(pickerEl.files || [])]; pickerEl.value = ''; if (ctx && files.length) uploadFiles(files, ctx); });
+  document.body.appendChild(pickerEl);
+  return pickerEl;
+}
+function openFilePicker(ctxJson, accept, capture, multiple) {
+  if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return; }
+  let ctx = null; try { ctx = JSON.parse(ctxJson || ''); } catch (e) { ctx = null; }
+  if (!ctx) return;
+  if (ctx.stageRow && typeof stageRowFor === 'function') { const m = stageRowFor(ctx.stageRow.pid, ctx.stageRow.sid); if (m) ctx.milestoneId = m.id; delete ctx.stageRow; }
+  const inp = filePicker(); inp.__ctx = ctx;
+  inp.accept = accept || '';
+  if (capture) inp.setAttribute('capture', capture); else inp.removeAttribute('capture');
+  inp.multiple = multiple !== '0';
+  inp.click();
+}
+/* the buttons: a plain button (no input inside) — the picker is opened synchronously in the click, as iOS requires */
+const pickButton = (ctx, opts = {}) => `<button type="button" class="${opts.cls || 'btn small'}" data-action="pick-files" data-ctx="${esc(JSON.stringify(ctx))}" data-accept="${esc(opts.accept || '')}" ${opts.capture ? `data-capture="${opts.capture}"` : ''} ${opts.multiple === false ? 'data-multiple="0"' : ''} title="${esc(opts.title || '')}">${opts.html || ''}</button>`;
+/* the picker opens inside the click itself (before the async dispatcher), so the browser treats it as the person's own tap */
+document.addEventListener('click', (e) => {
+  const b = e.target.closest && e.target.closest('[data-action="pick-files"]'); if (!b) return;
+  e.preventDefault(); e.stopPropagation();
+  openFilePicker(b.dataset.ctx, b.dataset.accept, b.dataset.capture, b.dataset.multiple);
+}, true);
 function renderUploadNote() {
   const up = S.ui.uploads;
-  document.querySelectorAll('[data-upload-note]').forEach((el) => { el.textContent = up.active ? `מעלה… ${up.done + up.failed + 1} מתוך ${up.active + up.done + up.failed}` : (up.done ? `${up.done} קבצים הועלו` : ''); el.hidden = !up.active && !up.done; });
+  const failed = S.ui.uploadQueue.filter((q) => q.status === 'failed').length;
+  document.querySelectorAll('[data-upload-note]').forEach((el) => { el.textContent = up.active ? `מעלה… ${up.done + up.failed + 1} מתוך ${up.active + up.done + up.failed}` : (failed ? `${failed} קבצים לא הועלו — נסו שוב` : (up.done ? `${up.done} קבצים הועלו` : '')); el.hidden = !up.active && !up.done && !failed; });
 }
 async function deleteFile(id) {
   const f = S.files[id]; if (!f) return;
@@ -3887,9 +4032,20 @@ function photoStrip(where, ctx, opts = {}) {
     return `<figure class="ph ${armed ? 'armed' : ''}" data-action="file-open" data-id="${f.id}" title="${esc(f.caption || '')}">${inner}${del}</figure>`;
   }).join('');
   const key = (ctx.itemId || ctx.visitId || ctx.projectId);
-  const add = ro ? '' : `<label class="ph-add" title="צילום"><input type="file" accept="image/*" capture="environment" multiple hidden data-upload="${esc(JSON.stringify(ctx))}">${ICON.camera}<span>צלם</span></label>
-    <label class="ph-add" title="מהגלריה"><input type="file" accept="image/*,video/*" multiple hidden data-upload="${esc(JSON.stringify(ctx))}">${ICON.plus}<span>${opts.short ? 'קובץ' : 'מהגלריה / וידאו'}</span></label>`;
-  return `<div class="ph-strip ${opts.small ? 'small' : ''}" data-strip="${esc(key)}">${tiles}${add}</div>`;
+  const pending = pendingUploads(where).map(pendingTile).join('');
+  const add = ro ? '' : pickButton(ctx, { cls: 'ph-add', accept: 'image/*', capture: 'environment', title: 'צילום', html: `${ICON.camera}<span>צלם</span>` })
+    + pickButton(ctx, { cls: 'ph-add', accept: 'image/*,video/*', title: 'מהגלריה', html: `${ICON.plus}<span>${opts.short ? 'קובץ' : 'מהגלריה / וידאו'}</span>` });
+  return `<div class="ph-strip ${opts.small ? 'small' : ''}" data-strip="${esc(key)}">${tiles}${pending}${add}</div>`;
+}
+/* the responsibility chips of an item: OBERSON, each person, the free text — each removable; "+ אחראי" opens the picker (adds, never replaces) */
+function responsibleChips(it, v, ro) {
+  const x = (attrs) => (ro ? '' : `<button type="button" class="x" ${attrs} title="הסר">${ICON.x}</button>`);
+  const chips = [];
+  if (it.responsibleOffice) chips.push(`<span class="chip accent resp-chip" title="באחריות המשרד — המשימה אצל מוביל/ת הפרויקט">${OFFICE_LABEL}${x(`data-action="vi-resp-office" data-id="${it.id}"`)}</span>`);
+  responsibleIds(it).forEach((cid) => { const c = contact(cid); const tasks = tasksOfItem(it.id); const pr = c && c.type === 'employee' ? Object.values(S.profiles).find((q) => q.contactId === cid) : null; const tk = pr ? tasks.find((t) => t.assigneeId === pr.id) : null; chips.push(`<span class="chip ${c ? 'accent' : 'dim'} resp-chip" title="${esc(c ? (CTYPES[c.type]?.label || '') + (tk ? ' · יש משימה' : '') : 'איש קשר שנמחק')}">${esc(cname(cid, 'איש קשר שנמחק'))}${tk ? ' <small>✓</small>' : ''}${x(`data-action="vi-resp-remove" data-id="${it.id}" data-cid="${cid}"`)}</span>`); });
+  if ((it.responsibleText || '').trim()) chips.push(`<span class="chip resp-chip">${esc(it.responsibleText.trim())}${x(`data-action="vi-resp-text" data-id="${it.id}"`)}</span>`);
+  if (ro) return `<span class="resp-chips">${chips.join('') || '<span class="chip dim">ללא אחראי</span>'}</span>`;
+  return `<span class="resp-chips">${chips.join('')}${menuChip(chips.length ? `${ICON.plus} אחראי` : 'אחראי לביצוע', `data-action="menu" data-menu="viresp" data-id="${it.id}"`, 'dim')}</span>`;
 }
 function itemRow(v, it, opts = {}) {
   const ro = !canWriteField() || v.status === 'final';
@@ -3908,7 +4064,7 @@ function itemRow(v, it, opts = {}) {
     </div>
     <textarea class="vi-body" id="vib-${it.id}" rows="2" data-bind="visit_items:${it.id}:body" placeholder="${esc(v.kind === 'meeting' ? 'מה הוחלט / מה צריך לקרות' : 'תיאור הממצא וההנחיה לביצוע')}" ${dis}>${esc(S.ui.drafts['vib-' + it.id] ?? (it.body || ''))}</textarea>
     <div class="vi-meta">
-      ${ro ? `<span class="chip ${responsibleName(it) ? 'accent' : 'dim'}">${esc(responsibleName(it) || 'ללא אחראי')}</span>` : menuChip(responsibleName(it) || 'אחראי לביצוע', `data-action="menu" data-menu="viresp" data-id="${it.id}"`, responsibleName(it) ? 'accent' : 'dim')}
+      ${responsibleChips(it, v, ro)}
       <label class="vi-due">לביצוע עד <input type="date" id="vid-${it.id}" value="${dateInput(it.dueDate)}" data-bind="visit_items:${it.id}:dueDate" ${dis}></label>
       ${due.label ? `<span class="due ${due.cls}">${esc(due.label)}</span>` : ''}
     </div>
@@ -3960,7 +4116,7 @@ function renderField() {
     </div>
     <div class="task-group">
       <div class="task-group-head"><span>דוחות אחרונים</span><small>${shown.length}</small></div>
-      <div class="add-row" style="margin:6px 0 10px;align-items:center;gap:10px">${scopeSwitch('field')}<input type="search" id="fq" placeholder="חיפוש לפי פרויקט, דוח או עורך…" value="${esc(S.ui.fq || '')}"></div>
+      <div class="add-row scope-row" style="margin:6px 0 10px;align-items:center;gap:10px;flex-wrap:wrap">${scopeSwitch('field')}<input type="search" id="fq" placeholder="חיפוש לפי פרויקט, דוח או עורך…" value="${esc(S.ui.fq || '')}" style="flex:1 1 180px;min-width:0"></div>
       ${shown.length ? shown.slice(0, 30).map((v) => visitItem(v)).join('') : '<div class="inline-note">עדיין אין דוחות פיקוח. התחילו מ"ביקור באתר".</div>'}
     </div>
   </div>`;
@@ -3992,7 +4148,7 @@ function drawerVisit(id) {
   return `
   <div class="drawer-head">
     <div style="flex:1;min-width:0">
-      <h2 class="drawer-title">${esc(visitTitle(v))}</h2>
+      <h2 class="drawer-title">${esc(v.kind !== 'meeting' ? visitLabel(v) : visitTitle(v))}</h2>
       <div class="drawer-sub">${projectLine}${isMeet && !ro ? ` · <a href="#" data-action="visit-project" data-id="${id}">${p ? 'העבר לפרויקט אחר' : 'שייך לפרויקט'}</a>` : ''}</div>
     </div>
     <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
@@ -4003,8 +4159,10 @@ function drawerVisit(id) {
         <span class="chip ${v.status === 'final' ? 'green' : 'dim'}">${v.status === 'final' ? (isMeet ? 'סיכום סופי' : 'דוח סופי') : 'טיוטה'}</span>
         ${canWriteField() ? (v.status === 'final' ? `<button class="btn ghost small" data-action="visit-status" data-id="${id}" data-value="draft">פתח לעריכה</button>` : `<button class="btn small" data-action="visit-status" data-id="${id}" data-value="final">סמן כסופי</button>`) : ''}
         <button class="btn primary small" data-action="open-report" data-id="${id}">${ICON.doc} ${K.report} — תצוגה / PDF</button>
+        ${canWriteTasks() && !isMeet ? '' : ''}${canWriteTasks() ? (() => { const n = itemsOf(id).reduce((a, it) => a + tasksOfItem(it.id).length, 0); const due = itemsOf(id).filter((it) => isOpenItem(it) && responsibleUsers(it, v).length).length; return `<button class="btn small ghost" data-action="vi-tasks" data-id="${id}" title="כל סעיף פתוח שבאחריות אנשי המשרד הופך למשימה אצלם (קורה לבד עם הוצאת ה-PDF או סימון סופי)">${ICON.check} משימות לאחראים${n ? ` <small>${n}</small>` : ''}</button>${!n && due ? `<span class="inline-note">${due} סעיפים באחריות המשרד — המשימות ייפתחו עם הוצאת ה${isMeet ? 'סיכום' : 'דוח'}</span>` : ''}`; })() : ''}
       </div>
-      ${isMeet ? field('נושא הפגישה', textInput('v-title', v.title || '', `data-bind="site_visits:${id}:title" placeholder="למשל: תיאום עם היזם, הצגת קונספט ללקוח" ${dis}`)) : ''}
+      ${isMeet ? field('נושא הפגישה', textInput('v-title', v.title || '', `data-bind="site_visits:${id}:title" placeholder="למשל: תיאום עם היזם, הצגת קונספט ללקוח" ${dis}`))
+        : field('כותרת הדוח', textInput('v-title', v.title || '', `data-bind="site_visits:${id}:title" placeholder="${esc(visitTitle(v))}" ${dis}`), `ריק = "${esc(visitTitle(v))}". כותרת משלכם מחליפה אותה בדוח וברשימות.`)}
       ${isMeet ? `<div class="field"><label>איפה</label><span class="seg venue-seg">${Object.entries(VENUES).map(([k, m]) => `<button type="button" class="${venueOf(v) === k ? 'on' : ''}" data-action="visit-venue" data-id="${id}" data-value="${k}" ${dis}>${m.label}</button>`).join('')}</span></div>` : ''}
       <div class="field-row">
         ${field('תאריך', `<input type="date" id="v-date" value="${dateInput(v.visitDate)}" data-bind="site_visits:${id}:visitDate" ${dis}>`)}
@@ -4048,7 +4206,7 @@ function reportBlocks(v) {
   const b = (cls, html) => blocks.push(`<div class="rp-b ${cls}">${html}</div>`);
   const kv = (k, val) => `<div class="rp-kv"><span>${k}</span><strong>${esc(val || '—')}</strong></div>`;
   b('rp-header', `<div class="rp-brand"><svg class="logo" aria-label="OBERSON GO"><use href="#logo-mark"/></svg></div>
-    <div class="rp-titles"><div class="rp-title">${esc(K.report)} <span>מס' ${v.seq}</span></div><div class="rp-project">${esc(p.name)}${p.number ? ` <small>פרויקט ${esc(p.number)}</small>` : ''}${(v.title || '').trim() ? `<div class="rp-subject">${esc(v.title.trim())}</div>` : ''}</div></div>`);
+    <div class="rp-titles"><div class="rp-title">${v.kind !== 'meeting' && (v.title || '').trim() ? esc(v.title.trim()) : `${esc(K.report)} <span>מס' ${v.seq}</span>`}</div><div class="rp-project">${esc(p.name)}${p.number ? ` <small>פרויקט ${esc(p.number)}</small>` : ''}${v.kind === 'meeting' && (v.title || '').trim() ? `<div class="rp-subject">${esc(v.title.trim())}</div>` : ''}</div></div>`);
   b('rp-meta', `${kv('תאריך', fmtDate(v.visitDate) + (v.visitTime ? ' · ' + v.visitTime : ''))}${v.kind === 'meeting' ? kv('איפה', venueLabel(v)) : ''}${p.id ? kv('כתובת', [p.address, p.city].filter(Boolean).join(', ')) : ''}${p.id ? kv('לקוח', cname(p.clientId, '')) : ''}${kv('נערך על ידי', uname(v.authorId, ''))}${kv(K.people, v.attendees)}${v.nextVisit ? kv(K.next, fmtDate(v.nextVisit)) : ''}`);
   if (v.summary) b('rp-section', `<h3>${esc(K.summary)}</h3><p>${esc(v.summary).replace(/\n/g, '<br>')}</p>`);
   const rowHtml = (vv, it, from) => `<div class="rp-row ${it.status === 'closed' ? 'closed' : ''}"><span class="c-no">${esc(itemNo(vv, it))}</span><span class="c-kind">${ITEM_KINDS[it.kind]?.label || ''}</span><span class="c-loc">${esc(it.location || '')}</span><span class="c-body">${esc(it.body || '').replace(/\n/g, '<br>')}${from ? `<small>מ${visitKind(from).report} ${from.seq}, ${fmtDate(from.visitDate)}</small>` : ''}</span><span class="c-resp">${esc(responsibleName(it))}</span><span class="c-due">${it.dueDate ? fmtDate(it.dueDate) : ''}</span><span class="c-st">${['note'].includes(it.kind) ? '' : (it.status === 'closed' ? 'טופל' : 'פתוח')}</span></div>`;
@@ -4073,7 +4231,7 @@ function renderReport() {
   const busy = S.ui.pdfBusy;
   return `<div class="rp-tools no-print">
       <button class="btn ghost small" data-action="report-back" data-id="${v.id}">${ICON.back} חזרה</button>
-      <span class="inline-note">${esc(visitTitle(v))} · ${esc(visitProjectName(v))} · ${v.status === 'final' ? 'סופי' : 'טיוטה'}</span>
+      <span class="inline-note">${esc(v.kind !== 'meeting' ? visitLabel(v) : visitTitle(v))} · ${esc(visitProjectName(v))} · ${v.status === 'final' ? 'סופי' : 'טיוטה'}</span>
       <span style="margin-inline-start:auto;display:inline-flex;gap:6px;flex-wrap:wrap">
         <button class="btn small" data-action="report-print" ${busy ? 'disabled' : ''}>הדפסה</button>
         <button class="btn primary small" data-action="report-pdf" data-id="${v.id}" ${busy ? 'disabled' : ''}>${busy ? 'מכין PDF…' : 'PDF — שמירה / שיתוף'}</button>
@@ -4137,6 +4295,7 @@ async function makeReportPdf(visitId) {
       const { error } = await sb.storage.from(FILE_BUCKET).upload(path, blob, { contentType: 'application/pdf' });
       if (!error) await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: v.projectId, visitId: v.id, itemId: null, kind: 'pdf', mime: 'application/pdf', size: blob.size, width: null, height: null, caption: name, takenAt: null, uploadedBy: me()?.id || null });
     } catch (e) { console.warn('pdf archive', e); }
+    try { await syncItemTasks(v.id); } catch (e) { console.warn('item tasks', e); } // the report is out: every office person on an item gets their task
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try { await navigator.share({ files: [file], title: name }); } catch (e) { if (e && e.name !== 'AbortError') downloadBlob(blob, name); }
     } else downloadBlob(blob, name);
@@ -4164,7 +4323,7 @@ function recordingsSection(v) {
     </div>`).join('')}
     ${ro ? '' : `<div class="add-row" style="flex-wrap:wrap;align-items:center">
       ${rec ? `<button class="btn primary small" data-action="rec-stop" data-id="${v.id}">■ עצור הקלטה <span class="rec-timer" id="rec-timer">${fmtDur((Date.now() - rec.startedAt) / 1000)}</span></button>` : (can ? `<button class="btn small" data-action="rec-start" data-id="${v.id}">● הקלט ${v.kind === 'meeting' ? 'את הפגישה' : 'הערות קוליות'}</button>` : '')}
-      <label class="btn small" title="קובץ הקלטה מהטלפון"><input type="file" accept="audio/*" hidden data-upload="${esc(JSON.stringify({ projectId: v.projectId, visitId: v.id, caption: 'הקלטה מיובאת' }))}">${ICON.plus} ייבוא הקלטה</label>
+      ${pickButton({ projectId: v.projectId, visitId: v.id, caption: 'הקלטה מיובאת' }, { accept: 'audio/*', multiple: false, title: 'קובץ הקלטה מהטלפון', html: `${ICON.plus} ייבוא הקלטה` })}
       <span class="inline-note">${rec ? 'מקליט… השאירו את המסך דלוק.' : 'ההקלטה נשמרת בתיק הפרויקט; "תמלל וסכם" מפיק תמלול, סיכום ו' + (v.kind === 'meeting' ? 'החלטות' : 'ממצאים') + ' מוצעים (מסומנים AI) לבדיקה.'}</span>
     </div>`}
   </div>`;
@@ -4224,9 +4383,16 @@ function fieldMenu(kind, id, anchor) {
   }
   const p = v ? S.projects[v.projectId] : null;
   const ids = p ? [...new Set([p.pmId, ...(p.contractorIds || []), ...(p.consultantIds || []), ...(p.supplierIds || []), ...(p.partnerIds || []), p.clientId, ...(p.clientPersonIds || []), p.leadId, ...(p.memberIds || [])].filter(Boolean))] : [];
-  const items = [{ label: 'ללא אחראי', value: '', selected: !it.responsibleId && !it.responsibleText }, ...ids.map((cid) => contact(cid)).filter(Boolean).map((c) => ({ label: c.name, sub: CTYPES[c.type]?.label || c.role || '', value: c.id, selected: it.responsibleId === c.id }))];
-  const others = C().filter((c) => c.active !== false && !ids.includes(c.id) && ['contractor', 'consultant', 'pm', 'supplier', 'partner', 'employee', 'client'].includes(c.type)).sort(byName).map((c) => ({ label: c.name, sub: CTYPES[c.type]?.label || '', value: c.id, selected: it.responsibleId === c.id }));
-  openMenu(anchor, { search: true, placeholder: 'מי אחראי לביצוע?', items: [...items, ...others], create: true, createLabel: '(טקסט חופשי)', onPick: (x) => patchDoc('visit_items', id, { responsibleId: x.value || null, responsibleText: '' }), onCreate: (name) => patchDoc('visit_items', id, { responsibleId: null, responsibleText: name }) });
+  const cur = responsibleIds(it);
+  const items = [
+    { label: `${OFFICE_LABEL} — המשרד`, sub: 'באחריות המשרד; המשימה נפתחת אצל מוביל/ת הפרויקט', value: '__office', selected: !!it.responsibleOffice },
+    ...(hasResponsible(it) ? [{ label: 'ללא אחראי', sub: 'מנקה את כל האחראים', value: '__none' }] : []),
+    ...ids.filter((cid) => !cur.includes(cid)).map((cid) => contact(cid)).filter(Boolean).map((c) => ({ label: c.name, sub: CTYPES[c.type]?.label || c.role || '', value: c.id })),
+  ];
+  const others = C().filter((c) => c.active !== false && !ids.includes(c.id) && !cur.includes(c.id) && ['contractor', 'consultant', 'pm', 'supplier', 'partner', 'employee', 'client'].includes(c.type)).sort(byName).map((c) => ({ label: c.name, sub: CTYPES[c.type]?.label || '', value: c.id }));
+  openMenu(anchor, { search: true, placeholder: cur.length || it.responsibleOffice ? 'להוסיף אחראי/ת נוסף/ת…' : 'מי אחראי לביצוע?', items: [...items, ...others], create: true, createLabel: '(טקסט חופשי)',
+    onPick: (x) => { if (x.value === '__office') setResponsibles(it, cur, { responsibleOffice: !it.responsibleOffice }); else if (x.value === '__none') setResponsibles(it, [], { responsibleOffice: false, responsibleText: '' }); else setResponsibles(it, [...cur, x.value]); afterResponsibleChange(it.id); },
+    onCreate: (name) => { patchDoc('visit_items', id, { responsibleText: name }); afterResponsibleChange(it.id); } });
   return true;
 }
 async function fieldAction(a, ds, t, e) {
@@ -4254,7 +4420,11 @@ async function fieldAction(a, ds, t, e) {
       return true;
     }
     case 'open-visit': { openDrawer('visit', ds.id); if (ds.item) setTimeout(() => document.getElementById('vi-' + ds.item)?.scrollIntoView({ block: 'center' }), 60); return true; }
-    case 'visit-status': { if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } patchDoc('site_visits', ds.id, { status: ds.value, finalizedAt: ds.value === 'final' ? nowIso() : null }); if (ds.value === 'final') toast('הדוח סומן כסופי'); return true; }
+    case 'visit-status': { if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } patchDoc('site_visits', ds.id, { status: ds.value, finalizedAt: ds.value === 'final' ? nowIso() : null }); if (ds.value === 'final') { toast('הדוח סומן כסופי'); await syncItemTasks(ds.id); } return true; }
+    case 'vi-resp-remove': { e.stopPropagation(); if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } const it = S.visit_items[ds.id]; if (!it) return true; await setResponsibles(it, responsibleIds(it).filter((c) => c !== ds.cid)); afterResponsibleChange(ds.id); return true; }
+    case 'vi-resp-office': { e.stopPropagation(); if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } const it = S.visit_items[ds.id]; if (!it) return true; await setResponsibles(it, responsibleIds(it), { responsibleOffice: false }); afterResponsibleChange(ds.id); return true; }
+    case 'vi-resp-text': { e.stopPropagation(); if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } patchDoc('visit_items', ds.id, { responsibleText: '' }); return true; }
+    case 'vi-tasks': { if (!canWriteTasks()) { toast('אין לך הרשאת עריכה'); return true; } const n = await syncItemTasks(ds.id, { reopen: true }); if (!n) toast('כל המשימות כבר פתוחות אצל האחראים'); return true; }
     case 'delete-visit': { // irreversible → confirmButton asks once ("כן, מחק / בטל") before the document and everything in it go
       const v = S.site_visits[ds.id]; if (!v) return true;
       if (!(isManager() || v.authorId === me()?.id)) { toast('מחיקה: מי שערך את המסמך, או מנהל/ת'); return true; }
@@ -4271,7 +4441,7 @@ async function fieldAction(a, ds, t, e) {
       return true;
     }
     case 'vi-del': { const it = S.visit_items[ds.id]; if (!it) return true; await deleteDoc('visit_items', ds.id); filesOf({ itemId: ds.id }).forEach((f) => deleteFile(f.id)); return true; }
-    case 'vi-toggle': { e.stopPropagation(); if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } const it = S.visit_items[ds.id]; if (!it) return true; patchDoc('visit_items', ds.id, { status: it.status === 'closed' ? 'open' : 'closed', closedVisitId: it.status === 'closed' ? null : (S.ui.drawer?.kind === 'visit' && S.ui.drawer.id !== it.visitId ? S.ui.drawer.id : null) }); return true; }
+    case 'vi-toggle': { e.stopPropagation(); if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } const it = S.visit_items[ds.id]; if (!it) return true; const closing = it.status !== 'closed'; tasksOfItem(it.id).forEach((t) => { if (closing && t.status !== 'done') patchDoc('tasks', t.id, { status: 'done', doneAt: nowIso() }); if (!closing && t.status === 'done') patchDoc('tasks', t.id, { status: 'todo', doneAt: null }); }); patchDoc('visit_items', ds.id, { status: it.status === 'closed' ? 'open' : 'closed', closedVisitId: it.status === 'closed' ? null : (S.ui.drawer?.kind === 'visit' && S.ui.drawer.id !== it.visitId ? S.ui.drawer.id : null) }); return true; }
     case 'vi-close-carried': { if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } patchDoc('visit_items', ds.id, { status: 'closed', closedVisitId: ds.visit }); toast('סומן כטופל'); return true; }
     case 'file-del': { // irreversible → the button asks once ("מחק / בטל") before the file goes
       e.stopPropagation();
@@ -4289,6 +4459,8 @@ async function fieldAction(a, ds, t, e) {
     case 'rec-stop': stopRecording(); return true;
     case 'transcribe': { if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } if (hasPending()) { const ok = await commitPending(); if (!ok) { toast('השמירה נכשלה — נסו שוב'); return true; } } await transcribeFile(ds.id, 'start'); return true; }
     case 'report-pdf': await makeReportPdf(ds.id); return true;
+    case 'upload-retry': await retryUpload(ds.id); return true;
+    case 'upload-discard': { const q = S.ui.uploadQueue.find((x) => x.id === ds.id); if (q && q.status === 'failed') { S.ui.uploads.failed = Math.max(0, S.ui.uploads.failed - 1); dropUpload(ds.id); renderUploadNote(); render(); } return true; }
     default: return false;
   }
 }
@@ -4630,12 +4802,12 @@ function fileRow(f, opts = {}) {
 /* an "add files" control: a plain file picker; on phones the camera is one tap away as well */
 function uploadControl(ctx, opts = {}) {
   if (!isMember()) return '';
-  const data = esc(JSON.stringify(ctx));
-  const accept = opts.accept ? `accept="${opts.accept}"` : '';
+  const failed = pendingUploads(ctx).filter((q) => q.status === 'failed');
   return `<span class="upload-ctl">
-    <label class="btn small ${opts.primary ? 'primary' : ''}" title="${esc(opts.title || 'העלאת קבצים')}"><input type="file" ${accept} multiple hidden data-upload="${data}">${ICON.plus} ${esc(opts.label || 'העלה קבצים')}</label>
-    ${opts.camera ? `<label class="btn small ghost" title="צילום"><input type="file" accept="image/*" capture="environment" multiple hidden data-upload="${data}">${ICON.camera} צלם</label>` : ''}
+    ${pickButton(ctx, { cls: `btn small ${opts.primary ? 'primary' : ''}`, accept: opts.accept || '', title: opts.title || 'העלאת קבצים', html: `${ICON.plus} ${esc(opts.label || 'העלה קבצים')}` })}
+    ${opts.camera ? pickButton(ctx, { cls: 'btn small ghost', accept: 'image/*', capture: 'environment', title: 'צילום', html: `${ICON.camera} צלם` }) : ''}
     <span class="inline-note" data-upload-note hidden></span>
+    ${failed.map((q) => `<span class="upload-failed"><span class="tag internal">לא הועלה</span> ${esc(q.name || 'קובץ')} <button type="button" class="btn small" data-action="upload-retry" data-id="${q.id}">נסה שוב</button><button type="button" class="btn ghost small" data-action="upload-discard" data-id="${q.id}">הסר</button></span>`).join('')}
   </span>`;
 }
 function setChip(s, opts = {}) {
@@ -4807,7 +4979,7 @@ function rendersSection(p) {
   const imgs = files.filter((f) => f.kind === 'image'), docs = files.filter((f) => f.kind !== 'image');
   return `<div class="section" id="renders-section">
     <h3 class="section-title">הדמיות <small>${files.length ? files.length : ''}</small></h3>
-    ${imgs.length ? `<div class="gallery">${imgs.map((f) => galleryTile(f)).join('')}</div>` : ''}
+    ${imgs.length || pendingUploads({ projectId: p.id, slot: 'render' }).length ? `<div class="gallery">${imgs.map((f) => galleryTile(f)).join('')}${pendingUploads({ projectId: p.id, slot: 'render' }).map(pendingTile).join('')}</div>` : ''}
     ${docs.length ? `<div class="file-list">${docs.map((f) => fileRow(f)).join('')}</div>` : ''}
     ${!files.length ? '<div class="inline-note">עדיין אין הדמיות — העלו תמונות (או PDF) והן יהיו זמינות מכאן תמיד.</div>' : ''}
     <div class="add-row">${uploadControl({ projectId: p.id, slot: 'render' }, { label: 'העלה הדמיות', primary: !files.length, accept: 'image/*,.pdf' })}</div>
@@ -4823,6 +4995,7 @@ function sitePhotosSection(p) {
     <h3 class="section-title">צילומים מהאתר <small>${all.length ? `${all.length} תמונות · ${dates.length} ימים` : ''}</small></h3>
     ${shown.map((g) => { const v = visitOf(g.files[0]); return `<div class="photo-day"><div class="photo-day-head"><span>${esc(fmtDate(g.d))}</span>${v ? `<a href="#" data-action="open-visit" data-id="${v.id}">${esc(visitTitle(v))}</a>` : '<span class="muted">העלאה ישירה</span>'}<small>${g.files.length}</small></div><div class="gallery">${g.files.map((f) => galleryTile(f)).join('')}</div></div>`; }).join('')}
     ${groups.length > shown.length ? `<button type="button" class="btn small ghost" data-action="photos-all">הצג את כל ${dates.length} הימים</button>` : ''}
+    ${pendingUploads({ projectId: p.id, slot: 'site' }).length ? `<div class="gallery">${pendingUploads({ projectId: p.id, slot: 'site' }).map(pendingTile).join('')}</div>` : ''}
     ${!all.length ? '<div class="inline-note">תמונות מביקורי האתר מופיעות כאן לבד; אפשר גם לצלם ישירות.</div>' : ''}
     <div class="add-row">${uploadControl({ projectId: p.id, slot: 'site' }, { label: 'העלה צילומים', camera: true, accept: 'image/*' })}</div>
   </div>`;
@@ -6606,7 +6779,8 @@ function closeDrawer(force) {
 function pickerChips(p, role, col = 'projects') {
   const ids = role.single ? (p[role.field] ? [p[role.field]] : []) : (p[role.field] || []);
   if (col === 'projects' && !canEditProject(p)) return `<div class="chips">${ids.length ? ids.map((id) => `<a href="#" class="chip ${contact(id) ? '' : 'dim'}" data-action="open-contact" data-id="${id}" style="color:inherit;text-decoration:none">${esc(cname(id, 'איש קשר שנמחק'))}</a>`).join('') : '<span class="muted">—</span>'}</div>`; // frozen: see, don't touch
-  const chips = ids.map((id) => `<span class="chip ${contact(id) ? '' : 'dim'}" ${contact(id)?.active === false ? 'title="עובד/ת לשעבר"' : ''}><a href="#" data-action="open-contact" data-id="${id}" style="color:inherit;text-decoration:none">${esc(cname(id, 'איש קשר שנמחק'))}${contact(id)?.type === 'employee' && contact(id)?.active === false ? ' <small class="muted">(לשעבר)</small>' : isFreelancer(contact(id)) ? ' <small class="muted">(פרילנסר/ית)</small>' : ''}</a><button class="x" data-action="pick-remove" data-col="${col}" data-doc="${p.id}" data-field="${role.field}" data-value="${id}" data-single="${role.single ? 1 : 0}" title="הסר">${ICON.x}</button></span>`);
+  const canRemove = !(col === 'projects' && role.field === 'memberIds') || isManager(); // involved people come off a project only by a manager
+  const chips = ids.map((id) => `<span class="chip ${contact(id) ? '' : 'dim'}" ${contact(id)?.active === false ? 'title="עובד/ת לשעבר"' : ''}><a href="#" data-action="open-contact" data-id="${id}" style="color:inherit;text-decoration:none">${esc(cname(id, 'איש קשר שנמחק'))}${contact(id)?.type === 'employee' && contact(id)?.active === false ? ' <small class="muted">(לשעבר)</small>' : isFreelancer(contact(id)) ? ' <small class="muted">(פרילנסר/ית)</small>' : ''}</a>${canRemove ? `<button class="x" data-action="pick-remove" data-col="${col}" data-doc="${p.id}" data-field="${role.field}" data-value="${id}" data-single="${role.single ? 1 : 0}" title="הסר">${ICON.x}</button>` : ''}</span>`);
   const add = (!role.single || !ids.length) ? `<button class="btn small ghost" data-action="pick-add" data-col="${col}" data-doc="${p.id}" data-field="${role.field}" data-type="${role.type}" data-single="${role.single ? 1 : 0}">${ICON.plus} ${role.single ? 'בחר' : 'הוסף'}</button>` : '';
   return `<div class="chips">${chips.join('')}${add}</div>`;
 }
@@ -6685,8 +6859,19 @@ function projectTeamSection(p) {
   return `<div class="section" id="team-section">
       <h3 class="section-title">צוות <small>${teamLead ? 'ראש צוות: ' + esc(cname(teamLead)) : ''}</small></h3>
       ${field('צוות', selectHtml('p-team', p.teamId || '', T().map((t) => ({ value: t.id, label: t.name + (t.leadId ? ' · ' + cname(t.leadId) : '') })), { blank: 'ללא צוות', attrs: `data-bind="projects:${p.id}:teamId"` }))}
-      ${ROLES.filter((r) => r.type === 'employee').map((r) => `<div class="role-row"><div class="role-name">${r.label}</div><div class="role-body">${pickerChips(p, r)}</div></div>`).join('')}
+      ${ROLES.filter((r) => r.type === 'employee' && r.field !== 'memberIds').map((r) => `<div class="role-row"><div class="role-name">${r.label}</div><div class="role-body">${pickerChips(p, r)}</div></div>`).join('')}
+      ${memberRows(p)}
     </div>`;
+}
+/* the members in two rows: who works on the project now, and who was involved and is not active at the moment. A click on a name moves it
+   between the rows (anyone who edits the project); taking someone off the project altogether is for managers only — the history stays. */
+function memberRows(p) {
+  const edit = canEditProject(p); const mgr = isManager();
+  const all = p.memberIds || []; const active = all.filter((cid) => isActiveOn(p, cid)); const idle = all.filter((cid) => !isActiveOn(p, cid));
+  const chip = (cid, on) => { const c = contact(cid); return `<span class="chip ${on ? 'accent' : 'dim'} member-chip" title="${esc(c ? (on ? 'פעיל/ה בפרויקט — לחיצה: לא פעיל/ה כעת' : 'היה/תה מעורב/ת — לחיצה: חזרה לפעיל/ה') : 'איש קשר שנמחק')}">${edit ? `<button type="button" class="chip-btn" data-action="member-toggle" data-id="${p.id}" data-cid="${cid}" data-on="${on ? 0 : 1}">${esc(cname(cid, 'איש קשר שנמחק'))}</button>` : `<a href="#" data-action="open-contact" data-id="${cid}" style="color:inherit;text-decoration:none">${esc(cname(cid, 'איש קשר שנמחק'))}</a>`}${mgr ? `<button type="button" class="x" data-action="pick-remove" data-col="projects" data-doc="${p.id}" data-field="memberIds" data-value="${cid}" data-single="0" title="הסר מהפרויקט (מנהלים)">${ICON.x}</button>` : ''}</span>`; };
+  const add = edit ? `<button class="btn small ghost" data-action="pick-add" data-col="projects" data-doc="${p.id}" data-field="memberIds" data-type="employee" data-single="0">${ICON.plus} הוסף</button>` : '';
+  return `<div class="role-row"><div class="role-name">פעילים כעת</div><div class="role-body"><div class="chips">${active.map((cid) => chip(cid, true)).join('')}${add}${!active.length && !add ? '<span class="muted">—</span>' : ''}</div></div></div>
+    <div class="role-row"><div class="role-name">היו מעורבים</div><div class="role-body"><div class="chips">${idle.length ? idle.map((cid) => chip(cid, false)).join('') : '<span class="muted">—</span>'}</div>${idle.length || active.length ? '<div class="cell-sub">מי שעבד/ה על הפרויקט נשאר/ת מעורב/ת ורואה אותו; לחיצה על שם מעבירה בין "פעילים כעת" ל"היו מעורבים" — העומס נספר רק לפעילים.</div>' : ''}</div></div>`;
 }
 function projectExternalSection(p) {
   return `<div class="section" id="external-section">
@@ -7905,7 +8090,8 @@ document.addEventListener('click', async (e) => {
       break;
     }
     case 'pick-add': e.stopPropagation(); openPicker(t, { col: ds.col, doc: ds.doc, field: ds.field, type: ds.type, single: ds.single === '1' }); break;
-    case 'pick-remove': { e.stopPropagation(); const d = S[ds.col][ds.doc]; if (ds.single === '1') patchDoc(ds.col, ds.doc, { [ds.field]: null }); else patchDoc(ds.col, ds.doc, { [ds.field]: (d[ds.field] || []).filter((x) => x !== ds.value) }); break; }
+    case 'pick-remove': { e.stopPropagation(); const d = S[ds.col][ds.doc]; if (ds.col === 'projects' && ds.field === 'memberIds' && !isManager()) { toast('הסרת מעורב/ת מהפרויקט — מנהלים בלבד. אפשר לסמן "לא פעיל/ה".'); break; } if (ds.single === '1') patchDoc(ds.col, ds.doc, { [ds.field]: null }); else patchDoc(ds.col, ds.doc, { [ds.field]: (d[ds.field] || []).filter((x) => x !== ds.value), ...(ds.col === 'projects' && ds.field === 'memberIds' ? { inactiveMemberIds: inactiveMemberIds(d).filter((x) => x !== ds.value) } : {}) }); break; }
+    case 'member-toggle': { e.stopPropagation(); const p = S.projects[ds.id]; if (!p) break; if (!canEditProject(p)) { toast('אין לך הרשאת עריכה'); break; } setMemberActive(p, ds.cid, ds.on === '1'); break; }
     case 'delete-doc': {
       const key = a + `data-col="${ds.col}" data-id="${ds.id}"`;
       if (!ds.confirmed) { S.ui.confirm = key; render(); setTimeout(() => document.getElementById('confirm-pw')?.focus(), 30); break; }
