@@ -1089,6 +1089,16 @@
   /* ---------- report (screen + PDF pages) ---------- */
   .rp-tools { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
   .rp-note { font-size: 12.5px; color: var(--ink-3); margin-bottom: 16px; }
+  /* the produced PDF: one clear bar — save to the device, share, open (13.10.2026) */
+  .pdf-ready { display: flex; align-items: center; gap: 8px 14px; flex-wrap: wrap; padding: 10px 14px; border: 1px solid var(--good); background: var(--good-soft); border-radius: var(--radius); color: var(--ink); font-size: 13px; }
+  .pdf-ready strong { color: var(--good-ink); }
+  .pdf-ready-txt { flex: 1 1 220px; min-width: 0; overflow-wrap: anywhere; }
+  .pdf-ready-btns { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+  .pdf-ready .btn svg { width: 15px; height: 15px; }
+  /* the document's name and number side by side: the number takes only what it needs */
+  .visit-name-row { grid-template-columns: minmax(160px, 1fr) 96px; }
+  .visit-name-row input[type=number] { text-align: center; }
+  @media (max-width: 480px) { .visit-name-row { grid-template-columns: 1fr 84px; } }
   .rp-doc { width: 794px; padding: 0 56px; box-sizing: border-box; background: #fff; }  /* measured at A4 width even on phones */
   .rp-pages { display: grid; gap: 18px; justify-content: center; }
   .rp-page { width: 794px; max-width: 100%; min-height: 1123px; background: #fff; border: 1px solid var(--line); box-shadow: 0 6px 30px rgba(0,0,0,.08); position: relative; direction: rtl; box-sizing: border-box; padding: 56px 56px 44px; display: flex; flex-direction: column; }
@@ -3533,7 +3543,7 @@ function taskItem(t, opts = {}) {
   const p = t.projectId ? S.projects[t.projectId] : null;
   const cl = checklistOf(t);
   const ms_ = t.milestoneId ? S.project_milestones[t.milestoneId] : null;
-  const src = t.itemId && S.visit_items[t.itemId] && S.site_visits[S.visit_items[t.itemId].visitId] ? `${visitKind(S.site_visits[S.visit_items[t.itemId].visitId]).report} ${S.site_visits[S.visit_items[t.itemId].visitId].seq}` : '';
+  const src = t.itemId && S.visit_items[t.itemId] && S.site_visits[S.visit_items[t.itemId].visitId] ? visitTitle(S.site_visits[S.visit_items[t.itemId].visitId]) : '';
   const meta = [opts.hideProject ? '' : (p ? p.name : (t.projectId ? 'פרויקט שנמחק' : 'משימה משרדית')), src, ms_ && !opts.hideMilestone ? msTypeName(ms_) : '', opts.hideAssignee ? '' : uname(t.assigneeId, 'ללא אחראי'), t.status === 'waiting' && t.waitingOn ? 'ממתין ל' + t.waitingOn : ''].filter(Boolean).join(' · ');
   return `<div class="task-item ${t.status === 'done' ? 'is-done' : ''}" data-action="open-task" data-id="${t.id}">
     <button type="button" class="task-check ${t.status}" data-action="task-toggle-done" data-id="${t.id}" title="${t.status === 'done' ? 'החזר לביצוע' : 'סמן כבוצע'}" aria-label="${t.status === 'done' ? 'החזר לביצוע' : 'סמן כבוצע'}">${t.status === 'done' ? ICON.check : ''}</button>
@@ -3788,7 +3798,9 @@ ICON.doc = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-wi
 ICON.pin = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M10 17.5s5-4.6 5-9a5 5 0 0 0-10 0c0 4.4 5 9 5 9z"/><circle cx="10" cy="8.5" r="1.8"/></svg>';
 
 S.site_visits = {}; S.visit_items = {}; S.files = {}; S.fileUrls = {};
-Object.assign(S.ui, { uploads: { active: 0, done: 0, failed: 0 }, lightbox: null, reportId: null, pdfBusy: false, fprev: {} });
+Object.assign(S.ui, { uploads: { active: 0, done: 0, failed: 0 }, lightbox: null, reportId: null, pdfBusy: false, pdfReady: null, fprev: {} });
+ICON.download = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M6 9l4 4 4-4M4 16.5h12"/></svg>';
+ICON.share = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12V3M6.5 6.5L10 3l3.5 3.5M4 10v6.5h12V10"/></svg>';
 const canWriteField = () => isMember();
 const SV = () => list('site_visits');
 const VI = () => list('visit_items');
@@ -3797,8 +3809,11 @@ const visitKind = (v) => VISIT_KINDS[v?.kind] || VISIT_KINDS.site;
 const visitsOf = (pid, kind) => SV().filter((v) => v.projectId === pid && (!kind || v.kind === kind)).sort((a, b) => (b.visitDate || '').localeCompare(a.visitDate || '') || (b.seq || 0) - (a.seq || 0));
 const itemsOf = (vid) => VI().filter((i) => i.visitId === vid).sort((a, b) => (a.seq || 0) - (b.seq || 0));
 const filesOf = (where) => FL().filter((f) => Object.entries(where).every(([k, v]) => f[k] === v)).sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
-const visitTitle = (v) => `${visitKind(v).report} מס' ${v.seq}`;
-const visitLabel = (v) => ((v.title || '').trim() || visitTitle(v)); // what a list shows: the subject when there is one, else the numbered title
+/* the document's name (13.10.2026): an editable heading ("דוח פיקוח עליון", "סיכום פגישה", "סיכום פגישת זום", "פרוטוקול"…) and an editable
+   number — both kinds. Empty heading = the kind's default. The subject (title) is a free line under the name. */
+const visitHeading = (v) => ((v.heading || '').trim() || visitKind(v).report);
+const visitTitle = (v) => `${visitHeading(v)} מס' ${v.seq}`;
+const visitLabel = (v) => ((v.title || '').trim() || visitTitle(v)); // what a list shows: the subject when there is one, else the numbered name
 /* the project line of a document: a meeting may belong to no project (an office / general meeting) */
 const visitProjectName = (v) => (v.projectId ? (S.projects[v.projectId]?.name || 'פרויקט שנמחק') : 'פגישה כללית');
 const itemNo = (v, it) => `${v.seq}.${it.seq}`;
@@ -3813,10 +3828,14 @@ const carriedItems = (v) => {
    first contact for older readers. Every office person on an open item gets a task of their own once the report / summary is issued. */
 const OFFICE_LABEL = 'OBERSON';
 const responsibleIds = (it) => (Array.isArray(it.responsibleIds) && it.responsibleIds.length ? it.responsibleIds : (it.responsibleId ? [it.responsibleId] : []));
-const responsibleParts = (it) => [...(it.responsibleOffice ? [OFFICE_LABEL] : []), ...responsibleIds(it).map((cid) => cname(cid, '')).filter(Boolean), ...((it.responsibleText || '').trim() ? [it.responsibleText.trim()] : [])];
+/* free-text names (13.10.2026): people who are not in the contacts — a list, each name its own chip; responsibleText mirrors the joined list for
+   older readers and for rows written before the list existed (a single name) */
+const responsibleNames = (it) => (Array.isArray(it.responsibleNames) && it.responsibleNames.length ? it.responsibleNames.map((n) => String(n || '').trim()).filter(Boolean) : ((it.responsibleText || '').trim() ? [it.responsibleText.trim()] : []));
+const responsibleParts = (it) => [...(it.responsibleOffice ? [OFFICE_LABEL] : []), ...responsibleIds(it).map((cid) => cname(cid, '')).filter(Boolean), ...responsibleNames(it)];
 const responsibleName = (it) => responsibleParts(it).join(' · ');
 const hasResponsible = (it) => responsibleParts(it).length > 0;
 function setResponsibles(it, ids, extra = {}) { const list = [...new Set(ids.filter(Boolean))]; return patchDoc('visit_items', it.id, Object.assign({ responsibleIds: list, responsibleId: list[0] || null }, extra)); }
+function setResponsibleNames(it, names) { const list = [...new Set(names.map((n) => String(n || '').trim()).filter(Boolean))]; return patchDoc('visit_items', it.id, { responsibleNames: list, responsibleText: list.join(' · ') }); }
 /* the office people behind an item's responsibility, as users (an employee without an account gives no task; the office → the project lead, else the team lead) */
 function responsibleUsers(it, v) {
   const users = new Set();
@@ -3836,7 +3855,7 @@ async function syncItemTasks(visitId, opts = {}) {
     const wanted = ['defect', 'instruction', 'task', 'decision'].includes(it.kind) ? responsibleUsers(it, v) : [];
     const have = tasksOfItem(it.id);
     const title = itemTaskTitle(it, v);
-    const description = [`${visitKind(v).report} ${v.seq}${(v.title || '').trim() ? ' — ' + v.title.trim() : ''} · ${itemNo(v, it)}`, it.location ? `מיקום: ${it.location}` : '', visitProjectName(v)].filter(Boolean).join('\n');
+    const description = [`${visitTitle(v)}${(v.title || '').trim() ? ' — ' + v.title.trim() : ''} · ${itemNo(v, it)}`, it.location ? `מיקום: ${it.location}` : '', visitProjectName(v)].filter(Boolean).join('\n');
     for (const uid_ of wanted) {
       const t = have.find((x) => x.assigneeId === uid_);
       if (!t) { await newTask({ title, description, projectId: v.projectId || null, assigneeId: uid_, dueDate: it.dueDate || null, itemId: it.id, status: it.status === 'closed' ? 'done' : 'todo', doneAt: it.status === 'closed' ? nowIso() : null, priority: it.severity === 'high' ? 'urgent' : 'normal' }); made++; continue; }
@@ -3869,14 +3888,14 @@ async function newVisit(projectId, kind = 'site', extra = {}) {
   if (!projectId && kind !== 'meeting') return null;
   const seq = Math.max(0, ...visitsOf(projectId, kind).map((v) => v.seq || 0)) + 1;
   const id = uid('v');
-  const ok = await createDoc('site_visits', id, { projectId, kind, seq, visitDate: extra.visitDate || todayStr(), visitTime: extra.visitTime || '', authorId: me()?.id || null, attendees: extra.attendees || '', summary: '', status: 'draft', finalizedAt: null, nextVisit: null, venue: kind === 'site' ? 'site' : (VENUES[extra.venue] ? extra.venue : 'office'), title: extra.title || '' });
+  const ok = await createDoc('site_visits', id, { projectId, kind, seq, visitDate: extra.visitDate || todayStr(), visitTime: extra.visitTime || '', authorId: me()?.id || null, attendees: extra.attendees || '', summary: '', status: 'draft', finalizedAt: null, nextVisit: null, venue: kind === 'site' ? 'site' : (VENUES[extra.venue] ? extra.venue : 'office'), title: extra.title || '', heading: '' });
   return ok ? id : null;
 }
 async function newItem(visitId, kind, body = '') {
   const v = S.site_visits[visitId]; if (!v) return null;
   const seq = Math.max(0, ...itemsOf(visitId).map((i) => i.seq || 0)) + 1;
   const id = uid('vi');
-  const ok = await createDoc('visit_items', id, { visitId, seq, kind: kind || ITEM_KINDS_OF[v.kind || 'site'][0], location: '', body, responsibleId: null, responsibleIds: [], responsibleOffice: false, responsibleText: '', dueDate: null, status: 'open', severity: '', closedVisitId: null });
+  const ok = await createDoc('visit_items', id, { visitId, seq, kind: kind || ITEM_KINDS_OF[v.kind || 'site'][0], location: '', body, responsibleId: null, responsibleIds: [], responsibleOffice: false, responsibleText: '', responsibleNames: [], dueDate: null, status: 'open', severity: '', closedVisitId: null });
   return ok ? id : null;
 }
 function fileUrl(f) {
@@ -4043,9 +4062,9 @@ function responsibleChips(it, v, ro) {
   const chips = [];
   if (it.responsibleOffice) chips.push(`<span class="chip accent resp-chip" title="באחריות המשרד — המשימה אצל מוביל/ת הפרויקט">${OFFICE_LABEL}${x(`data-action="vi-resp-office" data-id="${it.id}"`)}</span>`);
   responsibleIds(it).forEach((cid) => { const c = contact(cid); const tasks = tasksOfItem(it.id); const pr = c && c.type === 'employee' ? Object.values(S.profiles).find((q) => q.contactId === cid) : null; const tk = pr ? tasks.find((t) => t.assigneeId === pr.id) : null; chips.push(`<span class="chip ${c ? 'accent' : 'dim'} resp-chip" title="${esc(c ? (CTYPES[c.type]?.label || '') + (tk ? ' · יש משימה' : '') : 'איש קשר שנמחק')}">${esc(cname(cid, 'איש קשר שנמחק'))}${tk ? ' <small>✓</small>' : ''}${x(`data-action="vi-resp-remove" data-id="${it.id}" data-cid="${cid}"`)}</span>`); });
-  if ((it.responsibleText || '').trim()) chips.push(`<span class="chip resp-chip">${esc(it.responsibleText.trim())}${x(`data-action="vi-resp-text" data-id="${it.id}"`)}</span>`);
+  responsibleNames(it).forEach((name, i) => chips.push(`<span class="chip resp-chip" title="טקסט חופשי — לא איש קשר במאגר, לכן בלי משימה">${esc(name)}${x(`data-action="vi-resp-name" data-id="${it.id}" data-index="${i}"`)}</span>`));
   if (ro) return `<span class="resp-chips">${chips.join('') || '<span class="chip dim">ללא אחראי</span>'}</span>`;
-  return `<span class="resp-chips">${chips.join('')}${menuChip(chips.length ? `${ICON.plus} אחראי` : 'אחראי לביצוע', `data-action="menu" data-menu="viresp" data-id="${it.id}"`, 'dim')}</span>`;
+  return `<span class="resp-chips">${chips.join('')}${menuChip(chips.length ? '+ אחראי' : 'אחראי לביצוע', `data-action="menu" data-menu="viresp" data-id="${it.id}"`, 'dim')}</span>`;
 }
 function itemRow(v, it, opts = {}) {
   const ro = !canWriteField() || v.status === 'final';
@@ -4126,7 +4145,7 @@ function openItemRow(it, v) {
   const due = it.dueDate ? dueInfo({ dueDate: it.dueDate, status: 'todo' }) : { label: '', cls: '' }; const k = ITEM_KINDS[it.kind] || ITEM_KINDS.finding;
   return `<div class="task-item" data-action="open-visit" data-id="${v.id}" data-item="${it.id}">
     <span class="chip ${k.cls} status-chip">${k.label}</span>
-    <div class="li-body"><div class="li-title">${esc(it.body || '(ללא תיאור)')}</div><div class="li-sub">${esc([visitProjectName(v), (v.title || '').trim() || `${visitKind(v).report} ${v.seq}`, it.location, responsibleName(it)].filter(Boolean).join(' · '))}</div></div>
+    <div class="li-body"><div class="li-title">${esc(it.body || '(ללא תיאור)')}</div><div class="li-sub">${esc([visitProjectName(v), visitLabel(v), it.location, responsibleName(it)].filter(Boolean).join(' · '))}</div></div>
     <div class="li-side">${due.label ? `<span class="due ${due.cls}">${esc(due.label)}</span>` : ''}</div></div>`;
 }
 
@@ -4148,7 +4167,7 @@ function drawerVisit(id) {
   return `
   <div class="drawer-head">
     <div style="flex:1;min-width:0">
-      <h2 class="drawer-title">${esc(v.kind !== 'meeting' ? visitLabel(v) : visitTitle(v))}</h2>
+      <h2 class="drawer-title">${esc(visitTitle(v))}</h2>
       <div class="drawer-sub">${projectLine}${isMeet && !ro ? ` · <a href="#" data-action="visit-project" data-id="${id}">${p ? 'העבר לפרויקט אחר' : 'שייך לפרויקט'}</a>` : ''}</div>
     </div>
     <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
@@ -4161,8 +4180,11 @@ function drawerVisit(id) {
         <button class="btn primary small" data-action="open-report" data-id="${id}">${ICON.doc} ${K.report} — תצוגה / PDF</button>
         ${canWriteTasks() && !isMeet ? '' : ''}${canWriteTasks() ? (() => { const n = itemsOf(id).reduce((a, it) => a + tasksOfItem(it.id).length, 0); const due = itemsOf(id).filter((it) => isOpenItem(it) && responsibleUsers(it, v).length).length; return `<button class="btn small ghost" data-action="vi-tasks" data-id="${id}" title="כל סעיף פתוח שבאחריות אנשי המשרד הופך למשימה אצלם (קורה לבד עם הוצאת ה-PDF או סימון סופי)">${ICON.check} משימות לאחראים${n ? ` <small>${n}</small>` : ''}</button>${!n && due ? `<span class="inline-note">${due} סעיפים באחריות המשרד — המשימות ייפתחו עם הוצאת ה${isMeet ? 'סיכום' : 'דוח'}</span>` : ''}`; })() : ''}
       </div>
-      ${isMeet ? field('נושא הפגישה', textInput('v-title', v.title || '', `data-bind="site_visits:${id}:title" placeholder="למשל: תיאום עם היזם, הצגת קונספט ללקוח" ${dis}`))
-        : field('כותרת הדוח', textInput('v-title', v.title || '', `data-bind="site_visits:${id}:title" placeholder="${esc(visitTitle(v))}" ${dis}`), `ריק = "${esc(visitTitle(v))}". כותרת משלכם מחליפה אותה בדוח וברשימות.`)}
+      <div class="field-row visit-name-row">
+        ${field('שם המסמך', textInput('v-heading', v.heading || '', `data-bind="site_visits:${id}:heading" placeholder="${esc(K.report)}" ${dis}`), `ריק = "${esc(K.report)}". השם והמספר מופיעים בכותרת ה${isMeet ? 'סיכום' : 'דוח'}, ברשימות ובשם קובץ ה-PDF; המספר ניתן לשינוי, למשל כשהמסמכים הקודמים נערכו מחוץ למערכת.`)}
+        ${field('מס\'', `<input type="number" id="v-seq" min="1" step="1" inputmode="numeric" value="${Number(v.seq) || 1}" data-bind="site_visits:${id}:seq" dir="ltr" ${dis}>`, (() => { const dup = visitsOf(v.projectId, v.kind).find((x) => x.id !== v.id && Number(x.seq) === Number(v.seq)); return dup ? `מס' ${v.seq} כבר קיים בפרויקט (${fmtDate(dup.visitDate)})` : 'ניתן לשינוי'; })())}
+      </div>
+      ${field(isMeet ? 'נושא הפגישה' : 'נושא (לא חובה)', textInput('v-title', v.title || '', `data-bind="site_visits:${id}:title" placeholder="${esc(isMeet ? 'למשל: תיאום עם היזם, הצגת קונספט ללקוח' : 'למשל: ביקור עם היזם, בדיקת גמרים — מופיע מתחת לשם הדוח')}" ${dis}`))}
       ${isMeet ? `<div class="field"><label>איפה</label><span class="seg venue-seg">${Object.entries(VENUES).map(([k, m]) => `<button type="button" class="${venueOf(v) === k ? 'on' : ''}" data-action="visit-venue" data-id="${id}" data-value="${k}" ${dis}>${m.label}</button>`).join('')}</span></div>` : ''}
       <div class="field-row">
         ${field('תאריך', `<input type="date" id="v-date" value="${dateInput(v.visitDate)}" data-bind="site_visits:${id}:visitDate" ${dis}>`)}
@@ -4185,7 +4207,7 @@ function drawerVisit(id) {
     </div>
     ${carried.length ? `<div class="section">
       <h3 class="section-title">${K.prev} <small>${carried.length}</small></h3>
-      ${carried.map(({ it, from }) => `<div class="vi-carried"><span class="vi-no">${esc(itemNo(from, it))}</span><div class="li-body"><div>${esc(it.body || '')}</div><div class="li-sub">${esc([`${visitKind(from).report} ${from.seq} · ${fmtDate(from.visitDate)}`, it.location, responsibleName(it), it.dueDate ? 'עד ' + fmtDate(it.dueDate) : ''].filter(Boolean).join(' · '))}</div></div>${ro ? '' : `<button class="btn ghost small" data-action="vi-close-carried" data-id="${it.id}" data-visit="${id}">טופל</button>`}</div>`).join('')}
+      ${carried.map(({ it, from }) => `<div class="vi-carried"><span class="vi-no">${esc(itemNo(from, it))}</span><div class="li-body"><div>${esc(it.body || '')}</div><div class="li-sub">${esc([`${visitTitle(from)} · ${fmtDate(from.visitDate)}`, it.location, responsibleName(it), it.dueDate ? 'עד ' + fmtDate(it.dueDate) : ''].filter(Boolean).join(' · '))}</div></div>${ro ? '' : `<button class="btn ghost small" data-action="vi-close-carried" data-id="${it.id}" data-visit="${id}">טופל</button>`}</div>`).join('')}
     </div>` : ''}
   </div>
   <div class="drawer-foot">
@@ -4206,10 +4228,10 @@ function reportBlocks(v) {
   const b = (cls, html) => blocks.push(`<div class="rp-b ${cls}">${html}</div>`);
   const kv = (k, val) => `<div class="rp-kv"><span>${k}</span><strong>${esc(val || '—')}</strong></div>`;
   b('rp-header', `<div class="rp-brand"><svg class="logo" aria-label="OBERSON GO"><use href="#logo-mark"/></svg></div>
-    <div class="rp-titles"><div class="rp-title">${v.kind !== 'meeting' && (v.title || '').trim() ? esc(v.title.trim()) : `${esc(K.report)} <span>מס' ${v.seq}</span>`}</div><div class="rp-project">${esc(p.name)}${p.number ? ` <small>פרויקט ${esc(p.number)}</small>` : ''}${v.kind === 'meeting' && (v.title || '').trim() ? `<div class="rp-subject">${esc(v.title.trim())}</div>` : ''}</div></div>`);
+    <div class="rp-titles"><div class="rp-title">${esc(visitHeading(v))} <span>מס' ${esc(String(v.seq))}</span></div><div class="rp-project">${esc(p.name)}${p.number ? ` <small>פרויקט ${esc(p.number)}</small>` : ''}${(v.title || '').trim() ? `<div class="rp-subject">${esc(v.title.trim())}</div>` : ''}</div></div>`);
   b('rp-meta', `${kv('תאריך', fmtDate(v.visitDate) + (v.visitTime ? ' · ' + v.visitTime : ''))}${v.kind === 'meeting' ? kv('איפה', venueLabel(v)) : ''}${p.id ? kv('כתובת', [p.address, p.city].filter(Boolean).join(', ')) : ''}${p.id ? kv('לקוח', cname(p.clientId, '')) : ''}${kv('נערך על ידי', uname(v.authorId, ''))}${kv(K.people, v.attendees)}${v.nextVisit ? kv(K.next, fmtDate(v.nextVisit)) : ''}`);
   if (v.summary) b('rp-section', `<h3>${esc(K.summary)}</h3><p>${esc(v.summary).replace(/\n/g, '<br>')}</p>`);
-  const rowHtml = (vv, it, from) => `<div class="rp-row ${it.status === 'closed' ? 'closed' : ''}"><span class="c-no">${esc(itemNo(vv, it))}</span><span class="c-kind">${ITEM_KINDS[it.kind]?.label || ''}</span><span class="c-loc">${esc(it.location || '')}</span><span class="c-body">${esc(it.body || '').replace(/\n/g, '<br>')}${from ? `<small>מ${visitKind(from).report} ${from.seq}, ${fmtDate(from.visitDate)}</small>` : ''}</span><span class="c-resp">${esc(responsibleName(it))}</span><span class="c-due">${it.dueDate ? fmtDate(it.dueDate) : ''}</span><span class="c-st">${['note'].includes(it.kind) ? '' : (it.status === 'closed' ? 'טופל' : 'פתוח')}</span></div>`;
+  const rowHtml = (vv, it, from) => `<div class="rp-row ${it.status === 'closed' ? 'closed' : ''}"><span class="c-no">${esc(itemNo(vv, it))}</span><span class="c-kind">${ITEM_KINDS[it.kind]?.label || ''}</span><span class="c-loc">${esc(it.location || '')}</span><span class="c-body">${esc(it.body || '').replace(/\n/g, '<br>')}${from ? `<small>מ${visitTitle(from)}, ${fmtDate(from.visitDate)}</small>` : ''}</span><span class="c-resp">${esc(responsibleName(it))}</span><span class="c-due">${it.dueDate ? fmtDate(it.dueDate) : ''}</span><span class="c-st">${['note'].includes(it.kind) ? '' : (it.status === 'closed' ? 'טופל' : 'פתוח')}</span></div>`;
   const head = `<div class="rp-row rp-head"><span class="c-no">מס'</span><span class="c-kind">סוג</span><span class="c-loc">מיקום</span><span class="c-body">תיאור</span><span class="c-resp">אחריות</span><span class="c-due">לביצוע עד</span><span class="c-st">מצב</span></div>`;
   if (items.length) { b('rp-section rp-tbl-title', `<h3>${esc(K.items)}</h3>`); b('rp-thead', head); items.forEach((it) => b('rp-tr', rowHtml(v, it))); }
   if (carried.length) { b('rp-section rp-tbl-title', `<h3>${esc(K.prev)}</h3>`); b('rp-thead', head); carried.forEach(({ it, from }) => b('rp-tr', rowHtml(from, it, from))); }
@@ -4229,15 +4251,24 @@ function renderReport() {
   if (!v) return `<div class="banner">המסמך לא נמצא. <button class="btn small" data-action="nav" data-view="field">חזרה לשטח</button></div>`;
   const K = visitKind(v);
   const busy = S.ui.pdfBusy;
+  const ready = S.ui.pdfReady && S.ui.pdfReady.visitId === v.id ? S.ui.pdfReady : null;
   return `<div class="rp-tools no-print">
       <button class="btn ghost small" data-action="report-back" data-id="${v.id}">${ICON.back} חזרה</button>
-      <span class="inline-note">${esc(v.kind !== 'meeting' ? visitLabel(v) : visitTitle(v))} · ${esc(visitProjectName(v))} · ${v.status === 'final' ? 'סופי' : 'טיוטה'}</span>
+      <span class="inline-note">${esc(visitTitle(v))}${(v.title || '').trim() ? ' — ' + esc(v.title.trim()) : ''} · ${esc(visitProjectName(v))} · ${v.status === 'final' ? 'סופי' : 'טיוטה'}</span>
       <span style="margin-inline-start:auto;display:inline-flex;gap:6px;flex-wrap:wrap">
         <button class="btn small" data-action="report-print" ${busy ? 'disabled' : ''}>הדפסה</button>
-        <button class="btn primary small" data-action="report-pdf" data-id="${v.id}" ${busy ? 'disabled' : ''}>${busy ? 'מכין PDF…' : 'PDF — שמירה / שיתוף'}</button>
+        <button class="btn ${ready ? '' : 'primary'} small" data-action="report-pdf" data-id="${v.id}" ${busy ? 'disabled' : ''}>${busy ? 'מכין PDF…' : (ready ? 'הפק PDF מחדש' : `${ICON.doc} הפק PDF`)}</button>
       </span>
     </div>
-    <div class="rp-note no-print">${(() => { const pdfs = filesOf({ visitId: v.id }).filter((f) => f.kind === 'pdf'); return pdfs.length ? `קובץ PDF אחרון נשמר בפרויקט ב-${fmtDateTime(pdfs[pdfs.length - 1].createdAt)} · <a href="#" data-action="file-open" data-id="${pdfs[pdfs.length - 1].id}">פתח</a>` : 'ה-PDF נשמר גם בתיק הפרויקט אחרי ההפקה.'; })()}</div>
+    ${ready ? `<div class="rp-note no-print pdf-ready">
+      <span class="pdf-ready-txt"><strong>ה-PDF מוכן</strong> · <bdi>${esc(ready.name)}</bdi>${ready.size ? ` · ${fmtSize(ready.size)}` : ''}</span>
+      <span class="pdf-ready-btns">
+        <button class="btn primary small" data-action="pdf-save" title="שומר את הקובץ במכשיר (תיקיית ההורדות / הקבצים)">${ICON.download} הורד / שמור</button>
+        ${ready.shareable ? `<button class="btn small" data-action="pdf-share" title="שולח בוואטסאפ, במייל או לאפליקציה אחרת">${ICON.share} שתף…</button>` : ''}
+        <button class="btn small ghost" data-action="pdf-open" title="פותח את ה-PDF בלשונית חדשה">פתח</button>
+      </span>
+    </div>` : ''}
+    <div class="rp-note no-print">${(() => { const pdfs = filesOf({ visitId: v.id }).filter((f) => f.kind === 'pdf'); return pdfs.length ? `עותק של ה-PDF האחרון נשמר בתיק הפרויקט ב-${fmtDateTime(pdfs[pdfs.length - 1].createdAt)} · <a href="#" data-action="file-open" data-id="${pdfs[pdfs.length - 1].id}">פתח</a>` : 'אחרי ההפקה אפשר לשמור, לשתף או לפתוח את הקובץ; עותק נשמר גם בתיק הפרויקט.'; })()}</div>
     <div id="rp-flow" class="rp-doc">${reportBlocks(v).join('')}</div>
     <div id="rp-pages" class="rp-pages"></div>`;
 }
@@ -4286,7 +4317,7 @@ async function makeReportPdf(visitId) {
       if (i > 0) pdf.addPage();
       pdf.addImage(canvas.toDataURL('image/jpeg', 0.86), 'JPEG', 0, 0, 210, 297);
     }
-    const name = `${visitKind(v).report} ${v.seq} - ${visitProjectName(v).replace(/[\\/:*?"<>|]/g, ' ')}.pdf`;
+    const name = `${visitHeading(v).replace(/[\\/:*?"<>|]/g, ' ')} ${v.seq} - ${visitProjectName(v).replace(/[\\/:*?"<>|]/g, ' ')}.pdf`;
     const blob = pdf.output('blob');
     const file = new File([blob], name, { type: 'application/pdf' });
     // keep a copy in the project folder (files table, kind pdf); a general meeting has no project folder → tasks/
@@ -4296,13 +4327,26 @@ async function makeReportPdf(visitId) {
       if (!error) await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: v.projectId, visitId: v.id, itemId: null, kind: 'pdf', mime: 'application/pdf', size: blob.size, width: null, height: null, caption: name, takenAt: null, uploadedBy: me()?.id || null });
     } catch (e) { console.warn('pdf archive', e); }
     try { await syncItemTasks(v.id); } catch (e) { console.warn('item tasks', e); } // the report is out: every office person on an item gets their task
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file], title: name }); } catch (e) { if (e && e.name !== 'AbortError') downloadBlob(blob, name); }
-    } else downloadBlob(blob, name);
+    // the file stays in hand: the person chooses — save to the device, share (phone: WhatsApp / mail / another app), or open. No share sheet opens by itself.
+    pdfReadyClear();
+    let shareable = false; try { shareable = !!(navigator.canShare && navigator.canShare({ files: [file] })); } catch (e) { shareable = false; }
+    S.ui.pdfReady = { visitId: v.id, name, blob, file, url: URL.createObjectURL(blob), size: blob.size, shareable, at: Date.now() };
+    if (!shareable) downloadBlob(blob, name); // a computer: the download is the save; the bar stays for "open" / "save again"
+    toast(shareable ? 'ה-PDF מוכן — לשמור, לשתף או לפתוח' : 'ה-PDF מוכן והורד');
   } catch (e) { console.error(e); toast('הפקת ה-PDF נכשלה: ' + friendlyError(e)); }
   finally { renderHold--; }
   document.getElementById('rp-pages')?.classList.remove('pdf-mode');
   S.ui.pdfBusy = false; render();
+}
+function pdfReadyClear() { const r = S.ui.pdfReady; if (!r) return; try { URL.revokeObjectURL(r.url); } catch (e) { /* ignore */ } S.ui.pdfReady = null; }
+async function pdfReadyAction(what) {
+  const r = S.ui.pdfReady; if (!r) { toast('הפיקו את ה-PDF קודם'); return; }
+  if (what === 'save') { downloadBlob(r.blob, r.name); toast('הקובץ נשמר בהורדות'); return; }
+  if (what === 'open') { const w = window.open(r.url, '_blank'); if (!w) { downloadBlob(r.blob, r.name); } return; }
+  if (what === 'share') {
+    try { await navigator.share({ files: [r.file], title: r.name }); }
+    catch (e) { if (e && e.name === 'AbortError') return; console.warn(e); toast('השיתוף לא נפתח — הקובץ הורד במקום'); downloadBlob(r.blob, r.name); }
+  }
 }
 function downloadBlob(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000); }
 
@@ -4382,17 +4426,22 @@ function fieldMenu(kind, id, anchor) {
     return true;
   }
   const p = v ? S.projects[v.projectId] : null;
-  const ids = p ? [...new Set([p.pmId, ...(p.contractorIds || []), ...(p.consultantIds || []), ...(p.supplierIds || []), ...(p.partnerIds || []), p.clientId, ...(p.clientPersonIds || []), p.leadId, ...(p.memberIds || [])].filter(Boolean))] : [];
+  // the project's people first: office team, the companies on the project and the people at them (client's people, people at the contractor…)
+  const orgIds = p ? [p.clientId, p.pmId, ...(p.contractorIds || []), ...(p.consultantIds || []), ...(p.supplierIds || []), ...(p.partnerIds || [])].filter(Boolean) : [];
+  const peopleAt = C().filter((c) => c.type === 'person' && c.active !== false && c.parentId && orgIds.includes(c.parentId)).sort(byName).map((c) => c.id);
+  const ids = p ? [...new Set([p.leadId, ...(p.memberIds || []), p.pmId, ...(p.contractorIds || []), ...(p.consultantIds || []), ...(p.supplierIds || []), ...(p.partnerIds || []), p.clientId, ...(p.clientPersonIds || []), ...peopleAt].filter(Boolean))] : [];
   const cur = responsibleIds(it);
+  const sub = (c) => (c.type === 'employee' ? (c.teamId ? tname(c.teamId, '') : (c.role || 'המשרד')) : [CTYPES[c.type]?.label || '', c.type === 'person' ? personOrg(c) : (c.category || '')].filter(Boolean).join(' · '));
   const items = [
     { label: `${OFFICE_LABEL} — המשרד`, sub: 'באחריות המשרד; המשימה נפתחת אצל מוביל/ת הפרויקט', value: '__office', selected: !!it.responsibleOffice },
     ...(hasResponsible(it) ? [{ label: 'ללא אחראי', sub: 'מנקה את כל האחראים', value: '__none' }] : []),
-    ...ids.filter((cid) => !cur.includes(cid)).map((cid) => contact(cid)).filter(Boolean).map((c) => ({ label: c.name, sub: CTYPES[c.type]?.label || c.role || '', value: c.id })),
+    ...ids.filter((cid) => !cur.includes(cid)).map((cid) => contact(cid)).filter((c) => c && c.active !== false).map((c) => ({ label: c.name, sub: sub(c), value: c.id })),
   ];
-  const others = C().filter((c) => c.active !== false && !ids.includes(c.id) && !cur.includes(c.id) && ['contractor', 'consultant', 'pm', 'supplier', 'partner', 'employee', 'client'].includes(c.type)).sort(byName).map((c) => ({ label: c.name, sub: CTYPES[c.type]?.label || '', value: c.id }));
-  openMenu(anchor, { search: true, placeholder: cur.length || it.responsibleOffice ? 'להוסיף אחראי/ת נוסף/ת…' : 'מי אחראי לביצוע?', items: [...items, ...others], create: true, createLabel: '(טקסט חופשי)',
-    onPick: (x) => { if (x.value === '__office') setResponsibles(it, cur, { responsibleOffice: !it.responsibleOffice }); else if (x.value === '__none') setResponsibles(it, [], { responsibleOffice: false, responsibleText: '' }); else setResponsibles(it, [...cur, x.value]); afterResponsibleChange(it.id); },
-    onCreate: (name) => { patchDoc('visit_items', id, { responsibleText: name }); afterResponsibleChange(it.id); } });
+  // everyone else in the contacts — people at clients and suppliers (type "person") included, so a name typed here finds them before free text is needed
+  const others = C().filter((c) => c.active !== false && !ids.includes(c.id) && !cur.includes(c.id) && ['employee', 'person', 'contractor', 'consultant', 'pm', 'supplier', 'partner', 'client'].includes(c.type)).sort(byName).map((c) => ({ label: c.name, sub: sub(c), value: c.id }));
+  openMenu(anchor, { search: true, placeholder: hasResponsible(it) ? 'להוסיף אחראי/ת נוסף/ת…' : 'מי אחראי לביצוע?', items: [...items, ...others], create: true, createLabel: '(טקסט חופשי — נוסף לאחראים)',
+    onPick: (x) => { if (x.value === '__office') setResponsibles(it, cur, { responsibleOffice: !it.responsibleOffice }); else if (x.value === '__none') setResponsibles(it, [], { responsibleOffice: false, responsibleText: '', responsibleNames: [] }); else setResponsibles(it, [...cur, x.value]); afterResponsibleChange(it.id); },
+    onCreate: (name) => { setResponsibleNames(it, [...responsibleNames(it), name]); afterResponsibleChange(it.id); } }); // a free-text name is added, never replaces the one before it
   return true;
 }
 async function fieldAction(a, ds, t, e) {
@@ -4423,7 +4472,8 @@ async function fieldAction(a, ds, t, e) {
     case 'visit-status': { if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } patchDoc('site_visits', ds.id, { status: ds.value, finalizedAt: ds.value === 'final' ? nowIso() : null }); if (ds.value === 'final') { toast('הדוח סומן כסופי'); await syncItemTasks(ds.id); } return true; }
     case 'vi-resp-remove': { e.stopPropagation(); if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } const it = S.visit_items[ds.id]; if (!it) return true; await setResponsibles(it, responsibleIds(it).filter((c) => c !== ds.cid)); afterResponsibleChange(ds.id); return true; }
     case 'vi-resp-office': { e.stopPropagation(); if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } const it = S.visit_items[ds.id]; if (!it) return true; await setResponsibles(it, responsibleIds(it), { responsibleOffice: false }); afterResponsibleChange(ds.id); return true; }
-    case 'vi-resp-text': { e.stopPropagation(); if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } patchDoc('visit_items', ds.id, { responsibleText: '' }); return true; }
+    case 'vi-resp-text': { e.stopPropagation(); if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } patchDoc('visit_items', ds.id, { responsibleText: '', responsibleNames: [] }); return true; }
+    case 'vi-resp-name': { e.stopPropagation(); if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } const it = S.visit_items[ds.id]; if (!it) return true; await setResponsibleNames(it, responsibleNames(it).filter((_, i) => i !== Number(ds.index))); return true; }
     case 'vi-tasks': { if (!canWriteTasks()) { toast('אין לך הרשאת עריכה'); return true; } const n = await syncItemTasks(ds.id, { reopen: true }); if (!n) toast('כל המשימות כבר פתוחות אצל האחראים'); return true; }
     case 'delete-visit': { // irreversible → confirmButton asks once ("כן, מחק / בטל") before the document and everything in it go
       const v = S.site_visits[ds.id]; if (!v) return true;
@@ -4452,13 +4502,16 @@ async function fieldAction(a, ds, t, e) {
     }
     case 'file-open': { e.stopPropagation(); const f = S.files[ds.id]; if (!f) return true; const url = fileUrl(f); if (!url) { toast('טוען את הקובץ…'); return true; } if (f.kind === 'image') { S.ui.lightbox = ds.id; render(); } else window.open(url, '_blank', 'noopener'); return true; }
     case 'lightbox-close': S.ui.lightbox = null; render(); return true;
-    case 'open-report': { S.ui.reportId = ds.id; S.ui.returnDrawer = S.ui.drawer; S.ui.returnView = ['project', 'meetings', 'overview', 'tasks'].includes(S.ui.view) ? S.ui.view : 'field'; S.ui.drawer = null; nav('report'); return true; }
-    case 'report-back': { const back = S.ui.returnDrawer; S.ui.returnDrawer = null; S.ui.view = S.ui.returnView || 'field'; if (back) S.ui.drawer = back; setHash(S.ui.view === 'project' ? 'project/' + S.ui.pageId : S.ui.view); render(); return true; }
+    case 'open-report': { if (S.ui.pdfReady && S.ui.pdfReady.visitId !== ds.id) pdfReadyClear(); S.ui.reportId = ds.id; S.ui.returnDrawer = S.ui.drawer; S.ui.returnView = ['project', 'meetings', 'overview', 'tasks'].includes(S.ui.view) ? S.ui.view : 'field'; S.ui.drawer = null; nav('report'); return true; }
+    case 'report-back': { pdfReadyClear(); const back = S.ui.returnDrawer; S.ui.returnDrawer = null; S.ui.view = S.ui.returnView || 'field'; if (back) S.ui.drawer = back; setHash(S.ui.view === 'project' ? 'project/' + S.ui.pageId : S.ui.view); render(); return true; }
     case 'report-print': window.print(); return true;
     case 'rec-start': if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } await startRecording(ds.id); return true;
     case 'rec-stop': stopRecording(); return true;
     case 'transcribe': { if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; } if (hasPending()) { const ok = await commitPending(); if (!ok) { toast('השמירה נכשלה — נסו שוב'); return true; } } await transcribeFile(ds.id, 'start'); return true; }
     case 'report-pdf': await makeReportPdf(ds.id); return true;
+    case 'pdf-save': await pdfReadyAction('save'); return true;
+    case 'pdf-share': await pdfReadyAction('share'); return true;
+    case 'pdf-open': await pdfReadyAction('open'); return true;
     case 'upload-retry': await retryUpload(ds.id); return true;
     case 'upload-discard': { const q = S.ui.uploadQueue.find((x) => x.id === ds.id); if (q && q.status === 'failed') { S.ui.uploads.failed = Math.max(0, S.ui.uploads.failed - 1); dropUpload(ds.id); renderUploadNote(); render(); } return true; }
     default: return false;
@@ -7726,6 +7779,8 @@ function bindHandler(el) {
   if (el.type === 'checkbox') v = el.checked;
   else if (el.type === 'number') v = el.value === '' ? null : Number(el.value);
   else v = el.value;
+  if (el.type === 'date' && v && v < '1900') return; // a year still being typed ("0002-10-01") — the change event fires again once it is complete
+  if (col === 'site_visits' && key === 'seq') { if (!(v >= 1)) { el.value = String(S.site_visits[id]?.seq || 1); render(); return; } v = Math.round(v); } // the document number: a whole number from 1; empty keeps the old one
   if (['teamId', 'leadId', 'phase', 'clientId', 'projectId', 'supplierId', 'startDate', 'dueDate', 'expectedDate', 'invoiceDate', 'paidDate', 'assigneeId', 'phaseId', 'parentId', 'responsibleId', 'nextVisit', 'typeId', 'phase', 'milestoneId', 'nameEn', 'shootDate'].includes(key) && v === '') v = null;
   if (key === 'nameEn' && typeof v === 'string') { v = v.trim() || null; el.value = v || ''; }
   delete S.ui.drafts[el.id];
@@ -8281,6 +8336,17 @@ async function exportExcel() {
   try { downloadBytes(`OBERSON GO ${stamp}.xlsx`, data); toast('הקובץ ירד'); }
   catch (err) { toast('הייצוא נכשל: ' + (err?.message || '')); }
 }
+
+/* an unexpected error is shown, not swallowed: "there was an error" becomes a message one can read and report (13.10.2026). Network noise
+   (offline, a dropped fetch) is left to the save bar and the sync indicator, which already say so. */
+let lastErrToast = 0;
+function errToast(msg) {
+  msg = String(msg || '').trim(); if (!msg || /Failed to fetch|NetworkError|Load failed|AbortError|aborted|ResizeObserver/i.test(msg)) return;
+  const now = Date.now(); if (now - lastErrToast < 4000) return; lastErrToast = now;
+  try { toast('שגיאה: ' + msg.slice(0, 160)); } catch (e) { /* ignore */ }
+}
+window.addEventListener('error', (e) => { if (e.error) errToast(e.error.message || e.message); });
+window.addEventListener('unhandledrejection', (e) => { const r = e.reason; errToast(r && (r.message || (typeof r === 'string' ? r : ''))); });
 
 /* ===================== boot ===================== */
 loadUi();
