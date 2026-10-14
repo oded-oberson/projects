@@ -302,7 +302,12 @@
   .icon-btn svg { width: 18px; height: 18px; }
   .section { margin-bottom: 24px; }
   .section-title { font-weight: 400; font-size: 13px; letter-spacing: .06em; margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-  .section-title small { color: var(--ink-3); font-weight: 400; letter-spacing: 0; }
+  .section-title small { color: var(--ink-3); font-weight: 400; letter-spacing: 0; margin-inline-end: auto; }
+  /* small tools at the end of a section title / under a checklist: copy a checklist from elsewhere (14.10.2026) */
+  .cl-tools, .journey-tools { display: inline-flex; gap: 6px; flex-wrap: wrap; align-items: center; letter-spacing: 0; }
+  .section-title .cl-tools, .section-title .journey-tools { margin-inline-start: auto; }
+  .field > .cl-tools { margin-top: 6px; }
+  .cl-tools .btn svg, .journey-tools .btn svg { width: 14px; height: 14px; }
   .status-box { background: var(--surface-2); border: 1px solid transparent; border-radius: 0; padding: 12px; }
   .status-box textarea { background: var(--surface); }
   .status-meta { font-size: 12.5px; color: var(--ink-3); }
@@ -3453,6 +3458,7 @@ const NOTIF_VERB = { assigned: 'הקצה/תה לך את', mentioned: 'תייג/�
 ICON.bell = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8a5 5 0 0 1 10 0c0 3 1 4.5 2 5.5H3c1-1 2-2.5 2-5.5z"/><path d="M8 16a2 2 0 0 0 4 0"/></svg>';
 ICON.check = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 10.5l3.2 3.2L15 7"/></svg>';
 ICON.flag = '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 2.5h1.5v15H4zM6.5 3h9l-2.2 3.5 2.2 3.5h-9z"/></svg>';
+ICON.copy = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="7" y="7" width="10" height="10"/><path d="M13 7V3H3v10h4"/></svg>';
 
 S.tasks = {}; S.taskComments = {}; S.notifications = [];
 Object.assign(S.ui, { msOpen: {}, stgOpen: {}, stgOwnOpen: {}, showBilling: {}, msAddOpen: {}, stageEdit: {}, stageConfirm: null, ttab: 'mine', tproject: '', tfilter: { q: '', assignee: '', project: '', status: '', priority: '', done: false }, bell: false, mentions: {}, mentionMenu: null });
@@ -3689,7 +3695,8 @@ function drawerTask(id) {
       ${field('תיאור', textArea('t-description', t.description, `rows="3" data-bind="tasks:${id}:description" placeholder="פרטים, קישורים, מה בדיוק צריך לקרות" ${dis}`))}
     </div>
     <div class="section">
-      <h3 class="section-title">צ'קליסט <small>${cl.length ? `${cl.filter((c) => c.done).length} מתוך ${cl.length}` : ''}</small></h3>
+      <h3 class="section-title">צ'קליסט <small>${cl.length ? `${cl.filter((c) => c.done).length} מתוך ${cl.length}` : ''}</small>
+        ${ro ? '' : `<span class="cl-tools"><button type="button" class="btn ghost small" data-action="menu" data-menu="clfrom" data-id="${id}" title="מעתיק לכאן את הפריטים של משימה אחרת — מה שכבר יש נשאר">${ICON.copy} מתוך משימה אחרת…</button>${cl.length ? `<button type="button" class="btn ghost small" data-action="menu" data-menu="clto" data-id="${id}" title="מעתיק את הצ'קליסט הזה למשימה אחרת (הפריטים שם נשארים)">למשימה אחרת…</button>` : ''}</span>`}</h3>
       ${cl.length ? `<div class="progress"><div style="width:${Math.round((cl.filter((c) => c.done).length / cl.length) * 100)}%"></div></div>` : ''}
       <div class="checklist">${cl.map((c) => `<div class="check-row ${c.done ? 'done' : ''}"><label><input type="checkbox" ${c.done ? 'checked' : ''} data-check="${id}:${c.id}" ${dis}><span>${esc(c.text)}</span></label>${ro ? '' : `<button class="icon-btn" data-action="check-remove" data-id="${id}" data-item="${c.id}" title="הסר">${ICON.x}</button>`}</div>`).join('')}</div>
       ${ro ? '' : `<div class="add-row"><input type="text" id="check-add-${id}" placeholder="פריט חדש… (Enter)"><button class="btn small" data-action="check-add" data-id="${id}">${ICON.plus} הוסף</button></div>`}
@@ -3706,7 +3713,8 @@ function drawerTask(id) {
   </div>
   <div class="drawer-foot">
     <span class="inline-note">נפתח על ידי ${esc(uname(t.createdBy, '—'))} · ${fmtDate(t.createdAt)}${t.doneAt ? ` · בוצע ${fmtDate(t.doneAt)}` : ''}</span>
-    ${(isManager() || t.createdBy === me()?.id) ? confirmButton('delete-doc', `data-col="tasks" data-id="${id}"`, 'מחק משימה') : ''}
+    <span style="display:inline-flex;gap:6px;flex-wrap:wrap">${ro ? '' : `<button type="button" class="btn ghost small" data-action="task-duplicate" data-id="${id}" title="משימה חדשה עם אותה כותרת, תיאור, פרויקט וצ'קליסט (לא מסומן) — אפשר לשנות לה פרויקט ואחראי/ת">${ICON.copy} שכפל משימה</button>`}
+    ${(isManager() || t.createdBy === me()?.id) ? confirmButton('delete-doc', `data-col="tasks" data-id="${id}"`, 'מחק משימה') : ''}</span>
   </div>`;
 }
 function projectTasksSection(p) {
@@ -7115,7 +7123,8 @@ function stageOwnBlock(p, sg, ro) {
       ${field('הערות לשלב', m ? textArea('msnote-' + m.id, m.notes, `rows="2" data-bind="project_milestones:${m.id}:notes" placeholder="מה קורה בשלב — סיכומים, החלטות, מה נשאר" ${ro ? 'disabled' : ''}`) : `<textarea id="stgnote-${esc(key)}" rows="2" data-stgnote="${p.id}:${sg.id}" placeholder="מה קורה בשלב — סיכומים, החלטות, מה נשאר" ${ro ? 'disabled' : ''}></textarea>`)}
       <div class="field"><label>צ'קליסט לשלב</label>
         ${cl.length ? `<div class="checklist">${cl.map((c) => `<div class="check-row ${c.done ? 'done' : ''}"><label><input type="checkbox" ${c.done ? 'checked' : ''} data-mscheck="${m.id}:${c.id}" ${ro ? 'disabled' : ''}><span>${esc(c.text)}</span></label>${ro ? '' : `<button class="icon-btn" data-action="ms-check-remove" data-id="${m.id}" data-item="${c.id}" title="הסר">${ICON.x}</button>`}</div>`).join('')}</div>` : ''}
-        ${ro ? '' : `<div class="add-row"><input type="text" id="stgcheck-add-${esc(key)}" placeholder="פריט לבדיקה… (Enter)" data-stgcheckadd="${p.id}:${sg.id}"><button class="btn small" data-action="stg-check-add" data-id="${p.id}" data-stage="${sg.id}">${ICON.plus}</button></div>`}
+        ${ro ? '' : `<div class="add-row"><input type="text" id="stgcheck-add-${esc(key)}" placeholder="פריט לבדיקה… (Enter)" data-stgcheckadd="${p.id}:${sg.id}"><button class="btn small" data-action="stg-check-add" data-id="${p.id}" data-stage="${sg.id}">${ICON.plus}</button></div>
+        <div class="cl-tools"><button type="button" class="btn ghost small" data-action="menu" data-menu="stgcl" data-id="${p.id}:${sg.id}" title="מעתיק לכאן את הצ'קליסט של השלב הזה בפרויקט אחר — מה שכבר יש נשאר">${ICON.copy} מתוך «${esc(sg.name)}» בפרויקט אחר…</button></div>`}
       </div>
       ${milestoneFilesField(p, m, ro, { label: 'מסמכים לשלב', empty: 'למשל דוח הפיקוח האחרון, אישור הלקוח, סיכום פגישה — מצטבר לפי תאריך.', stageRow: { pid: p.id, sid: sg.id } })}
     </div>` : ''}
@@ -7242,7 +7251,7 @@ function journeySection(p) {
     </div>` : '';
   return `<div class="section" id="journey">
     <h3 class="section-title">שלבים ואבני דרך <small>${cur ? `שלב ${cur.index + 1} מתוך ${stages.length}${realAll.length ? ` · ${realDone}/${realAll.length} אבני דרך` : ''}` : (allPhasesDone(p) ? 'הפרויקט הושלם' : 'טרם התחיל')}</small>
-      ${can && !kids.length ? `<button type="button" class="btn ghost small" style="float:left" data-action="stage-edit" data-id="${p.id}">${editing ? 'סיום עריכה' : 'ערוך שלבים'}</button>` : ''}</h3>
+      ${!kids.length ? `<span class="journey-tools">${isMember() && !ro ? `<button type="button" class="btn ghost small" data-action="menu" data-menu="pjcl" data-id="${p.id}" title="מעתיק לכאן את הצ'קליסטים של פרויקט אחר — לכל שלב, ולאבני דרך מאותו סוג; מה שכבר יש נשאר">${ICON.copy} צ'קליסטים מפרויקט אחר…</button>` : ''}${can ? `<button type="button" class="btn ghost small" data-action="stage-edit" data-id="${p.id}">${editing ? 'סיום עריכה' : 'ערוך שלבים'}</button>` : ''}</span>` : ''}</h3>
     ${editing ? stageEditor(p) : ''}
     ${splitBlock}
     <div class="stg-list">${stages.map(stageBlock).join('')}${looseBlock}</div>
@@ -7661,7 +7670,89 @@ function renderMenu() {
   positionMenu();
   el.style.visibility = '';
 }
+/* ===================== checklist copying (14.10.2026) =====================
+   A checklist travels: task → task (either direction), project → project (every stage's checklist, and milestones of the same type / name),
+   and one stage → the same stage of another project. Always appends, never replaces: items already there (same text) are skipped and
+   nothing is deleted; copies start unticked with fresh ids. */
+const normText = (s) => String(s || '').trim().replace(/\s+/g, ' ').toLowerCase();
+function copyChecks(from, into) {
+  const have = new Set(into.map((c) => normText(c.text)));
+  const fresh = [];
+  from.forEach((c) => { const k = normText(c.text); if (!k || have.has(k)) return; have.add(k); fresh.push({ id: uid('c'), text: String(c.text).trim(), done: false }); });
+  return { items: [...into, ...fresh], added: fresh.length, skipped: from.length - fresh.length };
+}
+const copyNote = (added, skipped, where) => (added ? `${added === 1 ? 'פריט אחד הועתק' : `${added} פריטים הועתקו`}${where ? ' ' + where : ''}${skipped ? ` · ${skipped} כבר היו` : ''}` : (skipped ? 'כל הפריטים כבר קיימים כאן' : 'אין פריטים להעתקה'));
+const taskPickSub = (t) => [t.projectId ? (S.projects[t.projectId]?.name || '') : 'משימה משרדית', uname(t.assigneeId, ''), checklistOf(t).length ? `${checklistOf(t).length} פריטים` : ''].filter(Boolean).join(' · ');
+const sameProjectFirst = (t) => (a, b) => (((b.projectId === t.projectId && !!t.projectId) ? 1 : 0) - ((a.projectId === t.projectId && !!t.projectId) ? 1 : 0)) || (b.updatedAt || '').localeCompare(a.updatedAt || '');
+function checklistMenu(kind, id, anchor) {
+  if (!['clfrom', 'clto', 'pjcl', 'stgcl'].includes(kind)) return false;
+  if (kind === 'clfrom' || kind === 'clto') {
+    if (!canWriteTasks()) { toast('אין לך הרשאת עריכה'); return true; }
+    const t = S.tasks[id]; if (!t) return true;
+    if (kind === 'clfrom') {
+      const src = TK().filter((x) => x.id !== id && checklistOf(x).length).sort(sameProjectFirst(t));
+      openMenu(anchor, { search: true, placeholder: 'מאיזו משימה להעתיק את הצ\'קליסט?', emptyText: 'אין עדיין משימות אחרות עם צ\'קליסט', items: src.map((x) => ({ label: x.title || '(ללא כותרת)', sub: taskPickSub(x), value: x.id })),
+        onPick: (it) => { const s = S.tasks[it.value]; if (!s) return; const r = copyChecks(checklistOf(s), checklistOf(t)); if (r.added) patchDoc('tasks', id, { checklist: r.items }); toast(copyNote(r.added, r.skipped, `מ«${(s.title || '').slice(0, 40)}»`)); } });
+    } else {
+      const dst = TK().filter((x) => x.id !== id && isOpenTask(x)).sort(sameProjectFirst(t));
+      openMenu(anchor, { search: true, placeholder: 'לאיזו משימה להעתיק את הצ\'קליסט?', emptyText: 'אין משימות פתוחות אחרות', items: dst.map((x) => ({ label: x.title || '(ללא כותרת)', sub: taskPickSub(x), value: x.id })),
+        onPick: (it) => { const d = S.tasks[it.value]; if (!d) return; const r = copyChecks(checklistOf(t), checklistOf(d)); if (r.added) patchDoc('tasks', d.id, { checklist: r.items }); toast(copyNote(r.added, r.skipped, `ל«${(d.title || '').slice(0, 40)}»`)); } });
+    }
+    return true;
+  }
+  if (!isMember()) { toast('אין לך הרשאת עריכה'); return true; }
+  const [pid, sid] = kind === 'stgcl' ? id.split(':') : [id, null];
+  const p = S.projects[pid]; if (!p) return true;
+  const others = P().filter((x) => x.id !== pid && !isReduced(x));
+  const items = (counts) => others.map((x) => ({ x, n: counts ? (counts[x.id] || 0) : 0 }))
+    .sort((a, b) => (b.n - a.n) || (((b.x.state === 'active') ? 1 : 0) - ((a.x.state === 'active') ? 1 : 0)) || (((b.x.type && b.x.type === p.type) ? 1 : 0) - ((a.x.type && a.x.type === p.type) ? 1 : 0)) || byName(a.x, b.x))
+    .map(({ x, n }) => ({ label: projectDisplayName(x), sub: [n ? `${n} פריטי צ'קליסט` : '', x.number, x.type, x.state !== 'active' ? STATES[x.state] : ''].filter(Boolean).join(' · '), value: x.id }));
+  const tag = kind + ':' + id;
+  openMenu(anchor, { tag, search: true, placeholder: sid ? `מאיזה פרויקט להעתיק את הצ'קליסט של «${stageName(sid, p)}»?` : 'מאיזה פרויקט להעתיק את הצ\'קליסטים?', emptyText: 'אין פרויקטים אחרים', items: items(null),
+    onPick: (it) => { copyProjectChecklists(it.value, pid, sid); } });
+  // which projects have checklists at all: counted in the background, then the list re-sorts with the counts (the menu stays where it is)
+  checklistCounts(sid).then((counts) => { const m = S.ui.menu; if (!m || m.tag !== tag) return; m.items = items(counts); renderMenu(); const inp = document.getElementById('menu-q'); if (inp && document.activeElement !== inp) inp.focus({ preventScroll: true }); });
+  return true;
+}
+/* items per project on stage rows and milestones (one stage only when asked) — a light read of the rows that have a checklist */
+async function checklistCounts(onlyStage = null) {
+  try {
+    const { data, error } = await sb.from('project_milestones').select('project_id, checklist, source, phase, type_id').neq('checklist', '[]');
+    if (error) { console.warn(error); return {}; }
+    const out = {};
+    (data || []).forEach((r) => {
+      const n = Array.isArray(r.checklist) ? r.checklist.length : 0; if (!n) return;
+      if (onlyStage && !((r.source === 'stage' || r.source === 'template') && ((r.type_id && S.milestone_types[r.type_id]?.phase) || r.phase) === onlyStage)) return;
+      out[r.project_id] = (out[r.project_id] || 0) + n;
+    });
+    return out;
+  } catch (e) { console.warn(e); return {}; }
+}
+async function copyProjectChecklists(fromId, toId, onlyStage = null) {
+  const src = S.projects[fromId], dst = S.projects[toId]; if (!src || !dst || !isMember()) return null;
+  if (!S.milestonesLoaded[fromId]) await fetchMilestones(fromId);
+  if (!S.milestonesLoaded[toId]) await fetchMilestones(toId);
+  const rows = milestonesOf(fromId).filter((m) => msIsWork(m) && msChecklist(m).length && (!onlyStage || (msIsStageRow(m) && msStage(m) === onlyStage)));
+  const targetStages = projectStages(dst).map((s) => s.id);
+  let added = 0, skipped = 0, stages = 0, mss = 0; const missing = [];
+  for (const m of rows) {
+    let target = null;
+    if (msIsStageRow(m)) { const sid = msStage(m); if (!targetStages.includes(sid)) { missing.push(stageName(sid, src)); continue; } target = stageRowFor(toId, sid); if (target) stages++; }
+    else { target = milestonesOf(toId).find((x) => msIsWork(x) && !msIsStageRow(x) && ((m.typeId && x.typeId === m.typeId) || normText(msTypeName(x)) === normText(msTypeName(m)))); if (!target) { missing.push(msTypeName(m)); continue; } mss++; }
+    if (!target) continue;
+    const r = copyChecks(msChecklist(m), msChecklist(target));
+    if (r.added) await patchDoc('project_milestones', target.id, { checklist: r.items });
+    added += r.added; skipped += r.skipped;
+  }
+  const where = onlyStage ? `ל«${stageName(onlyStage, dst)}»` : [stages ? `${stages} שלבים` : '', mss ? `${mss} אבני דרך` : ''].filter(Boolean).join(' ו-');
+  if (!rows.length) toast(onlyStage ? `ב«${projectDisplayName(src)}» אין צ'קליסט לשלב «${stageName(onlyStage, src)}»` : `ב«${projectDisplayName(src)}» אין עדיין צ'קליסטים`);
+  else toast(copyNote(added, skipped, where ? (onlyStage ? where : `ל-${where}`) : '') + (missing.length ? ` · בלי התאמה כאן: ${missing.slice(0, 3).join(', ')}${missing.length > 3 ? '…' : ''}` : ''));
+  if (added && onlyStage) S.ui.stgOwnOpen[toId + ':' + onlyStage] = true;
+  render();
+  return { added, skipped, stages, mss, missing };
+}
 function menuFor(kind, id, anchor) {
+  if (checklistMenu(kind, id, anchor)) return;
   if (fieldMenu(kind, id, anchor)) return;
   if (filesMenu(kind, id, anchor)) return;
   if (materialsMenu(kind, id, anchor)) return;
@@ -8044,6 +8135,13 @@ document.addEventListener('click', async (e) => {
     }
     case 'check-add': { const inp = document.getElementById('check-add-' + ds.id); const text = (inp?.value || '').trim(); const tk = S.tasks[ds.id]; if (!text || !tk) break; inp.value = ''; await patchDoc('tasks', ds.id, { checklist: [...checklistOf(tk), { id: uid('c'), text, done: false }] }); setTimeout(() => document.getElementById('check-add-' + ds.id)?.focus(), 30); break; }
     case 'check-remove': { const tk = S.tasks[ds.id]; if (!tk) break; patchDoc('tasks', ds.id, { checklist: checklistOf(tk).filter((c) => c.id !== ds.item) }); break; }
+    case 'task-duplicate': { // a new task with the same title, description, project and checklist (unticked); mine, no date — to be re-aimed
+      if (!canWriteTasks()) { toast('אין לך הרשאת עריכה'); break; }
+      const src = S.tasks[ds.id]; if (!src) break;
+      const nid = await newTask({ title: src.title, description: src.description || '', projectId: src.projectId || null, phaseId: src.phaseId || null, milestoneId: src.milestoneId || null, assigneeId: me()?.id || null, priority: src.priority || 'normal', checklist: checklistOf(src).map((c) => ({ id: uid('c'), text: c.text, done: false })) });
+      if (nid) { toast(`המשימה שוכפלה${checklistOf(src).length ? ` עם ${checklistOf(src).length} פריטי צ'קליסט` : ''} — אפשר לשנות לה פרויקט ואחראי/ת`); openDrawer('task', nid); }
+      break;
+    }
     case 'comment-send': await sendComment(ds.id); break;
     case 'comment-delete': { S.taskComments[ds.task] = (S.taskComments[ds.task] || []).filter((c) => c.id !== ds.id); render(); await write(() => sb.from('task_comments').delete().eq('id', ds.id)); break; }
     case 'mention-open': { e.stopPropagation(); openMenu(t, { search: true, placeholder: 'את מי לתייג?', items: mentionCandidates(''), onPick: (it) => { const ta = document.getElementById('comment-' + ds.id); if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); if (ta.value && !/\s$/.test(ta.value)) { ta.value += ' '; } } insertMention(ds.id, it.value, 0); } }); break; }
