@@ -1068,6 +1068,64 @@
   .mat-sub { font-size: 12px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 15px; }
   .mat-foot { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 4px; }
   .mat-price { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--ink-2); }
+  .mat-cat { position: absolute; top: 4px; inset-inline-start: 4px; font-size: 10.5px; letter-spacing: .04em; background: rgba(255,255,255,.92); color: var(--ink-2); padding: 1px 6px; }
+  /* the board: domains → spaces (16.10.2026) */
+  .bd-domain { padding: 8px 0 4px; }
+  .bd-domain + .bd-domain { border-top: 1px solid var(--line); }
+  .bd-dhead, .bd-shead { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 32px; }
+  .bd-dhead { padding: 2px 0; }
+  .bd-toggle { border: 0; background: none; color: var(--ink-3); width: 22px; height: 28px; padding: 0; font-size: 14px; line-height: 1; cursor: pointer; flex: none; }
+  .bd-dname { font-size: 16px; }
+  .bd-dbody { padding: 2px 0 6px 0; padding-inline-start: 22px; display: flex; flex-direction: column; gap: 10px; }
+  .bd-space { border-inline-start: 2px solid var(--line); padding-inline-start: 12px; }
+  .bd-space.general { border-inline-start-color: transparent; padding-inline-start: 0; }
+  .bd-num { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-size: 12.5px; color: var(--ink-2); border: 1px solid var(--line-2); padding: 0 6px; min-width: 28px; text-align: center; direction: ltr; }
+  .bd-sname { font-weight: 400; }
+  .bd-tools { display: inline-flex; gap: 4px; align-items: center; margin-inline-start: auto; }
+  .bd-tools .btn svg, .bd-tools .icon-btn svg { width: 14px; height: 14px; }
+  .bd-tools .icon-btn { width: 28px; height: 28px; }
+  .bd-edit { margin: 4px 0 8px; flex-wrap: wrap; }
+  .bd-edit input { min-width: 0; }
+  .bd-space .mat-grid { margin-top: 4px; }
+  .mat-grid .mat-card .mat-img { aspect-ratio: 5 / 3; }
+  .btn.on { background: var(--ink); color: var(--accent-ink); border-color: var(--ink); text-decoration: none; }
+  /* swatches */
+  .swatch { display: inline-block; width: 14px; height: 14px; border: 1px solid rgba(0,0,0,.15); vertical-align: middle; flex: none; }
+  .swatch.small { width: 12px; height: 12px; }
+  .swatch.big { width: 56px; height: 56px; }
+  .menu-item .swatch { width: 16px; height: 16px; }
+  .menu-thumb { width: 22px; height: 22px; object-fit: cover; flex: none; border: 1px solid var(--line); }
+  /* the library card strip and the library view */
+  .lib-strip { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .lib-strip-img { width: 72px; height: 72px; object-fit: cover; border: 1px solid var(--line); flex: none; }
+  .lib-strip-txt { flex: 1; min-width: 160px; font-size: 13px; display: flex; flex-direction: column; gap: 4px; }
+  .lib-strip .chips-sub { margin: 0; padding: 0; border: 0; }
+  .lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+  .lib-card .mat-img { aspect-ratio: 5 / 3; }
+  .lib-classify { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  select.attention { border-color: var(--crit); box-shadow: 0 0 0 2px var(--crit-soft); }
+  .color-field { display: flex; gap: 6px; align-items: center; }
+  .color-field input[type="color"] { width: 40px; height: 34px; padding: 2px; border: 1px solid var(--line-2); background: var(--surface); cursor: pointer; flex: none; }
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; }
+  .sw-tile { border: 1px solid var(--line); background: var(--surface); cursor: pointer; display: flex; flex-direction: column; min-width: 0; transition: border-color .15s ease; }
+  .sw-tile:hover { border-color: var(--ink-2); }
+  .sw-tile.inlib { border-color: var(--ink); }
+  .sw-tile.inlib .sw-code::after { content: " ✓"; }
+  .sw-color { display: block; aspect-ratio: 4 / 3; width: 100%; }
+  .sw-code { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-size: 12px; padding: 5px 7px 0; direction: ltr; text-align: start; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sw-name { font-size: 11.5px; color: var(--ink-3); padding: 0 7px 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-height: 20px; direction: ltr; text-align: start; }
+  /* the finish schedule */
+  .fs-table th, .fs-table td { vertical-align: top; }
+  .fs-table td:first-child, .fs-table td:nth-child(2) { white-space: nowrap; }
+  .fs-item { display: flex; align-items: center; gap: 6px; padding: 2px 0; cursor: pointer; font-size: 13px; }
+  .fs-item.proposed { color: var(--ink-3); }
+  .fs-item:hover span { text-decoration: underline; }
+  .fs-thumb { width: 18px; height: 18px; object-fit: cover; border: 1px solid var(--line); flex: none; }
+  /* the archive: shades from the board */
+  .arc-board-colors { margin-bottom: 10px; }
+  .arc-bc-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px dashed var(--line); font-size: 13.5px; cursor: pointer; flex-wrap: wrap; }
+  .arc-bc-where { color: var(--ink-2); min-width: 120px; }
+  @media (max-width: 700px) { .bd-dbody { padding-inline-start: 6px; } .bd-tools { margin-inline-start: 0; width: 100%; } .swatch-grid { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); } .lib-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); } }
   .photo-day { margin-top: 10px; }
   .photo-day-head { display: flex; align-items: baseline; gap: 10px; font-size: 13px; color: var(--ink-2); margin-bottom: 4px; }
   .photo-day-head small { color: var(--ink-3); }
@@ -1506,6 +1564,11 @@ const DEFAULT_SETTINGS = {
   shootFunctions: { pr: [], social: [] },
   shootSteps: null, // null = the built-in template (DEFAULT_SHOOT_STEPS)
   teamRoles: ['ראש/ת צוות', 'אדריכל/ית', 'אדריכל/ית בכיר/ה', 'מעצב/ת פנים', 'מנהל/ת פרויקטים', 'מתמחה', 'סטודנט/ית', 'מנהל/ת משרד', 'הנהלת חשבונות', 'אחר'],
+  /* the materials library (16.10.2026): the base of every library record is its TYPE; the USES are tags a material can carry several of
+     (travertine: flooring, cladding, counters); the board's ELEMENTS say what a material is in a space (floor, walls, ceiling, façade…) */
+  materialTypes: ['אבן', 'שיש וקוורץ', 'גרניט פורצלן', 'אריחים וקרמיקה', 'עץ מלא', 'פורניר ולמינציה', 'פרקט ודק', 'צבע', 'טיח וגמר קיר', 'טפט ובד קיר', 'טקסטיל ושטיחים', 'מתכת', 'זכוכית', 'בטון וטרצו', 'אקריליק ופולימר', 'סניטריה וברזים', 'תאורה', 'ריהוט', 'אביזרים ואמנות', 'אחר'],
+  materialUses: ['ריצוף', 'חיפוי קיר', 'חיפוי חוץ', 'משטחים', 'נגרות', 'תקרה', 'פנלים', 'דלתות', 'חלונות', 'מדרגות', 'גדרות', 'ריצוף חוץ', 'אמבטיה', 'מטבח', 'ריהוט', 'תאורה', 'אחר'],
+  boardElements: ['רצפה', 'קירות', 'תקרה', 'פנלים', 'נגרות', 'משטח עבודה', 'דלתות', 'חלונות', 'חזית', 'גג', 'דק', 'ריצוף חוץ', 'גדר', 'תאורה', 'ריהוט', 'אביזרים'],
 };
 
 /* ===================== state ===================== */
@@ -2415,6 +2478,9 @@ const REGISTRY_LISTS = [
   { key: 'supplierCategories', title: 'תחומי ספקים', sub: 'לסינון ספקים לפי תחום — כולל צילום, יחסי ציבור ושירותים למשרד' },
   { key: 'consultantTypes', title: 'תחומי יועצים', sub: 'קונסטרוקציה, אינסטלציה…' },
   { key: 'partnerTypes', title: 'תחומי שיתופי פעולה', sub: 'משרדים עמיתים: אדריכלות, עיצוב פנים, נוף…' },
+  { key: 'materialTypes', title: 'סוגי חומרים', sub: 'הבסיס של מאגר החומרים: אבן, גרניט פורצלן, עץ מלא, צבע…' },
+  { key: 'materialUses', title: 'שימושי חומרים (תיוג)', sub: 'ריצוף, חיפוי, משטחים… — חומר אחד יכול לשאת כמה שימושים' },
+  { key: 'boardElements', title: 'אלמנטים בלוח החומרים', sub: 'רצפה, קירות, תקרה, חזית… — מה החומר בחלל' },
 ];
 function listEditor(key, title, sub) {
   const st = settings(); const ro = !isManager();
@@ -2548,6 +2614,7 @@ function renderDuplicates() {
 }
 function renderContacts() {
   const tab = S.ui.ctab; const q = norm(S.ui.cq);
+  if (tab === 'materials') return renderMaterialLibrary(); // the office library and the colour catalogues (16.10.2026)
   const all = C();
   const isEmp = tab === 'employee';
   const isPerson = tab === 'person';
@@ -2580,7 +2647,8 @@ function renderContacts() {
       <td class="num">${isLead ? `<span class="muted">${fmtDate(c.updatedAt || c.createdAt)}</span>` : (projCounts[c.id] || '<span class="muted">0</span>')}</td>
     </tr>`;
   const dupeCount = isManager() ? findDuplicateContacts().length : 0;
-  const groups = CGROUPS.map((g) => `<div class="ctab-group"><div class="ctab-group-label">${g.label}</div><div class="chips">${g.types.map((t) => `<span class="chip btn-chip ${t === tab ? 'accent' : ''}" data-action="ctab" data-tab="${t}" role="button" tabindex="0" title="${esc(CTYPES[t].sub || '')}">${CTYPES[t].plural} <small>${counts[t] || 0}</small></span>`).join('')}</div></div>`).join('');
+  const groups = CGROUPS.map((g) => `<div class="ctab-group"><div class="ctab-group-label">${g.label}</div><div class="chips">${g.types.map((t) => `<span class="chip btn-chip ${t === tab ? 'accent' : ''}" data-action="ctab" data-tab="${t}" role="button" tabindex="0" title="${esc(CTYPES[t].sub || '')}">${CTYPES[t].plural} <small>${counts[t] || 0}</small></span>`).join('')}</div></div>`).join('')
+    + `<div class="ctab-group"><div class="ctab-group-label">חומרים</div><div class="chips"><span class="chip btn-chip" data-action="ctab" data-tab="materials" role="button" tabindex="0" title="מאגר החומרים והגוונים של המשרד, והמניפות">חומרים וגוונים <small>${typeof ML === 'function' ? ML().length : 0}</small></span></div></div>`;
   return `
   <div class="view-head">
     <div><h1 class="view-title">מאגרים</h1><div class="view-sub">${isTable ? esc(CTYPES[tab].sub || '') : isDupes ? 'איתור רשומות כפולות ומיזוגן.' : 'הרשימות שמזינות את הטפסים: שלבים, תפקידים, סוגי פרויקטים ותחומים.'} כל רשומה מופיעה פעם אחת ומקושרת לפרויקטים שלה.</div></div>
@@ -2964,7 +3032,7 @@ const snake = (k) => k.replace(/[A-Z]/g, (m) => '_' + m.toLowerCase());
 const camel = (k) => k.replace(/_([a-z])/g, (m, c) => c.toUpperCase());
 const toRow = (obj) => { const o = {}; Object.entries(obj).forEach(([k, v]) => { if (k === 'updatedAt' || k === 'createdAt' || k === 'updatedBy') return; o[snake(k)] = v; }); return o; };
 const fromRow = (row) => { const o = {}; Object.entries(row).forEach(([k, v]) => { o[camel(k)] = v; }); return o; };
-const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items', 'seats'];
+const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items', 'seats', 'material_library', 'project_spaces'];
 
 S.auth = { status: 'loading', session: null, profile: null, notice: '', error: '' };
 S.profiles = {}; S.invitations = {}; S.audit = [];
@@ -3174,7 +3242,7 @@ function subscribeRealtime() {
     }, 250);
   };
   rtChannel = sb.channel('office-live');
-  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items', 'seats', 'user_permissions'].forEach((table) => {
+  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items', 'seats', 'user_permissions', 'material_library', 'project_spaces'].forEach((table) => {
     rtChannel.on('postgres_changes', { event: '*', schema: 'public', table }, () => scheduleRefetch(table));
   });
   rtChannel.subscribe();
@@ -3982,10 +4050,10 @@ async function uploadOne(q) {
     // folder per context: project / visit | set | task | presentation | general; a task without a project lives under tasks/
     let pressId = ctx.pressId || null;
     if (ctx.pressNew && !pressId && typeof createDoc === 'function') { pressId = uid('pr'); await createDoc('press_items', pressId, { projectId: ctx.projectId || null, kind: 'print', title: (file.name || '').replace(/\.[^.]+$/, ''), outlet: '', url: '', imageUrl: '', publishedOn: null, websiteId: null, notes: '' }); ctx.pressId = pressId; delete ctx.pressNew; } // a scan uploaded to the archive gets a press card of its own
-    const path = `${ctx.projectId || 'tasks'}/${ctx.visitId || ctx.setId || ctx.materialId || ctx.milestoneId || ctx.taskId || (pressId ? 'press' : '') || ctx.slot || 'general'}/${id}.${ext}`;
+    const path = ctx.libraryId && !ctx.projectId ? `library/${ctx.libraryId}/${id}.${ext}` : `${ctx.projectId || 'tasks'}/${ctx.visitId || ctx.setId || ctx.materialId || ctx.milestoneId || ctx.taskId || (pressId ? 'press' : '') || ctx.slot || 'general'}/${id}.${ext}`; // a library photo belongs to the office, not to a project
     const { error } = await sb.storage.from(FILE_BUCKET).upload(path, blob, { contentType: mime, upsert: true });
     if (error) throw error;
-    const ok = await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: ctx.projectId || null, visitId: ctx.visitId || null, itemId: ctx.itemId || null, taskId: ctx.taskId || null, slot: ctx.slot || null, setId: ctx.setId || null, materialId: ctx.materialId || null, milestoneId: ctx.milestoneId || null, pressId, kind: q.kind, mime, size: blob.size, width: w, height: h, caption: ctx.caption || ((isImg || isAud) && (ctx.visitId || ctx.itemId) ? '' : file.name) /* visit photos stay caption-less; documents keep their file name */, takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : null, uploadedBy: me()?.id || null, durationSec: ctx.durationSec || null, transcript: '', transcribeStatus: '', transcribeError: '' });
+    const ok = await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: ctx.projectId || null, visitId: ctx.visitId || null, itemId: ctx.itemId || null, taskId: ctx.taskId || null, slot: ctx.slot || null, setId: ctx.setId || null, materialId: ctx.materialId || null, milestoneId: ctx.milestoneId || null, libraryId: ctx.libraryId || null, pressId, kind: q.kind, mime, size: blob.size, width: w, height: h, caption: ctx.caption || ((isImg || isAud) && (ctx.visitId || ctx.itemId) ? '' : file.name) /* visit photos stay caption-less; documents keep their file name */, takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : null, uploadedBy: me()?.id || null, durationSec: ctx.durationSec || null, transcript: '', transcribeStatus: '', transcribeError: '' });
     if (!ok) { sb.storage.from(FILE_BUCKET).remove([path]).catch(() => {}); throw new Error('השמירה נדחתה'); } // no orphan in storage when the row is refused
     up.done++; up.active--;
     dropUpload(q.id);
@@ -4058,7 +4126,7 @@ function photoStrip(where, ctx, opts = {}) {
       : `<button type="button" class="ph-del" data-action="file-del" data-id="${f.id}" title="מחק">${ICON.x}</button>`;
     return `<figure class="ph ${armed ? 'armed' : ''}" data-action="file-open" data-id="${f.id}" title="${esc(f.caption || '')}">${inner}${del}</figure>`;
   }).join('');
-  const key = (ctx.itemId || ctx.visitId || ctx.projectId);
+  const key = (ctx.itemId || ctx.visitId || ctx.projectId || ctx.libraryId || '');
   const pending = pendingUploads(where).map(pendingTile).join('');
   const add = ro ? '' : pickButton(ctx, { cls: 'ph-add', accept: 'image/*', capture: 'environment', title: 'צילום', html: `${ICON.camera}<span>צלם</span>` })
     + pickButton(ctx, { cls: 'ph-add', accept: 'image/*,video/*', title: 'מהגלריה', html: `${ICON.plus}<span>${opts.short ? 'קובץ' : 'מהגלריה / וידאו'}</span>` });
@@ -5219,9 +5287,15 @@ async function projectAction(a, ds, t, e) {
     default: return false;
   }
 }
-/* ===================== materials board (לוח חומרים) ===================== */
-/* One card per material: photos, description, area / room, supplier from the contacts, quote (price, note, files) and a status.
-   Every member adds and edits; prices are visible to everyone (decided 30.9); deleting: whoever added it, team leads, managers. */
+/* ===================== materials: the office library, the colour catalogues and the project board (16.10.2026) =====================
+   Three layers (Oded, 16.10): (1) the office LIBRARY — one record per material / shade / product, office-wide like the contacts: a type
+   (אבן, גרניט פורצלן, עץ מלא…) as the base, use-tags (ריצוף, חיפוי, משטחים…) as the matching, manufacturer / supplier, code, colour, photos,
+   price, and "where used"; (2) the CATALOGUES — RAL, Pantone (screen approximations), Tambour, Nirlat — static files served with the app,
+   searched together with the library; a shade picked into a project becomes a library row (source = catalog); (3) the project BOARD —
+   domains (אדריכלות / פיתוח שטח / פנים…) → spaces (name + number in the plan) → items, each an office material with the project's own
+   element, status, quantity, supplier, quote, photos. A space may hold several materials of the same kind — the final placement is in the
+   working drawings (drawing_ref). Every member adds and edits; prices are visible to everyone (30.9); deleting: whoever added, team leads,
+   managers; merging library duplicates: managers. */
 const MAT_STATUS = {
   proposed: { label: 'מוצע', cls: 'dim' },
   approved: { label: 'אושר', cls: 'green' },
@@ -5229,105 +5303,502 @@ const MAT_STATUS = {
   rejected: { label: 'נפסל', cls: 'red' },
 };
 const MAT_ORDER = ['proposed', 'approved', 'ordered', 'rejected'];
-S.materials = {};
-Object.assign(S.ui, { matFilter: '' });
+const LIB_UNCLASSIFIED = 'לסיווג';
+/* the catalogues: static JSON next to app.html (catalogs/<id>.json), loaded on first use */
+const CATALOGS = {
+  ral: { id: 'ral', name: 'RAL', maker: 'RAL', sub: 'RAL Classic · 213 גוונים' },
+  pantone: { id: 'pantone', name: 'Pantone', maker: 'Pantone', sub: 'Coated · 907 גוונים · קירוב מסך לא רשמי' },
+  tambour: { id: 'tambour', name: 'טמבור', maker: 'טמבור', sub: 'המניפה המלאה · 1,651 גוונים' },
+  nirlat: { id: 'nirlat', name: 'נירלט', maker: 'נירלט', sub: 'Color Is, לבנים, אפורים · 1,613 גוונים' },
+};
+const CATALOG_ORDER = ['tambour', 'nirlat', 'ral', 'pantone'];
+S.materials = {}; S.material_library = {}; S.project_spaces = {}; S.catalogs = {}; S.catalogLoading = {};
+Object.assign(S.ui, { matFilter: '', libq: '', libcat: '', libuse: '', libsrc: 'office', liblimit: 0, boardView: {}, boardOpen: {} });
 const MT = () => list('materials');
-const materialsOf = (pid) => MT().filter((m) => m.projectId === pid).sort((a, b) => (a.area || '').localeCompare(b.area || '', 'he') || (Number(a.sortIndex) || 0) - (Number(b.sortIndex) || 0) || (a.createdAt || '').localeCompare(b.createdAt || ''));
+const ML = () => list('material_library').filter((x) => x.active !== false && !x.mergedInto);
+const SP = () => list('project_spaces');
+const libOf = (id) => (id && S.material_library[id]) || null;
+const matLib = (m) => (m && m.libraryId && S.material_library[m.libraryId]) || null;
+const matName = (m) => ((matLib(m) && matLib(m).name) || m.title || '');
+const matColor = (m) => ((matLib(m) && matLib(m).color) || '');
+const libTags = (x) => (Array.isArray(x.tags) ? x.tags : []);
+const libCategory = (x) => ((x.category || '').trim() || LIB_UNCLASSIFIED);
+const isColorLib = (x) => !!x && (/^#[0-9a-f]{6}$/i.test(x.color || '') && (x.source === 'catalog' || /צבע|גוון/.test(x.category || '')));
+const materialsOf = (pid) => MT().filter((m) => m.projectId === pid).sort((a, b) => (Number(a.sortIndex) || 0) - (Number(b.sortIndex) || 0) || (a.createdAt || '').localeCompare(b.createdAt || ''));
 const materialPhotos = (mid) => filesOf({ materialId: mid, kind: 'image' });
 const materialDocs = (mid) => FL().filter((f) => f.materialId === mid && f.kind !== 'image');
-const materialCover = (m) => materialPhotos(m.id)[0] || null;
+const libPhotos = (lid) => filesOf({ libraryId: lid, kind: 'image' });
+/* what a card shows: the item's own photo, else the library photo, else the colour */
+const materialCover = (m) => materialPhotos(m.id)[0] || (m.libraryId ? libPhotos(m.libraryId)[0] : null) || null;
 const canDeleteMaterial = (m) => !!m && isMember() && (isManager() || myRole() === 'team_lead' || m.createdBy === me()?.id);
-const matAreas = (pid) => [...new Set(materialsOf(pid).map((m) => (m.area || '').trim()).filter(Boolean))];
-
+const canEditBoard = (p) => isMember() && !!p && !isReduced(p);
+const numKey = (s) => { const n = parseFloat(String(s || '').replace(/[^\d.]/g, '')); return isNaN(n) ? Infinity : n; };
+const bySpace = (a, b) => (numKey(a.number) - numKey(b.number)) || (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0) || String(a.name || '').localeCompare(String(b.name || ''), 'he');
+const spacesOf = (pid) => SP().filter((s) => s.projectId === pid);
+const domainsOf = (pid) => spacesOf(pid).filter((s) => s.kind === 'domain').sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0) || (a.createdAt || '').localeCompare(b.createdAt || ''));
+const roomsOf = (pid, did) => spacesOf(pid).filter((s) => s.kind === 'space' && s.parentId === did).sort(bySpace);
+const spaceLabel = (s) => (s ? [s.number ? String(s.number) : '', s.name || ''].filter(Boolean).join(' · ') : '');
+const usedIn = (lid) => [...new Set(MT().filter((m) => m.libraryId === lid).map((m) => m.projectId))].map((pid) => S.projects[pid]).filter(Boolean);
+/* the starter domains of a project: a permit project (we draw the building too) gets architecture · site · interior; anything else interior only */
+const starterDomains = (p) => ((p.type && typeof phaseIdsForType === 'function' ? phaseIdsForType(p.type) : []).includes('permit') ? [['arch', 'אדריכלות'], ['site', 'פיתוח שטח'], ['int', 'פנים']] : [['int', 'פנים']]);
+function ensureBoardDomains(p) {
+  if (!canEditBoard(p) || !S.loaded.project_spaces || domainsOf(p.id).length || (p.state === 'done' && !materialsOf(p.id).length)) return; // a finished project without materials is not given a structure just for being looked at
+  starterDomains(p).forEach(([key, name], i) => { const id = `ps_${p.id}_${key}`; if (!S.project_spaces[id]) createDoc('project_spaces', id, { projectId: p.id, kind: 'domain', parentId: null, name, number: '', notes: '', sortOrder: i + 1 }); });
+}
+/* guess the type from the name — a suggestion the person confirms in the library card */
+const TYPE_GUESS = [
+  [/טרוורטין|בזלת|גרניט(?!\s*פורצלן)|אבן|חלילה|ירושלמית|כורכר|צפחה|slate|stone|travert/i, 'אבן'],
+  [/שיש|קוורץ|קיסר|caesarstone|marble|quartz|silestone|dekton|נאוליט|neolith/i, 'שיש וקוורץ'],
+  [/פורצלן|porcelain|porcel/i, 'גרניט פורצלן'],
+  [/אריח|קרמיק|מוזאיק|זיגוג|terrazzo|tile|ceramic|mosaic|חרס|קרמיקה/i, 'אריחים וקרמיקה'],
+  [/פרקט|דק\b|deck|parquet|למינציה רצפה/i, 'פרקט ודק'],
+  [/פורניר|למינ|פורמייקה|hpl|מלמין|melamin|veneer|laminat/i, 'פורניר ולמינציה'],
+  [/עץ|אלון|אגוז|אורן|טיק|בוק|מהגוני|אשור|oak|walnut|teak|wood|timber/i, 'עץ מלא'],
+  [/\bral\b|pantone|טמבור|נירלט|גוון|צבע|paint/i, 'צבע'],
+  [/טיח|בטון|מיקרוטופינג|microtopping|plaster|stucco|concrete|שליכט/i, 'טיח וגמר קיר'],
+  [/טפט|wallpaper|בד קיר/i, 'טפט ובד קיר'],
+  [/בד|וילון|שטיח|טקסטיל|fabric|curtain|rug|carpet|עור\b/i, 'טקסטיל ושטיחים'],
+  [/פליז|נירוסטה|ברזל|אלומיניום|מתכת|נחושת|ברונזה|פלדה|brass|steel|iron|metal|bronze|copper|aluminium|aluminum/i, 'מתכת'],
+  [/זכוכית|מראה|glass|mirror/i, 'זכוכית'],
+  [/ברז|כיור|אסלה|אמבט|סניטר|מקלח|faucet|sink|toilet|basin|shower/i, 'סניטריה וברזים'],
+  [/מנור|תאורה|ספוט|נברש|גוף תאורה|lamp|light|led|pendant/i, 'תאורה'],
+  [/ספה|כורס|שולחן|כיסא|כסא|מיטה|ארון|שידה|מדף|ריהוט|sofa|chair|table|bed|cabinet|shelf/i, 'ריהוט'],
+];
+const guessType = (name) => { const t = String(name || ''); for (const [re, cat] of TYPE_GUESS) if (re.test(t)) return cat; return ''; };
+/* ---------- catalogues (static JSON) ---------- */
+const CATALOG_VERSION = 'v1'; // bump when a catalogue file changes (the file name carries the version — see sw.js: same-origin files are cache-first)
+function catalogUrl(id) { const base = (document.querySelector('base')?.href) || location.href; return new URL(`catalog-${id}.${CATALOG_VERSION}.json`, base).href; }
+async function loadCatalog(id) {
+  if (S.catalogs[id] || S.catalogLoading[id]) return S.catalogs[id] || null;
+  S.catalogLoading[id] = true;
+  try {
+    let data = (window.__CATALOGS__ && window.__CATALOGS__[id]) || null;
+    if (!data) { const r = await fetch(catalogUrl(id)); if (!r.ok) throw new Error('catalog ' + id + ' ' + r.status); data = await r.json(); }
+    S.catalogs[id] = data;
+  } catch (e) { console.warn('catalog', id, e); S.catalogs[id] = { id, name: CATALOGS[id]?.name || id, items: [], error: friendlyError(e) }; }
+  S.catalogLoading[id] = false;
+  return S.catalogs[id];
+}
+const loadAllCatalogs = () => Promise.all(CATALOG_ORDER.map(loadCatalog));
+const catalogsReady = () => CATALOG_ORDER.every((id) => S.catalogs[id]);
+/* a catalogue shade picked somewhere becomes a library row once; the same code never twice */
+async function libraryFromCatalog(catId, item) {
+  const have = ML().find((x) => x.source === 'catalog' && x.catalog === catId && x.code === item.code);
+  if (have) return have.id;
+  const id = uid('ml');
+  const ok = await createDoc('material_library', id, { name: item.name || item.code, category: 'צבע', tags: ['צבע'], manufacturer: CATALOGS[catId]?.maker || catId, supplierId: null, code: item.code, color: item.hex || '', finish: '', size: '', price: null, url: '', notes: '', source: 'catalog', catalog: catId, collection: item.collection || '', flags: { bestSeller: !!item.bestSeller, indoorOnly: !!item.indoorOnly }, active: true, mergedInto: null, createdBy: me()?.id || null });
+  return ok ? id : null;
+}
+/* one search over the library and the catalogues: typed words must all appear in name / code / manufacturer / category / tags */
+function searchMaterials(q, opts = {}) {
+  const words = normM(q || '').split(/\s+/).filter(Boolean);
+  const hit = (txt) => { const t = normM(txt); return words.every((w) => t.includes(w)); };
+  const lib = ML().filter((x) => !words.length || hit([x.name, x.code, x.manufacturer, x.category, libTags(x).join(' '), x.collection, cname(x.supplierId, '')].join(' ')));
+  lib.sort((a, b) => ((b.source === 'office') - (a.source === 'office')) || (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+  const out = lib.slice(0, opts.limit || 40).map((x) => ({ kind: 'lib', lib: x }));
+  if (words.length && !opts.libraryOnly) {
+    const seen = new Set(lib.filter((x) => x.source === 'catalog').map((x) => x.catalog + '|' + x.code));
+    CATALOG_ORDER.forEach((cid) => { const c = S.catalogs[cid]; if (!c) return; c.items.forEach((it) => { if (out.length >= (opts.limit || 40) + 40) return; if (seen.has(cid + '|' + it.code)) return; if (hit([it.code, it.name, c.name, it.collection].join(' '))) out.push({ kind: 'cat', cat: cid, item: it }); }); });
+  }
+  return out;
+}
+const normM = (s) => norm(s).replace(/ך/g, 'כ').replace(/ם/g, 'מ').replace(/ן/g, 'נ').replace(/ף/g, 'פ').replace(/ץ/g, 'צ'); // Hebrew final letters fold: לבן finds לבנים
+const swatch = (hex, cls = '') => (hex && /^#[0-9a-f]{6}$/i.test(hex) ? `<span class="swatch ${cls}" style="background:${esc(hex)}"></span>` : '');
+const libSub = (x) => [libCategory(x), x.manufacturer || cname(x.supplierId, ''), x.code].filter(Boolean).join(' · ');
+/* ---------- the project board ---------- */
 function matStatusChip(m, edit) {
   const st = MAT_STATUS[m.status] || MAT_STATUS.proposed;
   return `<span class="chip ${st.cls} ${edit && isMember() ? 'btn-chip' : ''}" ${edit && isMember() ? `data-action="menu" data-menu="matstatus" data-id="${m.id}" role="button" tabindex="0" title="לחיצה משנה"` : ''}>${st.label}</span>`;
 }
 function materialCard(m) {
-  const cover = materialCover(m); const url = cover ? fileUrl(cover) : '';
+  const lib = matLib(m); const cover = materialCover(m); const url = cover ? fileUrl(cover) : ''; const color = matColor(m);
   const n = materialPhotos(m.id).length;
+  const sub = [lib ? libCategory(lib) : '', m.element, !m.spaceId && m.area ? m.area : '', lib ? (lib.code || lib.manufacturer || cname(lib.supplierId, '')) : cname(m.supplierId, '')].filter(Boolean).join(' · '); // the old board's free-text area stays visible until the item gets a space
   return `<div class="mat-card ${m.status}" data-action="open-material" data-id="${m.id}">
-    <div class="mat-img">${url ? `<img src="${esc(url)}" alt="" loading="lazy">` : `<span class="mat-noimg">${ICON.image}</span>`}${n > 1 ? `<span class="mat-count">${n}</span>` : ''}</div>
+    <div class="mat-img" ${!url && color ? `style="background:${esc(color)}"` : ''}>${url ? `<img src="${esc(url)}" alt="" loading="lazy">` : (color ? '' : `<span class="mat-noimg">${ICON.image}</span>`)}${n > 1 ? `<span class="mat-count">${n}</span>` : ''}${lib && lib.source === 'catalog' ? `<span class="mat-cat">${esc(CATALOGS[lib.catalog]?.name || lib.catalog)}</span>` : ''}</div>
     <div class="mat-body">
-      <div class="mat-title">${esc(m.title || 'ללא שם')}</div>
-      <div class="mat-sub">${esc([m.area, cname(m.supplierId, '')].filter(Boolean).join(' · '))}</div>
+      <div class="mat-title">${esc(matName(m) || 'ללא שם')}</div>
+      <div class="mat-sub">${esc(sub)}</div>
       <div class="mat-foot">${matStatusChip(m, true)}${m.price != null && m.price !== '' ? `<span class="mat-price">${fmtMoney(m.price)}</span>` : ''}</div>
     </div>
   </div>`;
 }
-function materialsBoard(p) {
-  const all = materialsOf(p.id);
-  const f = S.ui.matFilter;
-  const items = f ? all.filter((m) => m.status === f) : all;
-  const counts = {}; all.forEach((m) => { counts[m.status] = (counts[m.status] || 0) + 1; });
-  const total = all.reduce((s, m) => s + (Number(m.price) || 0), 0);
-  return `<div class="section" id="materials-section">
-    <h3 class="section-title">לוח חומרים <small>${all.length ? `${all.length} פריטים${total ? ' · ' + fmtMoney(total) : ''}` : ''}</small></h3>
-    ${all.length > 2 ? `<div class="chips" style="margin-bottom:8px"><span class="chip btn-chip ${!f ? 'accent' : ''}" data-action="mat-filter" data-value="" role="button" tabindex="0">הכל <small>${all.length}</small></span>${MAT_ORDER.filter((k) => counts[k]).map((k) => `<span class="chip btn-chip ${f === k ? 'accent' : ''}" data-action="mat-filter" data-value="${k}" role="button" tabindex="0">${MAT_STATUS[k].label} <small>${counts[k]}</small></span>`).join('')}</div>` : ''}
-    ${items.length ? `<div class="mat-grid">${items.map(materialCard).join('')}</div>` : `<div class="inline-note">${all.length ? 'אין פריטים במצב הזה.' : 'עדיין אין חומרים על הלוח — תמונה, תיאור, ספק והצעת מחיר לכל פריט.'}</div>`}
-    ${isMember() ? `<div class="add-row" style="margin-top:10px"><button type="button" class="btn small ${all.length ? '' : 'primary'}" data-action="mat-new" data-id="${p.id}">${ICON.plus} חומר חדש</button></div>` : ''}
+const addMatBtn = (p, did, sid, primary) => `<button type="button" class="btn small ${primary ? 'primary' : 'ghost'}" data-action="menu" data-menu="matpick" data-id="${p.id}:${did || ''}:${sid || ''}">${ICON.plus} חומר</button>`;
+function boardSpace(p, d, s, items, edit, f) {
+  const shown = f ? items.filter((m) => m.status === f) : items;
+  const key = `${p.id}:${s ? s.id : d.id + ':general'}`;
+  return `<div class="bd-space ${s ? '' : 'general'}" id="bds-${esc(s ? s.id : d.id)}">
+    <div class="bd-shead">
+      ${s ? `${s.number ? `<span class="bd-num" title="מספר בתוכנית">${esc(String(s.number))}</span>` : ''}<strong class="bd-sname">${esc(s.name || 'חלל ללא שם')}</strong>` : '<strong class="bd-sname muted">כללי — בלי חלל</strong>'}
+      <small class="muted">${items.length ? `${items.length} ${items.length === 1 ? 'פריט' : 'פריטים'}` : ''}</small>
+      ${edit ? `<span class="bd-tools">${addMatBtn(p, d.id, s ? s.id : '', false)}${s ? `<button type="button" class="icon-btn" data-action="space-edit" data-id="${s.id}" title="שם ומספר">✎</button>${items.length ? '' : `<button type="button" class="icon-btn" data-action="space-del" data-id="${s.id}" title="הסר חלל">${ICON.x}</button>`}` : ''}</span>` : ''}
+    </div>
+    ${S.ui.boardOpen[key + ':edit'] && s ? `<div class="add-row bd-edit"><input type="text" id="spn-${s.id}" value="${esc(s.number || '')}" placeholder="מס'" data-spacefield="${s.id}:number" style="max-width:90px" dir="ltr"><input type="text" id="sps-${s.id}" value="${esc(s.name || '')}" placeholder="שם החלל" data-spacefield="${s.id}:name" style="flex:1"><button type="button" class="btn small" data-action="space-edit" data-id="${s.id}">סגור</button></div>` : ''}
+    ${shown.length ? `<div class="mat-grid">${shown.map(materialCard).join('')}</div>` : (items.length ? '<div class="inline-note">אין פריטים במצב הזה.</div>' : (s ? '' : ''))}
   </div>`;
 }
+function materialsBoard(p) {
+  ensureBoardDomains(p);
+  const all = materialsOf(p.id);
+  const edit = canEditBoard(p);
+  const f = S.ui.matFilter;
+  const counts = {}; all.forEach((m) => { counts[m.status] = (counts[m.status] || 0) + 1; });
+  const total = all.reduce((s, m) => s + (Number(m.price) || 0), 0);
+  const domains = domainsOf(p.id);
+  const schedule = !!S.ui.boardView[p.id];
+  const loose = all.filter((m) => !m.domainId || !S.project_spaces[m.domainId]);
+  const domainBlock = (d) => {
+    const rooms = roomsOf(p.id, d.id);
+    const mine = all.filter((m) => m.domainId === d.id);
+    const general = mine.filter((m) => !m.spaceId || !S.project_spaces[m.spaceId]);
+    const open = S.ui.boardOpen[p.id + ':' + d.id] !== false;
+    const editing = !!S.ui.boardOpen[p.id + ':' + d.id + ':edit'];
+    return `<div class="bd-domain ${open ? 'open' : ''}" id="bdd-${esc(d.id)}">
+      <div class="bd-dhead">
+        <button type="button" class="bd-toggle" data-action="domain-toggle" data-id="${p.id}:${d.id}" title="${open ? 'סגור' : 'פתח'}">${open ? '▾' : '▸'}</button>
+        ${editing ? `<input type="text" id="dn-${d.id}" value="${esc(d.name)}" data-spacefield="${d.id}:name" placeholder="שם התחום" style="max-width:220px">` : `<strong class="bd-dname">${esc(d.name)}</strong>`}
+        <small class="muted">${mine.length ? `${mine.length} פריטים` : ''}${rooms.length ? ` · ${rooms.length} ${rooms.length === 1 ? 'חלל' : 'חללים'}` : ''}</small>
+        ${edit ? `<span class="bd-tools"><button type="button" class="btn small ghost" data-action="space-add" data-id="${p.id}:${d.id}">${ICON.plus} חלל</button>${addMatBtn(p, d.id, '', false)}<button type="button" class="icon-btn" data-action="domain-edit" data-id="${p.id}:${d.id}" title="שם התחום">${editing ? 'סגור' : '✎'}</button>${mine.length || rooms.length ? '' : `<button type="button" class="icon-btn" data-action="space-del" data-id="${d.id}" title="הסר תחום">${ICON.x}</button>`}</span>` : ''}
+      </div>
+      ${open ? `<div class="bd-dbody">
+        ${S.ui.boardOpen[p.id + ':' + d.id + ':newspace'] ? `<div class="add-row bd-edit"><input type="text" id="nsn-${d.id}" placeholder="מס' (לא חובה)" style="max-width:110px" dir="ltr" data-newspace="${p.id}:${d.id}"><input type="text" id="nss-${d.id}" placeholder="שם החלל — סלון, חדר הורים, לובי… (Enter)" style="flex:1" data-newspace="${p.id}:${d.id}"><button type="button" class="btn small primary" data-action="space-create" data-id="${p.id}:${d.id}">הוסף</button><button type="button" class="btn small ghost" data-action="space-add" data-id="${p.id}:${d.id}">בטל</button></div>` : ''}
+        ${general.length ? boardSpace(p, d, null, general, edit, f) : ''}
+        ${rooms.map((s) => boardSpace(p, d, s, mine.filter((m) => m.spaceId === s.id), edit, f)).join('')}
+        ${!rooms.length && !general.length ? `<div class="inline-note">${edit ? 'עדיין אין חומרים בתחום. "חלל" פותח חלל עם שם ומספר בתוכנית; "חומר" מצמיד חומר ישירות לתחום.' : 'עדיין אין חומרים בתחום.'}</div>` : ''}
+      </div>` : ''}
+    </div>`;
+  };
+  return `<div class="section" id="materials-section">
+    <h3 class="section-title">לוח חומרים <small>${all.length ? `${all.length} פריטים${total ? ' · ' + fmtMoney(total) : ''}` : ''}</small>
+      <span class="journey-tools">${all.length ? `<button type="button" class="btn ghost small ${schedule ? 'on' : ''}" data-action="board-view" data-id="${p.id}" title="טבלת חלל × אלמנט עם החומרים שאושרו — לקבלן ולמפרט">${schedule ? 'חזרה ללוח' : 'לוח גמרים'}</button>` : ''}${edit ? `<button type="button" class="btn ghost small" data-action="domain-add" data-id="${p.id}">${ICON.plus} תחום</button><button type="button" class="btn ghost small" data-action="menu" data-menu="boardcopy" data-id="${p.id}" title="מוסיף את התחומים והחללים של פרויקט אחר (מה שכבר קיים כאן נשאר)">מבנה מפרויקט אחר…</button>` : ''}</span></h3>
+    ${schedule ? finishSchedule(p) : `
+    ${all.length > 2 ? `<div class="chips" style="margin-bottom:8px"><span class="chip btn-chip ${!f ? 'accent' : ''}" data-action="mat-filter" data-value="" role="button" tabindex="0">הכל <small>${all.length}</small></span>${MAT_ORDER.filter((k) => counts[k]).map((k) => `<span class="chip btn-chip ${f === k ? 'accent' : ''}" data-action="mat-filter" data-value="${k}" role="button" tabindex="0">${MAT_STATUS[k].label} <small>${counts[k]}</small></span>`).join('')}</div>` : ''}
+    ${S.ui.boardOpen[p.id + ':newdomain'] ? `<div class="add-row bd-edit"><input type="text" id="ndn-${p.id}" placeholder="שם התחום — אדריכלות, פיתוח שטח, פנים, תאורה… (Enter)" style="flex:1" data-newdomain="${p.id}"><button type="button" class="btn small primary" data-action="domain-create" data-id="${p.id}">הוסף</button><button type="button" class="btn small ghost" data-action="domain-add" data-id="${p.id}">בטל</button></div>` : ''}
+    ${domains.map(domainBlock).join('')}
+    ${loose.length ? `<div class="bd-domain open"><div class="bd-dhead"><strong class="bd-dname muted">עוד לא שויכו לתחום</strong><small class="muted">${loose.length}</small></div><div class="bd-dbody"><div class="inline-note">פריטים מהלוח הישן — פותחים פריט ובוחרים לו תחום וחלל.</div><div class="mat-grid">${(f ? loose.filter((m) => m.status === f) : loose).map(materialCard).join('')}</div></div></div>` : ''}
+    ${!domains.length && !all.length ? `<div class="inline-note">${edit ? 'הלוח ריק. "תחום" פותח תחום (אדריכלות, פיתוח שטח, פנים…), ובתוכו חללים עם שם ומספר בתוכנית — ולכל חלל את החומרים מהמאגר.' : 'עדיין אין חומרים על הלוח.'}</div>` : ''}`}
+  </div>`;
+}
+/* the finish schedule: spaces × elements, the approved (or ordered) materials in each cell — several when the space takes several */
+function finishSchedule(p) {
+  const all = materialsOf(p.id).filter((m) => m.status !== 'rejected');
+  const els = settings().boardElements || [];
+  const used = [...new Set(all.map((m) => (m.element || '').trim()).filter(Boolean))].sort((a, b) => { const ia = els.indexOf(a), ib = els.indexOf(b); return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib) || a.localeCompare(b, 'he'); });
+  const cols = [...used, ...(all.some((m) => !(m.element || '').trim()) ? ['ללא אלמנט'] : [])];
+  const rows = [];
+  domainsOf(p.id).forEach((d) => {
+    const general = all.filter((m) => m.domainId === d.id && (!m.spaceId || !S.project_spaces[m.spaceId]));
+    if (general.length) rows.push({ d, s: null, items: general });
+    roomsOf(p.id, d.id).forEach((s) => { const items = all.filter((m) => m.spaceId === s.id); if (items.length) rows.push({ d, s, items }); });
+  });
+  const loose = all.filter((m) => !m.domainId || !S.project_spaces[m.domainId]); if (loose.length) rows.push({ d: null, s: null, items: loose });
+  const cell = (items) => items.map((m) => { const lib = matLib(m); const st = MAT_STATUS[m.status] || MAT_STATUS.proposed; return `<div class="fs-item ${m.status}" data-action="open-material" data-id="${m.id}" title="${esc(st.label)}">${swatch(matColor(m), 'small')}${materialCover(m) && !matColor(m) ? `<img class="fs-thumb" src="${esc(fileUrl(materialCover(m)))}" alt="">` : ''}<span>${esc(matName(m))}${lib && lib.code ? ` <small class="muted">${esc(lib.code)}</small>` : ''}${m.status !== 'approved' && m.status !== 'ordered' ? ` <small class="muted">(${st.label})</small>` : ''}</span></div>`; }).join('');
+  if (!rows.length) return '<div class="inline-note">עדיין אין חומרים לטבלה.</div>';
+  return `<div class="inline-note" style="margin-bottom:8px">חלל × אלמנט. מה שאושר או הוזמן מודגש; מוצע בסוגריים; מה שנפסל לא מופיע. המיקום הסופי — לפי תוכניות העבודה והפריסות. <button type="button" class="btn ghost small" data-action="schedule-xlsx" data-id="${p.id}">${ICON.download || ''} ייצוא לאקסל</button></div>
+  <div class="table-wrap"><table class="fs-table"><thead><tr><th>תחום</th><th>חלל</th>${cols.map((c) => `<th>${esc(c)}</th>`).join('')}</tr></thead>
+  <tbody>${rows.map((r) => `<tr><td>${esc(r.d ? r.d.name : '—')}</td><td>${r.s ? `<strong>${esc(r.s.name || '')}</strong>${r.s.number ? ` <small class="muted ltr">${esc(String(r.s.number))}</small>` : ''}` : '<span class="muted">כללי</span>'}</td>${cols.map((c) => `<td>${cell(r.items.filter((m) => ((m.element || '').trim() || 'ללא אלמנט') === c))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+function scheduleRows(p) {
+  const all = materialsOf(p.id).filter((m) => m.status !== 'rejected');
+  const rows = [['תחום', 'חלל', 'מס\' בתוכנית', 'אלמנט', 'חומר', 'סוג', 'קוד / דגם', 'יצרן / ספק', 'גוון', 'גימור', 'מידות', 'מצב', 'כמות', 'לפי תוכנית', 'הערות']];
+  const sorted = all.slice().sort((a, b) => { const da = S.project_spaces[a.domainId], db = S.project_spaces[b.domainId]; const sa = S.project_spaces[a.spaceId], sb_ = S.project_spaces[b.spaceId]; return ((da ? Number(da.sortOrder) || 0 : 999) - (db ? Number(db.sortOrder) || 0 : 999)) || (sa && sb_ ? bySpace(sa, sb_) : (sa ? -1 : sb_ ? 1 : 0)); });
+  sorted.forEach((m) => { const lib = matLib(m); const d = S.project_spaces[m.domainId]; const s = S.project_spaces[m.spaceId]; rows.push([d ? d.name : '', s ? s.name : '', s ? s.number : '', m.element || '', matName(m), lib ? libCategory(lib) : '', lib ? lib.code : '', lib ? (lib.manufacturer || cname(lib.supplierId, '')) : cname(m.supplierId, ''), matColor(m), lib ? lib.finish : '', lib ? lib.size : '', (MAT_STATUS[m.status] || MAT_STATUS.proposed).label, m.qty || '', m.drawingRef || '', m.description || '']); });
+  return rows;
+}
+/* ---------- the item drawer: the material (from the library) + what is particular to this project ---------- */
 function drawerMaterial(id) {
   const m = S.materials[id];
   if (!m) return `<div class="drawer-head"><h2 class="drawer-title">הפריט נמחק</h2><button class="icon-btn" data-action="close-drawer">${ICON.x}</button></div>`;
   const p = S.projects[m.projectId];
-  const ro = !isMember();
+  const ro = !isMember() || (p && isReduced(p));
+  const dis = ro ? 'disabled' : '';
+  const lib = matLib(m);
   const docs = materialDocs(m.id);
+  const domains = p ? domainsOf(p.id) : [];
+  const rooms = p && m.domainId ? roomsOf(p.id, m.domainId) : [];
+  const els = settings().boardElements || [];
+  const elOpts = [...new Set([...els, ...(m.element ? [m.element] : [])])].map((e) => ({ value: e, label: e }));
   return `
   <div class="drawer-head">
     <div style="flex:1;min-width:0">
-      <h2 class="drawer-title"><input type="text" id="m-title" value="${esc(S.ui.drafts['m-title'] ?? m.title)}" data-bind="materials:${m.id}:title" placeholder="שם החומר / המוצר" aria-label="שם" ${ro ? 'disabled' : ''}></h2>
-      <div class="drawer-sub">${p ? `<a href="#" data-action="open-project" data-id="${p.id}" style="color:inherit">${esc(p.name)}</a> · ` : ''}לוח חומרים</div>
+      <h2 class="drawer-title">${lib ? esc(lib.name || 'ללא שם') : `<input type="text" id="m-title" value="${esc(S.ui.drafts['m-title'] ?? (m.title || ''))}" data-bind="materials:${m.id}:title" placeholder="שם החומר / המוצר" aria-label="שם" ${dis}>`}</h2>
+      <div class="drawer-sub">${p ? `<a href="#" data-action="open-project" data-id="${p.id}" style="color:inherit">${esc(p.name)}</a> · ` : ''}לוח חומרים${lib ? ` · <a href="#" data-action="open-library" data-id="${lib.id}">כרטיס החומר במאגר</a>` : ''}</div>
     </div>
     <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
   </div>
   <div class="drawer-body">
     <div class="section">
+      ${lib ? `<div class="lib-strip">${materialCover(m) ? `<img class="lib-strip-img" src="${esc(fileUrl(materialCover(m)))}" alt="">` : swatch(lib.color, 'big')}<div class="lib-strip-txt"><div>${esc(libSub(lib))}${lib.source === 'catalog' ? ` · <span class="tag internal">${esc(CATALOGS[lib.catalog]?.name || lib.catalog)}${lib.collection ? ' · ' + esc(lib.collection) : ''}</span>` : ''}</div>${libTags(lib).length ? `<div class="chips chips-sub">${libTags(lib).map((t) => `<span class="chip dim">${esc(t)}</span>`).join('')}</div>` : ''}${usedIn(lib.id).length > 1 ? `<div class="muted">בשימוש ב-${usedIn(lib.id).length} פרויקטים</div>` : ''}</div>${ro ? '' : `<button type="button" class="btn ghost small" data-action="menu" data-menu="matpick" data-id="${m.projectId}:${m.domainId || ''}:${m.spaceId || ''}:${m.id}" title="מחליף את החומר של הפריט הזה בחומר אחר מהמאגר">החלף חומר…</button>`}</div>`
+        : (ro ? '' : `<div class="inline-note">פריט מהלוח הישן — עדיין לא מקושר למאגר. <button type="button" class="btn small" data-action="menu" data-menu="matpick" data-id="${m.projectId}:${m.domainId || ''}:${m.spaceId || ''}:${m.id}">בחר חומר מהמאגר…</button></div>`)}
       <div class="status-row">${MAT_ORDER.map((k) => `<span class="chip ${MAT_STATUS[k].cls} ${m.status === k ? 'on' : ''}" ${ro ? '' : `data-action="mat-status" data-id="${m.id}" data-value="${k}" role="button" tabindex="0"`}>${MAT_STATUS[k].label}</span>`).join('')}</div>
-      <div class="field"><label>תמונות</label>${photoStrip({ materialId: m.id, kind: 'image' }, { projectId: m.projectId, materialId: m.id })}</div>
       <div class="field-row">
-        ${field('אזור / חדר', textInput('m-area', m.area, `data-bind="materials:${m.id}:area" list="dl-areas" placeholder="סלון, מטבח, חזית…" ${ro ? 'disabled' : ''}`))}
-        ${field('ספק', `<div style="padding-top:4px">${pickerChips(m, { field: 'supplierId', single: true, type: 'supplier' }, 'materials')}</div>`)}
+        ${field('תחום', selectHtml('m-domain', m.domainId || '', domains.map((d) => ({ value: d.id, label: d.name })), { blank: 'ללא תחום', attrs: `data-bind="materials:${m.id}:domainId" ${dis}` }))}
+        ${field('חלל', selectHtml('m-space', m.spaceId || '', rooms.map((s) => ({ value: s.id, label: spaceLabel(s) })), { blank: m.domainId ? 'כללי — בלי חלל' : 'בחרו תחום קודם', attrs: `data-bind="materials:${m.id}:spaceId" ${dis} ${m.domainId ? '' : 'disabled'}` }))}
+        ${field('אלמנט', selectHtml('m-element', m.element || '', elOpts, { blank: 'ללא', attrs: `data-bind="materials:${m.id}:element" ${dis}` }), 'רצפה, קירות, תקרה… — באותו חלל יכולים להיות כמה חומרים לאותו אלמנט')}
       </div>
-      ${field('תיאור', textArea('m-description', m.description, `rows="3" data-bind="materials:${m.id}:description" placeholder="דגם, מידות, גימור, כמות…" ${ro ? 'disabled' : ''}`))}
+      <div class="field-row">
+        ${field('כמות', textInput('m-qty', m.qty || '', `data-bind="materials:${m.id}:qty" placeholder="למשל 42 מ״ר, 6 יח'" ${dis}`))}
+        ${field('לפי תוכנית / פריסה', textInput('m-drawingRef', m.drawingRef || '', `data-bind="materials:${m.id}:drawingRef" placeholder="מספר התוכנית שבה המיקום הסופי" ${dis}`))}
+      </div>
+      ${m.area && !m.spaceId ? `<div class="inline-note" style="margin:-4px 0 8px">אזור מהלוח הישן: ${esc(m.area)} — בוחרים תחום וחלל למעלה.</div>` : ''}
+      ${field('הערות לפרויקט', textArea('m-description', m.description, `rows="2" data-bind="materials:${m.id}:description" placeholder="איפה בדיוק, חלופות, מה סוכם עם הלקוח" ${dis}`))}
+      <div class="field"><label>תמונות (דוגמאות, מהאתר)</label>${photoStrip({ materialId: m.id, kind: 'image' }, { projectId: m.projectId, materialId: m.id })}</div>
     </div>
     <div class="section">
-      <h3 class="section-title">הצעת מחיר</h3>
+      <h3 class="section-title">ספק והצעת מחיר <small>${lib && lib.price != null && lib.price !== '' ? `מחירון: ${fmtMoney(lib.price)}` : ''}</small></h3>
       <div class="field-row">
-        ${field('מחיר (₪)', `<input type="number" id="m-price" min="0" step="1" value="${m.price ?? ''}" data-bind="materials:${m.id}:price" inputmode="decimal" ${ro ? 'disabled' : ''}>`)}
-        ${field('הערה', textInput('m-quoteNote', m.quoteNote, `data-bind="materials:${m.id}:quoteNote" placeholder="תוקף, תנאי תשלום, זמן אספקה" ${ro ? 'disabled' : ''}`))}
+        ${field('ספק לפרויקט', `<div style="padding-top:4px">${ro ? esc(cname(m.supplierId, '—')) : pickerChips(m, { field: 'supplierId', single: true, type: 'supplier' }, 'materials')}</div>`)}
+        ${field('מחיר (₪)', `<input type="number" id="m-price" min="0" step="1" value="${m.price ?? ''}" data-bind="materials:${m.id}:price" inputmode="decimal" ${dis}>`)}
+        ${field('הערה', textInput('m-quoteNote', m.quoteNote, `data-bind="materials:${m.id}:quoteNote" placeholder="תוקף, תנאי תשלום, זמן אספקה" ${dis}`))}
       </div>
       ${docs.length ? `<div class="file-list">${docs.map((f) => fileRow(f)).join('')}</div>` : ''}
-      <div class="add-row">${uploadControl({ projectId: m.projectId, materialId: m.id, slot: 'quote' }, { label: docs.length ? 'הוסף קובץ' : 'העלה הצעת מחיר', accept: '.pdf,image/*,.xlsx,.docx' })}</div>
+      ${ro ? '' : `<div class="add-row">${uploadControl({ projectId: m.projectId, materialId: m.id, slot: 'quote' }, { label: docs.length ? 'הוסף קובץ' : 'העלה הצעת מחיר', accept: '.pdf,image/*,.xlsx,.docx' })}</div>`}
     </div>
   </div>
   <div class="drawer-foot">
     <span class="inline-note">נוסף ע"י ${esc(uname(m.createdBy, '—'))} · ${fmtDate(m.createdAt)}</span>
-    ${canDeleteMaterial(m) ? confirmButton('mat-del', `data-id="${m.id}"`, 'מחק פריט') : ''}
-  </div>
-  <datalist id="dl-areas">${(p ? matAreas(p.id) : []).map((a) => `<option value="${esc(a)}">`).join('')}</datalist>`;
+    ${canDeleteMaterial(m) && !ro ? confirmButton('mat-del', `data-id="${m.id}"`, 'הסר מהלוח') : ''}
+  </div>`;
 }
-async function newMaterial(pid) {
-  if (!isMember()) { toast('אין לך הרשאת עריכה'); return null; }
+/* ---------- the library card ---------- */
+function drawerLibrary(id) {
+  const x = S.material_library[id];
+  if (!x) return `<div class="drawer-head"><h2 class="drawer-title">החומר נמחק</h2><button class="icon-btn" data-action="close-drawer">${ICON.x}</button></div>`;
+  const ro = !isMember();
+  const dis = ro ? 'disabled' : '';
+  const types = settings().materialTypes || []; const uses = settings().materialUses || [];
+  const typeOpts = [...new Set([...types, ...(x.category && !types.includes(x.category) ? [x.category] : [])])].map((t) => ({ value: t, label: t }));
+  const unclassified = !(x.category || '').trim();
+  const guess = unclassified ? guessType(x.name) : '';
+  const projects = usedIn(id);
+  const items = MT().filter((m) => m.libraryId === id);
+  const isCat = x.source === 'catalog';
+  return `
+  <div class="drawer-head">
+    <div style="flex:1;min-width:0">
+      <h2 class="drawer-title"><input type="text" id="l-name" value="${esc(S.ui.drafts['l-name'] ?? (x.name || ''))}" data-bind="material_library:${x.id}:name" placeholder="שם החומר / הגוון / המוצר" aria-label="שם" ${dis}></h2>
+      <div class="drawer-sub">מאגר החומרים של המשרד${isCat ? ` · <span class="tag internal">${esc(CATALOGS[x.catalog]?.name || x.catalog)}${x.collection ? ' · ' + esc(x.collection) : ''}</span>` : ''}${projects.length ? ` · בשימוש ב-${projects.length} ${projects.length === 1 ? 'פרויקט' : 'פרויקטים'}` : ' · עדיין לא בשימוש'}</div>
+    </div>
+    <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
+  </div>
+  <div class="drawer-body">
+    <div class="section">
+      ${unclassified && !ro ? `<div class="banner lib-classify">סוג החומר הוא הבסיס של המאגר — בחרו אותו כדי שכולם ימצאו את החומר.${guess ? ` <button type="button" class="btn small primary" data-action="lib-classify" data-id="${x.id}" data-value="${esc(guess)}">זה ${esc(guess)}</button>` : ''}</div>` : ''}
+      <div class="lib-strip">${libPhotos(id)[0] ? `<img class="lib-strip-img" src="${esc(fileUrl(libPhotos(id)[0]))}" alt="">` : swatch(x.color, 'big')}<div class="lib-strip-txt"><div class="muted">${esc([x.manufacturer, x.code, x.finish, x.size].filter(Boolean).join(' · ') || 'יצרן, קוד, גימור, מידות — למטה')}</div></div></div>
+      <div class="field-row">
+        ${field('סוג החומר (חובה)', selectHtml('l-category', x.category || '', typeOpts, { blank: 'בחרו סוג…', attrs: `data-bind="material_library:${x.id}:category" ${dis} ${unclassified ? 'class="attention"' : ''}` }), 'הרשימה ניתנת לעריכה במאגרים → רשימות')}
+        ${field('שימושים (תיוג)', `<div class="chips" style="padding-top:4px">${libTags(x).map((t) => `<span class="chip accent">${esc(t)}${ro ? '' : `<button type="button" class="x" data-action="lib-tag-remove" data-id="${x.id}" data-value="${esc(t)}" title="הסר">${ICON.x}</button>`}</span>`).join('')}${ro ? (libTags(x).length ? '' : '<span class="muted">—</span>') : menuChip(libTags(x).length ? '+ שימוש' : 'ריצוף, חיפוי, משטחים…', `data-action="menu" data-menu="libtag" data-id="${x.id}"`, 'dim')}</div>`, 'אבן טרוורטין יכולה להיות גם ריצוף, גם חיפוי וגם משטח — מתייגים את כולם')}
+      </div>
+      <div class="field-row">
+        ${field('יצרן', textInput('l-manufacturer', x.manufacturer, `data-bind="material_library:${x.id}:manufacturer" placeholder="למשל: Caesarstone, טמבור" ${dis}`))}
+        ${field('ספק', `<div style="padding-top:4px">${ro ? esc(cname(x.supplierId, '—')) : pickerChips(x, { field: 'supplierId', single: true, type: 'supplier' }, 'material_library')}</div>`)}
+        ${field('קוד / דגם', textInput('l-code', x.code, `data-bind="material_library:${x.id}:code" placeholder="קוד קטלוגי" dir="auto" ${dis}`))}
+      </div>
+      <div class="field-row">
+        ${field('גוון', `<div class="color-field"><input type="color" id="l-colorpick" value="${/^#[0-9a-f]{6}$/i.test(x.color || '') ? esc(x.color) : '#cccccc'}" data-bind="material_library:${x.id}:color" ${dis} title="בחירת גוון"><input type="text" id="l-color" value="${esc(S.ui.drafts['l-color'] ?? (x.color || ''))}" data-bind="material_library:${x.id}:color" placeholder="#rrggbb" dir="ltr" style="max-width:110px" ${dis}></div>`, 'הצבע על המסך הוא קירוב — הגוון הקובע הוא בדוגמה / במניפה')}
+        ${field('גימור', textInput('l-finish', x.finish, `data-bind="material_library:${x.id}:finish" placeholder="מט, מלוטש, מוברש…" ${dis}`))}
+        ${field('מידות / פורמט', textInput('l-size', x.size, `data-bind="material_library:${x.id}:size" placeholder="60×120, עובי 2 ס״מ" dir="auto" ${dis}`))}
+      </div>
+      <div class="field-row">
+        ${field('מחיר מחירון (₪)', `<input type="number" id="l-price" min="0" step="1" value="${x.price ?? ''}" data-bind="material_library:${x.id}:price" inputmode="decimal" ${dis}>`)}
+        ${field('קישור ליצרן / לקטלוג', textInput('l-url', x.url, `data-bind="material_library:${x.id}:url" placeholder="https://" dir="ltr" ${dis}`))}
+      </div>
+      ${field('הערות', textArea('l-notes', x.notes, `rows="2" data-bind="material_library:${x.id}:notes" placeholder="ניסיון מהפרויקטים, זמני אספקה, למה כן ולמה לא" ${dis}`))}
+      <div class="field"><label>תמונות ודוגמאות</label>${photoStrip({ libraryId: id, kind: 'image' }, { libraryId: id })}</div>
+    </div>
+    <div class="section">
+      <h3 class="section-title">בשימוש בפרויקטים <small>${items.length ? `${items.length} פריטים` : ''}</small></h3>
+      ${projects.length ? `<div class="list">${projects.map((p) => { const mine = items.filter((m) => m.projectId === p.id); return `<div class="list-item" data-action="open-project-page" data-id="${p.id}"><div class="li-body"><div class="li-title">${esc(p.name)}</div><div class="li-sub">${esc(mine.map((m) => [S.project_spaces[m.spaceId] ? spaceLabel(S.project_spaces[m.spaceId]) : (S.project_spaces[m.domainId]?.name || ''), m.element, (MAT_STATUS[m.status] || MAT_STATUS.proposed).label].filter(Boolean).join(' · ')).join(' | '))}</div></div><div class="li-side">${ICON.back}</div></div>`; }).join('')}</div>` : '<div class="inline-note">עדיין לא על לוח של אף פרויקט. בוחרים אותו מתוך "+ חומר" בלוח החומרים של הפרויקט.</div>'}
+    </div>
+  </div>
+  <div class="drawer-foot">
+    <span class="inline-note">${isCat ? `ממניפת ${esc(CATALOGS[x.catalog]?.name || x.catalog)} · ` : ''}נוסף ע"י ${esc(uname(x.createdBy, '—'))} · ${fmtDate(x.createdAt)}</span>
+    <span style="display:inline-flex;gap:6px;flex-wrap:wrap">${isManager() && !ro ? `<button type="button" class="btn ghost small" data-action="menu" data-menu="libmerge" data-id="${x.id}" title="הרשומה הזו נמחקת וכל הפריטים שלה עוברים לחומר שנבחר">מזג לתוך…</button>` : ''}${(isManager() || can('projects_edit')) && !items.length && !ro ? confirmButton('lib-del', `data-id="${x.id}"`, 'מחק מהמאגר') : ''}</span>
+  </div>`;
+}
+/* ---------- the registry tab: the office library and the catalogues ---------- */
+function renderMaterialLibrary() {
+  const q = normM(S.ui.libq || ''); const cat = S.ui.libcat; const use = S.ui.libuse; const src = S.ui.libsrc || 'office';
+  const types = settings().materialTypes || []; const uses = settings().materialUses || [];
+  const all = ML();
+  const ccounts = {}; C().forEach((c) => { if (c.active !== false || (S.ui.showInactive && c.type !== 'employee')) ccounts[c.type] = (ccounts[c.type] || 0) + 1; });
+  const unclassified = all.filter((x) => x.source !== 'catalog' && !(x.category || '').trim()).length;
+  const srcChip = (k, label, n) => `<span class="chip btn-chip ${src === k ? 'accent' : ''}" data-action="libsrc" data-value="${k}" role="button" tabindex="0">${esc(label)}${n != null ? ` <small>${n}</small>` : ''}</span>`;
+  let body = '';
+  if (src === 'office') {
+    const words = q.split(/\s+/).filter(Boolean);
+    const pool = all.filter((x) => (!cat || (cat === LIB_UNCLASSIFIED ? !(x.category || '').trim() : x.category === cat)) && (!use || libTags(x).includes(use)) && (!words.length || words.every((w) => normM([x.name, x.code, x.manufacturer, x.category, libTags(x).join(' '), x.collection, cname(x.supplierId, ''), x.notes].join(' ')).includes(w))));
+    pool.sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+    const counts = {}; all.forEach((x) => { const k = libCategory(x); counts[k] = (counts[k] || 0) + 1; });
+    const catKeys = [...types.filter((t) => counts[t]), ...Object.keys(counts).filter((k) => !types.includes(k) && k !== LIB_UNCLASSIFIED), ...(counts[LIB_UNCLASSIFIED] ? [LIB_UNCLASSIFIED] : [])];
+    const limit = Math.max(60, S.ui.liblimit || 0); const shown = pool.length > limit + 20 ? pool.slice(0, limit) : pool;
+    body = `
+    ${catKeys.length > 1 ? `<div class="chips chips-sub" style="margin-bottom:6px"><span class="chip btn-chip ${!cat ? 'accent' : ''}" data-action="libcat" data-value="" role="button" tabindex="0">כל הסוגים <small>${all.length}</small></span>${catKeys.map((k) => `<span class="chip btn-chip ${cat === k ? 'accent' : ''} ${k === LIB_UNCLASSIFIED ? 'red' : ''}" data-action="libcat" data-value="${esc(k)}" role="button" tabindex="0">${esc(k)} <small>${counts[k]}</small></span>`).join('')}</div>` : ''}
+    ${uses.length ? `<div class="chips chips-sub" style="margin-bottom:10px"><span class="muted" style="font-size:12px">שימוש:</span><span class="chip btn-chip ${!use ? 'accent' : ''}" data-action="libuse" data-value="" role="button" tabindex="0">הכל</span>${uses.filter((u) => all.some((x) => libTags(x).includes(u))).map((u) => `<span class="chip btn-chip ${use === u ? 'accent' : ''}" data-action="libuse" data-value="${esc(u)}" role="button" tabindex="0">${esc(u)}</span>`).join('')}</div>` : ''}
+    ${pool.length ? `<div class="lib-grid">${shown.map(libCard).join('')}</div>${shown.length < pool.length ? `<div class="table-more"><span class="muted">מוצגים ${shown.length} מתוך ${pool.length}</span><button class="btn small" data-action="libmore">הצג עוד</button></div>` : ''}` : `<div class="empty">${q || cat || use ? 'לא נמצאו חומרים.' : 'המאגר עדיין ריק. כל חומר שמישהו מוסיף ללוח של פרויקט נכנס לכאן — ומכאן כולם בוחרים אותו שוב.'}${isMember() ? ` <button class="btn small" data-action="lib-new">${ICON.plus} חומר חדש</button>` : ''}</div>`}`;
+  } else {
+    const c = S.catalogs[src];
+    if (!c) { loadCatalog(src).then(() => { if (S.ui.view === 'contacts' && S.ui.ctab === 'materials') render(); }); body = '<div class="inline-note">טוען את המניפה…</div>'; }
+    else if (c.error) body = `<div class="inline-note">המניפה לא נטענה: ${esc(c.error)}</div>`;
+    else {
+      const words = q.split(/\s+/).filter(Boolean);
+      const inLib = new Set(all.filter((x) => x.source === 'catalog' && x.catalog === src).map((x) => x.code));
+      const fams = [...new Set(c.items.map((it) => it.collection).filter(Boolean))];
+      const fam = S.ui.libfam && fams.includes(S.ui.libfam) ? S.ui.libfam : '';
+      const pool = c.items.filter((it) => (!fam || it.collection === fam) && (!words.length || words.every((w) => normM([it.code, it.name, it.collection].join(' ')).includes(w))));
+      const limit = Math.max(120, S.ui.liblimit || 0); const shown = pool.slice(0, limit);
+      body = `<div class="inline-note" style="margin-bottom:8px">${esc(CATALOGS[src]?.sub || '')}${c.note ? ' · ' + esc(c.note) : ''} · הצבע על המסך הוא קירוב; הגוון הקובע הוא במניפה הפיזית. לחיצה על גוון מוסיפה אותו למאגר המשרד.</div>
+      ${fams.length > 1 && fams.length <= 12 ? `<div class="chips chips-sub" style="margin-bottom:10px"><span class="chip btn-chip ${!fam ? 'accent' : ''}" data-action="libfam" data-value="" role="button" tabindex="0">הכל <small>${c.items.length}</small></span>${fams.map((f) => `<span class="chip btn-chip ${fam === f ? 'accent' : ''}" data-action="libfam" data-value="${esc(f)}" role="button" tabindex="0">${esc(f)} <small>${c.items.filter((it) => it.collection === f).length}</small></span>`).join('')}</div>` : ''}
+      <div class="swatch-grid">${shown.map((it) => `<div class="sw-tile ${inLib.has(it.code) ? 'inlib' : ''}" data-action="cat-pick" data-cat="${src}" data-code="${esc(it.code)}" title="${esc([it.code, it.name].filter(Boolean).join(' · '))}${inLib.has(it.code) ? ' · כבר במאגר' : ''}"><span class="sw-color" style="background:${esc(it.hex)}"></span><span class="sw-code">${esc(it.code)}</span><span class="sw-name">${esc(it.name || '')}</span></div>`).join('')}</div>
+      ${shown.length < pool.length ? `<div class="table-more"><span class="muted">מוצגים ${shown.length} מתוך ${pool.length}</span><button class="btn small" data-action="libmore">הצג עוד</button></div>` : (pool.length ? '' : '<div class="empty">לא נמצאו גוונים.</div>')}`;
+    }
+  }
+  return `
+  <div class="view-head">
+    <div><h1 class="view-title">מאגרים</h1><div class="view-sub">חומרים וגוונים של המשרד — כל חומר שמישהו הזין, מסודר לפי סוג ושימוש, וכל המניפות במקום אחד.${unclassified ? ` <span class="tag internal red">${unclassified} ממתינים לסיווג</span>` : ''}</div></div>
+    <div class="view-actions">${isManager() ? `<button class="btn" data-action="ctab" data-tab="dupes" title="אותו שם, טלפון או מייל באותו מאגר">כפילויות</button><button class="btn" data-action="ctab" data-tab="lists">רשימות ותחומים</button>` : ''}${isMember() ? `<button class="btn primary" data-action="lib-new">${ICON.plus} חומר חדש</button>` : ''}</div>
+  </div>
+  <div class="ctabs">${CGROUPS.map((g) => `<div class="ctab-group"><div class="ctab-group-label">${g.label}</div><div class="chips">${g.types.map((t) => `<span class="chip btn-chip" data-action="ctab" data-tab="${t}" role="button" tabindex="0" title="${esc(CTYPES[t].sub || '')}">${esc(CTYPES[t].plural)} <small>${ccounts[t] || 0}</small></span>`).join('')}</div></div>`).join('')}<div class="ctab-group"><div class="ctab-group-label">חומרים</div><div class="chips"><span class="chip btn-chip accent" data-action="ctab" data-tab="materials" role="button" tabindex="0">חומרים וגוונים <small>${all.length}</small></span></div></div></div>
+  <div class="filters">
+    <div class="search">${ICON.search}<input type="search" id="lib-q" placeholder="${src === 'office' ? 'חיפוש בשם, קוד, יצרן, סוג או שימוש…' : 'חיפוש לפי קוד או שם…'}" value="${esc(S.ui.libq || '')}"></div>
+    <span class="count-note">${src === 'office' ? `${all.filter((x) => x.source !== 'catalog').length} במאגר המשרד${all.some((x) => x.source === 'catalog') ? ` · ${all.filter((x) => x.source === 'catalog').length} גוונים ממניפות` : ''}` : ''}</span>
+  </div>
+  <div class="chips chips-sub" style="margin-bottom:10px">${srcChip('office', 'המאגר שלנו', all.length)}${CATALOG_ORDER.map((k) => srcChip(k, CATALOGS[k].name, S.catalogs[k] && !S.catalogs[k].error ? S.catalogs[k].items.length : null)).join('')}</div>
+  ${body}`;
+}
+function libCard(x) {
+  const cover = libPhotos(x.id)[0]; const url = cover ? fileUrl(cover) : '';
+  const n = usedIn(x.id).length;
+  return `<div class="mat-card lib-card" data-action="open-library" data-id="${x.id}">
+    <div class="mat-img" ${!url && x.color ? `style="background:${esc(x.color)}"` : ''}>${url ? `<img src="${esc(url)}" alt="" loading="lazy">` : (x.color ? '' : `<span class="mat-noimg">${ICON.image}</span>`)}${x.source === 'catalog' ? `<span class="mat-cat">${esc(CATALOGS[x.catalog]?.name || x.catalog)}</span>` : ''}</div>
+    <div class="mat-body">
+      <div class="mat-title">${esc(x.name || 'ללא שם')}</div>
+      <div class="mat-sub">${esc(libSub(x))}</div>
+      <div class="mat-foot"><span class="chip ${(x.category || '').trim() ? 'dim' : 'red'}">${esc(libCategory(x))}</span>${n ? `<span class="muted" style="font-size:12px">${n} ${n === 1 ? 'פרויקט' : 'פרויקטים'}</span>` : ''}</div>
+    </div>
+  </div>`;
+}
+/* ---------- data ---------- */
+async function newMaterial(pid, extra = {}) {
+  const p = S.projects[pid]; if (!canEditBoard(p)) { toast('אין לך הרשאת עריכה'); return null; }
   const id = uid('m');
   const sortIndex = Math.max(0, ...materialsOf(pid).map((m) => Number(m.sortIndex) || 0)) + 1;
-  const ok = await createDoc('materials', id, { projectId: pid, title: '', description: '', area: '', supplierId: null, price: null, quoteNote: '', status: 'proposed', sortIndex, createdBy: me()?.id || null });
+  const ok = await createDoc('materials', id, Object.assign({ projectId: pid, title: '', description: '', area: '', supplierId: null, price: null, quoteNote: '', status: 'proposed', sortIndex, createdBy: me()?.id || null, libraryId: null, domainId: null, spaceId: null, element: '', qty: '', drawingRef: '' }, extra));
   return ok ? id : null;
 }
+async function newLibraryItem(name, extra = {}) {
+  if (!isMember()) { toast('אין לך הרשאת עריכה'); return null; }
+  const id = uid('ml');
+  const ok = await createDoc('material_library', id, Object.assign({ name: String(name || '').trim(), category: guessType(name), tags: [], manufacturer: '', supplierId: null, code: '', color: '', finish: '', size: '', price: null, url: '', notes: '', source: 'office', catalog: '', collection: '', flags: {}, active: true, mergedInto: null, createdBy: me()?.id || null }, extra));
+  return ok ? id : null;
+}
+async function placeMaterial(pid, did, sid, libId, replaceId) {
+  if (replaceId && S.materials[replaceId]) { await patchDoc('materials', replaceId, { libraryId: libId }); return replaceId; }
+  const lib = libOf(libId);
+  const id = await newMaterial(pid, { libraryId: libId, domainId: did || null, spaceId: sid || null, title: lib ? lib.name : '' });
+  if (id) { const d = S.project_spaces[did]; if (d) S.ui.boardOpen[pid + ':' + did] = true; toast(`«${(lib && lib.name) || ''}» נוסף ללוח`); }
+  return id;
+}
+/* merging two library records (managers): every item of the duplicate points to the kept one; the duplicate is retired */
+async function mergeLibrary(fromId, intoId) {
+  if (!isManager() || fromId === intoId || !S.material_library[fromId] || !S.material_library[intoId]) return;
+  MT().filter((m) => m.libraryId === fromId).forEach((m) => patchDoc('materials', m.id, { libraryId: intoId }));
+  FL().filter((f) => f.libraryId === fromId).forEach((f) => patchDoc('files', f.id, { libraryId: intoId }));
+  await patchDoc('material_library', fromId, { active: false, mergedInto: intoId });
+  toast('החומרים מוזגו');
+}
+/* ---------- menus & actions ---------- */
 function materialsMenu(kind, id, anchor) {
-  if (kind !== 'matstatus') return false;
-  if (!isMember()) { toast('אין לך הרשאת עריכה'); return true; }
-  const m = S.materials[id]; if (!m) return true;
-  openMenu(anchor, { items: MAT_ORDER.map((k) => ({ label: MAT_STATUS[k].label, value: k, selected: m.status === k })), onPick: (it) => patchDoc('materials', id, { status: it.value }) });
-  return true;
+  if (kind === 'matstatus') {
+    if (!isMember()) { toast('אין לך הרשאת עריכה'); return true; }
+    const m = S.materials[id]; if (!m) return true;
+    openMenu(anchor, { items: MAT_ORDER.map((k) => ({ label: MAT_STATUS[k].label, value: k, selected: m.status === k })), onPick: (it) => patchDoc('materials', id, { status: it.value }) });
+    return true;
+  }
+  if (kind === 'matpick') { // "+ חומר": one search over the library and the catalogues; a new name becomes a library record and lands on the board
+    const [pid, did, sid, replaceId] = String(id).split(':');
+    const p = S.projects[pid]; if (!canEditBoard(p)) { toast('אין לך הרשאת עריכה'); return true; }
+    const tag = 'matpick:' + id;
+    const build = () => { const q = S.ui.menu && S.ui.menu.tag === tag ? S.ui.menu.q : ''; return searchMaterials(q, { limit: 30 }).map((r) => r.kind === 'lib' ? { label: r.lib.name || r.lib.code || '(ללא שם)', sub: libSub(r.lib) + (usedIn(r.lib.id).length ? ` · ${usedIn(r.lib.id).length} פרויקטים` : ''), icon: swatch(r.lib.color) || (libPhotos(r.lib.id)[0] ? `<img class="menu-thumb" src="${esc(fileUrl(libPhotos(r.lib.id)[0]))}" alt="">` : ''), value: 'lib:' + r.lib.id } : { label: `${r.item.code}${r.item.name ? ' · ' + r.item.name : ''}`, sub: `${CATALOGS[r.cat]?.name || r.cat}${r.item.collection ? ' · ' + r.item.collection : ''}`, icon: swatch(r.item.hex), value: 'cat:' + r.cat + ':' + r.item.code }); };
+    openMenu(anchor, { tag, search: true, placeholder: catalogsReady() ? 'שם, קוד, RAL, טמבור, נירלט…' : 'חיפוש במאגר… (המניפות נטענות)', emptyText: 'לא נמצא — הקלידו שם מלא ולחצו "צור" כדי להוסיף למאגר', items: build(), create: true, createLabel: '(חומר חדש במאגר)', dynamic: true, rebuild: build,
+      onPick: async (it) => {
+        if (it.value.startsWith('lib:')) { const mid = await placeMaterial(pid, did, sid, it.value.slice(4), replaceId); if (mid && !replaceId) openDrawer('material', mid); return; }
+        const [, cat, ...rest] = it.value.split(':'); const code = rest.join(':'); const c = S.catalogs[cat]; const item = c && c.items.find((x) => x.code === code); if (!item) return;
+        const lid = await libraryFromCatalog(cat, item); if (!lid) return;
+        const mid = await placeMaterial(pid, did, sid, lid, replaceId); if (mid && !replaceId) openDrawer('material', mid);
+      },
+      onCreate: async (name) => { const lid = await newLibraryItem(name); if (!lid) return; const mid = await placeMaterial(pid, did, sid, lid, replaceId); if (!mid) return; const x = S.material_library[lid]; if (x && !(x.category || '').trim()) { openDrawer('library', lid); toast('חומר חדש במאגר — בחרו לו סוג'); } else openDrawer('material', mid); } });
+    if (!catalogsReady()) loadAllCatalogs().then(() => { const m = S.ui.menu; if (!m || m.tag !== tag) return; m.placeholder = 'שם, קוד, RAL, טמבור, נירלט…'; m.items = build(); renderMenu(); const inp = document.getElementById('menu-q'); if (inp && document.activeElement !== inp) inp.focus({ preventScroll: true }); });
+    return true;
+  }
+  if (kind === 'libtag') {
+    if (!isMember()) { toast('אין לך הרשאת עריכה'); return true; }
+    const x = S.material_library[id]; if (!x) return true;
+    const have = libTags(x); const uses = settings().materialUses || [];
+    openMenu(anchor, { search: true, placeholder: 'שימוש…', items: uses.filter((u) => !have.includes(u)).map((u) => ({ label: u, value: u })), create: true, createLabel: '(שימוש חדש)', onPick: (it) => patchDoc('material_library', id, { tags: [...have, it.value] }), onCreate: (name) => patchDoc('material_library', id, { tags: [...have, String(name).trim()] }) });
+    return true;
+  }
+  if (kind === 'libmerge') {
+    if (!isManager()) return true;
+    const x = S.material_library[id]; if (!x) return true;
+    openMenu(anchor, { search: true, placeholder: 'לתוך איזה חומר למזג את «' + (x.name || '') + '»?', items: ML().filter((y) => y.id !== id).sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'he')).map((y) => ({ label: y.name || y.code, sub: libSub(y), icon: swatch(y.color), value: y.id })), onPick: (it) => { S.ui.confirm = `libmerge:${id}:${it.value}`; render(); } });
+    return true;
+  }
+  if (kind === 'boardcopy') {
+    const p = S.projects[id]; if (!canEditBoard(p)) return true;
+    const src = P().filter((x) => x.id !== id && !isReduced(x) && spacesOf(x.id).length).sort(byName);
+    openMenu(anchor, { search: true, placeholder: 'מאיזה פרויקט להעתיק תחומים וחללים?', emptyText: 'אין עדיין פרויקט עם מבנה לוח', items: src.map((x) => ({ label: projectDisplayName(x), sub: `${domainsOf(x.id).length} תחומים · ${spacesOf(x.id).filter((s) => s.kind === 'space').length} חללים`, value: x.id })), onPick: async (it) => { await copyBoardStructure(it.value, id); } });
+    return true;
+  }
+  return false;
+}
+async function copyBoardStructure(fromId, toId) {
+  const p = S.projects[toId]; if (!canEditBoard(p)) return;
+  let n = 0;
+  for (const d of domainsOf(fromId)) {
+    const existing = domainsOf(toId).find((x) => normText(x.name) === normText(d.name));
+    const did = existing ? existing.id : uid('ps');
+    if (!existing) { await createDoc('project_spaces', did, { projectId: toId, kind: 'domain', parentId: null, name: d.name, number: '', notes: '', sortOrder: Math.max(0, ...domainsOf(toId).map((x) => Number(x.sortOrder) || 0)) + 1 }); } // copied domains come after what is already here
+    for (const s of roomsOf(fromId, d.id)) { if (roomsOf(toId, did).some((x) => normText(x.name) === normText(s.name) && String(x.number || '') === String(s.number || ''))) continue; await createDoc('project_spaces', uid('ps'), { projectId: toId, kind: 'space', parentId: did, name: s.name, number: s.number || '', notes: '', sortOrder: Math.max(0, ...roomsOf(toId, did).map((x) => Number(x.sortOrder) || 0)) + 1 }); n++; }
+  }
+  toast(n ? `${n} חללים הועתקו` : 'המבנה כבר קיים כאן');
 }
 async function materialsAction(a, ds, t, e) {
   switch (a) {
     case 'open-material': openDrawer('material', ds.id); return true;
-    case 'mat-new': { const id = await newMaterial(ds.id); if (id) { openDrawer('material', id); setTimeout(() => document.getElementById('m-title')?.focus(), 40); } return true; }
+    case 'open-library': e.stopPropagation(); openDrawer('library', ds.id); return true;
     case 'mat-status': { e.stopPropagation(); if (!isMember()) { toast('אין לך הרשאת עריכה'); return true; } patchDoc('materials', ds.id, { status: ds.value }); return true; }
     case 'mat-filter': S.ui.matFilter = ds.value || ''; render(); return true;
+    case 'board-view': S.ui.boardView[ds.id] = !S.ui.boardView[ds.id]; render(); return true;
+    case 'domain-toggle': S.ui.boardOpen[ds.id] = S.ui.boardOpen[ds.id] === false; render(); return true;
+    case 'domain-add': { const key = ds.id + ':newdomain'; S.ui.boardOpen[key] = !S.ui.boardOpen[key]; render(); if (S.ui.boardOpen[key]) setTimeout(() => document.getElementById('ndn-' + ds.id)?.focus(), 30); return true; }
+    case 'domain-create': { const p = S.projects[ds.id]; if (!canEditBoard(p)) return true; const inp = document.getElementById('ndn-' + ds.id); const name = (inp?.value || '').trim(); if (!name) { inp?.focus(); return true; } const id = uid('ps'); await createDoc('project_spaces', id, { projectId: p.id, kind: 'domain', parentId: null, name, number: '', notes: '', sortOrder: domainsOf(p.id).length + 1 }); S.ui.boardOpen[ds.id + ':newdomain'] = false; render(); return true; }
+    case 'domain-edit': { const key = ds.id + ':edit'; S.ui.boardOpen[key] = !S.ui.boardOpen[key]; render(); return true; }
+    case 'space-add': { const key = ds.id + ':newspace'; S.ui.boardOpen[key] = !S.ui.boardOpen[key]; render(); if (S.ui.boardOpen[key]) setTimeout(() => document.getElementById('nss-' + ds.id.split(':')[1])?.focus(), 30); return true; }
+    case 'space-create': { const [pid, did] = ds.id.split(':'); const p = S.projects[pid]; if (!canEditBoard(p)) return true; const name = (document.getElementById('nss-' + did)?.value || '').trim(); const number = (document.getElementById('nsn-' + did)?.value || '').trim(); if (!name) { document.getElementById('nss-' + did)?.focus(); return true; } await createDoc('project_spaces', uid('ps'), { projectId: pid, kind: 'space', parentId: did, name, number, notes: '', sortOrder: roomsOf(pid, did).length + 1 }); const n = document.getElementById('nsn-' + did), s = document.getElementById('nss-' + did); if (n) n.value = ''; if (s) { s.value = ''; } render(); setTimeout(() => document.getElementById('nss-' + did)?.focus(), 30); return true; }
+    case 'space-edit': { const s = S.project_spaces[ds.id]; if (!s) return true; const key = `${s.projectId}:${s.id}:edit`; S.ui.boardOpen[key] = !S.ui.boardOpen[key]; render(); if (S.ui.boardOpen[key]) setTimeout(() => document.getElementById('sps-' + s.id)?.focus(), 30); return true; }
+    case 'space-del': { const s = S.project_spaces[ds.id]; if (!s) return true; const p = S.projects[s.projectId]; if (!canEditBoard(p)) return true; if (MT().some((m) => m.spaceId === s.id || m.domainId === s.id) || spacesOf(s.projectId).some((x) => x.parentId === s.id)) { toast('יש בו חומרים או חללים — קודם מעבירים אותם'); return true; } await deleteDoc('project_spaces', s.id); return true; }
+    case 'schedule-xlsx': { const p = S.projects[ds.id]; if (!p) return true; try { downloadBytes(`לוח גמרים - ${p.name}.xlsx`, xlsxBuild([{ name: 'לוח גמרים', rows: scheduleRows(p), widths: [14, 18, 10, 12, 30, 16, 16, 20, 10, 12, 14, 10, 12, 16, 40] }])); toast('הקובץ ירד'); } catch (err) { toast('הייצוא נכשל: ' + (err?.message || '')); } return true; }
+    case 'lib-new': { const id = await newLibraryItem('', { category: '' }); if (id) { openDrawer('library', id); setTimeout(() => document.getElementById('l-name')?.focus(), 40); } return true; }
+    case 'lib-classify': { if (!isMember()) return true; patchDoc('material_library', ds.id, { category: ds.value }); return true; }
+    case 'lib-tag-remove': { e.stopPropagation(); if (!isMember()) return true; const x = S.material_library[ds.id]; if (!x) return true; patchDoc('material_library', ds.id, { tags: libTags(x).filter((t) => t !== ds.value) }); return true; }
+    case 'libsrc': S.ui.libsrc = ds.value || 'office'; S.ui.liblimit = 0; S.ui.libfam = ''; render(); return true;
+    case 'libcat': S.ui.libcat = ds.value || ''; S.ui.liblimit = 0; render(); return true;
+    case 'libuse': S.ui.libuse = ds.value || ''; S.ui.liblimit = 0; render(); return true;
+    case 'libfam': S.ui.libfam = ds.value || ''; S.ui.liblimit = 0; render(); return true;
+    case 'libmore': S.ui.liblimit = (S.ui.liblimit || (S.ui.libsrc === 'office' ? 60 : 120)) + 120; render(); return true;
+    case 'cat-pick': { if (!isMember()) { toast('אין לך הרשאת עריכה'); return true; } const c = S.catalogs[ds.cat]; const item = c && c.items.find((x) => x.code === ds.code); if (!item) return true; const lid = await libraryFromCatalog(ds.cat, item); if (lid) openDrawer('library', lid); return true; }
+    case 'lib-del': {
+      const x = S.material_library[ds.id]; if (!x) return true;
+      if (!(isManager() || can('projects_edit'))) { toast('מחיקה מהמאגר: מנהלים וראשי צוותים'); return true; }
+      if (MT().some((m) => m.libraryId === x.id)) { toast('החומר בשימוש בפרויקט — אפשר למזג אותו לחומר אחר'); return true; }
+      const key = a + `data-id="${ds.id}"`;
+      if (!ds.confirmed) { S.ui.confirm = key; render(); return true; }
+      S.ui.confirm = null;
+      FL().filter((f) => f.libraryId === x.id).forEach((f) => deleteFile(f.id));
+      await deleteDoc('material_library', x.id); closeDrawer(true); toast('החומר נמחק מהמאגר'); return true;
+    }
+    case 'libmerge-go': { const [, from, into] = (S.ui.confirm || '').split(':'); S.ui.confirm = null; if (from && into) { await mergeLibrary(from, into); closeDrawer(true); openDrawer('library', into); } return true; }
     case 'mat-del': {
       const m = S.materials[ds.id]; if (!m) return true;
       if (!canDeleteMaterial(m)) { toast('מחיקה: מי שהוסיף את הפריט, ראשי צוותים ומנהלים'); return true; }
@@ -5335,10 +5806,14 @@ async function materialsAction(a, ds, t, e) {
       if (!ds.confirmed) { S.ui.confirm = key; render(); return true; }
       S.ui.confirm = null;
       FL().filter((f) => f.materialId === m.id).forEach((f) => deleteFile(f.id));
-      await deleteDoc('materials', m.id); closeDrawer(true); toast('הפריט נמחק'); return true;
+      await deleteDoc('materials', m.id); closeDrawer(true); toast('הפריט הוסר מהלוח'); return true;
     }
     default: return false;
   }
+}
+/* the archive's "colours and shades" straight from the board: what was approved or ordered, with its space */
+function boardColoursRows(pid) {
+  return materialsOf(pid).filter((m) => ['approved', 'ordered'].includes(m.status) && (matColor(m) || (matLib(m) && /צבע|גוון/.test(matLib(m).category || '')))).map((m) => { const lib = matLib(m); const s = S.project_spaces[m.spaceId]; const d = S.project_spaces[m.domainId]; return { where: [d ? d.name : '', s ? spaceLabel(s) : '', m.element].filter(Boolean).join(' · '), maker: lib ? (lib.manufacturer || cname(lib.supplierId, '')) : '', shade: [matName(m), lib && lib.code ? lib.code : ''].filter(Boolean).join(' '), finish: lib ? lib.finish : '', color: matColor(m), id: m.id }; });
 }
 /* ===================== photoshoot & publication (צילום ופרסום) ===================== */
 /* When a project reaches handover a shoot opens by itself (a manager can open one by hand too): a card on the project page with the
@@ -6375,6 +6850,7 @@ function renderArchivePage() {
       <div class="section" id="arc-colors">
         <h3 class="section-title">גוונים וצבעים <small>${(a.colors || []).length || ''}</small></h3>
         <div class="inline-note" style="margin-bottom:8px">מה שלקוח ישאל בעוד חמש שנים: גוון התקרה, צבע הקיר בסלון, הגימור של המטבח.</div>
+        ${typeof boardColoursRows === 'function' && boardColoursRows(p.id).length ? `<div class="arc-board-colors"><div class="inline-note" style="margin-bottom:4px">מלוח החומרים — מה שאושר או הוזמן:</div>${boardColoursRows(p.id).map((r) => `<div class="arc-bc-row" data-action="open-material" data-id="${r.id}">${swatch(r.color, 'small')}<span class="arc-bc-where">${esc(r.where || '—')}</span><span class="arc-bc-shade">${esc(r.shade)}</span><span class="muted">${esc([r.maker, r.finish].filter(Boolean).join(' · '))}</span></div>`).join('')}</div>` : ''}
         ${arcRows(a, p.id, 'colors', COLOR_FIELDS, 'הוסף גוון')}
       </div>
       ${typeof materialsBoard === 'function' ? materialsBoard(p) : ''}
@@ -6819,12 +7295,13 @@ function renderOverlay() {
   const d = S.ui.drawer;
   let html = '';
   if (d) {
-    const body = d.kind === 'project' ? drawerProject(d.id) : d.kind === 'contact' ? drawerContact(d.id) : d.kind === 'import' ? drawerImport() : d.kind === 'task' ? drawerTask(d.id) : d.kind === 'visit' ? drawerVisit(d.id) : d.kind === 'request' ? drawerRequest(d.id) : d.kind === 'request-new' ? drawerNewRequest() : d.kind === 'material' ? drawerMaterial(d.id) : d.kind === 'seat' ? drawerSeat(d.id) : d.kind === 'room' ? drawerRoom(d.id) : d.kind === 'password' ? drawerPassword() : d.kind === 'prefs' ? drawerPrefs() : drawerCommission(d.id);
+    const body = d.kind === 'project' ? drawerProject(d.id) : d.kind === 'contact' ? drawerContact(d.id) : d.kind === 'import' ? drawerImport() : d.kind === 'task' ? drawerTask(d.id) : d.kind === 'visit' ? drawerVisit(d.id) : d.kind === 'request' ? drawerRequest(d.id) : d.kind === 'request-new' ? drawerNewRequest() : d.kind === 'material' ? drawerMaterial(d.id) : d.kind === 'library' ? drawerLibrary(d.id) : d.kind === 'seat' ? drawerSeat(d.id) : d.kind === 'room' ? drawerRoom(d.id) : d.kind === 'password' ? drawerPassword() : d.kind === 'prefs' ? drawerPrefs() : drawerCommission(d.id);
     const pend = hasPending() && S.ui.autoSaveFailed ? `<div class="drawer-save"><span>${pendingCount() === 1 ? 'שינוי אחד לא נשמר' : pendingCount() + ' שינויים לא נשמרו'} — אין חיבור?</span><button class="btn primary small" data-action="pending-save" ${S.ui.committing ? 'disabled' : ''}>${S.ui.committing ? 'שומר…' : 'שמור שוב'}</button><button class="btn small" data-action="pending-discard" ${S.ui.committing ? 'disabled' : ''}>בטל</button></div>` : '';
     html += `<div class="scrim" data-action="close-drawer"></div><aside class="drawer" role="dialog" aria-modal="true" data-key="${esc(drawerKey())}">${body}${pend}</aside>`;
   }
   if (S.ui.confirmMergeTypes) { const m = S.ui.confirmMergeTypes; const f = S.milestone_types[m.from], t = S.milestone_types[m.into]; html += `<div class="scrim" style="z-index:45" data-action="mt-merge-cancel"></div><div class="modal"><h3 style="margin:0 0 8px">איחוד סוגי אבני דרך</h3><p>${Number(f?.usage) || 0} אבני דרך מהסוג <strong>${esc(f?.name || '')}</strong> יעברו לסוג <strong>${esc(t?.name || '')}</strong>, והכינויים יאוחדו. הפעולה נשמרת מיד.</p><div style="display:flex;gap:8px"><button class="btn primary" data-action="mt-merge-confirm">אחד</button><button class="btn" data-action="mt-merge-cancel">בטל</button></div></div>`; }
   if (S.ui.confirmClose) html += `<div class="scrim" style="z-index:45" data-action="close-keep"></div><div class="modal"><h3 style="margin:0 0 8px">שינויים שלא נשמרו</h3><p>יש ${pendingCount() === 1 ? 'שינוי אחד' : pendingCount() + ' שינויים'} שעדיין לא נשמרו. מה לעשות?</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-action="close-save">שמור וסגור</button><button class="btn" data-action="close-discard">בטל את השינויים</button><button class="btn ghost" data-action="close-keep">המשך עריכה</button></div></div>`;
+  if (S.ui.confirm && String(S.ui.confirm).startsWith('libmerge:')) { const [, from, into] = S.ui.confirm.split(':'); const f = S.material_library[from], t = S.material_library[into]; html += `<div class="scrim" style="z-index:45" data-action="cancel-confirm"></div><div class="modal"><h3 style="margin:0 0 8px">מיזוג חומרים במאגר</h3><p>כל הפריטים והתמונות של <strong>${esc(f?.name || '')}</strong> יעברו אל <strong>${esc(t?.name || '')}</strong>, והרשומה הראשונה תוסר מהמאגר. לא ניתן לבטל.</p><div style="display:flex;gap:8px;justify-content:flex-start"><button class="btn primary" data-action="libmerge-go">מזג</button><button class="btn" data-action="cancel-confirm">בטל</button></div></div>`; }
   if (S.ui.confirmMerge) { const m = S.ui.confirmMerge; html += `<div class="scrim" style="z-index:45" data-action="merge-cancel"></div><div class="modal"><h3 style="margin:0 0 8px">מיזוג רשומות</h3><p>כל הקישורים של <strong>${esc(cname(m.from))}</strong> יעברו אל <strong>${esc(cname(m.into))}</strong>, והרשומה הראשונה תימחק. פרטים חסרים ברשומה היעד יושלמו מהרשומה שנמחקת.</p><div style="display:flex;gap:8px;justify-content:flex-start"><button class="btn primary" data-action="merge-confirm">מזג</button><button class="btn" data-action="merge-cancel">בטל</button></div></div>`; }
   html += renderLightbox();
   ov.innerHTML = html + `<datalist id="dl-roles">${settings().teamRoles.map((r) => `<option value="${esc(r)}">`).join('')}</datalist><datalist id="dl-mstypes">${list('milestone_types').sort((a, b) => (Number(b.usage) || 0) - (Number(a.usage) || 0)).slice(0, 120).map((t) => `<option value="${esc(t.name)}">`).join('')}</datalist><datalist id="dl-waiting">${['לקוח', 'יועץ', 'קבלן', 'ספק', 'עירייה / ועדה', 'מנהל פרויקט'].map((r) => `<option value="${r}">`).join('')}</datalist>`;
@@ -7661,7 +8138,7 @@ function renderMenu() {
   if (!el) { el = document.createElement('div'); el.id = 'menu'; el.className = 'menu'; document.body.appendChild(el); }
   const q = norm(m.q);
   let items = m.items;
-  if (m.search) items = items.filter((it) => !q || norm(it.label + ' ' + (it.sub || '')).includes(q));
+  if (m.search && !m.dynamic) items = items.filter((it) => !q || norm(it.label + ' ' + (it.sub || '')).includes(q)); // a dynamic menu already searched
   const canCreate = m.create && m.q.trim() && !m.items.some((it) => norm(it.label) === q);
   el.innerHTML = `${m.search ? `<div class="menu-search"><input type="search" id="menu-q" placeholder="${esc(m.placeholder || 'חיפוש…')}" value="${esc(m.q)}" autocomplete="off"></div>` : ''}
     <div class="menu-list">${items.length ? items.slice(0, 60).map((it, i) => `<button type="button" class="menu-item ${it.selected ? 'selected' : ''}" data-menu-index="${m.items.indexOf(it)}">${it.icon || ''}${esc(it.label)}${it.sub ? `<small>${esc(it.sub)}</small>` : ''}</button>`).join('') : `<div class="menu-empty">${m.emptyText || 'אין תוצאות'}</div>`}
@@ -7856,6 +8333,8 @@ function bindHandler(el) {
   if (col === 'milestone_types' && !isManager()) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'plan_sets' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'materials' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
+  if (col === 'material_library' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
+  if (col === 'project_spaces' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'shoots' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'shoot_funding' && !isManager()) { toast('מנהלים בלבד'); render(); return; }
   if (col === 'sunday_requests' && !canEditRequest(S.sunday_requests[id])) { toast('רק מי שרשם את הנושא, ראש/ת הצוות או מנהל/ת'); render(); return; }
@@ -7872,21 +8351,24 @@ function bindHandler(el) {
   else v = el.value;
   if (el.type === 'date' && v && v < '1900') return; // a year still being typed ("0002-10-01") — the change event fires again once it is complete
   if (col === 'site_visits' && key === 'seq') { if (!(v >= 1)) { el.value = String(S.site_visits[id]?.seq || 1); render(); return; } v = Math.round(v); } // the document number: a whole number from 1; empty keeps the old one
-  if (['teamId', 'leadId', 'phase', 'clientId', 'projectId', 'supplierId', 'startDate', 'dueDate', 'expectedDate', 'invoiceDate', 'paidDate', 'assigneeId', 'phaseId', 'parentId', 'responsibleId', 'nextVisit', 'typeId', 'phase', 'milestoneId', 'nameEn', 'shootDate'].includes(key) && v === '') v = null;
+  if (['teamId', 'leadId', 'phase', 'clientId', 'projectId', 'supplierId', 'startDate', 'dueDate', 'expectedDate', 'invoiceDate', 'paidDate', 'assigneeId', 'phaseId', 'parentId', 'responsibleId', 'nextVisit', 'typeId', 'phase', 'milestoneId', 'nameEn', 'shootDate', 'domainId', 'spaceId', 'libraryId'].includes(key) && v === '') v = null;
   if (key === 'nameEn' && typeof v === 'string') { v = v.trim() || null; el.value = v || ''; }
   delete S.ui.drafts[el.id];
   if (key === 'name' && !String(v).trim()) { render(); return; }
+  if (col === 'material_library' && key === 'color') { v = String(v || '').trim(); if (v && !/^#[0-9a-f]{6}$/i.test(v)) { if (/^[0-9a-f]{6}$/i.test(v)) v = '#' + v; else { toast('גוון: קוד צבע כמו #a1b2c3'); render(); return; } } v = v.toLowerCase(); delete S.ui.drafts['l-color']; } // the colour and the text box are the same field
+  if (col === 'materials' && key === 'domainId') { patchDoc(col, id, { domainId: v, spaceId: null }); return; } // a new domain: the space is chosen again
   patchDoc(col, id, { [key]: v });
   // a project that has no milestones yet gets one per stage of the type it is given
   if (col === 'projects' && key === 'type' && v) { const p = S.projects[id]; if (p && S.milestonesLoaded[id] && !milestonesOf(id).some(msIsWork) && canEditMilestones()) createTemplateMilestones(id); }
 }
 document.addEventListener('input', (e) => {
   const el = e.target;
-  if (el.id === 'menu-q') { S.ui.menu.q = el.value; renderMenu(); const i = document.getElementById('menu-q'); if (i) { i.focus(); i.setSelectionRange(el.value.length, el.value.length); } return; }
+  if (el.id === 'menu-q') { S.ui.menu.q = el.value; if (S.ui.menu.dynamic && S.ui.menu.rebuild) S.ui.menu.items = S.ui.menu.rebuild(); renderMenu(); const i = document.getElementById('menu-q'); if (i) { i.focus(); i.setSelectionRange(el.value.length, el.value.length); } return; }
   if (el.id === 'f-q') { S.ui.filters.q = el.value; saveUi(); render(); return; }
   if (el.id === 'c-q') { S.ui.cq = el.value; S.ui.climit = 0; render(); return; }
   if (el.id === 'k-q') { S.ui.kfilter.q = el.value; render(); return; }
   if (el.id === 'mt-q') { S.ui.mtq = el.value; S.ui.mtlimit = 0; render(); return; }
+  if (el.id === 'lib-q') { S.ui.libq = el.value; S.ui.liblimit = 0; render(); return; }
   if (el.id === 'tf-q') { S.ui.tfilter.q = el.value; render(); return; }
   if (el.dataset.comment) { S.ui.drafts[el.id] = el.value; mentionTyping(el); return; }
   if (el.dataset.rqc) { const f = S.ui.reqForm; if (f?.newContact) f.newContact[el.dataset.rqc] = el.value; return; } // the new-contact mini-form survives a re-render
@@ -7909,6 +8391,8 @@ document.addEventListener('change', (e) => {
   if (el.dataset.userRole) { const pid = el.dataset.userRole; const role = el.value; patchDoc('profiles', pid, { role }).then((ok) => { if (ok) toast('התפקיד עודכן'); }); return; }
   if (id === 'k-supplier') { S.ui.kfilter.supplier = el.value; render(); return; }
   if (id.startsWith('tf-')) { const k = id.slice(3); S.ui.tfilter[k] = el.type === 'checkbox' ? el.checked : el.value; render(); return; }
+  if (el.dataset.spacefield) { const [sid, f] = el.dataset.spacefield.split(':'); const s = S.project_spaces[sid]; if (!s || !canEditBoard(S.projects[s.projectId])) return; const v = el.value.trim(); if (f === 'name' && !v) { el.value = s.name || ''; return; } if (v !== String(s[f] || '')) patchDoc('project_spaces', sid, { [f]: v }); return; }
+  if (el.id === 'lib-q') return;
   if (el.dataset.seatfield) { const [sid, f] = el.dataset.seatfield.split(':'); if (!canEditSeating()) return; ensureSeatRow(sid, 'desk').then(() => patchDoc('seats', sid, { [f]: el.value.trim() })); return; }
   if (el.dataset.roomlabel) { if (!canEditSeating()) return; const rid = 'room:' + el.dataset.roomlabel; ensureSeatRow(rid, 'room').then(() => patchDoc('seats', rid, { label: el.value.trim() })); return; }
   if (el.dataset.stgnote) { const [pid, sid] = el.dataset.stgnote.split(':'); const notes = el.value; if (!notes.trim()) return; const m = stageRowFor(pid, sid); if (m) patchDoc('project_milestones', m.id, { notes }); return; }
@@ -7959,6 +8443,9 @@ document.addEventListener('keydown', (e) => {
     if (el.dataset.emailadd) { e.preventDefault(); document.querySelector(`[data-action="email-add"][data-id="${el.dataset.emailadd}"]`)?.click(); return; }
     if (el.dataset.stgcheckadd) { e.preventDefault(); const [pid, sid] = el.dataset.stgcheckadd.split(':'); document.querySelector(`[data-action="stg-check-add"][data-id="${pid}"][data-stage="${sid}"]`)?.click(); return; }
     if (el.dataset.socialadd) { e.preventDefault(); addSocial(el.dataset.socialadd, el.value); return; }
+    if (el.dataset.newspace) { e.preventDefault(); document.querySelector(`[data-action="space-create"][data-id="${el.dataset.newspace}"]`)?.click(); return; }
+    if (el.dataset.newdomain) { e.preventDefault(); document.querySelector(`[data-action="domain-create"][data-id="${el.dataset.newdomain}"]`)?.click(); return; }
+    if (el.dataset.spacefield) { e.preventDefault(); el.blur(); return; }
     if (el.id?.startsWith('check-add-')) { e.preventDefault(); document.querySelector(`[data-action="check-add"][data-id="${el.id.slice(10)}"]`)?.click(); return; }
     if (el.dataset.rqc && el.tagName === 'INPUT') { e.preventDefault(); document.querySelector('[data-action="rq-newc-add"]')?.click(); return; }
     if (el.id === 'add-team') { document.querySelector('[data-action="add-team"]')?.click(); return; }
@@ -8344,7 +8831,7 @@ document.addEventListener('click', async (e) => {
     case 'set-list-add': { const i = document.getElementById('add-' + ds.list); const v = i.value.trim(); if (!v) break; if (settings()[ds.list].includes(v)) { toast('הערך כבר קיים'); break; } await patchSettings({ [ds.list]: [...settings()[ds.list], v] }); i.value = ''; break; }
     case 'set-list-remove': {
       const v = settings()[ds.list][Number(ds.index)];
-      const used = ds.list === 'types' ? P().filter((p) => p.type === v).length : C().filter((c) => c.category === v && CAT_LIST[c.type] === ds.list).length;
+      const used = ds.list === 'types' ? P().filter((p) => p.type === v).length : ds.list === 'materialTypes' ? list('material_library').filter((x) => x.category === v).length : ds.list === 'materialUses' ? list('material_library').filter((x) => libTags(x).includes(v)).length : ds.list === 'boardElements' ? MT().filter((m) => m.element === v).length : C().filter((c) => c.category === v && CAT_LIST[c.type] === ds.list).length;
       if (used) { toast(`הערך "${v}" בשימוש ב-${used} רשומות — שנו אותן קודם`); break; }
       patchSettings({ [ds.list]: settings()[ds.list].filter((_, i) => i !== Number(ds.index)) }); break;
     }
@@ -8355,6 +8842,9 @@ async function renameListValue(key, oldV, newV) {
   const arr = settings()[key].map((v) => v === oldV ? newV : v);
   await patchSettings({ [key]: arr });
   if (key === 'types') { for (const p of P().filter((x) => x.type === oldV)) await patchDoc('projects', p.id, { type: newV }); }
+  else if (key === 'materialTypes') { for (const x of list('material_library').filter((y) => y.category === oldV)) await patchDoc('material_library', x.id, { category: newV }); }
+  else if (key === 'materialUses') { for (const x of list('material_library').filter((y) => libTags(y).includes(oldV))) await patchDoc('material_library', x.id, { tags: libTags(x).map((t) => t === oldV ? newV : t) }); }
+  else if (key === 'boardElements') { for (const m of MT().filter((y) => y.element === oldV)) await patchDoc('materials', m.id, { element: newV }); }
   else { for (const c of C().filter((x) => CAT_LIST[x.type] === key && x.category === oldV)) await patchDoc('contacts', c.id, { category: newV }); }
 }
 window.addEventListener('hashchange', () => { const h = (location.hash || '').replace('#', ''); if (VIEWS.some((v) => v.id === h) && h !== S.ui.view) { S.ui.view = h; render(); } else if (h.startsWith('project/') && !(S.ui.view === 'project' && S.ui.pageId === h.slice(8))) { S.ui.view = 'project'; S.ui.pageId = h.slice(8); render(); } else if (h.startsWith('archive/') && !(S.ui.view === 'archive-page' && S.ui.arcPage === h.slice(8))) { S.ui.view = 'archive-page'; S.ui.arcPage = h.slice(8); render(); } });
