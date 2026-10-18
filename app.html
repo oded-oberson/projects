@@ -3288,6 +3288,7 @@ function patchDoc(col, id, patch) {
   return Promise.resolve(true);
 }
 function createDoc(col, id, data) {
+  if (S.ui.refusedCreates && S.ui.refusedCreates.has(pendingKey(col, id))) return Promise.resolve(false); // the server refused this very row once (someone else was first, say) — never loop on it
   snapshot(col, id);
   const body = Object.assign({ createdAt: nowIso(), updatedAt: nowIso() }, data);
   S[col][id] = Object.assign({ id }, body);
@@ -3323,11 +3324,26 @@ function coalescePending() {
   });
   return order.map((k) => groups[k]).filter((g) => !(g.create && g.del));
 }
+/* a write the server REFUSES — no permission, an unknown column, a duplicate key, a broken reference — will never pass on a retry, so that one
+   change is reverted and explained and the rest of the queue goes on (18.10.2026: a staff member's refused stage-row insert had blocked
+   thirteen later edits to a meeting summary behind "אין חיבור?"). Only a failure that may pass next time (no network, a 5xx) stops the queue. */
+const REFUSAL_CODES = /^(42501|42703|42P01|42883|22P02|22007|22008|23502|23503|23505|23514|PGRST100|PGRST102|PGRST204)$/;
+const isRefusal = (e) => REFUSAL_CODES.test(String(e?.code || '')) || /row-level security|violates .* constraint|does not exist|Could not find the .* column|invalid input (syntax|value)/i.test(String(e?.message || ''));
+const TABLE_LABELS = { projects: 'פרויקט', contacts: 'איש קשר', teams: 'צוות', commissions: 'עמלה', tasks: 'משימה', site_visits: 'סיכום / דוח', visit_items: 'סעיף בדוח', files: 'קובץ', milestone_types: 'סוג אבן דרך', project_milestones: 'אבן דרך / שלב', employee_levels: 'רמת ניסיון', work_schedules: 'ימי עבודה', requests: 'בקשה', plan_sets: 'סט תוכניות', materials: 'פריט בלוח החומרים', material_library: 'חומר במאגר', project_spaces: 'תחום / חלל', shoots: 'צילום', shoot_funding: 'מימון צילום', project_shares: 'שיתוף', sunday_requests: 'נושא ליום ראשון', sunday_teams: 'צוות ביום ראשון', time_entries: 'שעות', time_days: 'יום עבודה', project_archive: 'כרטיס ארכיון', press_items: 'פרסום', seats: 'עמדה', settings: 'הגדרות' };
+const tableLabel = (col) => TABLE_LABELS[col] || col;
+/* one row's unsaved edits are dropped and the row goes back to what the server has (a refused create disappears, with its storage object) */
+function revertPendingRow(col, id) {
+  const k = pendingKey(col, id); const snap = S.pending.snaps[k];
+  if (col === 'settings') S.settings = snap; else if (snap) S[col][id] = snap; else delete S[col][id];
+  S.pending.ops.filter((o) => pendingKey(o.col, o.id) === k && o.kind === 'create' && o.col === 'files' && o.data?.path).forEach((o) => { try { sb.storage.from(o.data.bucket || 'project-files').remove([o.data.path]).then(() => {}, () => {}); } catch (e) { /* ignore */ } });
+  S.pending.ops = S.pending.ops.filter((o) => pendingKey(o.col, o.id) !== k);
+  delete S.pending.snaps[k];
+}
 async function commitPending() {
   if (!hasPending()) return true;
   if (S.ui.committing) return false;
   S.ui.committing = true; S.ui.saving++; renderSync(); renderPendingBar();
-  let ok = true;
+  let ok = true; const refused = []; const refetch = new Set();
   const groups = coalescePending();
   const keep = new Set(groups.map((g) => pendingKey(g.col, g.id)));
   S.pending.ops = S.pending.ops.filter((o) => keep.has(pendingKey(o.col, o.id))); // rows created and deleted before saving need no write
@@ -3343,11 +3359,21 @@ async function commitPending() {
       const k = pendingKey(g.col, g.id);
       S.pending.ops = S.pending.ops.filter((o) => pendingKey(o.col, o.id) !== k);
       delete S.pending.snaps[k];
-    } catch (e) { console.error(e); toast('השמירה נכשלה: ' + friendlyError(e)); ok = false; break; }
+    } catch (e) {
+      console.error(e);
+      if (isRefusal(e)) { // this one will never pass: drop it, save the rest
+        refused.push(`${tableLabel(g.col)} — ${friendlyError(e)}`); revertPendingRow(g.col, g.id);
+        if (g.create) { (S.ui.refusedCreates = S.ui.refusedCreates || new Set()).add(pendingKey(g.col, g.id)); if (String(e?.code) === '23505' && TABLES.includes(g.col)) refetch.add(g.col); } // a duplicate key: someone else wrote the row first — fetch theirs
+        continue;
+      }
+      toast('השמירה נכשלה: ' + friendlyError(e)); ok = false; break;
+    }
   }
+  for (const col of refetch) { try { await fetchTable(col); } catch (e) { console.warn('refetch after refusal', col, e); } }
   S.ui.committing = false; S.ui.saving--;
   S.ui.autoSaveFailed = !ok;
-  if (ok) { flashSaved(); if (S.ui.confirmClose) { S.ui.confirmClose = false; closeDrawer(true); return ok; } renderSync(); renderPendingBar(); const bar = document.querySelector('.drawer-save'); if (bar) bar.remove(); return ok; }
+  if (refused.length) { S.ui.lastRefused = refused; toast(`${refused.length === 1 ? 'שינוי אחד בוטל כי השרת דחה אותו' : refused.length + ' שינויים בוטלו כי השרת דחה אותם'}: ${refused[0]}${refused.length > 1 ? ' …' : ''}`); }
+  if (ok) { flashSaved(); if (S.ui.confirmClose) { S.ui.confirmClose = false; closeDrawer(true); return ok; } if (refused.length) { render(); return ok; } renderSync(); renderPendingBar(); const bar = document.querySelector('.drawer-save'); if (bar) bar.remove(); return ok; }
   render();
   return ok;
 }
