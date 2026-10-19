@@ -1286,6 +1286,47 @@
   .dupe-actions { display: flex; flex-direction: column; gap: 6px; align-items: stretch; }
   .dupe-actions .btn { white-space: normal; max-width: 220px; }
   @media (max-width: 720px) { .dupe-pair { grid-template-columns: 1fr; } .dupe-actions { flex-direction: row; flex-wrap: wrap; } }
+  /* ---------- GO+ ---------- */
+  .gop-btn { font-family: var(--font-display); font-weight: 500; font-size: 14.5px; letter-spacing: .03em; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); padding: 4px 9px 3px; cursor: pointer; position: relative; line-height: 1.2; display: inline-flex; align-items: baseline; }
+  .gop-btn, .gop-mark, .nav .nav-gop { direction: ltr; unicode-bidi: isolate; }
+  .gop-btn span, .gop-mark span, .nav-gop .plus { color: var(--go); font-weight: 700; }
+  .gop-btn:hover { border-color: var(--ink); }
+  .gop-btn.has::after { content: ''; position: absolute; top: -5px; inset-inline-end: -5px; width: 10px; height: 10px; border-radius: 50%; background: var(--go); border: 2px solid #fff; }
+  .gop-float { position: fixed; z-index: 32; margin: 0; }
+  @media (max-width: 720px) { .gop-float { top: auto !important; left: auto !important; width: auto !important; height: auto !important; bottom: calc(64px + env(safe-area-inset-bottom, 0px)); inset-inline-end: 12px; box-shadow: var(--shadow); } }
+  .gop-mark { font-family: var(--font-display); font-weight: 500; letter-spacing: .03em; }
+  .gop-mark.big { font-weight: 300; }
+  .nav .nav-gop { font-weight: 500; letter-spacing: .03em; }
+  .nav-count { display: inline-block; margin-inline-start: 5px; min-width: 17px; padding: 0 5px; font-size: 11px; line-height: 17px; text-align: center; background: var(--go); color: #fff; vertical-align: 2px; }
+  .gop-block { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink-2); padding: 7px 12px; font: inherit; font-size: 13px; cursor: pointer; margin-top: 4px; }
+  .gop-block .gop-dot { opacity: .25; }
+  .gop-block.on { border-color: var(--crit); color: var(--crit-ink); background: var(--crit-soft); }
+  .gop-block.on .gop-dot { background: var(--crit); opacity: 1; }
+  .gop-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--go); margin-inline-end: 6px; vertical-align: 1px; flex: none; }
+  .gop-row.unread .li-title { font-weight: 500; }
+  .gop-frame { position: relative; overflow: hidden; border: 1px solid var(--line-2); background: #fff; width: 100%; max-width: 100%; margin: 0 auto; }
+  .gop-frame iframe { position: absolute; top: 0; left: 0; border: 0; transform-origin: 0 0; pointer-events: none; background: #fff; }
+  .gop-frame.full { border: 0; } .gop-frame.full iframe { pointer-events: auto; }
+  .gop-snapwrap.off { opacity: .35; }
+  .gop-thumbs { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .gop-thumb { position: relative; display: inline-block; width: 84px; height: 84px; border: 1px solid var(--line-2); overflow: hidden; background: var(--surface-2); }
+  .gop-thumb.big { width: 132px; height: 132px; cursor: zoom-in; }
+  .gop-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .gop-thumb .x { position: absolute; top: 2px; inset-inline-end: 2px; background: #fff; border: 1px solid var(--line-2); width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; }
+  .gop-thumb .x svg { width: 10px; height: 10px; }
+  .gop-msg { border: 1px solid var(--line); padding: 10px 12px; margin-bottom: 8px; background: var(--surface); }
+  .gop-msg.owner { border-color: var(--ink); }
+  .gop-msg-head { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; color: var(--ink-3); margin-bottom: 4px; }
+  .gop-msg-head strong { color: var(--ink); font-weight: 500; }
+  .gop-msg-body { white-space: pre-wrap; word-break: break-word; }
+  .gop-decision { margin-bottom: 6px; }
+  .gop-ai { border-inline-start: 3px solid var(--go); padding: 8px 12px; background: var(--surface-2); margin-bottom: 10px; }
+  .gop-details summary { cursor: pointer; font-size: 13px; color: var(--ink-2); }
+  .gop-details .role-row { margin-top: 6px; }
+  .gop-fullwrap { position: fixed; inset: 24px; z-index: 48; background: #fff; border: 1px solid var(--rule); display: flex; flex-direction: column; box-shadow: var(--shadow); }
+  .gop-fullhead { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--ink-2); }
+  .gop-fullwrap .gop-frame { flex: none; }
+  @media (max-width: 720px) { .gop-btn { font-size: 13px; padding: 3px 7px 2px; } .gop-fullwrap { inset: 8px; } }
 </style>
 </head>
 <body>
@@ -1297,6 +1338,7 @@
       <nav class="nav" id="nav" aria-label="ניווט ראשי"></nav>
       <div class="head-tools">
         <button class="btn small" id="btn-request" data-action="new-request" hidden title="בקשה או עדכון: פגישה, חופשה, מחלה, איחור"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 4v12M4 10h12"/></svg><span class="btn-text">בקשה</span></button>
+        <button type="button" class="gop-btn" id="btn-gop" data-action="gop-open" hidden title="GO+ — תקלה, רעיון או שאלה על GO">GO<span>+</span></button>
         <span id="bell" class="bell"></span>
         <span id="user-box"></span>
         <span class="sync" id="sync"><span class="sync-dot"></span><span id="sync-text">מתחבר…</span></span>
@@ -1466,10 +1508,11 @@ const VIEWS = [
   { id: 'archive', label: 'ארכיון', archive: true },
   { id: 'commissions', label: 'עמלות', cap: 'money' },
   { id: 'users', label: 'משתמשים', cap: 'users' },
+  { id: 'gop', label: 'GO+', owner: true },
   { id: 'settings', label: 'הגדרות', cap: 'settings_view' },
 ];
 /* a tab exists only for someone who may do something there (capabilities; the archive and the seating have their own rules) */
-const visibleViews = () => VIEWS.filter((v) => (!v.cap || can(v.cap)) && (!v.archive || (typeof canSeeArchive === 'function' && canSeeArchive())) && (!v.seating || (typeof canSeeSeating === 'function' && canSeeSeating())));
+const visibleViews = () => VIEWS.filter((v) => (!v.cap || can(v.cap)) && (!v.owner || isOwner()) && (!v.archive || (typeof canSeeArchive === 'function' && canSeeArchive())) && (!v.seating || (typeof canSeeSeating === 'function' && canSeeSeating())));
 /* ===================== scope: שלי · הצוות · המשרד (10.10.2026) =====================
    Every list opens on what belongs to the person — the role's default — and the switch at its head widens it to the team or the office when
    the person may see that much. The choice is remembered per person (user_prefs.scope): everyone sets their own default by using the switch,
@@ -1905,6 +1948,7 @@ let savedTimer = null;
 function flashSaved() { S.ui.savedFlash = true; renderSync(); clearTimeout(savedTimer); savedTimer = setTimeout(() => { S.ui.savedFlash = false; renderSync(); }, 1800); }
 let toastTimer = null;
 function toast(msg) {
+  if (S.diag) diagPush(S.diag.toasts, { t: nowIso(), m: String(msg).slice(0, 200) }, 20);
   S.ui.toast = msg; renderToast(); clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { S.ui.toast = null; renderToast(); }, 4000);
 }
@@ -1953,12 +1997,13 @@ function render() {
   renderSync();
   renderUserBox();
   renderBell();
+  renderGopButton();
   if (S.ui.view === 'archive-page' && !(typeof canSeeArchive === 'function' && canSeeArchive())) S.ui.view = 'overview';
   if (S.ui.view !== 'report' && S.ui.view !== 'project' && S.ui.view !== 'archive-page' && !visibleViews().some((v) => v.id === S.ui.view)) S.ui.view = 'overview';
   document.body.classList.toggle('report-view', S.ui.view === 'report');
   if (S.dbState === 'error') page.innerHTML = `<div class="banner">טעינת הנתונים נכשלה (${esc(S.error)}). <button class="btn small" data-action="reload-data">נסה שוב</button></div>`;
   else if (S.dbState === 'connecting') page.innerHTML = '<div class="loading">טוען את נתוני המשרד…</div>';
-  else page.innerHTML = { overview: renderOverview, tasks: renderTasks, time: renderTime, meetings: renderMeetings, field: renderField, report: renderReport, projects: renderProjects, project: renderProjectPage, teams: renderTeams, contacts: renderContacts, requests: renderRequests, archive: renderArchive, 'archive-page': renderArchivePage, seating: renderSeating, commissions: renderCommissions, users: renderUsers, settings: renderSettings }[S.ui.view]();
+  else page.innerHTML = { overview: renderOverview, tasks: renderTasks, time: renderTime, meetings: renderMeetings, field: renderField, report: renderReport, projects: renderProjects, project: renderProjectPage, teams: renderTeams, contacts: renderContacts, requests: renderRequests, archive: renderArchive, 'archive-page': renderArchivePage, seating: renderSeating, commissions: renderCommissions, users: renderUsers, settings: renderSettings, gop: renderGop }[S.ui.view]();
   if (S.ui.view === 'report') paginateReport();
   renderOverlay();
   applyFrozen();
@@ -2007,7 +2052,7 @@ function restoreFocus(f) {
 }
 function renderNav() {
   const cur = S.ui.view === 'project' ? 'projects' : S.ui.view === 'archive-page' ? 'archive' : S.ui.view;
-  document.getElementById('nav').innerHTML = visibleViews().map((v) => `<button type="button" data-action="nav" data-view="${v.id}" ${cur === v.id ? 'aria-current="page"' : ''}>${v.label}</button>`).join('');
+  document.getElementById('nav').innerHTML = visibleViews().map((v) => `<button type="button" data-action="nav" data-view="${v.id}" ${cur === v.id ? 'aria-current="page"' : ''} ${v.id === 'gop' ? 'class="nav-gop"' : ''}>${v.id === 'gop' ? `GO<span class="plus">+</span>${gopNewCount() ? `<span class="nav-count">${gopNewCount()}</span>` : ''}` : v.label}</button>`).join('');
 }
 function renderSync() {
   const dot = document.querySelector('#sync .sync-dot'); const txt = document.getElementById('sync-text');
@@ -3032,7 +3077,7 @@ const snake = (k) => k.replace(/[A-Z]/g, (m) => '_' + m.toLowerCase());
 const camel = (k) => k.replace(/_([a-z])/g, (m, c) => c.toUpperCase());
 const toRow = (obj) => { const o = {}; Object.entries(obj).forEach(([k, v]) => { if (k === 'updatedAt' || k === 'createdAt' || k === 'updatedBy') return; o[snake(k)] = v; }); return o; };
 const fromRow = (row) => { const o = {}; Object.entries(row).forEach(([k, v]) => { o[camel(k)] = v; }); return o; };
-const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items', 'seats', 'material_library', 'project_spaces'];
+const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items', 'seats', 'material_library', 'project_spaces', 'support_tickets', 'support_messages'];
 
 S.auth = { status: 'loading', session: null, profile: null, notice: '', error: '' };
 S.profiles = {}; S.invitations = {}; S.audit = [];
@@ -3242,7 +3287,7 @@ function subscribeRealtime() {
     }, 250);
   };
   rtChannel = sb.channel('office-live');
-  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items', 'seats', 'user_permissions', 'material_library', 'project_spaces'].forEach((table) => {
+  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items', 'seats', 'user_permissions', 'material_library', 'project_spaces', 'support_tickets', 'support_messages'].forEach((table) => {
     rtChannel.on('postgres_changes', { event: '*', schema: 'public', table }, () => scheduleRefetch(table));
   });
   rtChannel.subscribe();
@@ -3824,6 +3869,11 @@ function projectTasksSection(p) {
 /* ===================== notifications: bell ===================== */
 const BASE_TITLE = document.title;
 function notifText(n) {
+  if (typeof n.requestId === 'string' && n.requestId.startsWith('gop:')) {
+    const t = S.support_tickets[n.requestId.slice(4)]; const what = t ? gopTitle(t) : 'פנייה ב-GO+';
+    const verb = n.kind === 'gop_new' ? 'שלח/ה פנייה שחוסמת אותו/ה' : n.kind === 'gop_msg' ? 'כתב/ה בפנייה' : n.kind === 'gop_status' ? `החליט/ה: ${t ? (GOP_STATUS[t.status]?.label || '') : ''} —` : 'ענה/תה על הפנייה שלך';
+    return `<strong>${esc(uname(n.actorId, 'מישהו'))}</strong> ${verb} <span class="notif-task">GO+ · ${esc(what)}</span>`;
+  }
   if (typeof n.requestId === 'string' && n.requestId.startsWith('time:')) return `<strong>סוף יום:</strong> כמה שעות על מה היום? ${esc(fmtDate(n.requestId.slice(5)))} <span class="notif-task">שעות</span>`;
   if (typeof n.requestId === 'string' && n.requestId.startsWith('sunday:')) { // the Thursday reminders (kind 'due' + request_id 'sunday:ask|lead:<sunday>')
     const [, what, d] = n.requestId.split(':');
@@ -4105,7 +4155,7 @@ let pickerEl = null;
 function filePicker() {
   if (pickerEl && document.body.contains(pickerEl)) return pickerEl;
   pickerEl = document.createElement('input'); pickerEl.type = 'file'; pickerEl.id = 'file-picker'; pickerEl.hidden = true; pickerEl.setAttribute('aria-hidden', 'true');
-  pickerEl.addEventListener('change', () => { const ctx = pickerEl.__ctx; const files = [...(pickerEl.files || [])]; pickerEl.value = ''; if (ctx && files.length) uploadFiles(files, ctx); });
+  pickerEl.addEventListener('change', () => { const ctx = pickerEl.__ctx; const files = [...(pickerEl.files || [])]; pickerEl.value = ''; if (ctx && files.length) { if (ctx.gop) gopAttach(files); else uploadFiles(files, ctx); } });
   document.body.appendChild(pickerEl);
   return pickerEl;
 }
@@ -5841,6 +5891,363 @@ async function materialsAction(a, ds, t, e) {
 function boardColoursRows(pid) {
   return materialsOf(pid).filter((m) => ['approved', 'ordered'].includes(m.status) && (matColor(m) || (matLib(m) && /צבע|גוון/.test(matLib(m).category || '')))).map((m) => { const lib = matLib(m); const s = S.project_spaces[m.spaceId]; const d = S.project_spaces[m.domainId]; return { where: [d ? d.name : '', s ? spaceLabel(s) : '', m.element].filter(Boolean).join(' · '), maker: lib ? (lib.manufacturer || cname(lib.supplierId, '')) : '', shade: [matName(m), lib && lib.code ? lib.code : ''].filter(Boolean).join(' '), finish: lib ? lib.finish : '', color: matColor(m), id: m.id }; });
 }
+/* ===================== GO+ — תמיכה ושיפורים (19.10.2026) =====================
+   Every employee has a GO+ button in the masthead: a bug, an idea or a question about GO, written in a few words. The screen the person
+   is looking at is captured automatically — a snapshot of GO's own page (the DOM, with the typed values, the open drawer and the scroll
+   position), never another window or app — together with the app's context: where they were, which build, which device, the last
+   actions, toasts and errors. Pictures can be attached. A ticket is private: the reporter sees their own, the owners see everything,
+   decide (בטיפול / בוצע / לא עכשיו / כבר דווח) and answer in a thread; every answer and decision reaches the reporter as a notification.
+   Claude reads the new tickets every morning, writes an analysis (ai_note) for the owners and sends Oded a digest. */
+S.support_tickets = S.support_tickets || {}; S.support_messages = S.support_messages || {};
+S.diag = { start: nowIso(), errors: [], toasts: [], actions: [] };
+const GOP_KINDS = {
+  bug: { label: 'תקלה', sub: 'משהו לא עובד, נתקע, או נשמר לא נכון', ask: 'מה קרה? מה ציפית שיקרה?' },
+  idea: { label: 'רעיון', sub: 'שיפור, משהו שחסר, דרך נוחה יותר לעשות משהו', ask: 'מה היית רוצה שיהיה? איך זה היה עוזר?' },
+  question: { label: 'שאלה', sub: 'איך עושים… איפה זה… למה זה…', ask: 'מה השאלה?' },
+};
+const GOP_STATUS = {
+  new: { label: 'חדש', cls: 'yellow' }, doing: { label: 'בטיפול', cls: 'accent' }, done: { label: 'בוצע', cls: 'green' },
+  later: { label: 'לא עכשיו', cls: 'dim' }, dup: { label: 'כבר דווח', cls: 'dim' },
+};
+const GOP_SEVERITY = { high: { label: 'דחוף', cls: 'red' }, medium: { label: 'בינוני', cls: 'yellow' }, low: { label: 'קל', cls: 'dim' } };
+const GT = () => Object.values(S.support_tickets || {});
+const GM = (tid) => Object.values(S.support_messages || {}).filter((m) => m.ticketId === tid).sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
+const gopTicket = (id) => S.support_tickets[id] || null;
+const gopIsMine = (t) => !!t && t.authorId === me()?.id;
+const gopMayManage = () => isOwner();
+const gopTitle = (t) => { const first = String(t.body || '').split('\n').map((s) => s.trim()).find(Boolean) || ''; return first.length > 90 ? first.slice(0, 88) + '…' : first || GOP_KINDS[t.kind]?.label || 'פנייה'; };
+const gopStatusChip = (t) => { const s = GOP_STATUS[t.status] || GOP_STATUS.new; return `<span class="chip ${s.cls}">${s.label}</span>`; };
+/* ---------- diagnostics ring buffers: what happened before the person pressed GO+ ---------- */
+function diagPush(list, item, max) { list.push(item); if (list.length > max) list.splice(0, list.length - max); }
+function gopTrack(action, ds) {
+  if (!action || action.startsWith('gop')) return;
+  const what = ds.view || ds.tab || ds.kind || ds.status || ds.id || ds.doc || '';
+  diagPush(S.diag.actions, { t: nowIso(), a: action + (what ? ':' + String(what).slice(0, 40) : '') }, 50);
+}
+window.addEventListener('error', (e) => { diagPush(S.diag.errors, { t: nowIso(), m: String((e.error && e.error.message) || e.message || '').slice(0, 300), s: String(e.error && e.error.stack || '').slice(0, 500) }, 15); });
+window.addEventListener('unhandledrejection', (e) => { const r = e.reason; diagPush(S.diag.errors, { t: nowIso(), m: String(r && (r.message || r) || '').slice(0, 300), s: String(r && r.stack || '').slice(0, 500) }, 15); });
+(() => { const ce = console.error.bind(console), cw = console.warn.bind(console); console.error = (...a) => { try { diagPush(S.diag.errors, { t: nowIso(), c: 'error', m: a.map((x) => (x && x.message) || String(x)).join(' ').slice(0, 300) }, 15); } catch (e) { /* ignore */ } ce(...a); }; console.warn = (...a) => { try { diagPush(S.diag.errors, { t: nowIso(), c: 'warn', m: a.map((x) => (x && x.message) || String(x)).join(' ').slice(0, 300) }, 15); } catch (e) { /* ignore */ } cw(...a); }; })();
+/* the build the person is running: the loader fetched app.html?v=<build> */
+function gopBuild() {
+  try { const r = performance.getEntriesByType('resource').map((e) => e.name).find((n) => /app\.html\?v=/.test(n)); if (r) return new URL(r).searchParams.get('v') || ''; } catch (e) { /* ignore */ }
+  return (window.__meta && window.__meta.build) || 'dev';
+}
+function gopContext() {
+  const d = S.ui.drawer; let pid = S.ui.view === 'project' ? S.ui.pageId : null;
+  if (!pid && d && d.kind === 'project') pid = d.id;
+  if (!pid && d && d.kind === 'task' && S.tasks[d.id]) pid = S.tasks[d.id].projectId;
+  if (!pid && d && d.kind === 'visit' && S.site_visits[d.id]) pid = S.site_visits[d.id].projectId;
+  const p = pid ? S.projects[pid] : null;
+  let standalone = false; try { standalone = !!(window.navigator.standalone || matchMedia('(display-mode: standalone)').matches); } catch (e) { /* ignore */ }
+  return {
+    at: nowIso(), build: gopBuild(), url: location.href, view: S.ui.view, pageId: S.ui.pageId || null, drawer: d ? d.kind + ':' + d.id : null,
+    project: p ? { id: p.id, name: p.name } : null, role: myRole(), scope: S.ui.scope || null,
+    ua: navigator.userAgent, lang: navigator.language, platform: navigator.platform || '', standalone, viewport: [innerWidth, innerHeight], screen: [screen.width, screen.height], dpr: devicePixelRatio || 1,
+    online: navigator.onLine, dbState: S.dbState, pending: S.pending.ops.length, autoSaveFailed: !!S.ui.autoSaveFailed, lastRefused: S.ui.lastRefused || null,
+    sessionStart: S.diag.start, errors: S.diag.errors.slice(-12), toasts: S.diag.toasts.slice(-15), actions: S.diag.actions.slice(-40),
+    tz: (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) { return ''; } })(),
+  };
+}
+/* ---------- the automatic screenshot: GO's own page, as it is ---------- */
+function gopCapture() {
+  try {
+    const root = document.documentElement;
+    const clone = root.cloneNode(true);
+    const live = root.querySelectorAll('input, textarea, select'), cl = clone.querySelectorAll('input, textarea, select');
+    live.forEach((el, i) => {
+      const c = cl[i]; if (!c || c.tagName !== el.tagName) return;
+      if (el.tagName === 'TEXTAREA') c.textContent = el.value;
+      else if (el.tagName === 'SELECT') [...el.options].forEach((o, j) => { if (c.options[j]) { if (o.selected) c.options[j].setAttribute('selected', ''); else c.options[j].removeAttribute('selected'); } });
+      else if (el.type === 'checkbox' || el.type === 'radio') { if (el.checked) c.setAttribute('checked', ''); else c.removeAttribute('checked'); }
+      else if (el.type === 'password') c.setAttribute('value', '');
+      else if (el.type !== 'file') c.setAttribute('value', el.value);
+    });
+    const all = root.querySelectorAll('*'), allC = clone.querySelectorAll('*');
+    all.forEach((el, i) => { if ((el.scrollTop > 0 || el.scrollLeft > 0) && allC[i]) allC[i].setAttribute('data-gop-scroll', el.scrollTop + ',' + el.scrollLeft); });
+    clone.querySelectorAll('script, noscript, #file-picker, .gop-float, #toast').forEach((n) => n.remove());
+    clone.setAttribute('data-gop', '1');
+    const head = clone.querySelector('head'); if (head) { const base = document.createElement('base'); base.href = document.baseURI; head.prepend(base); }
+    const restore = '<script>try{document.querySelectorAll("[data-gop-scroll]").forEach(function(el){var p=el.getAttribute("data-gop-scroll").split(",");el.scrollTop=+p[0];el.scrollLeft=+p[1]});window.scrollTo(' + Math.round(scrollX) + ',' + Math.round(scrollY) + ');}catch(e){}<\/script>';
+    const html = '<!doctype html>' + clone.outerHTML.replace(/<\/body>\s*<\/html>\s*$/i, restore + '</body></html>');
+    return { html, w: innerWidth, h: innerHeight, at: nowIso() };
+  } catch (e) { console.warn('gop capture', e); return null; }
+}
+const gopBlobUrl = (html) => URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
+function gopFrame(url, w, h, boxW, opts = {}) {
+  const s = Math.min(1, boxW / w, (opts.maxH || Infinity) / h); const hh = opts.height || Math.round(h * s);
+  return `<div class="gop-frame ${opts.cls || ''}" style="height:${hh}px;width:${opts.height ? '100%' : Math.round(w * s) + 'px'}"><iframe sandbox="allow-scripts" src="${esc(url)}" style="width:${w}px;height:${Math.round(hh / s)}px;transform:scale(${s.toFixed(4)})" title="צילום המסך" loading="lazy"></iframe></div>`;
+}
+const b64FromBuf = (buf) => { const u = new Uint8Array(buf); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
+const bufFromB64 = (b64) => { const s = atob(b64); const u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; };
+async function gopPack(html) {
+  if (typeof CompressionStream === 'function') { try { const buf = await new Response(new Blob([html]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer(); return 'gz:' + b64FromBuf(buf); } catch (e) { /* fall through */ } }
+  return 'raw:' + b64FromBuf(new TextEncoder().encode(html).buffer);
+}
+async function gopUnpack(packed) {
+  if (!packed) return '';
+  if (packed.startsWith('gz:')) { if (typeof DecompressionStream !== 'function') throw new Error('הדפדפן לא יודע לפתוח את הצילום'); return new Response(new Blob([bufFromB64(packed.slice(3))]).stream().pipeThrough(new DecompressionStream('gzip'))).text(); }
+  if (packed.startsWith('raw:')) return new TextDecoder().decode(bufFromB64(packed.slice(4)));
+  return packed;
+}
+/* ---------- badges ---------- */
+const gopNewCount = () => (gopMayManage() ? GT().filter((t) => t.status === 'new').length : 0);
+function gopUnseen() {
+  const uid = me()?.id; if (!uid) return 0;
+  return GT().filter((t) => {
+    const msgs = GM(t.id);
+    if (gopIsMine(t)) { const seen = t.reporterSeenAt || t.createdAt || ''; return (t.decidedAt && t.decidedAt > seen) || msgs.some((m) => m.authorId !== uid && (m.createdAt || '') > seen); }
+    if (gopMayManage()) { const seen = t.ownerSeenAt || ''; return t.status === 'new' ? !seen : msgs.some((m) => m.authorId !== uid && (m.createdAt || '') > seen); }
+    return false;
+  }).length;
+}
+function renderGopButton() {
+  const b = document.getElementById('btn-gop'); if (!b) return;
+  const show = ready() && isMember(); b.hidden = !show; if (!show) return;
+  const n = gopUnseen(); b.classList.toggle('has', n > 0);
+  b.title = n ? `GO+ · ${n === 1 ? 'עדכון אחד' : n + ' עדכונים'} בפניות שלך` : 'GO+ — תקלה, רעיון או שאלה על GO. מגיע לעודד.';
+}
+function gopMarkSeen(t) {
+  const uid = me()?.id; if (!t || !uid) return;
+  const now = nowIso();
+  if (gopIsMine(t)) { if (t.reporterSeenAt && t.reporterSeenAt >= (t.updatedAt || '') && !GM(t.id).some((m) => m.authorId !== uid && (m.createdAt || '') > t.reporterSeenAt)) return; t.reporterSeenAt = now; sb.from('support_tickets').update({ reporter_seen_at: now }).eq('id', t.id).then(() => {}, () => {}); }
+  else if (gopMayManage()) { if (t.ownerSeenAt && !GM(t.id).some((m) => m.authorId !== uid && (m.createdAt || '') > t.ownerSeenAt)) return; t.ownerSeenAt = now; sb.from('support_tickets').update({ owner_seen_at: now }).eq('id', t.id).then(() => {}, () => {}); }
+  renderGopButton(); renderNav();
+}
+/* ---------- the composer ---------- */
+function gopNewForm() {
+  const ctx = gopContext(); // the context of the screen the person is on, before GO+ itself gets in the way
+  const snap = gopCapture();
+  S.ui.gop = { kind: 'bug', blocking: false, files: [], ctx, snap, includeSnap: !!snap, snapUrl: snap ? gopBlobUrl(snap.html) : '', sending: false };
+}
+async function gopAttach(files) {
+  const g = S.ui.gop; if (!g) return;
+  for (const file of [...files].slice(0, 4 - g.files.length)) {
+    if (!/^image\//.test(file.type) && !/\.(jpe?g|png|heic|heif|webp)$/i.test(file.name || '')) { toast('אפשר לצרף תמונות בלבד'); continue; }
+    const shrunk = await shrinkImage(file, 1600, 0.8); if (!shrunk) { toast('לא הצלחתי לקרוא את התמונה'); continue; }
+    const data = await new Promise((res) => { const r = new FileReader(); r.onload = () => res(String(r.result || '').split(',')[1] || ''); r.onerror = () => res(''); r.readAsDataURL(shrunk.blob); });
+    if (!data) continue;
+    g.files.push({ id: uid('ga'), name: file.name || 'image.jpg', mime: 'image/jpeg', w: shrunk.w, h: shrunk.h, data });
+  }
+  render();
+}
+function gopComposer() {
+  const g = S.ui.gop || (gopNewForm(), S.ui.gop);
+  const k = GOP_KINDS[g.kind];
+  const boxW = Math.min(600, innerWidth) - 48;
+  const mine = GT().filter(gopIsMine).sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+  return `
+  <div class="drawer-head">
+    <div style="flex:1;min-width:0"><h2 class="drawer-title"><span class="gop-mark">GO<span>+</span></span></h2><div class="drawer-sub">תקלה, רעיון או שאלה על GO — מגיע ישירות לעודד.</div></div>
+    <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
+  </div>
+  <div class="drawer-body">
+    <div class="section">
+      <div class="field"><label>מה זה</label><span class="seg">${Object.entries(GOP_KINDS).map(([v, m]) => `<button type="button" class="${g.kind === v ? 'on' : ''}" data-action="gop-kind" data-kind="${v}" title="${esc(m.sub)}">${m.label}</button>`).join('')}</span><span class="inline-note">${esc(k.sub)}</span></div>
+      ${field(k.ask, `<textarea id="gop-text" rows="5" placeholder="${esc(g.kind === 'bug' ? 'למשל: לחצתי "שמור" בסיכום הפגישה ונשארה הודעה "לא נשמר"' : g.kind === 'idea' ? 'למשל: שהמשימות של היום יופיעו גם במסך הפתיחה' : 'למשל: איפה רואים את הסטים שיצאו לפרויקט?')}"></textarea>`)}
+      ${g.kind === 'bug' ? `<button type="button" class="gop-block ${g.blocking ? 'on' : ''}" data-action="gop-blocking" title="עודד מקבל התראה מיד"><span class="gop-dot"></span>חוסם אותי — אני לא יכול/ה להמשיך לעבוד בגלל זה</button>` : ''}
+    </div>
+    <div class="section">
+      <h3 class="section-title">צילום המסך</h3>
+      ${g.snap ? `<div class="gop-snapwrap ${g.includeSnap ? '' : 'off'}">${gopFrame(g.snapUrl, g.snap.w, g.snap.h, boxW, { maxH: 440 })}</div>
+      <div class="inline-note" style="margin-top:6px">צולם אוטומטית כשלחצת GO+: המסך של GO כפי שהיה — רק GO, לא חלונות אחרים.</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button type="button" class="btn small" data-action="gop-recapture" title="סוגרים, חוזרים למסך, ומצלמים שוב">${ICON.camera} צלם שוב</button><button type="button" class="btn small ${g.includeSnap ? '' : 'on'}" data-action="gop-snap-toggle">${g.includeSnap ? 'בלי הצילום' : 'עם הצילום'}</button></div>` : '<div class="inline-note">לא הצלחתי לצלם את המסך הפעם — אפשר לצרף תמונה.</div>'}
+    </div>
+    <div class="section">
+      <h3 class="section-title">תמונות <span class="muted">(לא חובה)</span></h3>
+      <div class="gop-thumbs">${g.files.map((f) => `<span class="gop-thumb"><img src="data:${f.mime};base64,${f.data}" alt="${esc(f.name)}"><button type="button" class="x" data-action="gop-file-remove" data-id="${f.id}" title="הסר">${ICON.x}</button></span>`).join('')}${g.files.length < 4 ? pickButton({ gop: 1 }, { cls: 'btn small', accept: 'image/*', html: `${ICON.image} צרף תמונה`, title: 'צילום מסך מהטלפון, תמונה מהמחשב' }) : ''}</div>
+    </div>
+    ${mine.length ? `<div class="section"><h3 class="section-title">הפניות הקודמות שלי</h3><div class="list">${mine.slice(0, 12).map((t) => gopRow(t)).join('')}</div></div>` : ''}
+  </div>
+  <div class="drawer-foot"><span class="inline-note">התשובה תופיע כאן ובהתראות.</span><button class="btn primary" data-action="gop-send" ${g.sending ? 'disabled' : ''}>${g.sending ? 'שולח…' : 'שלח לעודד'}</button></div>`;
+}
+function gopRow(t, opts = {}) {
+  const uid = me()?.id; const msgs = GM(t.id); const last = msgs[msgs.length - 1];
+  const seen = gopIsMine(t) ? (t.reporterSeenAt || t.createdAt || '') : (t.ownerSeenAt || '');
+  const unread = gopIsMine(t) ? ((t.decidedAt && t.decidedAt > seen) || msgs.some((m) => m.authorId !== uid && (m.createdAt || '') > seen)) : (t.status === 'new' ? !seen : msgs.some((m) => m.authorId !== uid && (m.createdAt || '') > seen));
+  const sev = t.aiSeverity && GOP_SEVERITY[t.aiSeverity];
+  return `<div class="list-item gop-row ${unread ? 'unread' : ''}" data-action="gop-open-ticket" data-id="${t.id}">
+    <div class="li-body">
+      <div class="li-title">${unread ? '<span class="gop-dot"></span>' : ''}${esc(gopTitle(t))}</div>
+      <div class="li-sub">${esc(GOP_KINDS[t.kind]?.label || t.kind)}${opts.who ? ' · ' + esc(uname(t.authorId)) : ''} · ${esc(fmtDateTime(t.createdAt))}${t.context?.project?.name ? ' · ' + esc(t.context.project.name) : ''}${last ? ' · ' + esc(uname(last.authorId)) + ': ' + esc(String(last.body || (last.statusTo ? GOP_STATUS[last.statusTo]?.label : '')).slice(0, 60)) : ''}</div>
+    </div>
+    <div class="li-side" style="display:inline-flex;gap:4px;align-items:center">${t.blocking && t.status !== 'done' ? '<span class="chip red">חוסם</span>' : ''}${sev && gopMayManage() ? `<span class="chip ${sev.cls}" title="ניתוח של קלוד">${sev.label}</span>` : ''}${gopStatusChip(t)}</div>
+  </div>`;
+}
+/* ---------- a ticket: the thread ---------- */
+S.ui.gopExtra = S.ui.gopExtra || {};
+async function gopFetchExtra(id) {
+  const x = S.ui.gopExtra[id] = S.ui.gopExtra[id] || { loading: true, files: [], html: '', url: '', error: '' };
+  try {
+    const t = gopTicket(id);
+    const [snap, att] = await Promise.all([
+      t && t.hasSnapshot ? sb.from('support_snapshots').select('*').eq('ticket_id', id).maybeSingle() : Promise.resolve({ data: null }),
+      sb.from('support_attachments').select('*').eq('ticket_id', id).order('created_at'),
+    ]);
+    if (snap.error) throw snap.error; if (att.error) throw att.error;
+    x.files = (att.data || []).map(fromRow);
+    if (snap.data && snap.data.html) { x.html = await gopUnpack(snap.data.html); x.url = gopBlobUrl(x.html); }
+  } catch (e) { x.error = friendlyError(e); }
+  x.loading = false; render();
+}
+function gopContextRows(c) {
+  if (!c || typeof c !== 'object') return '';
+  const rows = [
+    ['איפה', [c.view, c.pageId, c.drawer].filter(Boolean).join(' · ')], c.project ? ['פרויקט', c.project.name] : null,
+    ['גרסה', c.build || ''], ['מכשיר', `${c.platform || ''} · ${c.viewport ? c.viewport.join('×') : ''} · dpr ${c.dpr || 1}${c.standalone ? ' · אפליקציה' : ''}`],
+    ['חיבור', `${c.online === false ? 'לא מקוון' : 'מקוון'} · ${c.dbState || ''}${c.pending ? ' · ' + c.pending + ' שינויים בתור' : ''}${c.autoSaveFailed ? ' · שמירה נכשלה' : ''}`],
+    c.lastRefused && c.lastRefused.length ? ['נדחה', c.lastRefused.join(' | ')] : null,
+    c.errors && c.errors.length ? ['שגיאות', c.errors.slice(-6).map((e) => `${(e.t || '').slice(11, 19)} ${e.m}`).join('\n')] : null,
+    c.toasts && c.toasts.length ? ['הודעות', c.toasts.slice(-8).map((e) => `${(e.t || '').slice(11, 19)} ${e.m}`).join('\n')] : null,
+    c.actions && c.actions.length ? ['פעולות אחרונות', c.actions.slice(-20).map((e) => `${(e.t || '').slice(11, 19)} ${e.a}`).join('\n')] : null,
+    ['דפדפן', c.ua || ''],
+  ].filter(Boolean);
+  return rows.map(([l, v]) => `<div class="role-row"><div class="role-name">${esc(l)}</div><div class="role-body" style="white-space:pre-wrap;word-break:break-word;font-size:12.5px">${esc(v)}</div></div>`).join('');
+}
+function drawerGop(id) {
+  if (id === 'new') return gopComposer();
+  const t = gopTicket(id);
+  if (!t) return `<div class="drawer-head"><h2 class="drawer-title">הפנייה לא נמצאה</h2><button class="icon-btn" data-action="close-drawer">${ICON.x}</button></div>`;
+  const x = S.ui.gopExtra[id]; if (!x) gopFetchExtra(id);
+  gopMarkSeen(t);
+  const manage = gopMayManage(); const uid = me()?.id;
+  const msgs = GM(id); const c = t.context || {};
+  const boxW = Math.min(600, innerWidth) - 48;
+  const vw = Array.isArray(c.viewport) && c.viewport[0] ? c.viewport : [1280, 800];
+  const sev = t.aiSeverity && GOP_SEVERITY[t.aiSeverity];
+  const bubble = (who, when, body, cls, extra = '') => `<div class="gop-msg ${cls}"><div class="gop-msg-head"><strong>${esc(who)}</strong><time>${esc(fmtDateTime(when))}</time></div>${extra}${body ? `<div class="gop-msg-body">${esc(body)}</div>` : ''}</div>`;
+  return `
+  <div class="drawer-head">
+    <div style="flex:1;min-width:0"><h2 class="drawer-title">${esc(GOP_KINDS[t.kind]?.label || t.kind)} <span class="muted" style="font-weight:200">· ${esc(uname(t.authorId))}</span></h2><div class="drawer-sub" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">${gopStatusChip(t)}${t.blocking && t.status !== 'done' ? '<span class="chip red">חוסם</span>' : ''}${sev && manage ? `<span class="chip ${sev.cls}" title="ניתוח של קלוד">${sev.label}</span>` : ''}<span class="muted">${esc(fmtDateTime(t.createdAt))}</span></div></div>
+    <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
+  </div>
+  <div class="drawer-body">
+    <div class="section">${bubble(uname(t.authorId), t.createdAt, t.body, 'reporter')}</div>
+    ${t.hasSnapshot || (x && x.files.length) ? `<div class="section"><h3 class="section-title">המסך</h3>
+      ${!x || x.loading ? '<div class="inline-note">טוען את הצילום…</div>' : x.error ? `<div class="inline-note">${esc(x.error)}</div>` : ''}
+      ${x && x.url ? `${gopFrame(x.url, vw[0], vw[1], boxW, { maxH: 440 })}<div style="display:flex;gap:6px;margin-top:8px;align-items:center"><button type="button" class="btn small" data-action="gop-full" data-id="${t.id}">${ICON.search} פתח בגדול</button><span class="inline-note">${esc(c.view || '')}${c.project ? ' · ' + esc(c.project.name) : ''} · ${vw.join('×')}</span></div>` : ''}
+      ${x && x.files.length ? `<div class="gop-thumbs" style="margin-top:10px">${x.files.map((f, i) => `<span class="gop-thumb big" data-action="gop-img" data-id="${t.id}" data-i="${i}" title="${esc(f.name)}"><img src="data:${esc(f.mime)};base64,${f.data}" alt="${esc(f.name)}"></span>`).join('')}</div>` : ''}
+    </div>` : ''}
+    ${manage ? `<div class="section">${t.aiNote ? `<div class="gop-ai"><div class="gop-msg-head"><strong>הניתוח של קלוד</strong><time>${esc(fmtDateTime(t.aiAt))}</time></div><div class="gop-msg-body">${esc(t.aiNote)}</div></div>` : '<div class="inline-note">קלוד עובר על הפניות החדשות כל בוקר ומצרף כאן ניתוח.</div>'}
+      <details class="gop-details"><summary>פרטים טכניים</summary>${gopContextRows(c)}</details></div>` : ''}
+    <div class="section"><h3 class="section-title">השיחה</h3>
+      ${msgs.length ? msgs.map((m) => bubble(uname(m.authorId), m.createdAt, m.body, m.authorId === t.authorId ? 'reporter' : 'owner', m.statusTo ? `<div class="gop-decision">${gopStatusChip({ status: m.statusTo })}</div>` : '')).join('') : '<div class="inline-note">עוד אין תשובה.</div>'}
+      ${field('', `<textarea id="gop-reply" rows="3" placeholder="${manage ? 'תשובה לעובד/ת — או הערה שמצורפת להחלטה' : 'עוד פרט, תשובה לשאלה…'}"></textarea>`)}
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        <button class="btn primary small" data-action="gop-reply" data-id="${t.id}">שלח</button>
+        ${manage ? `<span class="muted" style="margin-inline-start:6px">החלטה:</span>${['doing', 'done', 'later', 'dup'].map((s) => `<button class="btn small ${t.status === s ? 'on' : ''}" data-action="gop-status" data-id="${t.id}" data-status="${s}" title="${s === 'done' ? 'הפנייה טופלה — העובד/ת מקבל/ת הודעה' : s === 'doing' ? 'נכנס לעבודה' : s === 'later' ? 'לא עכשיו — נשאר ברשימה' : 'כבר דווח — כפילות'}">${GOP_STATUS[s].label}</button>`).join('')}` : ''}
+      </div>
+    </div>
+  </div>
+  <div class="drawer-foot"><span class="inline-note">${t.decidedAt ? `הוחלט ${esc(fmtDateTime(t.decidedAt))} · ${esc(uname(t.decidedBy))}` : ''}</span>${manage ? `<button class="btn small ghost" data-action="gop-delete" data-id="${t.id}" title="מחיקה — לפניות בדיקה או ספאם">מחק</button>` : ''}</div>`;
+}
+/* ---------- the owners' inbox ---------- */
+function renderGop() {
+  if (!gopMayManage()) return '';
+  const tab = S.ui.gopTab || 'open';
+  const all = GT().sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+  const groups = { open: all.filter((t) => t.status === 'new' || t.status === 'doing'), done: all.filter((t) => t.status === 'done'), later: all.filter((t) => t.status === 'later' || t.status === 'dup'), all };
+  const rows = groups[tab] || groups.open;
+  const newN = all.filter((t) => t.status === 'new').length, doingN = all.filter((t) => t.status === 'doing').length;
+  const tabs = [['open', `פתוחות${groups.open.length ? ` · ${groups.open.length}` : ''}`], ['done', `בוצע${groups.done.length ? ` · ${groups.done.length}` : ''}`], ['later', `לא עכשיו${groups.later.length ? ` · ${groups.later.length}` : ''}`], ['all', `הכל · ${all.length}`]];
+  const sorted = tab === 'open' ? rows.slice().sort((a, b) => (b.blocking - a.blocking) || (a.status === 'new' ? -1 : 1) - (b.status === 'new' ? -1 : 1) || (b.createdAt || '').localeCompare(a.createdAt || '')) : rows;
+  return `<div class="view-head">
+    <div><h1 class="view-title"><span class="gop-mark big">GO<span>+</span></span></h1><div class="view-sub">תקלות, רעיונות ושאלות מהמשרד. ${newN ? `${newN === 1 ? 'פנייה חדשה אחת' : newN + ' פניות חדשות'}` : 'אין פניות חדשות'}${doingN ? ` · ${doingN} בטיפול` : ''}. קלוד מצרף ניתוח כל בוקר — ההחלטה שלך.</div></div>
+    <div class="view-actions"><button class="btn primary" data-action="gop-open">${ICON.plus} פנייה חדשה</button></div>
+  </div>
+  <div class="tabs">${tabs.map(([id, label]) => `<button type="button" class="tab ${tab === id ? 'on' : ''}" data-action="gop-tab" data-tab="${id}">${label}</button>`).join('')}</div>
+  <div class="panel">${sorted.length ? `<div class="list">${sorted.map((t) => gopRow(t, { who: true })).join('')}</div>` : `<div class="empty">${tab === 'open' ? 'אין פניות פתוחות. כשמישהו ילחץ GO+ — זה יופיע כאן.' : 'אין פניות.'}</div>`}</div>`;
+}
+/* with a drawer open the masthead is under the scrim — a clone of the GO+ button floats above it, exactly where the real one is */
+function gopFloat() {
+  const b = document.getElementById('btn-gop'); if (!b || b.hidden || !S.ui.drawer || S.ui.drawer.kind === 'gop') return '';
+  const r = b.getBoundingClientRect(); if (!r.width) return '';
+  return `<button type="button" class="gop-btn gop-float ${b.classList.contains('has') ? 'has' : ''}" data-action="gop-open" style="top:${Math.round(r.top)}px;left:${Math.round(r.left)}px;width:${Math.round(r.width)}px;height:${Math.round(r.height)}px" title="${esc(b.title)}">GO<span>+</span></button>`;
+}
+window.addEventListener('resize', () => { const f = document.querySelector('.gop-float'); const b = document.getElementById('btn-gop'); if (f && b) { const r = b.getBoundingClientRect(); f.style.top = Math.round(r.top) + 'px'; f.style.left = Math.round(r.left) + 'px'; } });
+function gopModals() {
+  let html = gopFloat();
+  if (S.ui.gopFull) {
+    const x = S.ui.gopExtra[S.ui.gopFull]; const t = gopTicket(S.ui.gopFull); const c = (t && t.context) || {}; const vw = Array.isArray(c.viewport) && c.viewport[0] ? c.viewport : [1280, 800];
+    const pad = innerWidth <= 720 ? 8 : 24; const boxW = innerWidth - pad * 2 - 2, boxH = innerHeight - pad * 2 - 42; // the frame keeps the reporter's viewport width and scrolls like their page
+    if (x && x.url) html += `<div class="scrim" style="z-index:47;background:rgba(0,0,0,.6)" data-action="gop-full-close"></div><div class="gop-fullwrap"><div class="gop-fullhead"><span>המסך כפי שהיה אצל ${esc(uname(t?.authorId))} · ${vw.join('×')}</span><button class="icon-btn" data-action="gop-full-close" title="סגור">${ICON.x}</button></div>${gopFrame(x.url, vw[0], vw[1], boxW, { height: boxH, cls: 'full' })}</div>`;
+  }
+  if (S.ui.gopImg) { const { id, i } = S.ui.gopImg; const f = (S.ui.gopExtra[id]?.files || [])[i]; if (f) html += `<div class="scrim" style="z-index:47;background:rgba(0,0,0,.82)" data-action="gop-img-close"></div><div class="lightbox" data-action="gop-img-close"><img src="data:${esc(f.mime)};base64,${f.data}" alt="${esc(f.name)}"><div class="lightbox-cap">${esc(f.name)}</div></div>`; }
+  if (S.ui.confirm && String(S.ui.confirm).startsWith('gopdel:')) { const t = gopTicket(S.ui.confirm.slice(7)); html += `<div class="scrim" style="z-index:45" data-action="cancel-confirm"></div><div class="modal"><h3 style="margin:0 0 8px">מחיקת הפנייה</h3><p>הפנייה של <strong>${esc(uname(t?.authorId))}</strong> — "${esc(t ? gopTitle(t) : '')}" — תימחק עם הצילום, התמונות והשיחה. לא ניתן לבטל.</p><div style="display:flex;gap:8px"><button class="btn primary" data-action="gop-delete-go">מחק</button><button class="btn" data-action="cancel-confirm">בטל</button></div></div>`; }
+  return html;
+}
+/* ---------- writes ---------- */
+async function gopSend() {
+  const g = S.ui.gop; if (!g || g.sending) return;
+  const text = (document.getElementById('gop-text')?.value || '').trim();
+  if (!text) { toast('כמה מילים — מה קרה, או מה הרעיון'); document.getElementById('gop-text')?.focus(); return; }
+  g.sending = true; render();
+  const id = uid('gp'); const ctx = Object.assign({}, g.ctx || gopContext(), { sentAt: nowIso(), online: navigator.onLine, pending: S.pending.ops.length, autoSaveFailed: !!S.ui.autoSaveFailed }); const snap = g.includeSnap && g.snap ? g.snap : null; const files = g.files.slice();
+  const row = { id, author_id: me().id, kind: g.kind, body: text, blocking: g.kind === 'bug' && !!g.blocking, status: 'new', context: ctx, has_snapshot: !!snap, attachments: files.length };
+  let ok = await write(() => sb.from('support_tickets').insert(row), false);
+  if (!ok) { g.sending = false; render(); return; }
+  if (snap) { const html = await gopPack(snap.html); const okSnap = await write(() => sb.from('support_snapshots').insert({ ticket_id: id, html, bytes: snap.html.length }), false); if (!okSnap) sb.from('support_tickets').update({ has_snapshot: false }).eq('id', id).then(() => {}, () => {}); }
+  for (const f of files) await write(() => sb.from('support_attachments').insert({ id: f.id, ticket_id: id, author_id: me().id, name: f.name, mime: f.mime, w: f.w, h: f.h, data: f.data }), false);
+  const now = nowIso();
+  S.support_tickets[id] = fromRow(Object.assign({}, row, { has_snapshot: !!snap, created_at: now, updated_at: now, reporter_seen_at: now }));
+  if (g.snapUrl) { try { URL.revokeObjectURL(g.snapUrl); } catch (e) { /* ignore */ } }
+  S.ui.gop = null; S.ui.gopExtra[id] = { loading: false, files, html: snap ? snap.html : '', url: snap ? gopBlobUrl(snap.html) : '', error: '' };
+  toast(row.blocking ? 'נשלח. עודד מקבל התראה עכשיו.' : 'נשלח. תודה — עודד יראה את זה.');
+  openDrawer('gop', id);
+}
+async function gopReply(id, statusTo) {
+  const t = gopTicket(id); if (!t) return;
+  const ta = document.getElementById('gop-reply'); const body = (ta?.value || '').trim();
+  if (!statusTo && !body) { ta?.focus(); return; }
+  const mid = uid('gm'); const now = nowIso();
+  if (statusTo) {
+    if (!gopMayManage()) return;
+    const prev = t.status; t.status = statusTo; t.decidedAt = now; t.decidedBy = me().id; render();
+    const ok = await write(() => sb.from('support_tickets').update({ status: statusTo }).eq('id', id), false);
+    if (!ok) { t.status = prev; render(); return; }
+  }
+  if (body || statusTo) {
+    const row = { id: mid, ticket_id: id, author_id: me().id, body, status_to: statusTo || null };
+    S.support_messages[mid] = fromRow(Object.assign({}, row, { created_at: now }));
+    const ta2 = document.getElementById('gop-reply'); if (ta2) ta2.value = ''; // the box as it is now (a render may have rebuilt it)
+    render();
+    const ok = await write(() => sb.from('support_messages').insert(row), false);
+    if (!ok) { delete S.support_messages[mid]; render(); return; }
+  }
+  if (statusTo) toast(`סומן "${GOP_STATUS[statusTo].label}" — ${uname(t.authorId)} מקבל/ת הודעה`); else flashSaved();
+}
+async function gopAction(a, ds, t, e) {
+  switch (a) {
+    case 'gop-open': { if (!isMember()) return true; S.ui.gopReturn = S.ui.drawer && S.ui.drawer.kind !== 'gop' ? S.ui.drawer : null; gopNewForm(); openDrawer('gop', 'new'); return true; }
+    case 'gop-open-ticket': { e.stopPropagation(); openDrawer('gop', ds.id); return true; }
+    case 'gop-kind': { if (S.ui.gop) S.ui.gop.kind = ds.kind; render(); return true; }
+    case 'gop-blocking': { if (S.ui.gop) S.ui.gop.blocking = !S.ui.gop.blocking; render(); return true; }
+    case 'gop-snap-toggle': { if (S.ui.gop) S.ui.gop.includeSnap = !S.ui.gop.includeSnap; render(); return true; }
+    case 'gop-recapture': {
+      const g = S.ui.gop; if (!g) return true;
+      const keep = { kind: g.kind, blocking: g.blocking, files: g.files, text: document.getElementById('gop-text')?.value || '' };
+      S.ui.drawer = S.ui.gopReturn || null; render(); // back to the screen (with the drawer that was open), capture, and return
+      setTimeout(() => { const ctx = gopContext(); const snap = gopCapture(); S.ui.gop = Object.assign({}, g, { ctx, snap, includeSnap: !!snap, snapUrl: snap ? gopBlobUrl(snap.html) : '', sending: false }, keep); S.ui.drawer = { kind: 'gop', id: 'new' }; render(); const ta = document.getElementById('gop-text'); if (ta) ta.value = keep.text; }, 60);
+      return true;
+    }
+    case 'gop-file-remove': { if (S.ui.gop) S.ui.gop.files = S.ui.gop.files.filter((f) => f.id !== ds.id); render(); return true; }
+    case 'gop-send': await gopSend(); return true;
+    case 'gop-reply': await gopReply(ds.id, null); return true;
+    case 'gop-status': await gopReply(ds.id, ds.status); return true;
+    case 'gop-tab': S.ui.gopTab = ds.tab; render(); return true;
+    case 'gop-full': S.ui.gopFull = ds.id; render(); return true;
+    case 'gop-full-close': S.ui.gopFull = null; render(); return true;
+    case 'gop-img': { e.stopPropagation(); S.ui.gopImg = { id: ds.id, i: Number(ds.i) }; render(); return true; }
+    case 'gop-img-close': S.ui.gopImg = null; render(); return true;
+    case 'gop-delete': { if (!gopMayManage()) return true; S.ui.confirm = 'gopdel:' + ds.id; render(); return true; }
+    case 'gop-delete-go': {
+      const id = String(S.ui.confirm || '').slice(7); S.ui.confirm = null; if (!gopMayManage() || !id) { render(); return true; }
+      const ok = await write(() => sb.from('support_tickets').delete().eq('id', id), false);
+      if (ok) { delete S.support_tickets[id]; Object.keys(S.support_messages).forEach((k) => { if (S.support_messages[k].ticketId === id) delete S.support_messages[k]; }); delete S.ui.gopExtra[id]; if (S.ui.drawer?.kind === 'gop' && S.ui.drawer.id === id) S.ui.drawer = null; toast('הפנייה נמחקה'); }
+      render(); return true;
+    }
+    default: return false;
+  }
+}
 /* ===================== photoshoot & publication (צילום ופרסום) ===================== */
 /* When a project reaches handover a shoot opens by itself (a manager can open one by hand too): a card on the project page with the
    steps of the office procedure as tasks — each assigned by office function (management, administration, PR, social, the project lead) —
@@ -7321,7 +7728,7 @@ function renderOverlay() {
   const d = S.ui.drawer;
   let html = '';
   if (d) {
-    const body = d.kind === 'project' ? drawerProject(d.id) : d.kind === 'contact' ? drawerContact(d.id) : d.kind === 'import' ? drawerImport() : d.kind === 'task' ? drawerTask(d.id) : d.kind === 'visit' ? drawerVisit(d.id) : d.kind === 'request' ? drawerRequest(d.id) : d.kind === 'request-new' ? drawerNewRequest() : d.kind === 'material' ? drawerMaterial(d.id) : d.kind === 'library' ? drawerLibrary(d.id) : d.kind === 'seat' ? drawerSeat(d.id) : d.kind === 'room' ? drawerRoom(d.id) : d.kind === 'password' ? drawerPassword() : d.kind === 'prefs' ? drawerPrefs() : drawerCommission(d.id);
+    const body = d.kind === 'project' ? drawerProject(d.id) : d.kind === 'contact' ? drawerContact(d.id) : d.kind === 'import' ? drawerImport() : d.kind === 'task' ? drawerTask(d.id) : d.kind === 'visit' ? drawerVisit(d.id) : d.kind === 'request' ? drawerRequest(d.id) : d.kind === 'request-new' ? drawerNewRequest() : d.kind === 'material' ? drawerMaterial(d.id) : d.kind === 'library' ? drawerLibrary(d.id) : d.kind === 'gop' ? drawerGop(d.id) : d.kind === 'seat' ? drawerSeat(d.id) : d.kind === 'room' ? drawerRoom(d.id) : d.kind === 'password' ? drawerPassword() : d.kind === 'prefs' ? drawerPrefs() : drawerCommission(d.id);
     const pend = hasPending() && S.ui.autoSaveFailed ? `<div class="drawer-save"><span>${pendingCount() === 1 ? 'שינוי אחד לא נשמר' : pendingCount() + ' שינויים לא נשמרו'} — אין חיבור?</span><button class="btn primary small" data-action="pending-save" ${S.ui.committing ? 'disabled' : ''}>${S.ui.committing ? 'שומר…' : 'שמור שוב'}</button><button class="btn small" data-action="pending-discard" ${S.ui.committing ? 'disabled' : ''}>בטל</button></div>` : '';
     html += `<div class="scrim" data-action="close-drawer"></div><aside class="drawer" role="dialog" aria-modal="true" data-key="${esc(drawerKey())}">${body}${pend}</aside>`;
   }
@@ -7329,6 +7736,7 @@ function renderOverlay() {
   if (S.ui.confirmClose) html += `<div class="scrim" style="z-index:45" data-action="close-keep"></div><div class="modal"><h3 style="margin:0 0 8px">שינויים שלא נשמרו</h3><p>יש ${pendingCount() === 1 ? 'שינוי אחד' : pendingCount() + ' שינויים'} שעדיין לא נשמרו. מה לעשות?</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" data-action="close-save">שמור וסגור</button><button class="btn" data-action="close-discard">בטל את השינויים</button><button class="btn ghost" data-action="close-keep">המשך עריכה</button></div></div>`;
   if (S.ui.confirm && String(S.ui.confirm).startsWith('libmerge:')) { const [, from, into] = S.ui.confirm.split(':'); const f = S.material_library[from], t = S.material_library[into]; html += `<div class="scrim" style="z-index:45" data-action="cancel-confirm"></div><div class="modal"><h3 style="margin:0 0 8px">מיזוג חומרים במאגר</h3><p>כל הפריטים והתמונות של <strong>${esc(f?.name || '')}</strong> יעברו אל <strong>${esc(t?.name || '')}</strong>, והרשומה הראשונה תוסר מהמאגר. לא ניתן לבטל.</p><div style="display:flex;gap:8px;justify-content:flex-start"><button class="btn primary" data-action="libmerge-go">מזג</button><button class="btn" data-action="cancel-confirm">בטל</button></div></div>`; }
   if (S.ui.confirmMerge) { const m = S.ui.confirmMerge; html += `<div class="scrim" style="z-index:45" data-action="merge-cancel"></div><div class="modal"><h3 style="margin:0 0 8px">מיזוג רשומות</h3><p>כל הקישורים של <strong>${esc(cname(m.from))}</strong> יעברו אל <strong>${esc(cname(m.into))}</strong>, והרשומה הראשונה תימחק. פרטים חסרים ברשומה היעד יושלמו מהרשומה שנמחקת.</p><div style="display:flex;gap:8px;justify-content:flex-start"><button class="btn primary" data-action="merge-confirm">מזג</button><button class="btn" data-action="merge-cancel">בטל</button></div></div>`; }
+  html += gopModals();
   html += renderLightbox();
   ov.innerHTML = html + `<datalist id="dl-roles">${settings().teamRoles.map((r) => `<option value="${esc(r)}">`).join('')}</datalist><datalist id="dl-mstypes">${list('milestone_types').sort((a, b) => (Number(b.usage) || 0) - (Number(a.usage) || 0)).slice(0, 120).map((t) => `<option value="${esc(t.name)}">`).join('')}</datalist><datalist id="dl-waiting">${['לקוח', 'יועץ', 'קבלן', 'ספק', 'עירייה / ועדה', 'מנהל פרויקט'].map((r) => `<option value="${r}">`).join('')}</datalist>`;
   renderMenu();
@@ -7337,7 +7745,8 @@ function openDrawer(kind, id) { S.ui.menu = null; S.ui.confirm = null; S.ui.draw
 function closeDrawer(force) {
   if (!force && drawerHasPending() && S.ui.autoSaveFailed) { S.ui.confirmClose = true; S.ui.menu = null; render(); return; }
   if (!force && drawerHasPending() && !S.ui.committing) scheduleAutoCommit(0); // the pending edits save in the background
-  S.ui.drawer = null; S.ui.menu = null; S.ui.confirm = null; S.ui.confirmClose = false; S.ui.drafts = {}; render();
+  const wasGop = !!S.ui.drawer && S.ui.drawer.kind === 'gop';
+  S.ui.drawer = wasGop && S.ui.gopReturn ? S.ui.gopReturn : null; S.ui.gopReturn = null; S.ui.menu = null; S.ui.confirm = null; S.ui.confirmClose = false; S.ui.drafts = {}; render();
 }
 
 function pickerChips(p, role, col = 'projects') {
@@ -8505,10 +8914,12 @@ document.addEventListener('click', async (e) => {
   const t = e.target.closest('[data-action]');
   if (!t) return;
   const a = t.dataset.action; const ds = t.dataset;
+  if (S.diag) gopTrack(a, ds);
   if (t.tagName === 'A' && t.target !== '_blank') e.preventDefault(); // external links (target=_blank) keep their default: open in a new tab
   if (await fieldAction(a, ds, t, e)) return;
   if (await filesAction(a, ds, t, e)) return;
   if (await projectAction(a, ds, t, e)) return;
+  if (await gopAction(a, ds, t, e)) return;
   if (await materialsAction(a, ds, t, e)) return;
   if (await shootAction(a, ds, t, e)) return;
   if (await meetingsAction(a, ds, t, e)) return;
@@ -8659,7 +9070,7 @@ document.addEventListener('click', async (e) => {
     case 'comment-delete': { S.taskComments[ds.task] = (S.taskComments[ds.task] || []).filter((c) => c.id !== ds.id); render(); await write(() => sb.from('task_comments').delete().eq('id', ds.id)); break; }
     case 'mention-open': { e.stopPropagation(); openMenu(t, { search: true, placeholder: 'את מי לתייג?', items: mentionCandidates(''), onPick: (it) => { const ta = document.getElementById('comment-' + ds.id); if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); if (ta.value && !/\s$/.test(ta.value)) { ta.value += ' '; } } insertMention(ds.id, it.value, 0); } }); break; }
     case 'bell-toggle': e.stopPropagation(); S.ui.bell = !S.ui.bell; renderBell(); break;
-    case 'notif-open': { e.stopPropagation(); const n = S.notifications.find((x) => String(x.id) === String(ds.id)); S.ui.bell = false; if (n && !n.readAt) markRead([n.id]); else renderBell(); if (ds.request && ds.request.startsWith('time:')) { S.ui.timeWho = null; S.ui.timeDate = ds.request.slice(5); nav('time'); } else if (ds.request && ds.request.startsWith('sunday:')) { S.ui.mtab = 'sunday'; S.ui.sundayDate = null; nav('meetings'); } else if (ds.request) { if (S.requests[ds.request]) openDrawer('request', ds.request); else toast('הבקשה כבר לא קיימת'); } else if (ds.task && S.tasks[ds.task]) { openDrawer('task', ds.task); if (!S.taskComments[ds.task]) fetchComments(ds.task).then(render); } else toast('המשימה כבר לא קיימת'); break; }
+    case 'notif-open': { e.stopPropagation(); const n = S.notifications.find((x) => String(x.id) === String(ds.id)); S.ui.bell = false; if (n && !n.readAt) markRead([n.id]); else renderBell(); if (ds.request && ds.request.startsWith('gop:')) { const gid = ds.request.slice(4); if (S.support_tickets[gid]) openDrawer('gop', gid); else toast('הפנייה כבר לא קיימת'); } else if (ds.request && ds.request.startsWith('time:')) { S.ui.timeWho = null; S.ui.timeDate = ds.request.slice(5); nav('time'); } else if (ds.request && ds.request.startsWith('sunday:')) { S.ui.mtab = 'sunday'; S.ui.sundayDate = null; nav('meetings'); } else if (ds.request) { if (S.requests[ds.request]) openDrawer('request', ds.request); else toast('הבקשה כבר לא קיימת'); } else if (ds.task && S.tasks[ds.task]) { openDrawer('task', ds.task); if (!S.taskComments[ds.task]) fetchComments(ds.task).then(render); } else toast('המשימה כבר לא קיימת'); break; }
     // ----- requests & updates -----
     case 'new-request': { if (!isMember()) break; S.ui.reqForm = null; openDrawer('request-new'); break; }
     case 'open-request': { if (S.requests[ds.id]) openDrawer('request', ds.id); break; }
