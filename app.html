@@ -1541,15 +1541,21 @@ function scopeOf(list) {
   const opts = scopeOptions(list); const ok = (v) => (v && opts.includes(v) ? v : null);
   return ok(S.ui.scope && S.ui.scope[list]) || ok(S.prefs.scope && S.prefs.scope[list]) || ok(roleScope(list)) || opts[0];
 }
+/* the "הכול" tab of the tasks opens on the widest the person may see — the office for management, the team for a team lead, themselves for
+   everyone else — unless they chose otherwise with the switch (remembered like every scope) */
+function tasksAllScope() {
+  const opts = scopeOptions('tasks'); const ok = (v) => (v && opts.includes(v) ? v : null);
+  return ok(S.ui.scope && S.ui.scope.tasks) || ok(S.prefs.scope && S.prefs.scope.tasks) || opts[opts.length - 1];
+}
 function setScope(list, v) {
   if (!scopeOptions(list).includes(v)) return;
   S.ui.scope = S.ui.scope || {}; S.ui.scope[list] = v;
   savePrefs({ scope: Object.assign({}, S.prefs.scope || {}, { [list]: v }) });
   render();
 }
-function scopeSwitch(list, counts) {
+function scopeSwitch(list, counts, current) {
   const opts = scopeOptions(list); if (opts.length < 2) return '';
-  const cur = scopeOf(list);
+  const cur = current || scopeOf(list);
   return `<div class="scope" role="group" aria-label="היקף">${opts.map((o) => `<button type="button" class="${cur === o ? 'on' : ''}" data-action="scope" data-list="${list}" data-scope="${o}">${SCOPE_LABELS[o]}${counts && counts[o] != null ? `<small>${counts[o]}</small>` : ''}</button>`).join('')}</div>`;
 }
 /* involvement in a project: lead, project manager, member, a task of mine in it, an explicit share with me or my team, or a parent I am in;
@@ -3770,11 +3776,19 @@ function renderTasks() {
     body = taskBoard(arr, quickAdd('task-quick', 'משימה משרדית חדשה… (Enter)', 'data-scope="office"'));
   } else {
     const f = S.ui.tfilter; const q = norm(f.q);
-    let arr = TK().filter((t) => (f.done ? true : isOpenTask(t)) && (!f.assignee || (f.assignee === 'none' ? !t.assigneeId : t.assigneeId === f.assignee)) && (!f.project || (f.project === 'office' ? !t.projectId : t.projectId === f.project)) && (!f.status || t.status === f.status) && (!f.priority || t.priority === f.priority) && (!q || norm([t.title, t.description, S.projects[t.projectId]?.name, uname(t.assigneeId, ''), t.waitingOn].join(' ')).includes(q)));
+    /* "הכול" follows the person's scope (19.10.2026): what is on me or what I opened; the team's, for a team lead; the whole office only with
+       the tasks_all capability. The database already hands a member the tasks of their projects — that is for the project boards, not for a list of the office. */
+    const sc = tasksAllScope();
+    const inScope = (t) => sc === 'office' ? true : sc === 'team' ? (t.assigneeId === myId || t.createdBy === myId || teamUids.has(t.assigneeId) || (!!t.projectId && tids.includes(S.projects[t.projectId]?.teamId))) : (t.assigneeId === myId || t.createdBy === myId);
+    const scoped = TK().filter(inScope);
+    const counts = {}; scopeOptions('tasks').forEach((o) => { counts[o] = TK().filter((t) => isOpenTask(t) && (o === 'office' ? true : o === 'team' ? (t.assigneeId === myId || t.createdBy === myId || teamUids.has(t.assigneeId) || (!!t.projectId && tids.includes(S.projects[t.projectId]?.teamId))) : (t.assigneeId === myId || t.createdBy === myId))).length; });
+    let arr = scoped.filter((t) => (f.done ? true : isOpenTask(t)) && (!f.assignee || (f.assignee === 'none' ? !t.assigneeId : t.assigneeId === f.assignee)) && (!f.project || (f.project === 'office' ? !t.projectId : t.projectId === f.project)) && (!f.status || t.status === f.status) && (!f.priority || t.priority === f.priority) && (!q || norm([t.title, t.description, S.projects[t.projectId]?.name, uname(t.assigneeId, ''), t.waitingOn].join(' ')).includes(q)));
     arr = sortTasks(arr);
+    const people = sc === 'office' ? activeUsers() : sc === 'team' ? activeUsers().filter((u) => u.id === myId || teamUids.has(u.id) || scoped.some((t) => t.assigneeId === u.id)) : activeUsers().filter((u) => u.id === myId || scoped.some((t) => t.assigneeId === u.id));
     body = `<div class="filters">
+      ${scopeSwitch('tasks', counts, sc)}
       <div class="search">${ICON.search}<input type="search" id="tf-q" placeholder="חיפוש משימה…" value="${esc(f.q)}"></div>
-      ${selectHtml('tf-assignee', f.assignee, [...activeUsers().map((u) => ({ value: u.id, label: uname(u.id) })), { value: 'none', label: 'ללא אחראי' }], { blank: 'כל האחראים' })}
+      ${selectHtml('tf-assignee', f.assignee, [...people.map((u) => ({ value: u.id, label: uname(u.id) })), { value: 'none', label: 'ללא אחראי' }], { blank: 'כל האחראים' })}
       ${selectHtml('tf-project', f.project, [{ value: 'office', label: 'משימות משרדיות' }, ...P().filter((x) => x.state === 'active').sort(byName).map((x) => ({ value: x.id, label: x.name }))], { blank: 'כל הפרויקטים' })}
       ${selectHtml('tf-status', f.status, TASK_ORDER.map((s) => ({ value: s, label: TASK_STATUS[s].label })), { blank: 'כל הסטטוסים' })}
       ${selectHtml('tf-priority', f.priority, [{ value: 'urgent', label: 'דחוף' }, { value: 'normal', label: 'רגיל' }], { blank: 'כל העדיפויות' })}
@@ -3785,7 +3799,7 @@ function renderTasks() {
   }
   return `
   <div class="view-head">
-    <div><h1 class="view-title">משימות</h1><div class="view-sub">${tab === 'mine' ? 'מה מחכה לך, לפי דחיפות ותאריך. לחיצה על העיגול מסמנת כבוצע.' : tab === 'team' ? 'המשימות הפתוחות של הצוות, לפי אנשים.' : tab === 'project' ? 'לוח משימות לכל פרויקט: לביצוע, בעבודה, ממתין, בוצע.' : tab === 'office' ? 'משימות שלא שייכות לפרויקט: אדמיניסטרציה, שיווק, משרד.' : 'כל המשימות במשרד, עם סינון.'}</div></div>
+    <div><h1 class="view-title">משימות</h1><div class="view-sub">${tab === 'mine' ? 'מה מחכה לך, לפי דחיפות ותאריך. לחיצה על העיגול מסמנת כבוצע.' : tab === 'team' ? 'המשימות הפתוחות של הצוות, לפי אנשים.' : tab === 'project' ? 'לוח משימות לכל פרויקט: לביצוע, בעבודה, ממתין, בוצע.' : tab === 'office' ? 'משימות שלא שייכות לפרויקט: אדמיניסטרציה, שיווק, משרד.' : tasksAllScope() === 'office' ? 'כל המשימות במשרד, עם סינון.' : tasksAllScope() === 'team' ? 'כל המשימות של הצוות, עם סינון.' : 'כל המשימות שלך — מה שמוטל עליך ומה שפתחת לאחרים — עם סינון.'}</div></div>
     <div class="view-actions">${canWriteTasks() ? `<button class="btn primary" data-action="new-task">${ICON.plus} משימה חדשה</button>` : ''}</div>
   </div>
   <div class="tabs">${tabs.map(([id, l, n]) => `<button type="button" class="${tab === id ? 'on' : ''}" data-action="ttab" data-tab="${id}">${l}${n ? `<span class="tab-badge">${n}</span>` : ''}</button>`).join('')}</div>
