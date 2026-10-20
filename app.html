@@ -441,6 +441,8 @@
   .step.late .step-sub { color: var(--stg-late); font-weight: 600; }
   .step.stuck .step-sub { color: #a85b12; font-weight: 600; }
   .stage-confirm { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 10px; margin-bottom: 8px; border: 1px solid var(--warn); background: var(--warn-soft); font-size: 13px; }
+  .journey-strip-tools { display: flex; justify-content: flex-end; margin: -2px 0 2px; }
+  .se-row .confirm-inline { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   @media (max-width: 720px) {
     .step-dot { width: 26px; height: 26px; font-size: 11.5px; }
     .step::before { top: 13px; }
@@ -1398,6 +1400,13 @@
   .rp-total { margin-top: 2px; }
   .rp-sum { font-weight: 500; border-bottom: 2px solid var(--rule); border-top: 1px solid var(--rule); }
   @media (max-width: 720px) { .rp-pi { grid-template-columns: 84px minmax(0, 1fr); } .rp-pi-img { width: 84px; height: 64px; } .rp-pi-side { grid-column: 2; } .rp-po-row { grid-template-columns: 22px minmax(0, 1fr) 70px 46px 60px 66px; font-size: 11px; } }
+  .rp-pages.ltr .rp-page, .rp-doc.ltr { direction: ltr; }
+  .rp-pages.nopics .rp-pi, .rp-doc.nopics .rp-pi { grid-template-columns: minmax(0, 1fr) 150px; padding: 5px 0; }
+  .rp-pages.nopics .rp-pi-img, .rp-doc.nopics .rp-pi-img { display: none; }
+  .rp-pages.pdf-mode.nopics .rp-pi { grid-template-columns: minmax(0, 1fr) 150px !important; }
+  .rp-pages.ltr .rp-titles, .rp-doc.ltr .rp-titles { text-align: right; }
+  .rp-pages.ltr .rp-pi-side, .rp-doc.ltr .rp-pi-side { text-align: right; }
+  .rp-pages.ltr .rp-kv strong, .rp-doc.ltr .rp-kv strong { font-variant-numeric: tabular-nums; }
   .rp-pages.pdf-mode .rp-pi { grid-template-columns: 112px minmax(0, 1fr) 150px !important; }
   .rp-pages.pdf-mode .rp-pi-img { width: 112px !important; height: 84px !important; }
   .rp-pages.pdf-mode .rp-pi-side { grid-column: auto !important; }
@@ -4539,7 +4548,7 @@ function paginateReport() {
     const pg = document.createElement('div'); pg.className = 'rp-page';
     const inner = document.createElement('div'); inner.className = 'rp-page-in';
     els.forEach((el) => inner.appendChild(el));
-    const foot = document.createElement('div'); foot.className = 'rp-pagefoot'; foot.innerHTML = `<span>${esc(settings().officeName || 'OBERSON')} · אדריכלות ועיצוב פנים</span><span>עמוד ${i + 1} מתוך ${pages.length}</span>`;
+    const foot = document.createElement('div'); foot.className = 'rp-pagefoot'; const en = out.classList.contains('ltr'); foot.innerHTML = `<span>${esc(settings().officeName || 'OBERSON')} · ${en ? 'Architecture & Interior Design' : 'אדריכלות ועיצוב פנים'}</span><span>${en ? `Page ${i + 1} of ${pages.length}` : `עמוד ${i + 1} מתוך ${pages.length}`}</span>`;
     pg.appendChild(inner); pg.appendChild(foot); out.appendChild(pg);
   });
   flow.hidden = true;
@@ -6210,6 +6219,12 @@ function drawerProc(id) {
       ${field('הערות פנימיות', textArea('pi-notes', x.notes, `rows="2" ${bind('notes')} placeholder="מה סוכם עם הספק, תנאי תשלום, מה לבדוק"`))}
       ${x.sourceNote ? `<div class="inline-note">מהרשימה המקורית: ${esc(x.sourceNote)}</div>` : ''}
     </div>
+    <div class="section">
+      <h3 class="section-title">אנגלית ללקוח <small>${x.titleEn ? '' : 'אין עדיין — במסמך באנגלית יופיע העברית'}</small></h3>
+      ${field('Item', textInput('pi-titleEn', x.titleEn, `${bind('titleEn')} dir="ltr" placeholder="e.g. Three-seat sofa"`))}
+      ${field('Specification', textArea('pi-specEn', x.specEn, `rows="2" ${bind('specEn')} dir="ltr" placeholder="model, size, material, colour, finish"`))}
+      ${field('Note for the client', textArea('pi-clientNoteEn', x.clientNoteEn, `rows="2" ${bind('clientNoteEn')} dir="ltr"`))}
+    </div>
   </div>
   <div class="drawer-foot">
     <span class="inline-note">נוסף ע"י ${esc(uname(x.createdBy, '—'))} · ${fmtDate(x.createdAt)}</span>
@@ -6221,7 +6236,7 @@ async function newProcItem(pid, extra = {}) {
   const p = S.projects[pid]; if (!canEditProc(p)) { toast('אין לך הרשאת עריכה'); return null; }
   const id = uid('pi');
   const sortIndex = Math.max(0, ...procOf(pid).map((x) => Number(x.sortIndex) || 0)) + 1;
-  const ok = await createDoc('procurement_items', id, Object.assign({ projectId: pid, domainId: null, spaceId: null, category: '', scope: '', title: '', spec: '', qty: null, unit: '', supplierId: null, brand: '', sku: '', url: '', unitPrice: null, leadTime: '', status: 'todo', approvedAt: null, orderedAt: null, orderRef: '', eta: null, deliveredAt: null, paidAt: null, notes: '', clientNote: '', sourceNote: '', sortIndex, createdBy: me()?.id || null }, extra));
+  const ok = await createDoc('procurement_items', id, Object.assign({ projectId: pid, domainId: null, spaceId: null, category: '', scope: '', title: '', spec: '', qty: null, unit: '', supplierId: null, brand: '', sku: '', url: '', unitPrice: null, leadTime: '', status: 'todo', approvedAt: null, orderedAt: null, orderRef: '', eta: null, deliveredAt: null, paidAt: null, notes: '', clientNote: '', sourceNote: '', titleEn: '', specEn: '', clientNoteEn: '', sortIndex, createdBy: me()?.id || null }, extra));
   return ok ? id : null;
 }
 /* a status change fills the matching date when it is empty — the day the client approved, the day it was ordered, the day it arrived */
@@ -6283,9 +6298,10 @@ function procMenu(kind, id, anchor) {
     const items = [
       { label: 'אקסל — הרשימה המלאה', sub: 'כל הפריטים, המחירים והמצב · גיליון סיכום', value: 'xlsx' },
       { label: 'מסמך ללקוח (PDF)', sub: 'לפי חללים: תמונה, מפרט, מחיר ותיבת אישור לכל פריט', value: 'client' },
+      { label: 'מסמך ללקוח באנגלית (PDF)', sub: 'אותו מסמך משמאל לימין, עם "אנגלית ללקוח" של כל פריט וחלל', value: 'client-en' },
       ...suppliers.map((sid) => ({ label: `הזמנה לספק — ${cname(sid, '')}`, sub: `${procOf(p.id).filter((x) => x.supplierId === sid && PROC_LIVE.includes(x.status)).length} פריטים שאושרו או הוזמנו`, value: 'po:' + sid })),
     ];
-    openMenu(anchor, { items, onPick: (it) => { if (it.value === 'xlsx') procXlsx(p); else if (it.value === 'client') openProcDoc(p.id, 'client'); else openProcDoc(p.id, 'po', it.value.slice(3)); } });
+    openMenu(anchor, { items, onPick: (it) => { if (it.value === 'xlsx') procXlsx(p); else if (it.value === 'client') openProcDoc(p.id, 'client'); else if (it.value === 'client-en') openProcDoc(p.id, 'client', '', 'en'); else openProcDoc(p.id, 'po', it.value.slice(3)); } });
     return true;
   }
   return false;
@@ -6314,7 +6330,7 @@ async function procAction(a, ds, t, e) {
       await deleteDoc('procurement_items', x.id); closeDrawer(true); toast('הפריט הוסר מהרשימה'); return true;
     }
     case 'proc-xlsx': { const p = S.projects[ds.id]; if (p) procXlsx(p); return true; }
-    case 'proc-doc': openProcDoc(ds.id, ds.mode || 'client', ds.supplier || ''); return true;
+    case 'proc-doc': openProcDoc(ds.id, ds.mode || 'client', ds.supplier || '', ds.lang || ''); return true;
     case 'proc-pdf': await makeProcPdf(); return true;
     default: return false;
   }
@@ -6323,8 +6339,8 @@ document.addEventListener('input', (e) => { const el = e.target; if (el.id === '
 document.addEventListener('change', (e) => { const el = e.target; if (el.id === 'proc-cat' && el.dataset.pid) { procUi(el.dataset.pid).cat = el.value; render(); } });
 /* ---------- Excel ---------- */
 function procRows(p, items) {
-  const rows = [['קומה / תחום', 'חלל', 'מס\' בתוכנית', 'קטגוריה', 'FF&E / OS&E', 'פריט', 'מפרט', 'כמות', 'יחידה', 'ספק', 'מותג', 'דגם / מק"ט', 'מחיר ליחידה', 'סה"כ', 'מצב', 'אושר', 'הוזמן', 'מס\' הזמנה', 'צפי אספקה', 'סופק', 'שולם', 'זמן אספקה', 'קישור', 'הערה ללקוח', 'הערות', 'מהרשימה המקורית']];
-  procSorted(items).forEach((x) => { const d = procDomain(x), s = procRoom(x); rows.push([d ? d.name : '', s ? s.name : '', s ? s.number : '', x.category || '', x.scope ? PROC_SCOPE[x.scope].label : '', x.title || '', x.spec || '', procQty(x), x.unit || 'יח׳', procSupplierName(x), x.brand || '', x.sku || '', procPrice(x) ?? '', procTotal(x) ?? '', (PROC_STATUS[x.status] || PROC_STATUS.todo).label, fmtDate(x.approvedAt), fmtDate(x.orderedAt), x.orderRef || '', fmtDate(x.eta), fmtDate(x.deliveredAt), fmtDate(x.paidAt), x.leadTime || '', x.url || '', x.clientNote || '', x.notes || '', x.sourceNote || '']); });
+  const rows = [['קומה / תחום', 'חלל', 'מס\' בתוכנית', 'קטגוריה', 'FF&E / OS&E', 'פריט', 'מפרט', 'כמות', 'יחידה', 'ספק', 'מותג', 'דגם / מק"ט', 'מחיר ליחידה', 'סה"כ', 'מצב', 'אושר', 'הוזמן', 'מס\' הזמנה', 'צפי אספקה', 'סופק', 'שולם', 'זמן אספקה', 'קישור', 'הערה ללקוח', 'הערות', 'מהרשימה המקורית', 'Item (EN)', 'Specification (EN)', 'Note (EN)']];
+  procSorted(items).forEach((x) => { const d = procDomain(x), s = procRoom(x); rows.push([d ? d.name : '', s ? s.name : '', s ? s.number : '', x.category || '', x.scope ? PROC_SCOPE[x.scope].label : '', x.title || '', x.spec || '', procQty(x), x.unit || 'יח׳', procSupplierName(x), x.brand || '', x.sku || '', procPrice(x) ?? '', procTotal(x) ?? '', (PROC_STATUS[x.status] || PROC_STATUS.todo).label, fmtDate(x.approvedAt), fmtDate(x.orderedAt), x.orderRef || '', fmtDate(x.eta), fmtDate(x.deliveredAt), fmtDate(x.paidAt), x.leadTime || '', x.url || '', x.clientNote || '', x.notes || '', x.sourceNote || '', x.titleEn || '', x.specEn || '', x.clientNoteEn || '']); });
   return rows;
 }
 function procSummaryRows(p, items) {
@@ -6340,19 +6356,35 @@ function procSummaryRows(p, items) {
 function procXlsx(p) {
   try {
     const items = procOf(p.id);
-    downloadBytes(`קניינות - ${p.name}.xlsx`, xlsxBuild([{ name: 'קניינות', rows: procRows(p, items), widths: [14, 20, 9, 16, 10, 30, 40, 7, 7, 20, 14, 14, 11, 11, 10, 11, 11, 12, 11, 11, 11, 14, 30, 30, 30, 30] }, { name: 'סיכום', rows: procSummaryRows(p, items), widths: [34, 10, 14] }]));
+    downloadBytes(`קניינות - ${p.name}.xlsx`, xlsxBuild([{ name: 'קניינות', rows: procRows(p, items), widths: [14, 20, 9, 16, 10, 30, 40, 7, 7, 20, 14, 14, 11, 11, 10, 11, 11, 12, 11, 11, 11, 14, 30, 30, 30, 30, 30, 40, 30] }, { name: 'סיכום', rows: procSummaryRows(p, items), widths: [34, 10, 14] }]));
     toast('הקובץ ירד');
   } catch (err) { toast('הייצוא נכשל: ' + (err?.message || '')); }
 }
 /* ---------- the documents: for the client, and a purchase order per supplier (A4 pages through the report pipeline) ---------- */
-const procDocKey = () => { const k = String(S.ui.reportId || ''); if (!k.startsWith('proc:')) return null; const [, pid, mode, sid] = k.split(':'); return { pid, mode: mode || 'client', sid: sid || '' }; };
-function openProcDoc(pid, mode, sid) {
+/* the client document in English (20.10): the same pages, left-to-right, with the English texts of the items (title_en / spec_en /
+   client_note_en) and of the rooms (name_en); whatever has no English falls back to the Hebrew. Labels, units, dates and money follow. */
+const PROC_T = {
+  he: { client: 'רשימת פריטים לאישור', po: 'הזמנת רכש', subjectClient: 'סטיילינג וקניינות · FF&E · OS&E', subjectPo: 'FF&E · OS&E · הזמנה לספק', project: 'פרויקט', customer: 'לקוח', date: 'תאריך', address: 'כתובת', preparedBy: 'הוכן על ידי', items: 'פריטים', total: 'סה"כ', intro: 'לכל פריט: תמונה (כשיש), מפרט, כמות ומחיר. נשמח לסימון ✓ ליד כל פריט מאושר, ולהערה ליד מה שלא — כך נוכל להזמין ולהמשיך בלי עיכוב.', introNoPrice: 'לכל פריט: מפרט וכמות. נשמח לסימון ✓ ליד כל פריט מאושר, ולהערה ליד מה שלא — כך נוכל לאתר, לתמחר ולהמשיך בלי עיכוב.', general: 'כללי', item: 'פריט', itemsN: 'פריטים', priceLater: 'מחיר בהמשך', approved: '✓ אושר', approveBox: 'מאושר', noBox: 'לא', note: 'הערה:', summary: 'סיכום', disclaimer: 'המחירים לפי הצעות הספקים נכון להיום וכוללים מע"מ אלא אם צוין אחרת; זמני אספקה לפי הספקים. פריט שלא סומן ייחשב כממתין להחלטה.', disclaimerNoPrice: 'הרשימה מוגשת לאישור ההיקף; מחירים וזמני אספקה יובאו עם הצעות הספקים. פריט שלא סומן ייחשב כממתין להחלטה.', clientApproval: 'אישור הלקוח', signHint: 'שם, חתימה ותאריך', office: 'אדריכלות ועיצוב פנים', foot: 'אדריכלות ועיצוב פנים', page: 'עמוד', of: 'מתוך' },
+  en: { client: 'Items for approval', po: 'Purchase order', subjectClient: 'Styling & procurement · FF&E · OS&E', subjectPo: 'FF&E · OS&E · Purchase order', project: 'Project', customer: 'Client', date: 'Date', address: 'Address', preparedBy: 'Prepared by', items: 'Items', total: 'Total', intro: 'For every item: a photo (where available), the specification, quantity and price. Please tick ✓ next to each approved item and add a note next to anything that is not — so we can order and move on without delay.', introNoPrice: 'For every item: the specification and quantity. Please tick ✓ next to each approved item and add a note next to anything that is not — so we can source, price and move on without delay.', general: 'General', item: 'item', itemsN: 'items', priceLater: 'Price to follow', approved: '✓ Approved', approveBox: 'Approved', noBox: 'No', note: 'Note:', summary: 'Summary', disclaimer: 'Prices are per the suppliers\' quotations as of today and include VAT unless stated otherwise; lead times are per the suppliers. An item left unmarked will be treated as pending a decision.', disclaimerNoPrice: 'This list is submitted for approval of scope; prices and lead times will follow with the suppliers\' quotations. An item left unmarked will be treated as pending a decision.', clientApproval: 'Client approval', signHint: 'Name, signature and date', office: 'Architecture & Interior Design', foot: 'Architecture & Interior Design', page: 'Page', of: 'of' },
+};
+const PROC_CAT_EN = { 'ריהוט': 'Furniture', 'תאורה': 'Lighting', 'טקסטיל': 'Textiles', 'שטיחים': 'Rugs', 'אמנות': 'Art', 'אביזרים': 'Accessories', 'פרחים וצמחייה': 'Flowers & plants', 'ריח ואווירה': 'Scent & ambience', 'כלי מטבח ובישול': 'Cookware & kitchen tools', 'כלי הגשה ושולחן': 'Tableware & serving', 'כלי בר': 'Barware', 'כלי אמבט ורחצה': 'Bath & grooming', 'אחסון וארגון': 'Storage & organisation', 'מכשירי חשמל': 'Appliances', 'ציוד ספורט ומשחק': 'Sports & games equipment', 'אחר': 'Other' };
+const PROC_UNIT_EN = { 'יח׳': 'pcs', 'סט': 'set', 'זוג': 'pair', 'מ״ר': 'm²', 'מ״א': 'm', 'ק״ג': 'kg', 'ליטר': 'l' };
+const procLang = (k) => (k && k.lang === 'en' ? 'en' : 'he');
+const procText = (x, key, lang) => (lang === 'en' ? (x[key + 'En'] || x[key] || '') : (x[key] || ''));
+const procSpaceName = (s, lang) => (s ? (lang === 'en' ? (s.nameEn || s.name || '') : (s.name || '')) : '');
+const procCatText = (c, lang) => (lang === 'en' ? (PROC_CAT_EN[c] || c || '') : (c || ''));
+const procQtyTextL = (x, lang) => (lang === 'en' ? `${fmtNumEn(procQty(x))} ${PROC_UNIT_EN[x.unit || 'יח׳'] || x.unit || 'pcs'}` : procQtyText(x));
+const fmtNumEn = (n) => Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 });
+const fmtMoneyL = (n, lang) => (lang === 'en' ? (n == null || isNaN(n) ? '' : '₪' + Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 })) : fmtMoney(n));
+const fmtDateL = (iso, lang) => { if (!iso) return ''; if (lang !== 'en') return fmtDate(iso); const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }); };
+const procDocKey = () => { const k = String(S.ui.reportId || ''); if (!k.startsWith('proc:')) return null; const [, pid, mode0, sid] = k.split(':'); const mode = String(mode0 || 'client'); return { pid, mode: mode.replace(/-en$/, ''), sid: sid || '', lang: /-en$/.test(mode) ? 'en' : 'he' }; };
+function openProcDoc(pid, mode, sid, lang) {
   const p = S.projects[pid]; if (!p) return;
   if (S.ui.pdfReady) pdfReadyClear();
-  S.ui.reportId = `proc:${pid}:${mode}${sid ? ':' + sid : ''}`; S.ui.returnDrawer = S.ui.drawer; S.ui.returnView = 'project'; S.ui.drawer = null; S.ui.menu = null;
+  S.ui.reportId = `proc:${pid}:${mode}${lang === 'en' ? '-en' : ''}${sid ? ':' + sid : ''}`; S.ui.returnDrawer = S.ui.drawer; S.ui.returnView = 'project'; S.ui.drawer = null; S.ui.menu = null;
   nav('report');
 }
-const procDocTitle = (k) => (k.mode === 'po' ? `הזמנת רכש — ${cname(k.sid, '')}` : 'רשימת פריטים לאישור');
+const procDocTitle = (k) => (k.mode === 'po' ? `${PROC_T[procLang(k)].po} — ${cname(k.sid, '')}` : PROC_T[procLang(k)].client);
 function procDocItems(p, k) {
   if (k.mode === 'po') return procSorted(procOf(p.id).filter((x) => x.supplierId === k.sid && PROC_LIVE.includes(x.status)));
   return procSorted(procOf(p.id).filter((x) => x.status !== 'rejected'));
@@ -6363,7 +6395,7 @@ function procDocBlocks(p, k) {
   const kv = (key, val) => `<div class="rp-kv"><span>${key}</span><strong>${esc(val || '—')}</strong></div>`;
   const today = fmtDate(new Date().toISOString());
   b('rp-header', `<div class="rp-brand"><svg class="logo plain" aria-label="OBERSON"><use href="#logo-plain"/></svg></div>
-    <div class="rp-titles"><div class="rp-title">${esc(procDocTitle(k))}</div><div class="rp-project">${esc(p.name)}${p.number ? ` <small>פרויקט ${esc(p.number)}</small>` : ''}<div class="rp-subject">${k.mode === 'po' ? 'FF&E · OS&E · הזמנה לספק' : 'סטיילינג וקניינות · FF&E · OS&E'}</div></div></div>`);
+    <div class="rp-titles"><div class="rp-title">${esc(procDocTitle(k))}</div><div class="rp-project">${esc(procLang(k) === 'en' ? (typeof nameEn === 'function' && nameEn(p)) || p.name : p.name)}${p.number ? ` <small>${PROC_T[procLang(k)].project} ${esc(p.number)}</small>` : ''}<div class="rp-subject">${k.mode === 'po' ? PROC_T[procLang(k)].subjectPo : PROC_T[procLang(k)].subjectClient}</div></div></div>`);
   if (k.mode === 'po') {
     const sup = contact(k.sid);
     b('rp-meta', `${kv('ספק', cname(k.sid, ''))}${kv('תאריך', today)}${sup && (sup.phone || sup.email) ? kv('איש קשר', [sup.phone, emailsOf(sup)[0]].filter(Boolean).join(' · ')) : ''}${kv('כתובת לאספקה', [p.address, p.city].filter(Boolean).join(', '))}${kv('לקוח', cname(p.clientId, ''))}${kv('הוזמן על ידי', uname(me()?.id, ''))}${kv('פריטים', String(items.length))}`);
@@ -6376,27 +6408,31 @@ function procDocBlocks(p, k) {
       <div class="rp-sign"><div><span>הוזמן על ידי</span><strong>${esc(uname(me()?.id, ''))}</strong><small>${esc(settings().officeName || 'OBERSON')} · אדריכלות ועיצוב פנים</small></div><div><span>תאריך</span><strong>${esc(today)}</strong></div><div><span>אישור הספק</span><strong>&nbsp;</strong><small>חתימה ותאריך</small></div></div>`);
     return blocks;
   }
-  b('rp-meta', `${kv('לקוח', cname(p.clientId, ''))}${kv('תאריך', today)}${kv('כתובת', [p.address, p.city].filter(Boolean).join(', '))}${kv('הוכן על ידי', uname(me()?.id, ''))}${kv('פריטים', String(items.length))}${kv('סה"כ', procSum(items) ? fmtMoney(procSum(items)) : '—')}`);
-  b('rp-section', `<p class="rp-intro">לכל פריט: תמונה (כשיש), מפרט, כמות ומחיר. נשמח לסימון ✓ ליד כל פריט מאושר, ולהערה ליד מה שלא — כך נוכל להזמין ולהמשיך בלי עיכוב.</p>`);
+  const lang = procLang(k); const L = PROC_T[lang]; const money = (n) => fmtMoneyL(n, lang); const office = settings().officeName || 'OBERSON';
+  const priced = items.some((x) => procPrice(x) != null); // a list before any quotation: no price lines, no totals
+  const addr = [p.address, p.city].filter(Boolean).join(', '); const addrOk = addr && !(lang === 'en' && /[\u0590-\u05ff]/.test(addr));
+  b('rp-meta', `${kv(L.customer, cname(p.clientId, ''))}${kv(L.date, fmtDateL(new Date().toISOString(), lang))}${addrOk ? kv(L.address, addr) : ''}${kv(L.preparedBy, lang === 'en' ? office : uname(me()?.id, ''))}${kv(L.items, String(items.length))}${priced ? kv(L.total, procSum(items) ? money(procSum(items)) : '—') : ''}`);
+  b('rp-section', `<p class="rp-intro">${esc(priced ? L.intro : L.introNoPrice)}</p>`);
   const groups = [];
-  domainsOf(p.id).forEach((d) => { const general = items.filter((x) => x.domainId === d.id && (!x.spaceId || !S.project_spaces[x.spaceId])); if (general.length) groups.push({ title: `${d.name} — כללי`, items: general }); roomsOf(p.id, d.id).forEach((s) => { const r = items.filter((x) => x.spaceId === s.id); if (r.length) groups.push({ title: `${d.name} · ${s.name}${s.number ? ' ' + s.number : ''}`, items: r }); }); });
-  const loose = items.filter((x) => !x.domainId || !S.project_spaces[x.domainId]); if (loose.length) groups.push({ title: 'כללי', items: loose });
+  domainsOf(p.id).forEach((d) => { const general = items.filter((x) => x.domainId === d.id && (!x.spaceId || !S.project_spaces[x.spaceId])); if (general.length) groups.push({ title: `${procSpaceName(d, lang)} — ${L.general}`, items: general }); roomsOf(p.id, d.id).forEach((s) => { const r = items.filter((x) => x.spaceId === s.id); if (r.length) groups.push({ title: `${procSpaceName(d, lang)} · ${procSpaceName(s, lang)}${s.number ? ' ' + s.number : ''}`, items: r }); }); });
+  const loose = items.filter((x) => !x.domainId || !S.project_spaces[x.domainId]); if (loose.length) groups.push({ title: L.general, items: loose });
   let no = 0;
   groups.forEach((g) => {
-    b('rp-section rp-tbl-title', `<h3>${esc(g.title)} <small>${g.items.length} ${g.items.length === 1 ? 'פריט' : 'פריטים'}${procSum(g.items) ? ' · ' + fmtMoney(procSum(g.items)) : ''}</small></h3>`);
+    b('rp-section rp-tbl-title', `<h3>${esc(g.title)} <small>${g.items.length} ${g.items.length === 1 ? L.item : L.itemsN}${procSum(g.items) ? ' · ' + money(procSum(g.items)) : ''}</small></h3>`);
     g.items.forEach((x) => {
       no++; const cover = procCover(x); const approved = ['approved', 'ordered', 'delivered', 'installed'].includes(x.status);
+      const title = procText(x, 'title', lang), spec = procText(x, 'spec', lang), note = procText(x, 'clientNote', lang);
       b('rp-pi', `<div class="rp-pi-img ${cover ? '' : 'empty'}">${cover ? `<img src="${esc(fileUrl(cover))}" crossorigin="anonymous" alt="">` : ''}</div>
-        <div class="rp-pi-body"><div class="t"><span class="c-no">${no}.</span> ${esc(x.title || x.spec || '')}</div>${x.title && x.spec ? `<div class="s">${esc(x.spec)}</div>` : ''}<div class="m">${esc([x.category, x.brand, x.sku].filter(Boolean).join(' · '))}</div>${x.clientNote ? `<div class="n">${esc(x.clientNote)}</div>` : ''}</div>
-        <div class="rp-pi-side"><div class="q">${esc(procQtyText(x))}${procPrice(x) != null && procQty(x) !== 1 ? ` × ${fmtMoney(procPrice(x))}` : ''}</div><div class="p">${procTotal(x) != null ? fmtMoney(procTotal(x)) : 'מחיר בהמשך'}</div>
-          ${approved ? `<div class="rp-approve done">✓ אושר${x.approvedAt ? ' ' + fmtDate(x.approvedAt) : ''}</div>` : `<div class="rp-approve"><span class="box"></span>מאושר <span class="box"></span>לא</div><div class="rp-line">הערה:</div>`}</div>`);
+        <div class="rp-pi-body"><div class="t"><span class="c-no">${no}.</span> ${esc(title || spec)}</div>${title && spec ? `<div class="s">${esc(spec)}</div>` : ''}<div class="m">${esc([procCatText(x.category, lang), x.brand, x.sku].filter(Boolean).join(' · '))}</div>${note ? `<div class="n">${esc(note)}</div>` : ''}</div>
+        <div class="rp-pi-side"><div class="q">${x.qty != null && x.qty !== '' ? esc(procQtyTextL(x, lang)) : ''}${procPrice(x) != null && procQty(x) !== 1 ? ` × ${money(procPrice(x))}` : ''}</div>${priced ? `<div class="p">${procTotal(x) != null ? money(procTotal(x)) : L.priceLater}</div>` : ''}
+          ${approved ? `<div class="rp-approve done">${L.approved}${x.approvedAt ? ' ' + fmtDateL(x.approvedAt, lang) : ''}</div>` : `<div class="rp-approve"><span class="box"></span>${L.approveBox} <span class="box"></span>${L.noBox}</div><div class="rp-line">${L.note}</div>`}</div>`);
     });
   });
-  b('rp-section rp-tbl-title', '<h3>סיכום</h3>');
-  groups.forEach((g) => b('rp-tr', `<div class="rp-sum-row"><span>${esc(g.title)}</span><span class="c-no">${g.items.length}</span><span class="c-no">${procSum(g.items) ? fmtMoney(procSum(g.items)) : ''}</span></div>`));
-  b('rp-total', `<div class="rp-sum-row rp-sum"><span>סה"כ</span><span class="c-no">${items.length}</span><span class="c-no">${fmtMoney(procSum(items))}</span></div>`);
-  b('rp-foot', `<p class="rp-disclaimer">המחירים לפי הצעות הספקים נכון להיום וכוללים מע"מ אלא אם צוין אחרת; זמני אספקה לפי הספקים. פריט שלא סומן ייחשב כממתין להחלטה.</p>
-    <div class="rp-sign"><div><span>הוכן על ידי</span><strong>${esc(uname(me()?.id, ''))}</strong><small>${esc(settings().officeName || 'OBERSON')} · אדריכלות ועיצוב פנים</small></div><div><span>אישור הלקוח</span><strong>&nbsp;</strong><small>שם, חתימה ותאריך</small></div></div>`);
+  b('rp-section rp-tbl-title', `<h3>${L.summary}</h3>`);
+  groups.forEach((g) => b('rp-tr', `<div class="rp-sum-row"><span>${esc(g.title)}</span><span class="c-no">${g.items.length}</span><span class="c-no">${procSum(g.items) ? money(procSum(g.items)) : ''}</span></div>`));
+  b('rp-total', `<div class="rp-sum-row rp-sum"><span>${L.total}</span><span class="c-no">${items.length}</span><span class="c-no">${priced ? money(procSum(items)) : ''}</span></div>`);
+  b('rp-foot', `<p class="rp-disclaimer">${esc(priced ? L.disclaimer : L.disclaimerNoPrice)}</p>
+    <div class="rp-sign"><div><span>${L.preparedBy}</span><strong>${esc(lang === 'en' ? office : uname(me()?.id, ''))}</strong><small>${esc(office)} · ${L.office}</small></div><div><span>${L.clientApproval}</span><strong>&nbsp;</strong><small>${L.signHint}</small></div></div>`);
   return blocks;
 }
 function renderProcDoc() {
@@ -6404,10 +6440,10 @@ function renderProcDoc() {
   if (!p) return `<div class="banner">המסמך לא נמצא. <button class="btn small" data-action="nav" data-view="projects">חזרה לפרויקטים</button></div>`;
   const busy = S.ui.pdfBusy;
   const ready = S.ui.pdfReady && S.ui.pdfReady.visitId === S.ui.reportId ? S.ui.pdfReady : null;
-  const n = procDocItems(p, k).length;
+  const n = procDocItems(p, k).length; const pics = k.mode === 'po' || procDocItems(p, k).some((x) => procCover(x));
   return `<div class="rp-tools no-print">
       <button class="btn ghost small" data-action="report-back">${ICON.back} חזרה</button>
-      <span class="inline-note">${esc(procDocTitle(k))} · ${esc(p.name)} · ${n} פריטים</span>
+      <span class="inline-note">${esc(procDocTitle(k))}${procLang(k) === 'en' ? ' · באנגלית' : ''} · ${esc(p.name)} · ${n} פריטים</span>
       <span style="margin-inline-start:auto;display:inline-flex;gap:6px;flex-wrap:wrap">
         <button class="btn small" data-action="report-print" ${busy ? 'disabled' : ''}>הדפסה</button>
         <button class="btn ${ready ? '' : 'primary'} small" data-action="proc-pdf" ${busy ? 'disabled' : ''}>${busy ? 'מכין PDF…' : (ready ? 'הפק PDF מחדש' : `${ICON.doc} הפק PDF`)}</button>
@@ -6420,15 +6456,15 @@ function renderProcDoc() {
         ${ready.shareable ? `<button class="btn small" data-action="pdf-share" title="שולח בוואטסאפ, במייל או לאפליקציה אחרת">${ICON.share} שתף…</button>` : ''}
         <button class="btn small ghost" data-action="pdf-open" title="פותח את ה-PDF בלשונית חדשה">פתח</button>
       </span>
-    </div>` : `<div class="rp-note no-print">${k.mode === 'po' ? 'הפריטים שאושרו או הוזמנו מהספק הזה, עם הכתובת לאספקה. ' : 'כל הפריטים שלא נפסלו, לפי חללים — מה שכבר אושר מסומן. ספקים והערות פנימיות לא מופיעים. '}אחרי ההפקה אפשר לשמור, לשתף או לפתוח; עותק נשמר בתיק הפרויקט.</div>`}
-    <div id="rp-flow" class="rp-doc ${k.mode === 'po' ? 'rp-po' : 'rp-client'}">${procDocBlocks(p, k).join('')}</div>
-    <div id="rp-pages" class="rp-pages ${k.mode === 'po' ? 'rp-po' : 'rp-client'}"></div>`;
+    </div>` : `<div class="rp-note no-print">${k.mode === 'po' ? 'הפריטים שאושרו או הוזמנו מהספק הזה, עם הכתובת לאספקה. ' : 'כל הפריטים שלא נפסלו, לפי חללים — מה שכבר אושר מסומן. ספקים והערות פנימיות לא מופיעים. '}${procLang(k) === 'en' ? 'הטקסטים באנגלית מתוך "אנגלית ללקוח" בכל פריט; פריט או חלל בלי אנגלית מופיע בעברית. ' : ''}אחרי ההפקה אפשר לשמור, לשתף או לפתוח; עותק נשמר בתיק הפרויקט.</div>`}
+    <div id="rp-flow" class="rp-doc ${k.mode === 'po' ? 'rp-po' : 'rp-client'} ${procLang(k) === 'en' ? 'ltr' : ''} ${pics ? '' : 'nopics'}" ${procLang(k) === 'en' ? 'dir="ltr" lang="en"' : ''}>${procDocBlocks(p, k).join('')}</div>
+    <div id="rp-pages" class="rp-pages ${k.mode === 'po' ? 'rp-po' : 'rp-client'} ${procLang(k) === 'en' ? 'ltr' : ''} ${pics ? '' : 'nopics'}" ${procLang(k) === 'en' ? 'dir="ltr" lang="en"' : ''}></div>`;
 }
 async function makeProcPdf() {
   const k = procDocKey(); const p = k && S.projects[k.pid]; if (!p) return;
   const clean = (s) => String(s || '').replace(/[\\/:*?"<>|]/g, ' ').trim();
-  const name = `${clean(procDocTitle(k))} - ${clean(p.name)}.pdf`;
-  await makePagesPdf({ key: S.ui.reportId, name, projectId: p.id, path: `${p.id}/procurement/${k.mode}${k.sid ? '-' + k.sid : ''}-${Date.now().toString(36)}.pdf` });
+  const name = `${clean(procDocTitle(k))} - ${clean(procLang(k) === 'en' ? ((typeof nameEn === 'function' && nameEn(p)) || p.name) : p.name)}.pdf`;
+  await makePagesPdf({ key: S.ui.reportId, name, projectId: p.id, path: `${p.id}/procurement/${k.mode}${procLang(k) === 'en' ? '-en' : ''}${k.sid ? '-' + k.sid : ''}-${Date.now().toString(36)}.pdf` });
 }
 /* the A4 pages on screen → a PDF in hand (and a copy in the project folder) — the same steps as the site report, for any document */
 async function makePagesPdf({ key, name, projectId, path }) {
@@ -8635,14 +8671,17 @@ function stepper(p, stages) {
 function stageEditor(p) {
   const own = ownStageIds(p);
   const prog = stageProgressOf(p);
-  const inUse = (id) => (prog[id]?.total || 0) > 0 && milestonesOf(p.id).some((m) => msIsWork(m) && msStage(m) === id && !msIsStageRow(m));
+  const rowsOf = (id) => milestonesOf(p.id).filter((m) => msIsWork(m) && msStage(m) === id && !msIsStageRow(m));
+  const started = (m) => m.state === 'done' || m.state === 'active' || TK().some((t) => t.milestoneId === m.id) || FL().some((f) => f.milestoneId === m.id) || (Array.isArray(m.checklist) && m.checklist.some((c) => c && c.done));
+  const inUse = (id) => rowsOf(id).some(started); // work that began stays: the stage can only go once its milestones were moved
+  const unstarted = (id) => (inUse(id) ? 0 : rowsOf(id).length);
   const free = settings().phases.filter((x) => !own.includes(x.id));
   return `<div class="stage-editor" id="stage-editor">
-    <div class="inline-note" style="margin-bottom:6px">השלבים של הפרויקט הזה. שלב שיש בו אבני דרך אי אפשר להסיר — העבירו אותן קודם לשלב אחר.</div>
+    <div class="inline-note" style="margin-bottom:6px">השלבים של הפרויקט הזה — מה שלא קיים בחוזה מוסר מכאן (היתר בפרויקט של עיצוב פנים, תכנון וביצוע בפרויקט של סטיילינג), כדי שהעומס והשלביות יהיו נכונים. שלב עם אבני דרך שעוד לא התחילו מוסר יחד איתן; שלב שבו כבר יש עבודה — קודם מעבירים את אבני הדרך שלו.</div>
     ${own.map((id, i) => `<div class="se-row">
       <span class="se-btns"><button type="button" class="icon-btn" data-action="stage-move" data-id="${p.id}" data-stage="${id}" data-dir="-1" title="למעלה" ${i === 0 ? 'disabled' : ''}>${ICON.up}</button><button type="button" class="icon-btn" data-action="stage-move" data-id="${p.id}" data-stage="${id}" data-dir="1" title="למטה" ${i === own.length - 1 ? 'disabled' : ''}>${ICON.down}</button></span>
       ${isCustomStage(id) ? `<input type="text" value="${esc(stageName(id, p))}" data-stgname="${p.id}:${id}" aria-label="שם השלב">` : `<span>${esc(stageName(id, p))}</span>`}
-      <button type="button" class="icon-btn" data-action="stage-remove" data-id="${p.id}" data-stage="${id}" title="${inUse(id) ? 'יש בשלב אבני דרך' : 'הסר שלב'}" ${inUse(id) ? 'disabled' : ''}>${ICON.x}</button>
+      ${unstarted(id) ? (S.ui.confirm === `stage-remove:${p.id}:${id}` ? `<span class="confirm-inline"><span class="inline-note">להסיר את השלב ואת ${unstarted(id)} אבני הדרך שלו שלא התחילו?</span><button type="button" class="btn small danger" data-action="stage-remove" data-id="${p.id}" data-stage="${id}" data-confirmed="1">כן, הסר</button><button type="button" class="btn small" data-action="cancel-confirm">בטל</button></span>` : `<button type="button" class="btn ghost small" data-action="stage-remove" data-id="${p.id}" data-stage="${id}" title="מסיר את השלב ואת ${unstarted(id)} אבני הדרך שלא התחילו">${ICON.x} הסר עם ${unstarted(id)} אבני דרך</button>`) : `<button type="button" class="icon-btn" data-action="stage-remove" data-id="${p.id}" data-stage="${id}" title="${inUse(id) ? 'יש בשלב אבני דרך שכבר התחילו — העבירו אותן קודם' : 'הסר שלב'}" ${inUse(id) ? 'disabled' : ''}>${ICON.x}</button>`}
     </div>`).join('')}
     <div class="se-add">
       ${selectHtml('stage-add-' + p.id, '', [...free.map((x) => ({ value: x.id, label: x.name })), { value: '__custom', label: 'שלב מותאם…' }], { blank: 'הוסף שלב…' })}
@@ -8669,6 +8708,7 @@ function journeyStrip(p) {
   const stages = projectStages(p); const cur = stages.find((x) => x.current) || null; const can = canEditMilestones(); const kids = childrenOf(p.id);
   return `<div class="section journey-strip">
     ${stepper(p, stages)}
+    ${can && !kids.length && !S.ui.stageEdit[p.id] ? `<div class="journey-strip-tools"><button type="button" class="btn ghost small" data-action="stage-edit-go" data-id="${p.id}" title="שלב שלא קיים בפרויקט הזה (היתר בעיצוב פנים, למשל) מוסר כאן — כך העומס והשלביות נכונים">ערוך שלבים</button></div>` : ''}
     ${!cur && !allPhasesDone(p) && can && stages.length && !kids.length ? `<div class="inline-note">הפרויקט עדיין לא התחיל. לחצו על שלב בפס כדי לסמן איפה אתם, או <button type="button" class="btn small" data-action="stage-set" data-id="${p.id}" data-stage="${stages[0].id}">התחל ב«${esc(stages[0].name)}»</button></div>` : ''}
     ${allPhasesDone(p) && !kids.length ? '<div class="inline-note">כל השלבים הושלמו. אם הפרויקט ממשיך (למשל פיקוח), לחצו על השלב המתאים בפס.</div>' : ''}
   </div>`;
@@ -9574,10 +9614,16 @@ document.addEventListener('click', async (e) => {
     case 'stage-remove': {
       const p = S.projects[ds.id]; if (!p || !canEditMilestones()) break;
       const rows = milestonesOf(p.id).filter((m) => msIsWork(m) && msStage(m) === ds.stage);
-      if (rows.some((m) => !msIsStageRow(m))) { toast('יש בשלב אבני דרך — העבירו אותן קודם'); break; }
+      const real = rows.filter((m) => !msIsStageRow(m));
+      const began = (m) => m.state === 'done' || m.state === 'active' || TK().some((t) => t.milestoneId === m.id) || FL().some((f) => f.milestoneId === m.id) || (Array.isArray(m.checklist) && m.checklist.some((c) => c && c.done));
+      if (real.some(began)) { toast('יש בשלב אבני דרך שכבר התחילו — העבירו אותן קודם לשלב אחר'); break; }
+      if (real.length && !ds.confirmed) { S.ui.confirm = `stage-remove:${p.id}:${ds.stage}`; render(); break; } // milestones go with the stage — after a second look
+      S.ui.confirm = null;
       batchEdits(() => { rows.forEach((m) => deleteDoc('project_milestones', m.id)); patchDoc('projects', p.id, { stages: ownStageIds(p).filter((id) => id !== ds.stage).map((id) => ({ id, name: stageName(id, p) })) }); });
+      toast(real.length ? `השלב הוסר עם ${real.length} אבני דרך` : 'השלב הוסר');
       break;
     }
+    case 'stage-edit-go': { if (!canEditMilestones()) break; S.ui.stageEdit[ds.id] = true; S.ui.stageConfirm = null; render(); setTimeout(() => document.getElementById('stage-editor')?.scrollIntoView({ block: 'center', behavior: 'smooth' }), 60); break; }
     case 'stage-add': {
       const p = S.projects[ds.id]; if (!p || !canEditMilestones()) break;
       const sel = document.getElementById('stage-add-' + p.id); const v = sel?.value || '';
