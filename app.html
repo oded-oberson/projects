@@ -1327,6 +1327,80 @@
   .gop-fullhead { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; border-bottom: 1px solid var(--line); font-size: 13px; color: var(--ink-2); }
   .gop-fullwrap .gop-frame { flex: none; }
   @media (max-width: 720px) { .gop-btn { font-size: 13px; padding: 3px 7px 2px; } .gop-fullwrap { inset: 8px; } }
+  /* ---------- procurement (קניינות) ---------- */
+  .chip.soft { background: var(--accent-soft-2); color: var(--ink); border-color: transparent; }
+  .pr-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; margin-bottom: 12px; }
+  .pr-stat { border: 1px solid var(--line); padding: 8px 10px 7px; min-width: 0; }
+  .pr-stat-label { font-size: 12px; color: var(--ink-2); letter-spacing: .02em; }
+  .pr-stat-value { font-family: var(--font-num); font-weight: 300; font-size: 26px; line-height: 1.1; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .pr-stat-sub { font-size: 11.5px; color: var(--ink-3); margin-top: 2px; min-height: 14px; line-height: 1.3; font-variant-numeric: tabular-nums; }
+  .pr-filters { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin-bottom: 10px; }
+  .pr-filters .search { flex: 1 1 200px; max-width: 320px; }
+  .pr-filters select { max-width: 220px; }
+  .pr-views { margin: 0; }
+  .pr-group { margin-bottom: 10px; }
+  .pr-ghead { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 30px; padding: 4px 0 2px; border-bottom: 1px solid var(--rule); }
+  .pr-ghead.muted .pr-gname { color: var(--ink-3); }
+  .pr-gname { font-weight: 400; }
+  .pr-ghead .chip { font-size: 12px; padding: 1px 8px; }
+  .pr-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) 72px 110px 84px; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--line); cursor: pointer; min-width: 0; }
+  .pr-row:hover .pr-title { text-decoration: underline; }
+  .pr-row.rejected { opacity: .55; }
+  .pr-row.installed .pr-title { color: var(--ink-2); }
+  .pr-thumb { width: 44px; height: 44px; background: var(--surface-2); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; overflow: hidden; flex: none; }
+  .pr-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pr-noimg { color: var(--ink-3); width: 18px; height: 18px; display: inline-flex; }
+  .pr-noimg svg { width: 18px; height: 18px; }
+  .pr-main { min-width: 0; }
+  .pr-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pr-sub { font-size: 12px; color: var(--ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pr-qty { font-size: 12.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pr-price { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-size: 13.5px; text-align: start; white-space: nowrap; display: flex; flex-direction: column; line-height: 1.2; }
+  .pr-price strong { font-weight: 400; }
+  .pr-price small { font-size: 11px; color: var(--ink-3); }
+  .pr-status { display: flex; justify-content: flex-end; }
+  .pr-dbody { gap: 6px; }
+  .pr-url { display: flex; gap: 6px; align-items: center; }
+  .pr-url input { flex: 1; min-width: 0; }
+  @media (max-width: 720px) {
+    .pr-row { grid-template-columns: 40px minmax(0, 1fr) auto; grid-template-areas: "thumb main status" "thumb qty price"; row-gap: 2px; }
+    .pr-thumb { grid-area: thumb; width: 40px; height: 40px; }
+    .pr-main { grid-area: main; } .pr-status { grid-area: status; } .pr-qty { grid-area: qty; } .pr-price { grid-area: price; align-items: flex-end; }
+    .pr-stats { grid-template-columns: repeat(2, 1fr); }
+    .pr-stat-value { font-size: 22px; }
+  }
+  /* the documents: the client list and the purchase order */
+  .rp-intro { font-size: 12.5px; color: var(--ink-2); margin: 4px 0 2px; }
+  .rp-pi { display: grid; grid-template-columns: 112px minmax(0, 1fr) 150px; gap: 12px; padding: 7px 0; border-bottom: 1px dashed var(--line); align-items: start; }
+  .rp-pi-img { width: 112px; height: 84px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; }
+  .rp-pi-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .rp-pi-img.empty { border-color: transparent; background: transparent; }
+  .rp-pi-body { min-width: 0; }
+  .rp-pi-body .t { font-size: 13px; }
+  .rp-pi-body .t .c-no { color: var(--ink-3); font-family: var(--font-num); margin-inline-end: 2px; }
+  .rp-pi-body .s { font-size: 11.5px; color: var(--ink-2); white-space: pre-line; margin-top: 2px; }
+  .rp-pi-body .m { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+  .rp-pi-body .n { font-size: 11.5px; color: var(--ink-2); margin-top: 3px; border-inline-start: 2px solid var(--line-2); padding-inline-start: 6px; }
+  .rp-pi-side { font-size: 12px; text-align: start; }
+  .rp-pi-side .q { color: var(--ink-3); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+  .rp-pi-side .p { font-family: var(--font-num); font-size: 14px; font-variant-numeric: tabular-nums; margin: 1px 0 6px; }
+  .rp-approve { font-size: 11.5px; color: var(--ink-2); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .rp-approve .box { display: inline-block; width: 12px; height: 12px; border: 1px solid var(--ink); margin-inline-end: 2px; vertical-align: -2px; }
+  .rp-approve.done { color: var(--good-ink); }
+  .rp-line { font-size: 11px; color: var(--ink-3); border-bottom: 1px solid var(--line-2); margin-top: 6px; padding-bottom: 2px; }
+  .rp-po-row { display: grid; grid-template-columns: 26px minmax(0, 1fr) 120px 64px 80px 86px; gap: 8px; padding: 5px 0; border-bottom: 1px dashed var(--line); font-size: 12px; align-items: start; }
+  .rp-po-row small { display: block; color: var(--ink-3); font-size: 10.5px; }
+  .rp-po-row strong { font-weight: 400; }
+  .rp-po-row .c-no, .rp-sum-row .c-no { font-family: var(--font-num); font-variant-numeric: tabular-nums; }
+  .rp-thead .rp-po-row { font-size: 10.5px; color: var(--ink-3); letter-spacing: .05em; border-bottom: 1px solid var(--rule); padding-bottom: 3px; }
+  .rp-sum-row { display: grid; grid-template-columns: minmax(0, 1fr) 60px 110px; gap: 8px; padding: 4px 0; border-bottom: 1px dashed var(--line); font-size: 12px; }
+  .rp-total { margin-top: 2px; }
+  .rp-sum { font-weight: 500; border-bottom: 2px solid var(--rule); border-top: 1px solid var(--rule); }
+  @media (max-width: 720px) { .rp-pi { grid-template-columns: 84px minmax(0, 1fr); } .rp-pi-img { width: 84px; height: 64px; } .rp-pi-side { grid-column: 2; } .rp-po-row { grid-template-columns: 22px minmax(0, 1fr) 70px 46px 60px 66px; font-size: 11px; } }
+  .rp-pages.pdf-mode .rp-pi { grid-template-columns: 112px minmax(0, 1fr) 150px !important; }
+  .rp-pages.pdf-mode .rp-pi-img { width: 112px !important; height: 84px !important; }
+  .rp-pages.pdf-mode .rp-pi-side { grid-column: auto !important; }
+  .rp-pages.pdf-mode .rp-po-row { grid-template-columns: 26px minmax(0, 1fr) 120px 64px 80px 86px !important; font-size: 12px !important; }
 </style>
 </head>
 <body>
@@ -1618,6 +1692,8 @@ const DEFAULT_SETTINGS = {
   materialTypes: ['אבן', 'שיש וקוורץ', 'גרניט פורצלן', 'אריחים וקרמיקה', 'עץ מלא', 'פורניר ולמינציה', 'פרקט ודק', 'צבע', 'טיח וגמר קיר', 'טפט ובד קיר', 'טקסטיל ושטיחים', 'מתכת', 'זכוכית', 'בטון וטרצו', 'אקריליק ופולימר', 'סניטריה וברזים', 'תאורה', 'ריהוט', 'אביזרים ואמנות', 'אחר'],
   materialUses: ['ריצוף', 'חיפוי קיר', 'חיפוי חוץ', 'משטחים', 'נגרות', 'תקרה', 'פנלים', 'דלתות', 'חלונות', 'מדרגות', 'גדרות', 'ריצוף חוץ', 'אמבטיה', 'מטבח', 'ריהוט', 'תאורה', 'אחר'],
   boardElements: ['רצפה', 'קירות', 'תקרה', 'פנלים', 'נגרות', 'משטח עבודה', 'דלתות', 'חלונות', 'חזית', 'גג', 'דק', 'ריצוף חוץ', 'גדר', 'תאורה', 'ריהוט', 'אביזרים'],
+  /* procurement (20.10.2026): the categories of an FF&E / OS&E list — what a styling project buys, room by room */
+  procCategories: ['ריהוט', 'תאורה', 'טקסטיל', 'שטיחים', 'אמנות', 'אביזרים', 'פרחים וצמחייה', 'ריח ואווירה', 'כלי מטבח ובישול', 'כלי הגשה ושולחן', 'כלי בר', 'כלי אמבט ורחצה', 'אחסון וארגון', 'מכשירי חשמל', 'ציוד ספורט ומשחק', 'אחר'],
 };
 
 /* ===================== state ===================== */
@@ -2532,6 +2608,7 @@ const REGISTRY_LISTS = [
   { key: 'materialTypes', title: 'סוגי חומרים', sub: 'הבסיס של מאגר החומרים: אבן, גרניט פורצלן, עץ מלא, צבע…' },
   { key: 'materialUses', title: 'שימושי חומרים (תיוג)', sub: 'ריצוף, חיפוי, משטחים… — חומר אחד יכול לשאת כמה שימושים' },
   { key: 'boardElements', title: 'אלמנטים בלוח החומרים', sub: 'רצפה, קירות, תקרה, חזית… — מה החומר בחלל' },
+  { key: 'procCategories', title: 'קטגוריות קניינות', sub: 'ריהוט, תאורה, טקסטיל, כלי מטבח… — רשימות FF&E / OS&E של פרויקטי סטיילינג' },
 ];
 function listEditor(key, title, sub) {
   const st = settings(); const ro = !isManager();
@@ -3083,7 +3160,7 @@ const snake = (k) => k.replace(/[A-Z]/g, (m) => '_' + m.toLowerCase());
 const camel = (k) => k.replace(/_([a-z])/g, (m, c) => c.toUpperCase());
 const toRow = (obj) => { const o = {}; Object.entries(obj).forEach(([k, v]) => { if (k === 'updatedAt' || k === 'createdAt' || k === 'updatedBy') return; o[snake(k)] = v; }); return o; };
 const fromRow = (row) => { const o = {}; Object.entries(row).forEach(([k, v]) => { o[camel(k)] = v; }); return o; };
-const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items', 'seats', 'material_library', 'project_spaces', 'support_tickets', 'support_messages'];
+const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_visits', 'visit_items', 'files', 'milestone_types', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items', 'seats', 'material_library', 'project_spaces', 'support_tickets', 'support_messages', 'procurement_items'];
 
 S.auth = { status: 'loading', session: null, profile: null, notice: '', error: '' };
 S.profiles = {}; S.invitations = {}; S.audit = [];
@@ -3293,7 +3370,7 @@ function subscribeRealtime() {
     }, 250);
   };
   rtChannel = sb.channel('office-live');
-  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items', 'seats', 'user_permissions', 'material_library', 'project_spaces', 'support_tickets', 'support_messages'].forEach((table) => {
+  ['projects', 'contacts', 'teams', 'commissions', 'settings', 'profiles', 'tasks', 'task_comments', 'notifications', 'project_milestones', 'site_visits', 'visit_items', 'files', 'employee_levels', 'work_schedules', 'requests', 'plan_sets', 'materials', 'shoots', 'shoot_funding', 'project_shares', 'sunday_requests', 'sunday_teams', 'time_entries', 'time_days', 'project_archive', 'press_items', 'seats', 'user_permissions', 'material_library', 'project_spaces', 'support_tickets', 'support_messages', 'procurement_items'].forEach((table) => {
     rtChannel.on('postgres_changes', { event: '*', schema: 'public', table }, () => scheduleRefetch(table));
   });
   rtChannel.subscribe();
@@ -4140,10 +4217,10 @@ async function uploadOne(q) {
     // folder per context: project / visit | set | task | presentation | general; a task without a project lives under tasks/
     let pressId = ctx.pressId || null;
     if (ctx.pressNew && !pressId && typeof createDoc === 'function') { pressId = uid('pr'); await createDoc('press_items', pressId, { projectId: ctx.projectId || null, kind: 'print', title: (file.name || '').replace(/\.[^.]+$/, ''), outlet: '', url: '', imageUrl: '', publishedOn: null, websiteId: null, notes: '' }); ctx.pressId = pressId; delete ctx.pressNew; } // a scan uploaded to the archive gets a press card of its own
-    const path = ctx.libraryId && !ctx.projectId ? `library/${ctx.libraryId}/${id}.${ext}` : `${ctx.projectId || 'tasks'}/${ctx.visitId || ctx.setId || ctx.materialId || ctx.milestoneId || ctx.taskId || (pressId ? 'press' : '') || ctx.slot || 'general'}/${id}.${ext}`; // a library photo belongs to the office, not to a project
+    const path = ctx.libraryId && !ctx.projectId ? `library/${ctx.libraryId}/${id}.${ext}` : `${ctx.projectId || 'tasks'}/${ctx.visitId || ctx.setId || ctx.materialId || ctx.procurementId || ctx.milestoneId || ctx.taskId || (pressId ? 'press' : '') || ctx.slot || 'general'}/${id}.${ext}`; // a library photo belongs to the office, not to a project
     const { error } = await sb.storage.from(FILE_BUCKET).upload(path, blob, { contentType: mime, upsert: true });
     if (error) throw error;
-    const ok = await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: ctx.projectId || null, visitId: ctx.visitId || null, itemId: ctx.itemId || null, taskId: ctx.taskId || null, slot: ctx.slot || null, setId: ctx.setId || null, materialId: ctx.materialId || null, milestoneId: ctx.milestoneId || null, libraryId: ctx.libraryId || null, pressId, kind: q.kind, mime, size: blob.size, width: w, height: h, caption: ctx.caption || ((isImg || isAud) && (ctx.visitId || ctx.itemId) ? '' : file.name) /* visit photos stay caption-less; documents keep their file name */, takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : null, uploadedBy: me()?.id || null, durationSec: ctx.durationSec || null, transcript: '', transcribeStatus: '', transcribeError: '' });
+    const ok = await createDoc('files', id, { bucket: FILE_BUCKET, path, projectId: ctx.projectId || null, visitId: ctx.visitId || null, itemId: ctx.itemId || null, taskId: ctx.taskId || null, slot: ctx.slot || null, setId: ctx.setId || null, materialId: ctx.materialId || null, procurementId: ctx.procurementId || null, milestoneId: ctx.milestoneId || null, libraryId: ctx.libraryId || null, pressId, kind: q.kind, mime, size: blob.size, width: w, height: h, caption: ctx.caption || ((isImg || isAud) && (ctx.visitId || ctx.itemId) ? '' : file.name) /* visit photos stay caption-less; documents keep their file name */, takenAt: file.lastModified ? new Date(file.lastModified).toISOString() : null, uploadedBy: me()?.id || null, durationSec: ctx.durationSec || null, transcript: '', transcribeStatus: '', transcribeError: '' });
     if (!ok) { sb.storage.from(FILE_BUCKET).remove([path]).catch(() => {}); throw new Error('השמירה נדחתה'); } // no orphan in storage when the row is refused
     up.done++; up.active--;
     dropUpload(q.id);
@@ -4413,6 +4490,7 @@ function reportBlocks(v) {
   return blocks;
 }
 function renderReport() {
+  if (typeof procDocKey === 'function' && procDocKey()) return renderProcDoc();
   const v = S.site_visits[S.ui.reportId];
   if (!v) return `<div class="banner">המסמך לא נמצא. <button class="btn small" data-action="nav" data-view="field">חזרה לשטח</button></div>`;
   const K = visitKind(v);
@@ -4992,7 +5070,7 @@ const setFiles = (sid) => filesOf({ setId: sid });
 const presentationsOf = (pid) => filesOf({ projectId: pid, slot: 'presentation' }).reverse(); // newest first
 const taskFiles = (tid) => filesOf({ taskId: tid });
 const milestoneFiles = (mid) => filesOf({ milestoneId: mid });
-const generalFiles = (pid) => FL().filter((f) => f.projectId === pid && !f.visitId && !f.itemId && !f.taskId && !f.milestoneId && !f.slot && !f.setId && !f.pressId && f.kind !== 'audio').sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+const generalFiles = (pid) => FL().filter((f) => f.projectId === pid && !f.visitId && !f.itemId && !f.taskId && !f.milestoneId && !f.slot && !f.setId && !f.pressId && !f.procurementId && f.kind !== 'audio').sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
 const canDeleteFile = (f) => !!f && isMember() && (isManager() || myRole() === 'team_lead' || f.uploadedBy === me()?.id);
 const canDeleteSet = (s) => !!s && isMember() && (isManager() || myRole() === 'team_lead' || s.createdBy === me()?.id);
 const fileExt = (f) => ((f.path || f.caption || '').split('.').pop() || '').toLowerCase().slice(0, 5);
@@ -5246,7 +5324,7 @@ function projectFieldSection(p) {
 
 /* ---------- the page ---------- */
 function projectQuickAccess(p) {
-  const pres = presentationsOf(p.id)[0]; const set = latestSet(p.id); const renders = renderingsOf(p.id).length; const photos = sitePhotosOf(p.id).length; const visits = visitsOf(p.id, 'site').length; const meets = visitsOf(p.id, 'meeting').length; const mats = typeof materialsOf === 'function' ? materialsOf(p.id).length : 0;
+  const pres = presentationsOf(p.id)[0]; const set = latestSet(p.id); const renders = renderingsOf(p.id).length; const photos = sitePhotosOf(p.id).length; const visits = visitsOf(p.id, 'site').length; const meets = visitsOf(p.id, 'meeting').length; const mats = typeof materialsOf === 'function' ? materialsOf(p.id).length : 0; const procN = typeof procOf === 'function' ? procOf(p.id).length : 0;
   const chip = (label, attrs, cls = '') => `<span class="chip btn-chip qa ${cls}" ${attrs} role="button" tabindex="0">${label}</span>`;
   return `<div class="pp-quick">
     ${pres ? chip(`${ICON.doc} פרזנטציה <small>${esc(fmtDate(pres.createdAt))}</small>`, `data-action="file-open" data-id="${pres.id}" title="${esc(fileName(pres))} — לחיצה פותחת"`, 'accent') : chip(`${ICON.doc} אין פרזנטציה`, `data-action="scroll-to" data-target="files-section"`, 'dim')}
@@ -5256,6 +5334,7 @@ function projectQuickAccess(p) {
     ${chip(`${ICON.doc} פגישות <small>${meets}</small>`, `data-action="scroll-to" data-target="meetings-section"`, meets ? '' : 'dim')}
     ${chip(`${ICON.pin} פיקוח <small>${visits}</small>`, `data-action="scroll-to" data-target="field-section"`, visits ? '' : 'dim')}
     ${chip(`לוח חומרים <small>${mats}</small>`, `data-action="scroll-to" data-target="materials-section"`, mats ? '' : 'dim')}
+    ${chip(`קניינות <small>${procN}</small>`, `data-action="scroll-to" data-target="proc-section"`, procN ? '' : 'dim')}
   </div>`;
 }
 function renderProjectPage() {
@@ -5272,7 +5351,7 @@ function renderProjectPage() {
   <div class="panel pp-reduced">${reducedProjectBody(p)}</div>`;
   ensureMilestonesLoaded(p);
   const ro = !canEditProject(p);
-  const jump = [['status-section', 'סטטוס'], ['journey', 'שלבים'], ['tasks-section', 'משימות'], ['meetings-section', 'פגישות'], ['field-section', 'פיקוח'], ['materials-section', 'חומרים'], ['renders-section', 'הדמיות'], ['photos-section', 'צילומים'], ['files-section', 'קבצים'], ['team-section', 'צוות'], ['details-section', 'פרטים']];
+  const jump = [['status-section', 'סטטוס'], ['journey', 'שלבים'], ['tasks-section', 'משימות'], ['meetings-section', 'פגישות'], ['field-section', 'פיקוח'], ['materials-section', 'חומרים'], ['proc-section', 'קניינות'], ['renders-section', 'הדמיות'], ['photos-section', 'צילומים'], ['files-section', 'קבצים'], ['team-section', 'צוות'], ['details-section', 'פרטים']];
   return `
   <div class="pp-head">
     <a href="#projects" class="pp-back" data-action="nav" data-view="projects">${ICON.back} כל הפרויקטים</a>
@@ -5298,6 +5377,7 @@ function renderProjectPage() {
       ${projectMeetingsSection(p)}
       ${projectFieldSection(p)}
       ${typeof materialsBoard === 'function' ? materialsBoard(p) : ''}
+      ${typeof procurementSection === 'function' ? procurementSection(p) : ''}
       ${rendersSection(p)}
       ${sitePhotosSection(p)}
       ${projectFilesSection(p)}
@@ -5503,7 +5583,7 @@ function matStatusChip(m, edit) {
 function materialCard(m) {
   const lib = matLib(m); const cover = materialCover(m); const url = cover ? fileUrl(cover) : ''; const color = matColor(m);
   const n = materialPhotos(m.id).length;
-  const sub = [lib ? libCategory(lib) : '', m.element, !m.spaceId && m.area ? m.area : '', lib ? (lib.code || lib.manufacturer || cname(lib.supplierId, '')) : cname(m.supplierId, '')].filter(Boolean).join(' · '); // the old board's free-text area stays visible until the item gets a space
+  const sub = [lib ? libCategory(lib) : '', m.element, m.treatment || '', !m.spaceId && m.area ? m.area : '', lib ? (lib.code || lib.manufacturer || cname(lib.supplierId, '')) : cname(m.supplierId, '')].filter(Boolean).join(' · '); // the old board's free-text area stays visible until the item gets a space
   return `<div class="mat-card ${m.status}" data-action="open-material" data-id="${m.id}">
     <div class="mat-img" ${!url && color ? `style="background:${esc(color)}"` : ''}>${url ? `<img src="${esc(url)}" alt="" loading="lazy">` : (color ? '' : `<span class="mat-noimg">${ICON.image}</span>`)}${n > 1 ? `<span class="mat-count">${n}</span>` : ''}${lib && lib.source === 'catalog' ? `<span class="mat-cat">${esc(CATALOGS[lib.catalog]?.name || lib.catalog)}</span>` : ''}</div>
     <div class="mat-body">
@@ -5582,7 +5662,7 @@ function finishSchedule(p) {
     roomsOf(p.id, d.id).forEach((s) => { const items = all.filter((m) => m.spaceId === s.id); if (items.length) rows.push({ d, s, items }); });
   });
   const loose = all.filter((m) => !m.domainId || !S.project_spaces[m.domainId]); if (loose.length) rows.push({ d: null, s: null, items: loose });
-  const cell = (items) => items.map((m) => { const lib = matLib(m); const st = MAT_STATUS[m.status] || MAT_STATUS.proposed; return `<div class="fs-item ${m.status}" data-action="open-material" data-id="${m.id}" title="${esc(st.label)}">${swatch(matColor(m), 'small')}${materialCover(m) && !matColor(m) ? `<img class="fs-thumb" src="${esc(fileUrl(materialCover(m)))}" alt="">` : ''}<span>${esc(matName(m))}${lib && lib.code ? ` <small class="muted">${esc(lib.code)}</small>` : ''}${m.status !== 'approved' && m.status !== 'ordered' ? ` <small class="muted">(${st.label})</small>` : ''}</span></div>`; }).join('');
+  const cell = (items) => items.map((m) => { const lib = matLib(m); const st = MAT_STATUS[m.status] || MAT_STATUS.proposed; return `<div class="fs-item ${m.status}" data-action="open-material" data-id="${m.id}" title="${esc(st.label)}">${swatch(matColor(m), 'small')}${materialCover(m) && !matColor(m) ? `<img class="fs-thumb" src="${esc(fileUrl(materialCover(m)))}" alt="">` : ''}<span>${esc(matName(m))}${lib && lib.code ? ` <small class="muted">${esc(lib.code)}</small>` : ''}${m.treatment ? ` <small class="muted">· ${esc(m.treatment)}</small>` : ''}${m.status !== 'approved' && m.status !== 'ordered' ? ` <small class="muted">(${st.label})</small>` : ''}</span></div>`; }).join('');
   if (!rows.length) return '<div class="inline-note">עדיין אין חומרים לטבלה.</div>';
   return `<div class="inline-note" style="margin-bottom:8px">חלל × אלמנט. מה שאושר או הוזמן מודגש; מוצע בסוגריים; מה שנפסל לא מופיע. המיקום הסופי — לפי תוכניות העבודה והפריסות. <button type="button" class="btn ghost small" data-action="schedule-xlsx" data-id="${p.id}">${ICON.download || ''} ייצוא לאקסל</button></div>
   <div class="table-wrap"><table class="fs-table"><thead><tr><th>תחום</th><th>חלל</th>${cols.map((c) => `<th>${esc(c)}</th>`).join('')}</tr></thead>
@@ -5590,9 +5670,9 @@ function finishSchedule(p) {
 }
 function scheduleRows(p) {
   const all = materialsOf(p.id).filter((m) => m.status !== 'rejected');
-  const rows = [['תחום', 'חלל', 'מס\' בתוכנית', 'אלמנט', 'חומר', 'סוג', 'קוד / דגם', 'יצרן / ספק', 'גוון', 'גימור', 'מידות', 'מצב', 'כמות', 'לפי תוכנית', 'הערות']];
+  const rows = [['תחום', 'חלל', 'מס\' בתוכנית', 'אלמנט', 'חומר', 'סוג', 'קוד / דגם', 'יצרן / ספק', 'גוון', 'גימור', 'טיפול בפרויקט', 'מידות', 'מצב', 'כמות', 'לפי תוכנית', 'הערות']];
   const sorted = all.slice().sort((a, b) => { const da = S.project_spaces[a.domainId], db = S.project_spaces[b.domainId]; const sa = S.project_spaces[a.spaceId], sb_ = S.project_spaces[b.spaceId]; return ((da ? Number(da.sortOrder) || 0 : 999) - (db ? Number(db.sortOrder) || 0 : 999)) || (sa && sb_ ? bySpace(sa, sb_) : (sa ? -1 : sb_ ? 1 : 0)); });
-  sorted.forEach((m) => { const lib = matLib(m); const d = S.project_spaces[m.domainId]; const s = S.project_spaces[m.spaceId]; rows.push([d ? d.name : '', s ? s.name : '', s ? s.number : '', m.element || '', matName(m), lib ? libCategory(lib) : '', lib ? lib.code : '', lib ? (lib.manufacturer || cname(lib.supplierId, '')) : cname(m.supplierId, ''), matColor(m), lib ? lib.finish : '', lib ? lib.size : '', (MAT_STATUS[m.status] || MAT_STATUS.proposed).label, m.qty || '', m.drawingRef || '', m.description || '']); });
+  sorted.forEach((m) => { const lib = matLib(m); const d = S.project_spaces[m.domainId]; const s = S.project_spaces[m.spaceId]; rows.push([d ? d.name : '', s ? s.name : '', s ? s.number : '', m.element || '', matName(m), lib ? libCategory(lib) : '', lib ? lib.code : '', lib ? (lib.manufacturer || cname(lib.supplierId, '')) : cname(m.supplierId, ''), matColor(m), lib ? lib.finish : '', m.treatment || '', lib ? lib.size : '', (MAT_STATUS[m.status] || MAT_STATUS.proposed).label, m.qty || '', m.drawingRef || '', m.description || '']); });
   return rows;
 }
 /* ---------- the item drawer: the material (from the library) + what is particular to this project ---------- */
@@ -5630,6 +5710,7 @@ function drawerMaterial(id) {
         ${field('כמות', textInput('m-qty', m.qty || '', `data-bind="materials:${m.id}:qty" placeholder="למשל 42 מ״ר, 6 יח'" ${dis}`))}
         ${field('לפי תוכנית / פריסה', textInput('m-drawingRef', m.drawingRef || '', `data-bind="materials:${m.id}:drawingRef" placeholder="מספר התוכנית שבה המיקום הסופי" ${dis}`))}
       </div>
+      ${field('גימור / טיפול בפרויקט', textInput('m-treatment', m.treatment || '', `data-bind="materials:${m.id}:treatment" placeholder="למשל: צבוע שחור, פורים פתוחים, לכה מט משי" ${dis}`), 'מה נעשה לחומר הזה כאן — גוון, טקסטורה, גימור. הגימור הקבוע של המוצר נשאר בכרטיס שלו במאגר.')}
       ${m.area && !m.spaceId ? `<div class="inline-note" style="margin:-4px 0 8px">אזור מהלוח הישן: ${esc(m.area)} — בוחרים תחום וחלל למעלה.</div>` : ''}
       ${field('הערות לפרויקט', textArea('m-description', m.description, `rows="2" data-bind="materials:${m.id}:description" placeholder="איפה בדיוק, חלופות, מה סוכם עם הלקוח" ${dis}`))}
       <div class="field"><label>תמונות (דוגמאות, מהאתר)</label>${photoStrip({ materialId: m.id, kind: 'image' }, { projectId: m.projectId, materialId: m.id })}</div>
@@ -5773,7 +5854,7 @@ async function newMaterial(pid, extra = {}) {
   const p = S.projects[pid]; if (!canEditBoard(p)) { toast('אין לך הרשאת עריכה'); return null; }
   const id = uid('m');
   const sortIndex = Math.max(0, ...materialsOf(pid).map((m) => Number(m.sortIndex) || 0)) + 1;
-  const ok = await createDoc('materials', id, Object.assign({ projectId: pid, title: '', description: '', area: '', supplierId: null, price: null, quoteNote: '', status: 'proposed', sortIndex, createdBy: me()?.id || null, libraryId: null, domainId: null, spaceId: null, element: '', qty: '', drawingRef: '' }, extra));
+  const ok = await createDoc('materials', id, Object.assign({ projectId: pid, title: '', description: '', area: '', supplierId: null, price: null, quoteNote: '', status: 'proposed', sortIndex, createdBy: me()?.id || null, libraryId: null, domainId: null, spaceId: null, element: '', qty: '', drawingRef: '', treatment: '' }, extra));
   return ok ? id : null;
 }
 async function newLibraryItem(name, extra = {}) {
@@ -5868,7 +5949,7 @@ async function materialsAction(a, ds, t, e) {
     case 'space-create': { const [pid, did] = ds.id.split(':'); const p = S.projects[pid]; if (!canEditBoard(p)) return true; const name = (document.getElementById('nss-' + did)?.value || '').trim(); const number = (document.getElementById('nsn-' + did)?.value || '').trim(); if (!name) { document.getElementById('nss-' + did)?.focus(); return true; } await createDoc('project_spaces', uid('ps'), { projectId: pid, kind: 'space', parentId: did, name, number, notes: '', sortOrder: roomsOf(pid, did).length + 1 }); const n = document.getElementById('nsn-' + did), s = document.getElementById('nss-' + did); if (n) n.value = ''; if (s) { s.value = ''; } render(); setTimeout(() => document.getElementById('nss-' + did)?.focus(), 30); return true; }
     case 'space-edit': { const s = S.project_spaces[ds.id]; if (!s) return true; const key = `${s.projectId}:${s.id}:edit`; S.ui.boardOpen[key] = !S.ui.boardOpen[key]; render(); if (S.ui.boardOpen[key]) setTimeout(() => document.getElementById('sps-' + s.id)?.focus(), 30); return true; }
     case 'space-del': { const s = S.project_spaces[ds.id]; if (!s) return true; const p = S.projects[s.projectId]; if (!canEditBoard(p)) return true; if (MT().some((m) => m.spaceId === s.id || m.domainId === s.id) || spacesOf(s.projectId).some((x) => x.parentId === s.id)) { toast('יש בו חומרים או חללים — קודם מעבירים אותם'); return true; } await deleteDoc('project_spaces', s.id); return true; }
-    case 'schedule-xlsx': { const p = S.projects[ds.id]; if (!p) return true; try { downloadBytes(`לוח גמרים - ${p.name}.xlsx`, xlsxBuild([{ name: 'לוח גמרים', rows: scheduleRows(p), widths: [14, 18, 10, 12, 30, 16, 16, 20, 10, 12, 14, 10, 12, 16, 40] }])); toast('הקובץ ירד'); } catch (err) { toast('הייצוא נכשל: ' + (err?.message || '')); } return true; }
+    case 'schedule-xlsx': { const p = S.projects[ds.id]; if (!p) return true; try { downloadBytes(`לוח גמרים - ${p.name}.xlsx`, xlsxBuild([{ name: 'לוח גמרים', rows: scheduleRows(p), widths: [14, 18, 10, 12, 30, 16, 16, 20, 10, 12, 24, 14, 10, 12, 16, 40] }])); toast('הקובץ ירד'); } catch (err) { toast('הייצוא נכשל: ' + (err?.message || '')); } return true; }
     case 'lib-new': { const id = await newLibraryItem('', { category: '' }); if (id) { openDrawer('library', id); setTimeout(() => document.getElementById('l-name')?.focus(), 40); } return true; }
     case 'lib-classify': { if (!isMember()) return true; patchDoc('material_library', ds.id, { category: ds.value }); return true; }
     case 'lib-tag-remove': { e.stopPropagation(); if (!isMember()) return true; const x = S.material_library[ds.id]; if (!x) return true; patchDoc('material_library', ds.id, { tags: libTags(x).filter((t) => t !== ds.value) }); return true; }
@@ -5903,7 +5984,485 @@ async function materialsAction(a, ds, t, e) {
 }
 /* the archive's "colours and shades" straight from the board: what was approved or ordered, with its space */
 function boardColoursRows(pid) {
-  return materialsOf(pid).filter((m) => ['approved', 'ordered'].includes(m.status) && (matColor(m) || (matLib(m) && /צבע|גוון/.test(matLib(m).category || '')))).map((m) => { const lib = matLib(m); const s = S.project_spaces[m.spaceId]; const d = S.project_spaces[m.domainId]; return { where: [d ? d.name : '', s ? spaceLabel(s) : '', m.element].filter(Boolean).join(' · '), maker: lib ? (lib.manufacturer || cname(lib.supplierId, '')) : '', shade: [matName(m), lib && lib.code ? lib.code : ''].filter(Boolean).join(' '), finish: lib ? lib.finish : '', color: matColor(m), id: m.id }; });
+  return materialsOf(pid).filter((m) => ['approved', 'ordered'].includes(m.status) && (matColor(m) || (matLib(m) && /צבע|גוון/.test(matLib(m).category || '')))).map((m) => { const lib = matLib(m); const s = S.project_spaces[m.spaceId]; const d = S.project_spaces[m.domainId]; return { where: [d ? d.name : '', s ? spaceLabel(s) : '', m.element].filter(Boolean).join(' · '), maker: lib ? (lib.manufacturer || cname(lib.supplierId, '')) : '', shade: [matName(m), lib && lib.code ? lib.code : ''].filter(Boolean).join(' '), finish: [lib ? lib.finish : '', m.treatment || ''].filter(Boolean).join(' · '), color: matColor(m), id: m.id }; });
+}
+/* ===================== procurement — קניינות: FF&E / OS&E (20.10.2026) =====================
+   A styling & procurement project (Kaplan 95) is a list of a few hundred items: what goes in every room, from the sofa to the bar
+   glasses. Until now that list lived in an Excel sheet. Here it is a module of the project page: items in floors (the board's
+   domains) and rooms (its spaces), each with a category from the office list, FF&E or OS&E, the specification, quantity and unit,
+   the supplier and product, the price to the client, photos and quotes, and a status that runs
+   לאיתור → הצעה → אושר → הוזמן → סופק → הותקן (or נפסל). The list is grouped by room, by category, by supplier or by status; a budget
+   strip sums what was approved and ordered. Out of it come an Excel sheet, a designed document for the client (a photo, the
+   specification, the price and an approval box per item) and a purchase order per supplier — both through the same A4 pipeline
+   as the site reports. Prices are visible to everyone involved in the project, as on the materials board (30.9). */
+S.procurement_items = S.procurement_items || {};
+S.ui.proc = S.ui.proc || {};
+const PROC_STATUS = {
+  todo: { label: 'לאיתור', cls: 'dim', hint: 'עוד לא נבחר מוצר — מחפשים' },
+  proposed: { label: 'הצעה', cls: 'yellow', hint: 'נמצא מוצר — ממתין לאישור הלקוח' },
+  approved: { label: 'אושר', cls: 'green', hint: 'הלקוח אישר — אפשר להזמין' },
+  ordered: { label: 'הוזמן', cls: 'accent', hint: 'הוזמן מהספק' },
+  delivered: { label: 'סופק', cls: 'accent', hint: 'הגיע לאתר או למחסן' },
+  installed: { label: 'הותקן', cls: 'soft', hint: 'במקומו בבית' },
+  rejected: { label: 'נפסל', cls: 'red', hint: 'ירד מהרשימה' },
+};
+const PROC_ORDER = ['todo', 'proposed', 'approved', 'ordered', 'delivered', 'installed', 'rejected'];
+const PROC_LIVE = ['approved', 'ordered', 'delivered', 'installed']; // what counts as money committed
+const PROC_SCOPE = { ffe: { label: 'FF&E', sub: 'ריהוט, תאורה, שטיחים, אמנות — מה שקבוע ומצויד' }, ose: { label: 'OS&E', sub: 'כלים, טקסטיל, אביזרים — מה שתפעולי ומתכלה' } };
+const PROC_UNITS = ['יח׳', 'סט', 'זוג', 'מ״ר', 'מ״א', 'ק״ג', 'ליטר'];
+const PROC_VIEWS = [['rooms', 'לפי חלל'], ['category', 'לפי קטגוריה'], ['supplier', 'לפי ספק'], ['status', 'לפי מצב']];
+const PR = () => list('procurement_items');
+const procOf = (pid) => PR().filter((x) => x.projectId === pid).sort((a, b) => (Number(a.sortIndex) || 0) - (Number(b.sortIndex) || 0) || (a.createdAt || '').localeCompare(b.createdAt || ''));
+const procQty = (x) => (x.qty == null || x.qty === '' ? 1 : Number(x.qty) || 0);
+const procPrice = (x) => (x.unitPrice == null || x.unitPrice === '' || isNaN(Number(x.unitPrice)) ? null : Number(x.unitPrice));
+const procTotal = (x) => { const u = procPrice(x); return u == null ? null : Math.round(u * procQty(x) * 100) / 100; };
+const procSum = (items) => items.reduce((s, x) => s + (procTotal(x) || 0), 0);
+const procPhotos = (id) => filesOf({ procurementId: id, kind: 'image' });
+const procDocs = (id) => FL().filter((f) => f.procurementId === id && f.kind !== 'image');
+const procCover = (x) => procPhotos(x.id)[0] || null;
+const canEditProc = (p) => canEditBoard(p);
+const canDeleteProc = (x) => !!x && isMember() && (isManager() || myRole() === 'team_lead' || x.createdBy === me()?.id);
+const procUi = (pid) => (S.ui.proc[pid] = S.ui.proc[pid] || { view: 'rooms', q: '', status: '', cat: '', scope: '', open: {} });
+const procCats = () => settings().procCategories || [];
+const procQtyText = (x) => `${fmtNum(procQty(x), 2)} ${x.unit || 'יח׳'}`;
+const procRoom = (x) => S.project_spaces[x.spaceId] || null;
+const procDomain = (x) => S.project_spaces[x.domainId] || null;
+const procWhere = (x) => [procDomain(x)?.name, procRoom(x) ? spaceLabel(procRoom(x)) : ''].filter(Boolean).join(' · ');
+const procSupplierName = (x) => cname(x.supplierId, '');
+function procStatusChip(x, edit) {
+  const st = PROC_STATUS[x.status] || PROC_STATUS.todo;
+  return `<span class="chip ${st.cls} ${edit && isMember() ? 'btn-chip' : ''}" title="${esc(st.hint)}${edit && isMember() ? ' — לחיצה משנה' : ''}" ${edit && isMember() ? `data-action="menu" data-menu="procstatus" data-id="${x.id}" role="button" tabindex="0"` : ''}>${st.label}</span>`;
+}
+/* the filtered items of a project, in the order of the board: domain → room (by number) → sort index */
+function procFiltered(p) {
+  const u = procUi(p.id); const words = normM(u.q || '').split(/\s+/).filter(Boolean);
+  return procOf(p.id).filter((x) => (!u.status || x.status === u.status) && (!u.cat || x.category === u.cat) && (!u.scope || x.scope === u.scope)
+    && (!words.length || words.every((w) => normM([x.title, x.spec, x.category, x.brand, x.sku, procSupplierName(x), procWhere(x), x.notes, x.sourceNote].join(' ')).includes(w))));
+}
+const procSorted = (items) => items.slice().sort((a, b) => { const da = procDomain(a), db = procDomain(b); const sa = procRoom(a), sb_ = procRoom(b); return ((da ? Number(da.sortOrder) || 0 : 999) - (db ? Number(db.sortOrder) || 0 : 999)) || (sa && sb_ ? bySpace(sa, sb_) : (sa ? -1 : sb_ ? 1 : 0)) || (Number(a.sortIndex) || 0) - (Number(b.sortIndex) || 0); });
+/* ---------- the section on the project page ---------- */
+function procRow(x, opts = {}) {
+  const cover = procCover(x); const url = cover ? fileUrl(cover) : '';
+  const total = procTotal(x); const unit = procPrice(x);
+  const sub = [opts.where ? procWhere(x) : '', x.category, x.scope ? PROC_SCOPE[x.scope].label : '', [x.brand, x.sku].filter(Boolean).join(' '), opts.supplier === false ? '' : procSupplierName(x), (x.spec || '').replace(/\s+/g, ' ').slice(0, 90)].filter(Boolean).join(' · ');
+  return `<div class="pr-row ${x.status}" data-action="open-proc" data-id="${x.id}">
+    <div class="pr-thumb">${url ? `<img src="${esc(url)}" alt="" loading="lazy">` : `<span class="pr-noimg">${ICON.image}</span>`}</div>
+    <div class="pr-main"><div class="pr-title">${esc(x.title || x.spec || 'פריט ללא שם')}</div><div class="pr-sub">${esc(sub)}</div></div>
+    <div class="pr-qty">${esc(procQtyText(x))}</div>
+    <div class="pr-price">${total != null ? `<strong>${fmtMoney(total)}</strong>${procQty(x) !== 1 && unit != null ? `<small>${fmtMoney(unit)} × ${fmtNum(procQty(x), 2)}</small>` : ''}` : '<span class="muted">—</span>'}</div>
+    <div class="pr-status">${procStatusChip(x, true)}</div>
+  </div>`;
+}
+function procGroupHead(title, items, tools = '', opts = {}) {
+  const sum = procSum(items);
+  return `<div class="pr-ghead ${opts.cls || ''}">${opts.number ? `<span class="bd-num" title="מספר בתוכנית">${esc(opts.number)}</span>` : ''}<strong class="pr-gname">${title}</strong><small class="muted">${items.length} ${items.length === 1 ? 'פריט' : 'פריטים'}${sum ? ' · ' + fmtMoney(sum) : ''}</small>${tools ? `<span class="bd-tools">${tools}</span>` : ''}</div>`;
+}
+function procBudget(p, all) {
+  const n = (k) => all.filter((x) => x.status === k);
+  const live = all.filter((x) => PROC_LIVE.includes(x.status));
+  const open = all.filter((x) => x.status === 'todo' || x.status === 'proposed');
+  const priced = all.filter((x) => procPrice(x) != null && x.status !== 'rejected');
+  const stat = (label, items, sub) => `<div class="pr-stat"><div class="pr-stat-label">${label}</div><div class="pr-stat-value">${items.length}</div><div class="pr-stat-sub">${sub != null ? sub : (procSum(items) ? fmtMoney(procSum(items)) : '')}</div></div>`;
+  return `<div class="pr-stats">
+    ${stat('פריטים', all.filter((x) => x.status !== 'rejected'), `${priced.length} עם מחיר${procSum(priced) ? ' · ' + fmtMoney(procSum(priced)) : ''}`)}
+    ${stat('לאיתור / הצעה', open)}
+    ${stat('אושר', n('approved'))}
+    ${stat('הוזמן', n('ordered'))}
+    ${stat('סופק / הותקן', [...n('delivered'), ...n('installed')])}
+    ${stat('מחויב', live, `${fmtMoney(procSum(live))}${procSum(priced) ? ` · ${Math.round(procSum(live) / procSum(priced) * 100)}% מהרשימה` : ''}`)}
+  </div>`;
+}
+function procurementSection(p) {
+  const all = procOf(p.id);
+  const edit = canEditProc(p);
+  const u = procUi(p.id);
+  const total = procSum(all.filter((x) => x.status !== 'rejected'));
+  const tools = `${all.length ? `<button type="button" class="btn ghost small" data-action="menu" data-menu="procexport" data-id="${p.id}" title="אקסל, מסמך ללקוח, הזמנה לספק">${ICON.download} ייצוא…</button>` : ''}${edit ? `<button type="button" class="btn ghost small" data-action="menu" data-menu="procdomain" data-id="${p.id}" title="קומה או אגף — מרתף, קומת קרקע, חוץ…">${ICON.plus} קומה / תחום</button><button type="button" class="btn small primary" data-action="menu" data-menu="procadd" data-id="${p.id}">${ICON.plus} פריט</button>` : ''}`;
+  if (!all.length) return `<div class="section" id="proc-section">
+    <h3 class="section-title">קניינות <small>FF&E · OS&E</small><span class="journey-tools">${tools}</span></h3>
+    <div class="inline-note">${edit ? 'רשימת הרכש של הפרויקט — ריהוט, תאורה, טקסטיל, כלים, אביזרים — לפי קומות וחללים, עם מפרט, ספק, מחיר ומצב. "פריט" פותח את הפריט הראשון; הקומות והחללים משותפים עם לוח החומרים.' : 'עדיין אין פריטי קניינות בפרויקט.'}</div>
+  </div>`;
+  const counts = {}; all.forEach((x) => { counts[x.status] = (counts[x.status] || 0) + 1; });
+  const scopes = {}; all.forEach((x) => { if (x.scope) scopes[x.scope] = (scopes[x.scope] || 0) + 1; });
+  const cats = [...new Set(all.map((x) => x.category).filter(Boolean))].sort((a, b) => { const ia = procCats().indexOf(a), ib = procCats().indexOf(b); return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib) || a.localeCompare(b, 'he'); });
+  const shown = procFiltered(p);
+  const filtered = shown.length !== all.length;
+  const chip = (key, value, label, n, on) => `<span class="chip btn-chip ${on ? 'accent' : ''}" data-action="proc-filter" data-pid="${p.id}" data-key="${key}" data-value="${esc(value)}" role="button" tabindex="0">${label}${n != null ? ` <small>${n}</small>` : ''}</span>`;
+  return `<div class="section" id="proc-section">
+    <h3 class="section-title">קניינות <small>FF&E · OS&E · ${all.length} פריטים${total ? ' · ' + fmtMoney(total) : ''}</small><span class="journey-tools">${tools}</span></h3>
+    ${procBudget(p, all)}
+    <div class="pr-filters">
+      <div class="search">${ICON.search}<input type="search" id="proc-q" data-pid="${p.id}" placeholder="חיפוש בפריט, מפרט, ספק, חלל…" value="${esc(u.q || '')}"></div>
+      <div class="chips">${chip('status', '', 'הכל', all.length, !u.status)}${PROC_ORDER.filter((k) => counts[k]).map((k) => chip('status', k, PROC_STATUS[k].label, counts[k], u.status === k)).join('')}</div>
+      ${Object.keys(scopes).length ? `<div class="chips">${Object.keys(PROC_SCOPE).filter((k) => scopes[k]).map((k) => chip('scope', u.scope === k ? '' : k, PROC_SCOPE[k].label, scopes[k], u.scope === k)).join('')}</div>` : ''}
+      ${cats.length > 1 ? `<select id="proc-cat" data-pid="${p.id}" aria-label="קטגוריה"><option value="">כל הקטגוריות</option>${cats.map((c) => `<option value="${esc(c)}" ${u.cat === c ? 'selected' : ''}>${esc(c)} (${all.filter((x) => x.category === c).length})</option>`).join('')}</select>` : ''}
+      <div class="tabs pr-views">${PROC_VIEWS.map(([id, l]) => `<button type="button" class="tab ${(u.view || 'rooms') === id ? 'on' : ''}" data-action="proc-filter" data-pid="${p.id}" data-key="view" data-value="${id}">${l}</button>`).join('')}</div>
+    </div>
+    ${filtered ? `<div class="inline-note" style="margin-bottom:6px">מוצגים ${shown.length} מתוך ${all.length}${procSum(shown) ? ' · ' + fmtMoney(procSum(shown)) : ''} <button type="button" class="btn ghost small" data-action="proc-filter" data-pid="${p.id}" data-key="clear" data-value="">נקה סינון</button></div>` : ''}
+    ${shown.length ? procGroups(p, shown, edit) : '<div class="inline-note">אין פריטים שמתאימים לסינון.</div>'}
+  </div>`;
+}
+function procGroups(p, items, edit) {
+  const u = procUi(p.id); const view = u.view || 'rooms';
+  if (view === 'rooms') {
+    const parts = [];
+    domainsOf(p.id).forEach((d) => {
+      const mine = items.filter((x) => x.domainId === d.id);
+      const rooms = roomsOf(p.id, d.id).filter((s) => mine.some((x) => x.spaceId === s.id));
+      if (!mine.length && !edit) return;
+      if (!mine.length && !S.ui.proc.showEmpty) return;
+      const open = u.open[d.id] !== false;
+      const general = mine.filter((x) => !x.spaceId || !S.project_spaces[x.spaceId]);
+      parts.push(`<div class="bd-domain pr-domain ${open ? 'open' : ''}">
+        <div class="bd-dhead"><button type="button" class="bd-toggle" data-action="proc-toggle" data-pid="${p.id}" data-id="${d.id}" title="${open ? 'סגור' : 'פתח'}">${open ? '▾' : '▸'}</button><strong class="bd-dname">${esc(d.name)}</strong><small class="muted">${mine.length} פריטים${procSum(mine) ? ' · ' + fmtMoney(procSum(mine)) : ''}</small>${edit ? `<span class="bd-tools"><button type="button" class="btn small ghost" data-action="menu" data-menu="procspace" data-id="${p.id}:${d.id}">${ICON.plus} חלל</button><button type="button" class="btn small ghost" data-action="proc-new" data-id="${p.id}:${d.id}:" title="פריט בתחום בלי חלל">${ICON.plus} פריט</button></span>` : ''}</div>
+        ${open ? `<div class="bd-dbody pr-dbody">
+          ${general.length ? `<div class="pr-group">${procGroupHead('כללי — בלי חלל', general, '', { cls: 'muted' })}${general.map((x) => procRow(x)).join('')}</div>` : ''}
+          ${rooms.map((s) => { const rows = mine.filter((x) => x.spaceId === s.id); return `<div class="pr-group" id="prs-${esc(s.id)}">${procGroupHead(esc(s.name || 'חלל ללא שם'), rows, edit ? `<button type="button" class="btn small ghost" data-action="proc-new" data-id="${p.id}:${d.id}:${s.id}">${ICON.plus} פריט</button>` : '', { number: s.number })}${rows.map((x) => procRow(x)).join('')}</div>`; }).join('')}
+          ${!rooms.length && !general.length ? '<div class="inline-note">אין פריטים בתחום הזה.</div>' : ''}
+        </div>` : ''}
+      </div>`);
+    });
+    const loose = items.filter((x) => !x.domainId || !S.project_spaces[x.domainId]);
+    if (loose.length) parts.push(`<div class="bd-domain pr-domain open"><div class="bd-dhead"><strong class="bd-dname muted">בלי שיוך לקומה</strong><small class="muted">${loose.length}</small></div><div class="bd-dbody pr-dbody"><div class="inline-note">פותחים פריט ובוחרים לו קומה וחלל.</div><div class="pr-group">${loose.map((x) => procRow(x)).join('')}</div></div></div>`);
+    return parts.join('');
+  }
+  let groups = [];
+  if (view === 'category') {
+    const keys = [...new Set(items.map((x) => x.category || ''))].sort((a, b) => { const ia = procCats().indexOf(a), ib = procCats().indexOf(b); return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib) || a.localeCompare(b, 'he'); });
+    groups = keys.map((k) => ({ title: esc(k || 'ללא קטגוריה'), items: procSorted(items.filter((x) => (x.category || '') === k)) }));
+  } else if (view === 'supplier') {
+    const keys = [...new Set(items.map((x) => x.supplierId || ''))].sort((a, b) => (!a) - (!b) || cname(a, '').localeCompare(cname(b, ''), 'he'));
+    groups = keys.map((k) => ({ title: k ? `<a href="#" data-action="open-contact" data-id="${k}" style="color:inherit">${esc(cname(k, 'ספק שנמחק'))}</a>` : 'עדיין בלי ספק', items: procSorted(items.filter((x) => (x.supplierId || '') === k)), tools: k && items.some((x) => x.supplierId === k && PROC_LIVE.includes(x.status)) ? `<button type="button" class="btn small ghost" data-action="proc-doc" data-id="${p.id}" data-mode="po" data-supplier="${k}" title="הזמנת רכש לספק — PDF">${ICON.doc} הזמנה לספק</button>` : '' }));
+  } else {
+    groups = PROC_ORDER.filter((k) => items.some((x) => x.status === k)).map((k) => ({ title: `<span class="chip ${PROC_STATUS[k].cls}">${PROC_STATUS[k].label}</span> <span class="muted" style="font-weight:400;font-size:12.5px">${esc(PROC_STATUS[k].hint)}</span>`, items: procSorted(items.filter((x) => x.status === k)) }));
+  }
+  return groups.map((g) => `<div class="pr-group">${procGroupHead(g.title, g.items, g.tools || '')}${g.items.map((x) => procRow(x, { where: true, supplier: view !== 'supplier' })).join('')}</div>`).join('');
+}
+/* ---------- the item drawer ---------- */
+function drawerProc(id) {
+  const x = S.procurement_items[id];
+  if (!x) return `<div class="drawer-head"><h2 class="drawer-title">הפריט נמחק</h2><button class="icon-btn" data-action="close-drawer">${ICON.x}</button></div>`;
+  const p = S.projects[x.projectId];
+  const ro = !isMember() || (p && isReduced(p));
+  const dis = ro ? 'disabled' : '';
+  const domains = p ? domainsOf(p.id) : [];
+  const rooms = p && x.domainId ? roomsOf(p.id, x.domainId) : [];
+  const catOpts = [...new Set([...procCats(), ...(x.category ? [x.category] : [])])].map((c) => ({ value: c, label: c }));
+  const unitOpts = [...new Set([...PROC_UNITS, ...(x.unit ? [x.unit] : [])])].map((v) => ({ value: v, label: v }));
+  const total = procTotal(x); const docs = procDocs(x.id);
+  const bind = (k) => `data-bind="procurement_items:${x.id}:${k}" ${dis}`;
+  const date = (k, label, hint) => field(label, `<input type="date" id="pi-${k}" value="${dateInput(x[k])}" ${bind(k)}>`, hint);
+  return `
+  <div class="drawer-head">
+    <div style="flex:1;min-width:0">
+      <h2 class="drawer-title"><input type="text" id="pi-title" value="${esc(S.ui.drafts['pi-title'] ?? (x.title || ''))}" ${bind('title')} placeholder="הפריט בכמה מילים — ספה תלת־מושבית, כוסות יין…" aria-label="שם הפריט"></h2>
+      <div class="drawer-sub">${p ? `<a href="#" data-action="open-project" data-id="${p.id}" style="color:inherit">${esc(p.name)}</a> · ` : ''}קניינות${procWhere(x) ? ' · ' + esc(procWhere(x)) : ''}</div>
+    </div>
+    <button class="icon-btn" data-action="close-drawer" title="סגור (Esc)">${ICON.x}</button>
+  </div>
+  <div class="drawer-body">
+    <div class="section">
+      <div class="status-row">${PROC_ORDER.map((k) => `<span class="chip ${PROC_STATUS[k].cls} ${x.status === k ? 'on' : ''}" title="${esc(PROC_STATUS[k].hint)}" ${ro ? '' : `data-action="proc-status" data-id="${x.id}" data-value="${k}" role="button" tabindex="0"`}>${PROC_STATUS[k].label}</span>`).join('')}</div>
+      <div class="field-row">
+        ${field('קומה / תחום', selectHtml('pi-domain', x.domainId || '', domains.map((d) => ({ value: d.id, label: d.name })), { blank: 'ללא', attrs: bind('domainId') }))}
+        ${field('חלל', selectHtml('pi-space', x.spaceId || '', rooms.map((s) => ({ value: s.id, label: spaceLabel(s) })), { blank: x.domainId ? 'כללי — בלי חלל' : 'בחרו קומה קודם', attrs: `${bind('spaceId')} ${x.domainId ? '' : 'disabled'}` }))}
+      </div>
+      <div class="field-row">
+        ${field('קטגוריה', selectHtml('pi-category', x.category || '', catOpts, { blank: 'בחרו…', attrs: bind('category') }), 'הרשימה ניתנת לעריכה במאגרים → רשימות')}
+        ${field('סוג', selectHtml('pi-scope', x.scope || '', Object.keys(PROC_SCOPE).map((k) => ({ value: k, label: PROC_SCOPE[k].label })), { blank: 'לא הוגדר', attrs: bind('scope') }), 'FF&E — ריהוט, תאורה, שטיחים, אמנות · OS&E — כלים, טקסטיל, אביזרים')}
+      </div>
+      ${field('מפרט', textArea('pi-spec', x.spec, `rows="3" ${bind('spec')} placeholder="דגם, מידות, חומר, גוון, גימור — מה שצריך כדי להזמין בדיוק את זה"`))}
+      <div class="field-row">
+        ${field('כמות', `<input type="number" id="pi-qty" min="0" step="any" value="${x.qty ?? ''}" ${bind('qty')} inputmode="decimal" placeholder="1">`)}
+        ${field('יחידה', selectHtml('pi-unit', x.unit || '', unitOpts, { blank: 'יח׳', attrs: bind('unit') }))}
+      </div>
+      <div class="field"><label>תמונות</label>${photoStrip({ procurementId: x.id, kind: 'image' }, { projectId: x.projectId, procurementId: x.id })}</div>
+    </div>
+    <div class="section">
+      <h3 class="section-title">מוצר, ספק ומחיר <small>${total != null ? `סה״כ ${fmtMoney(total)}` : ''}</small></h3>
+      <div class="field-row">
+        ${field('ספק', `<div style="padding-top:4px">${ro ? esc(cname(x.supplierId, '—')) : pickerChips(x, { field: 'supplierId', single: true, type: 'supplier' }, 'procurement_items')}</div>`)}
+        ${field('מותג / יצרן', textInput('pi-brand', x.brand, `${bind('brand')} placeholder="למשל: Flos, Zara Home"`))}
+        ${field('דגם / מק״ט', textInput('pi-sku', x.sku, `${bind('sku')} placeholder="קוד קטלוגי" dir="auto"`))}
+      </div>
+      <div class="field-row">
+        ${field('מחיר ליחידה (₪)', `<input type="number" id="pi-unitPrice" min="0" step="any" value="${x.unitPrice ?? ''}" ${bind('unitPrice')} inputmode="decimal">`, 'המחיר ללקוח · סה״כ = מחיר × כמות')}
+        ${field('זמן אספקה', textInput('pi-leadTime', x.leadTime, `${bind('leadTime')} placeholder="במלאי, 6–8 שבועות…"`))}
+      </div>
+      ${field('קישור למוצר', `<div class="pr-url">${textInput('pi-url', x.url, `${bind('url')} placeholder="https://" dir="ltr"`)}${x.url ? `<a class="btn small ghost" href="${esc(/^https?:\/\//i.test(x.url) ? x.url : 'https://' + x.url)}" target="_blank" rel="noopener" data-action="ext" title="פתח בלשונית חדשה">פתח</a>` : ''}</div>`)}
+      ${docs.length ? `<div class="file-list">${docs.map((f) => fileRow(f)).join('')}</div>` : ''}
+      ${ro ? '' : `<div class="add-row">${uploadControl({ projectId: x.projectId, procurementId: x.id, slot: 'quote' }, { label: docs.length ? 'הוסף קובץ' : 'העלה הצעת מחיר', accept: '.pdf,image/*,.xlsx,.docx' })}</div>`}
+    </div>
+    <div class="section">
+      <h3 class="section-title">מעקב <small>${x.orderRef ? `הזמנה ${esc(x.orderRef)}` : ''}</small></h3>
+      <div class="field-row">
+        ${date('approvedAt', 'אושר ע״י הלקוח')}
+        ${date('orderedAt', 'הוזמן')}
+        ${field('מס׳ הזמנה / חשבונית', textInput('pi-orderRef', x.orderRef, `${bind('orderRef')} dir="auto"`))}
+      </div>
+      <div class="field-row">
+        ${date('eta', 'צפי אספקה')}
+        ${date('deliveredAt', 'סופק')}
+        ${date('paidAt', 'שולם')}
+      </div>
+      ${field('הערה ללקוח', textArea('pi-clientNote', x.clientNote, `rows="2" ${bind('clientNote')} placeholder="מופיע במסמך ללקוח: חלופות, מה כלול, מה לבחור"`))}
+      ${field('הערות פנימיות', textArea('pi-notes', x.notes, `rows="2" ${bind('notes')} placeholder="מה סוכם עם הספק, תנאי תשלום, מה לבדוק"`))}
+      ${x.sourceNote ? `<div class="inline-note">מהרשימה המקורית: ${esc(x.sourceNote)}</div>` : ''}
+    </div>
+  </div>
+  <div class="drawer-foot">
+    <span class="inline-note">נוסף ע"י ${esc(uname(x.createdBy, '—'))} · ${fmtDate(x.createdAt)}</span>
+    <span style="display:inline-flex;gap:6px;flex-wrap:wrap">${ro ? '' : `<button type="button" class="btn ghost small" data-action="proc-dup" data-id="${x.id}" title="פריט חדש עם אותם פרטים — למשל אותו סט מגבות לחדר רחצה אחר">שכפל</button>`}${canDeleteProc(x) && !ro ? confirmButton('proc-del', `data-id="${x.id}"`, 'הסר מהרשימה') : ''}</span>
+  </div>`;
+}
+/* ---------- data ---------- */
+async function newProcItem(pid, extra = {}) {
+  const p = S.projects[pid]; if (!canEditProc(p)) { toast('אין לך הרשאת עריכה'); return null; }
+  const id = uid('pi');
+  const sortIndex = Math.max(0, ...procOf(pid).map((x) => Number(x.sortIndex) || 0)) + 1;
+  const ok = await createDoc('procurement_items', id, Object.assign({ projectId: pid, domainId: null, spaceId: null, category: '', scope: '', title: '', spec: '', qty: null, unit: '', supplierId: null, brand: '', sku: '', url: '', unitPrice: null, leadTime: '', status: 'todo', approvedAt: null, orderedAt: null, orderRef: '', eta: null, deliveredAt: null, paidAt: null, notes: '', clientNote: '', sourceNote: '', sortIndex, createdBy: me()?.id || null }, extra));
+  return ok ? id : null;
+}
+/* a status change fills the matching date when it is empty — the day the client approved, the day it was ordered, the day it arrived */
+function setProcStatus(x, status) {
+  const patch = { status }; const today = new Date().toISOString().slice(0, 10);
+  if (status === 'approved' && !x.approvedAt) patch.approvedAt = today;
+  if (status === 'ordered' && !x.orderedAt) patch.orderedAt = today;
+  if (status === 'delivered' && !x.deliveredAt) patch.deliveredAt = today;
+  patchDoc('procurement_items', x.id, patch);
+}
+async function newProcSpace(pid, did, name) {
+  const p = S.projects[pid]; if (!canEditProc(p) || !name) return null;
+  const id = uid('ps');
+  const ok = await createDoc('project_spaces', id, { projectId: pid, kind: 'space', parentId: did, name: String(name).trim(), number: '', notes: '', sortOrder: roomsOf(pid, did).length + 1 });
+  return ok ? id : null;
+}
+async function newProcDomain(pid, name) {
+  const p = S.projects[pid]; if (!canEditProc(p) || !name) return null;
+  const id = uid('ps');
+  const ok = await createDoc('project_spaces', id, { projectId: pid, kind: 'domain', parentId: null, name: String(name).trim(), number: '', notes: '', sortOrder: domainsOf(pid).length + 1 });
+  return ok ? id : null;
+}
+/* ---------- menus ---------- */
+function procMenu(kind, id, anchor) {
+  if (kind === 'procstatus') {
+    if (!isMember()) { toast('אין לך הרשאת עריכה'); return true; }
+    const x = S.procurement_items[id]; if (!x) return true;
+    openMenu(anchor, { items: PROC_ORDER.map((k) => ({ label: PROC_STATUS[k].label, sub: PROC_STATUS[k].hint, value: k, selected: x.status === k })), onPick: (it) => setProcStatus(x, it.value) });
+    return true;
+  }
+  if (kind === 'procadd') { // "+ פריט": pick the room (or type a new one) — the item opens at once
+    const p = S.projects[id]; if (!canEditProc(p)) { toast('אין לך הרשאת עריכה'); return true; }
+    const items = [];
+    domainsOf(p.id).forEach((d) => { items.push({ label: `${d.name} — כללי`, sub: 'בלי חלל', value: d.id + ':' }); roomsOf(p.id, d.id).forEach((s) => items.push({ label: spaceLabel(s), sub: d.name, value: d.id + ':' + s.id })); });
+    openMenu(anchor, { search: true, placeholder: 'באיזה חלל? (או שם של חלל חדש)', emptyText: items.length ? 'לא נמצא — הקלידו שם ולחצו "צור" לחלל חדש' : 'עוד אין חללים — הקלידו שם של חלל כדי לפתוח אותו', items, create: true, createLabel: '(חלל חדש)',
+      onPick: async (it) => { const [did, sid] = it.value.split(':'); const nid = await newProcItem(p.id, { domainId: did || null, spaceId: sid || null }); if (nid) { openDrawer('proc', nid); setTimeout(() => document.getElementById('pi-title')?.focus(), 40); } },
+      onCreate: async (name) => { let did = domainsOf(p.id)[0]?.id; if (!did) did = await newProcDomain(p.id, 'פנים'); if (!did) return; const sid = await newProcSpace(p.id, did, name); const nid = await newProcItem(p.id, { domainId: did, spaceId: sid }); if (nid) { openDrawer('proc', nid); setTimeout(() => document.getElementById('pi-title')?.focus(), 40); } } });
+    return true;
+  }
+  if (kind === 'procdomain') {
+    const p = S.projects[id]; if (!canEditProc(p)) { toast('אין לך הרשאת עריכה'); return true; }
+    const have = domainsOf(p.id);
+    openMenu(anchor, { search: true, placeholder: 'שם הקומה / התחום — מרתף, קומת קרקע, חוץ…', emptyText: 'הקלידו שם ולחצו "צור"', items: have.map((d) => ({ label: d.name, sub: `${roomsOf(p.id, d.id).length} חללים`, value: d.id })), create: true, createLabel: '(קומה / תחום חדש)',
+      onPick: (it) => { S.ui.proc.showEmpty = true; procUi(p.id).open[it.value] = true; render(); toast('הקומה כבר קיימת — "חלל" מוסיף לה חללים'); },
+      onCreate: async (name) => { const did = await newProcDomain(p.id, name); if (did) { S.ui.proc.showEmpty = true; toast(`«${name}» נוספה — עכשיו חללים ופריטים`); } } });
+    return true;
+  }
+  if (kind === 'procspace') {
+    const [pid, did] = String(id).split(':'); const p = S.projects[pid]; if (!canEditProc(p)) { toast('אין לך הרשאת עריכה'); return true; }
+    const have = roomsOf(pid, did);
+    openMenu(anchor, { search: true, placeholder: 'שם החלל — סלון, חדר הורים, מטבח… (Enter)', emptyText: 'הקלידו שם ולחצו "צור"', items: have.map((s) => ({ label: spaceLabel(s), value: s.id })), create: true, createLabel: '(חלל חדש)',
+      onPick: async (it) => { const nid = await newProcItem(pid, { domainId: did, spaceId: it.value }); if (nid) { openDrawer('proc', nid); setTimeout(() => document.getElementById('pi-title')?.focus(), 40); } },
+      onCreate: async (name) => { const sid = await newProcSpace(pid, did, name); if (!sid) return; const nid = await newProcItem(pid, { domainId: did, spaceId: sid }); if (nid) { openDrawer('proc', nid); setTimeout(() => document.getElementById('pi-title')?.focus(), 40); } } });
+    return true;
+  }
+  if (kind === 'procexport') {
+    const p = S.projects[id]; if (!p) return true;
+    const suppliers = [...new Set(procOf(p.id).filter((x) => x.supplierId && PROC_LIVE.includes(x.status)).map((x) => x.supplierId))];
+    const items = [
+      { label: 'אקסל — הרשימה המלאה', sub: 'כל הפריטים, המחירים והמצב · גיליון סיכום', value: 'xlsx' },
+      { label: 'מסמך ללקוח (PDF)', sub: 'לפי חללים: תמונה, מפרט, מחיר ותיבת אישור לכל פריט', value: 'client' },
+      ...suppliers.map((sid) => ({ label: `הזמנה לספק — ${cname(sid, '')}`, sub: `${procOf(p.id).filter((x) => x.supplierId === sid && PROC_LIVE.includes(x.status)).length} פריטים שאושרו או הוזמנו`, value: 'po:' + sid })),
+    ];
+    openMenu(anchor, { items, onPick: (it) => { if (it.value === 'xlsx') procXlsx(p); else if (it.value === 'client') openProcDoc(p.id, 'client'); else openProcDoc(p.id, 'po', it.value.slice(3)); } });
+    return true;
+  }
+  return false;
+}
+/* ---------- actions ---------- */
+async function procAction(a, ds, t, e) {
+  switch (a) {
+    case 'open-proc': openDrawer('proc', ds.id); return true;
+    case 'proc-status': { e.stopPropagation(); if (!isMember()) { toast('אין לך הרשאת עריכה'); return true; } const x = S.procurement_items[ds.id]; if (x) setProcStatus(x, ds.value); return true; }
+    case 'proc-filter': { const u = procUi(ds.pid); if (ds.key === 'clear') { u.q = ''; u.status = ''; u.cat = ''; u.scope = ''; } else u[ds.key] = ds.value || ''; render(); return true; }
+    case 'proc-toggle': { const u = procUi(ds.pid); u.open[ds.id] = u.open[ds.id] === false; render(); return true; }
+    case 'proc-new': { const [pid, did, sid] = ds.id.split(':'); const nid = await newProcItem(pid, { domainId: did || null, spaceId: sid || null }); if (nid) { openDrawer('proc', nid); setTimeout(() => document.getElementById('pi-title')?.focus(), 40); } return true; }
+    case 'proc-dup': {
+      const x = S.procurement_items[ds.id]; if (!x) return true;
+      const copy = Object.assign({}, x); ['id', 'createdAt', 'updatedAt', 'updatedBy', 'createdBy', 'sortIndex'].forEach((k) => delete copy[k]);
+      Object.assign(copy, { status: x.status === 'rejected' ? 'todo' : (['todo', 'proposed'].includes(x.status) ? x.status : 'proposed'), approvedAt: null, orderedAt: null, orderRef: '', eta: null, deliveredAt: null, paidAt: null });
+      const nid = await newProcItem(x.projectId, copy); if (nid) { openDrawer('proc', nid); toast('הפריט שוכפל'); } return true;
+    }
+    case 'proc-del': {
+      const x = S.procurement_items[ds.id]; if (!x) return true;
+      if (!canDeleteProc(x)) { toast('מחיקה: מי שהוסיף את הפריט, ראשי צוותים ומנהלים'); return true; }
+      const key = a + `data-id="${ds.id}"`;
+      if (!ds.confirmed) { S.ui.confirm = key; render(); return true; }
+      S.ui.confirm = null;
+      FL().filter((f) => f.procurementId === x.id).forEach((f) => deleteFile(f.id));
+      await deleteDoc('procurement_items', x.id); closeDrawer(true); toast('הפריט הוסר מהרשימה'); return true;
+    }
+    case 'proc-xlsx': { const p = S.projects[ds.id]; if (p) procXlsx(p); return true; }
+    case 'proc-doc': openProcDoc(ds.id, ds.mode || 'client', ds.supplier || ''); return true;
+    case 'proc-pdf': await makeProcPdf(); return true;
+    default: return false;
+  }
+}
+document.addEventListener('input', (e) => { const el = e.target; if (el.id === 'proc-q' && el.dataset.pid) { procUi(el.dataset.pid).q = el.value; render(); } });
+document.addEventListener('change', (e) => { const el = e.target; if (el.id === 'proc-cat' && el.dataset.pid) { procUi(el.dataset.pid).cat = el.value; render(); } });
+/* ---------- Excel ---------- */
+function procRows(p, items) {
+  const rows = [['קומה / תחום', 'חלל', 'מס\' בתוכנית', 'קטגוריה', 'FF&E / OS&E', 'פריט', 'מפרט', 'כמות', 'יחידה', 'ספק', 'מותג', 'דגם / מק"ט', 'מחיר ליחידה', 'סה"כ', 'מצב', 'אושר', 'הוזמן', 'מס\' הזמנה', 'צפי אספקה', 'סופק', 'שולם', 'זמן אספקה', 'קישור', 'הערה ללקוח', 'הערות', 'מהרשימה המקורית']];
+  procSorted(items).forEach((x) => { const d = procDomain(x), s = procRoom(x); rows.push([d ? d.name : '', s ? s.name : '', s ? s.number : '', x.category || '', x.scope ? PROC_SCOPE[x.scope].label : '', x.title || '', x.spec || '', procQty(x), x.unit || 'יח׳', procSupplierName(x), x.brand || '', x.sku || '', procPrice(x) ?? '', procTotal(x) ?? '', (PROC_STATUS[x.status] || PROC_STATUS.todo).label, fmtDate(x.approvedAt), fmtDate(x.orderedAt), x.orderRef || '', fmtDate(x.eta), fmtDate(x.deliveredAt), fmtDate(x.paidAt), x.leadTime || '', x.url || '', x.clientNote || '', x.notes || '', x.sourceNote || '']); });
+  return rows;
+}
+function procSummaryRows(p, items) {
+  const rows = [['סיכום', 'פריטים', 'סה"כ ₪']];
+  PROC_ORDER.forEach((k) => { const g = items.filter((x) => x.status === k); if (g.length) rows.push([PROC_STATUS[k].label, g.length, procSum(g) || '']); });
+  rows.push(['סה"כ (בלי מה שנפסל)', items.filter((x) => x.status !== 'rejected').length, procSum(items.filter((x) => x.status !== 'rejected')) || '']);
+  rows.push([]); rows.push(['לפי חלל', 'פריטים', 'סה"כ ₪']);
+  domainsOf(p.id).forEach((d) => { const mine = items.filter((x) => x.domainId === d.id && x.status !== 'rejected'); if (!mine.length) return; rows.push([d.name, mine.length, procSum(mine) || '']); roomsOf(p.id, d.id).forEach((s) => { const r = mine.filter((x) => x.spaceId === s.id); if (r.length) rows.push(['    ' + spaceLabel(s), r.length, procSum(r) || '']); }); });
+  rows.push([]); rows.push(['לפי ספק', 'פריטים', 'סה"כ ₪']);
+  [...new Set(items.map((x) => x.supplierId).filter(Boolean))].forEach((sid) => { const g = items.filter((x) => x.supplierId === sid && x.status !== 'rejected'); if (g.length) rows.push([cname(sid, ''), g.length, procSum(g) || '']); });
+  return rows;
+}
+function procXlsx(p) {
+  try {
+    const items = procOf(p.id);
+    downloadBytes(`קניינות - ${p.name}.xlsx`, xlsxBuild([{ name: 'קניינות', rows: procRows(p, items), widths: [14, 20, 9, 16, 10, 30, 40, 7, 7, 20, 14, 14, 11, 11, 10, 11, 11, 12, 11, 11, 11, 14, 30, 30, 30, 30] }, { name: 'סיכום', rows: procSummaryRows(p, items), widths: [34, 10, 14] }]));
+    toast('הקובץ ירד');
+  } catch (err) { toast('הייצוא נכשל: ' + (err?.message || '')); }
+}
+/* ---------- the documents: for the client, and a purchase order per supplier (A4 pages through the report pipeline) ---------- */
+const procDocKey = () => { const k = String(S.ui.reportId || ''); if (!k.startsWith('proc:')) return null; const [, pid, mode, sid] = k.split(':'); return { pid, mode: mode || 'client', sid: sid || '' }; };
+function openProcDoc(pid, mode, sid) {
+  const p = S.projects[pid]; if (!p) return;
+  if (S.ui.pdfReady) pdfReadyClear();
+  S.ui.reportId = `proc:${pid}:${mode}${sid ? ':' + sid : ''}`; S.ui.returnDrawer = S.ui.drawer; S.ui.returnView = 'project'; S.ui.drawer = null; S.ui.menu = null;
+  nav('report');
+}
+const procDocTitle = (k) => (k.mode === 'po' ? `הזמנת רכש — ${cname(k.sid, '')}` : 'רשימת פריטים לאישור');
+function procDocItems(p, k) {
+  if (k.mode === 'po') return procSorted(procOf(p.id).filter((x) => x.supplierId === k.sid && PROC_LIVE.includes(x.status)));
+  return procSorted(procOf(p.id).filter((x) => x.status !== 'rejected'));
+}
+function procDocBlocks(p, k) {
+  const items = procDocItems(p, k);
+  const blocks = []; const b = (cls, html) => blocks.push(`<div class="rp-b ${cls}">${html}</div>`);
+  const kv = (key, val) => `<div class="rp-kv"><span>${key}</span><strong>${esc(val || '—')}</strong></div>`;
+  const today = fmtDate(new Date().toISOString());
+  b('rp-header', `<div class="rp-brand"><svg class="logo" aria-label="OBERSON GO"><use href="#logo-mark"/></svg></div>
+    <div class="rp-titles"><div class="rp-title">${esc(procDocTitle(k))}</div><div class="rp-project">${esc(p.name)}${p.number ? ` <small>פרויקט ${esc(p.number)}</small>` : ''}<div class="rp-subject">${k.mode === 'po' ? 'FF&E · OS&E · הזמנה לספק' : 'סטיילינג וקניינות · FF&E · OS&E'}</div></div></div>`);
+  if (k.mode === 'po') {
+    const sup = contact(k.sid);
+    b('rp-meta', `${kv('ספק', cname(k.sid, ''))}${kv('תאריך', today)}${sup && (sup.phone || sup.email) ? kv('איש קשר', [sup.phone, emailsOf(sup)[0]].filter(Boolean).join(' · ')) : ''}${kv('כתובת לאספקה', [p.address, p.city].filter(Boolean).join(', '))}${kv('לקוח', cname(p.clientId, ''))}${kv('הוזמן על ידי', uname(me()?.id, ''))}${kv('פריטים', String(items.length))}`);
+    b('rp-section rp-tbl-title', '<h3>פריטים להזמנה</h3>');
+    const head = `<div class="rp-po-row rp-head"><span>#</span><span>פריט</span><span>דגם / מק"ט</span><span>כמות</span><span>מחיר ליח׳</span><span>סה"כ</span></div>`;
+    b('rp-thead', head);
+    items.forEach((x, i) => b('rp-tr', `<div class="rp-po-row"><span class="c-no">${i + 1}</span><span><strong>${esc(x.title || x.spec || '')}</strong>${x.title && x.spec ? `<small>${esc(x.spec)}</small>` : ''}${procWhere(x) ? `<small>${esc(procWhere(x))}</small>` : ''}${x.notes ? `<small>${esc(x.notes)}</small>` : ''}</span><span>${esc([x.brand, x.sku].filter(Boolean).join(' '))}</span><span class="c-no">${esc(procQtyText(x))}</span><span class="c-no">${procPrice(x) != null ? fmtMoney(procPrice(x)) : ''}</span><span class="c-no">${procTotal(x) != null ? fmtMoney(procTotal(x)) : ''}</span></div>`));
+    b('rp-total', `<div class="rp-po-row rp-sum"><span></span><span>סה"כ להזמנה</span><span></span><span class="c-no">${fmtNum(items.reduce((s, x) => s + procQty(x), 0), 2)}</span><span></span><span class="c-no">${fmtMoney(procSum(items))}</span></div>`);
+    b('rp-foot', `<p class="rp-disclaimer">נא לאשר את קבלת ההזמנה ואת מועד האספקה בחוזר. המחירים כוללים מע"מ אלא אם צוין אחרת. האספקה לכתובת שלמעלה, בתיאום מראש.</p>
+      <div class="rp-sign"><div><span>הוזמן על ידי</span><strong>${esc(uname(me()?.id, ''))}</strong><small>${esc(settings().officeName || 'OBERSON')} · אדריכלות ועיצוב פנים</small></div><div><span>תאריך</span><strong>${esc(today)}</strong></div><div><span>אישור הספק</span><strong>&nbsp;</strong><small>חתימה ותאריך</small></div></div>`);
+    return blocks;
+  }
+  b('rp-meta', `${kv('לקוח', cname(p.clientId, ''))}${kv('תאריך', today)}${kv('כתובת', [p.address, p.city].filter(Boolean).join(', '))}${kv('הוכן על ידי', uname(me()?.id, ''))}${kv('פריטים', String(items.length))}${kv('סה"כ', procSum(items) ? fmtMoney(procSum(items)) : '—')}`);
+  b('rp-section', `<p class="rp-intro">לכל פריט: תמונה (כשיש), מפרט, כמות ומחיר. נשמח לסימון ✓ ליד כל פריט מאושר, ולהערה ליד מה שלא — כך נוכל להזמין ולהמשיך בלי עיכוב.</p>`);
+  const groups = [];
+  domainsOf(p.id).forEach((d) => { const general = items.filter((x) => x.domainId === d.id && (!x.spaceId || !S.project_spaces[x.spaceId])); if (general.length) groups.push({ title: `${d.name} — כללי`, items: general }); roomsOf(p.id, d.id).forEach((s) => { const r = items.filter((x) => x.spaceId === s.id); if (r.length) groups.push({ title: `${d.name} · ${s.name}${s.number ? ' ' + s.number : ''}`, items: r }); }); });
+  const loose = items.filter((x) => !x.domainId || !S.project_spaces[x.domainId]); if (loose.length) groups.push({ title: 'כללי', items: loose });
+  let no = 0;
+  groups.forEach((g) => {
+    b('rp-section rp-tbl-title', `<h3>${esc(g.title)} <small>${g.items.length} ${g.items.length === 1 ? 'פריט' : 'פריטים'}${procSum(g.items) ? ' · ' + fmtMoney(procSum(g.items)) : ''}</small></h3>`);
+    g.items.forEach((x) => {
+      no++; const cover = procCover(x); const approved = ['approved', 'ordered', 'delivered', 'installed'].includes(x.status);
+      b('rp-pi', `<div class="rp-pi-img ${cover ? '' : 'empty'}">${cover ? `<img src="${esc(fileUrl(cover))}" crossorigin="anonymous" alt="">` : ''}</div>
+        <div class="rp-pi-body"><div class="t"><span class="c-no">${no}.</span> ${esc(x.title || x.spec || '')}</div>${x.title && x.spec ? `<div class="s">${esc(x.spec)}</div>` : ''}<div class="m">${esc([x.category, x.brand, x.sku].filter(Boolean).join(' · '))}</div>${x.clientNote ? `<div class="n">${esc(x.clientNote)}</div>` : ''}</div>
+        <div class="rp-pi-side"><div class="q">${esc(procQtyText(x))}${procPrice(x) != null && procQty(x) !== 1 ? ` × ${fmtMoney(procPrice(x))}` : ''}</div><div class="p">${procTotal(x) != null ? fmtMoney(procTotal(x)) : 'מחיר בהמשך'}</div>
+          ${approved ? `<div class="rp-approve done">✓ אושר${x.approvedAt ? ' ' + fmtDate(x.approvedAt) : ''}</div>` : `<div class="rp-approve"><span class="box"></span>מאושר <span class="box"></span>לא</div><div class="rp-line">הערה:</div>`}</div>`);
+    });
+  });
+  b('rp-section rp-tbl-title', '<h3>סיכום</h3>');
+  groups.forEach((g) => b('rp-tr', `<div class="rp-sum-row"><span>${esc(g.title)}</span><span class="c-no">${g.items.length}</span><span class="c-no">${procSum(g.items) ? fmtMoney(procSum(g.items)) : ''}</span></div>`));
+  b('rp-total', `<div class="rp-sum-row rp-sum"><span>סה"כ</span><span class="c-no">${items.length}</span><span class="c-no">${fmtMoney(procSum(items))}</span></div>`);
+  b('rp-foot', `<p class="rp-disclaimer">המחירים לפי הצעות הספקים נכון להיום וכוללים מע"מ אלא אם צוין אחרת; זמני אספקה לפי הספקים. פריט שלא סומן ייחשב כממתין להחלטה.</p>
+    <div class="rp-sign"><div><span>הוכן על ידי</span><strong>${esc(uname(me()?.id, ''))}</strong><small>${esc(settings().officeName || 'OBERSON')} · אדריכלות ועיצוב פנים</small></div><div><span>אישור הלקוח</span><strong>&nbsp;</strong><small>שם, חתימה ותאריך</small></div></div>`);
+  return blocks;
+}
+function renderProcDoc() {
+  const k = procDocKey(); const p = k && S.projects[k.pid];
+  if (!p) return `<div class="banner">המסמך לא נמצא. <button class="btn small" data-action="nav" data-view="projects">חזרה לפרויקטים</button></div>`;
+  const busy = S.ui.pdfBusy;
+  const ready = S.ui.pdfReady && S.ui.pdfReady.visitId === S.ui.reportId ? S.ui.pdfReady : null;
+  const n = procDocItems(p, k).length;
+  return `<div class="rp-tools no-print">
+      <button class="btn ghost small" data-action="report-back">${ICON.back} חזרה</button>
+      <span class="inline-note">${esc(procDocTitle(k))} · ${esc(p.name)} · ${n} פריטים</span>
+      <span style="margin-inline-start:auto;display:inline-flex;gap:6px;flex-wrap:wrap">
+        <button class="btn small" data-action="report-print" ${busy ? 'disabled' : ''}>הדפסה</button>
+        <button class="btn ${ready ? '' : 'primary'} small" data-action="proc-pdf" ${busy ? 'disabled' : ''}>${busy ? 'מכין PDF…' : (ready ? 'הפק PDF מחדש' : `${ICON.doc} הפק PDF`)}</button>
+      </span>
+    </div>
+    ${ready ? `<div class="rp-note no-print pdf-ready">
+      <span class="pdf-ready-txt"><strong>ה-PDF מוכן</strong> · <bdi>${esc(ready.name)}</bdi>${ready.size ? ` · ${fmtSize(ready.size)}` : ''}</span>
+      <span class="pdf-ready-btns">
+        <button class="btn primary small" data-action="pdf-save" title="שומר את הקובץ במכשיר">${ICON.download} הורד / שמור</button>
+        ${ready.shareable ? `<button class="btn small" data-action="pdf-share" title="שולח בוואטסאפ, במייל או לאפליקציה אחרת">${ICON.share} שתף…</button>` : ''}
+        <button class="btn small ghost" data-action="pdf-open" title="פותח את ה-PDF בלשונית חדשה">פתח</button>
+      </span>
+    </div>` : `<div class="rp-note no-print">${k.mode === 'po' ? 'הפריטים שאושרו או הוזמנו מהספק הזה, עם הכתובת לאספקה. ' : 'כל הפריטים שלא נפסלו, לפי חללים — מה שכבר אושר מסומן. ספקים והערות פנימיות לא מופיעים. '}אחרי ההפקה אפשר לשמור, לשתף או לפתוח; עותק נשמר בתיק הפרויקט.</div>`}
+    <div id="rp-flow" class="rp-doc ${k.mode === 'po' ? 'rp-po' : 'rp-client'}">${procDocBlocks(p, k).join('')}</div>
+    <div id="rp-pages" class="rp-pages ${k.mode === 'po' ? 'rp-po' : 'rp-client'}"></div>`;
+}
+async function makeProcPdf() {
+  const k = procDocKey(); const p = k && S.projects[k.pid]; if (!p) return;
+  const clean = (s) => String(s || '').replace(/[\\/:*?"<>|]/g, ' ').trim();
+  const name = `${clean(procDocTitle(k))} - ${clean(p.name)}.pdf`;
+  await makePagesPdf({ key: S.ui.reportId, name, projectId: p.id, path: `${p.id}/procurement/${k.mode}${k.sid ? '-' + k.sid : ''}-${Date.now().toString(36)}.pdf` });
+}
+/* the A4 pages on screen → a PDF in hand (and a copy in the project folder) — the same steps as the site report, for any document */
+async function makePagesPdf({ key, name, projectId, path }) {
+  S.ui.pdfBusy = true; render();
+  renderHold++;
+  try {
+    await Promise.all([loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'), loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')]);
+    const wrap = document.getElementById('rp-pages'); if (wrap) wrap.classList.add('pdf-mode');
+    const pages = [...document.querySelectorAll('#rp-pages .rp-page')];
+    if (!pages.length) throw new Error('אין עמודים להפקה');
+    await Promise.all([...document.querySelectorAll('#rp-pages img')].map((img) => img.complete ? null : new Promise((r) => { img.onload = r; img.onerror = r; })));
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
+    for (let i = 0; i < pages.length; i++) {
+      const canvas = await window.html2canvas(pages[i], { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false });
+      if (i > 0) pdf.addPage();
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.86), 'JPEG', 0, 0, 210, 297);
+    }
+    const blob = pdf.output('blob');
+    const file = new File([blob], name, { type: 'application/pdf' });
+    if (projectId && path) {
+      try {
+        const { error } = await sb.storage.from(FILE_BUCKET).upload(path, blob, { contentType: 'application/pdf' });
+        if (!error) await createDoc('files', uid('f'), { bucket: FILE_BUCKET, path, projectId, visitId: null, itemId: null, kind: 'pdf', mime: 'application/pdf', size: blob.size, width: null, height: null, caption: name, takenAt: null, uploadedBy: me()?.id || null });
+      } catch (e) { console.warn('pdf archive', e); }
+    }
+    pdfReadyClear();
+    let shareable = false; try { shareable = !!(navigator.canShare && navigator.canShare({ files: [file] })); } catch (e) { shareable = false; }
+    S.ui.pdfReady = { visitId: key, name, blob, file, url: URL.createObjectURL(blob), size: blob.size, shareable, at: Date.now() };
+    if (!shareable) downloadBlob(blob, name);
+    toast(shareable ? 'ה-PDF מוכן — לשמור, לשתף או לפתוח' : 'ה-PDF מוכן והורד');
+  } catch (e) { console.error(e); toast('הפקת ה-PDF נכשלה: ' + friendlyError(e)); }
+  finally { renderHold--; }
+  document.getElementById('rp-pages')?.classList.remove('pdf-mode');
+  S.ui.pdfBusy = false; render();
 }
 /* ===================== GO+ — תמיכה ושיפורים (19.10.2026) =====================
    Every employee has a GO+ button in the masthead: a bug, an idea or a question about GO, written in a few words. The screen the person
@@ -7742,7 +8301,7 @@ function renderOverlay() {
   const d = S.ui.drawer;
   let html = '';
   if (d) {
-    const body = d.kind === 'project' ? drawerProject(d.id) : d.kind === 'contact' ? drawerContact(d.id) : d.kind === 'import' ? drawerImport() : d.kind === 'task' ? drawerTask(d.id) : d.kind === 'visit' ? drawerVisit(d.id) : d.kind === 'request' ? drawerRequest(d.id) : d.kind === 'request-new' ? drawerNewRequest() : d.kind === 'material' ? drawerMaterial(d.id) : d.kind === 'library' ? drawerLibrary(d.id) : d.kind === 'gop' ? drawerGop(d.id) : d.kind === 'seat' ? drawerSeat(d.id) : d.kind === 'room' ? drawerRoom(d.id) : d.kind === 'password' ? drawerPassword() : d.kind === 'prefs' ? drawerPrefs() : drawerCommission(d.id);
+    const body = d.kind === 'project' ? drawerProject(d.id) : d.kind === 'contact' ? drawerContact(d.id) : d.kind === 'import' ? drawerImport() : d.kind === 'task' ? drawerTask(d.id) : d.kind === 'visit' ? drawerVisit(d.id) : d.kind === 'request' ? drawerRequest(d.id) : d.kind === 'request-new' ? drawerNewRequest() : d.kind === 'material' ? drawerMaterial(d.id) : d.kind === 'library' ? drawerLibrary(d.id) : d.kind === 'proc' ? drawerProc(d.id) : d.kind === 'gop' ? drawerGop(d.id) : d.kind === 'seat' ? drawerSeat(d.id) : d.kind === 'room' ? drawerRoom(d.id) : d.kind === 'password' ? drawerPassword() : d.kind === 'prefs' ? drawerPrefs() : drawerCommission(d.id);
     const pend = hasPending() && S.ui.autoSaveFailed ? `<div class="drawer-save"><span>${pendingCount() === 1 ? 'שינוי אחד לא נשמר' : pendingCount() + ' שינויים לא נשמרו'} — אין חיבור?</span><button class="btn primary small" data-action="pending-save" ${S.ui.committing ? 'disabled' : ''}>${S.ui.committing ? 'שומר…' : 'שמור שוב'}</button><button class="btn small" data-action="pending-discard" ${S.ui.committing ? 'disabled' : ''}>בטל</button></div>` : '';
     html += `<div class="scrim" data-action="close-drawer"></div><aside class="drawer" role="dialog" aria-modal="true" data-key="${esc(drawerKey())}">${body}${pend}</aside>`;
   }
@@ -8682,6 +9241,7 @@ function menuFor(kind, id, anchor) {
   if (fieldMenu(kind, id, anchor)) return;
   if (filesMenu(kind, id, anchor)) return;
   if (materialsMenu(kind, id, anchor)) return;
+  if (procMenu(kind, id, anchor)) return;
   if (shootMenu(kind, id, anchor)) return;
   if (sundayMenu(kind, id, anchor)) return;
   if (kind === 'mtmerge') {
@@ -8784,6 +9344,7 @@ function bindHandler(el) {
   if (col === 'materials' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'material_library' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'project_spaces' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
+  if (col === 'procurement_items' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'shoots' && !isMember()) { toast('אין לך הרשאת עריכה'); render(); return; }
   if (col === 'shoot_funding' && !isManager()) { toast('מנהלים בלבד'); render(); return; }
   if (col === 'sunday_requests' && !canEditRequest(S.sunday_requests[id])) { toast('רק מי שרשם את הנושא, ראש/ת הצוות או מנהל/ת'); render(); return; }
@@ -8800,12 +9361,13 @@ function bindHandler(el) {
   else v = el.value;
   if (el.type === 'date' && v && v < '1900') return; // a year still being typed ("0002-10-01") — the change event fires again once it is complete
   if (col === 'site_visits' && key === 'seq') { if (!(v >= 1)) { el.value = String(S.site_visits[id]?.seq || 1); render(); return; } v = Math.round(v); } // the document number: a whole number from 1; empty keeps the old one
-  if (['teamId', 'leadId', 'phase', 'clientId', 'projectId', 'supplierId', 'startDate', 'dueDate', 'expectedDate', 'invoiceDate', 'paidDate', 'assigneeId', 'phaseId', 'parentId', 'responsibleId', 'nextVisit', 'typeId', 'phase', 'milestoneId', 'nameEn', 'shootDate', 'domainId', 'spaceId', 'libraryId'].includes(key) && v === '') v = null;
+  if (['teamId', 'leadId', 'phase', 'clientId', 'projectId', 'supplierId', 'startDate', 'dueDate', 'expectedDate', 'invoiceDate', 'paidDate', 'assigneeId', 'phaseId', 'parentId', 'responsibleId', 'nextVisit', 'typeId', 'phase', 'milestoneId', 'nameEn', 'shootDate', 'domainId', 'spaceId', 'libraryId', 'approvedAt', 'orderedAt', 'eta', 'deliveredAt', 'paidAt'].includes(key) && v === '') v = null;
   if (key === 'nameEn' && typeof v === 'string') { v = v.trim() || null; el.value = v || ''; }
   delete S.ui.drafts[el.id];
   if (key === 'name' && !String(v).trim()) { render(); return; }
   if (col === 'material_library' && key === 'color') { v = String(v || '').trim(); if (v && !/^#[0-9a-f]{6}$/i.test(v)) { if (/^[0-9a-f]{6}$/i.test(v)) v = '#' + v; else { toast('גוון: קוד צבע כמו #a1b2c3'); render(); return; } } v = v.toLowerCase(); delete S.ui.drafts['l-color']; } // the colour and the text box are the same field
   if (col === 'materials' && key === 'domainId') { patchDoc(col, id, { domainId: v, spaceId: null }); return; } // a new domain: the space is chosen again
+  if (col === 'procurement_items' && key === 'domainId') { patchDoc(col, id, { domainId: v, spaceId: null }); return; }
   patchDoc(col, id, { [key]: v });
   // a project that has no milestones yet gets one per stage of the type it is given
   if (col === 'projects' && key === 'type' && v) { const p = S.projects[id]; if (p && S.milestonesLoaded[id] && !milestonesOf(id).some(msIsWork) && canEditMilestones()) createTemplateMilestones(id); }
@@ -8934,6 +9496,7 @@ document.addEventListener('click', async (e) => {
   if (await filesAction(a, ds, t, e)) return;
   if (await projectAction(a, ds, t, e)) return;
   if (await gopAction(a, ds, t, e)) return;
+  if (await procAction(a, ds, t, e)) return;
   if (await materialsAction(a, ds, t, e)) return;
   if (await shootAction(a, ds, t, e)) return;
   if (await meetingsAction(a, ds, t, e)) return;
@@ -9282,7 +9845,7 @@ document.addEventListener('click', async (e) => {
     case 'set-list-add': { const i = document.getElementById('add-' + ds.list); const v = i.value.trim(); if (!v) break; if (settings()[ds.list].includes(v)) { toast('הערך כבר קיים'); break; } await patchSettings({ [ds.list]: [...settings()[ds.list], v] }); i.value = ''; break; }
     case 'set-list-remove': {
       const v = settings()[ds.list][Number(ds.index)];
-      const used = ds.list === 'types' ? P().filter((p) => p.type === v).length : ds.list === 'materialTypes' ? list('material_library').filter((x) => x.category === v).length : ds.list === 'materialUses' ? list('material_library').filter((x) => libTags(x).includes(v)).length : ds.list === 'boardElements' ? MT().filter((m) => m.element === v).length : C().filter((c) => c.category === v && CAT_LIST[c.type] === ds.list).length;
+      const used = ds.list === 'types' ? P().filter((p) => p.type === v).length : ds.list === 'materialTypes' ? list('material_library').filter((x) => x.category === v).length : ds.list === 'materialUses' ? list('material_library').filter((x) => libTags(x).includes(v)).length : ds.list === 'boardElements' ? MT().filter((m) => m.element === v).length : ds.list === 'procCategories' ? PR().filter((x) => x.category === v).length : C().filter((c) => c.category === v && CAT_LIST[c.type] === ds.list).length;
       if (used) { toast(`הערך "${v}" בשימוש ב-${used} רשומות — שנו אותן קודם`); break; }
       patchSettings({ [ds.list]: settings()[ds.list].filter((_, i) => i !== Number(ds.index)) }); break;
     }
@@ -9296,6 +9859,7 @@ async function renameListValue(key, oldV, newV) {
   else if (key === 'materialTypes') { for (const x of list('material_library').filter((y) => y.category === oldV)) await patchDoc('material_library', x.id, { category: newV }); }
   else if (key === 'materialUses') { for (const x of list('material_library').filter((y) => libTags(y).includes(oldV))) await patchDoc('material_library', x.id, { tags: libTags(x).map((t) => t === oldV ? newV : t) }); }
   else if (key === 'boardElements') { for (const m of MT().filter((y) => y.element === oldV)) await patchDoc('materials', m.id, { element: newV }); }
+  else if (key === 'procCategories') { for (const x of PR().filter((y) => y.category === oldV)) await patchDoc('procurement_items', x.id, { category: newV }); }
   else { for (const c of C().filter((x) => CAT_LIST[x.type] === key && x.category === oldV)) await patchDoc('contacts', c.id, { category: newV }); }
 }
 window.addEventListener('hashchange', () => { const h = (location.hash || '').replace('#', ''); if (VIEWS.some((v) => v.id === h) && h !== S.ui.view) { S.ui.view = h; render(); } else if (h.startsWith('project/') && !(S.ui.view === 'project' && S.ui.pageId === h.slice(8))) { S.ui.view = 'project'; S.ui.pageId = h.slice(8); render(); } else if (h.startsWith('archive/') && !(S.ui.view === 'archive-page' && S.ui.arcPage === h.slice(8))) { S.ui.view = 'archive-page'; S.ui.arcPage = h.slice(8); render(); } });
