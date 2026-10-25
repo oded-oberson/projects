@@ -1572,7 +1572,7 @@ function addSocial(cid, raw) {
    bidi island, so an English name and Hebrew address never trade places (21.10.2026). A part joins only when an earlier part does not
    already carry it (a project named by its address shows it once; older names still embed the city until the project review cleans them);
    ptitle() is the HTML, ptitleText() the plain text with the same isolation, titleTail() what follows the editable name input. */
-const CITY_WORDS = { 'תל אביב': ['תל אביב', 'ת"א', 'ת״א', 'תל-אביב', 'tel aviv', 'tel-aviv'], 'הרצליה': ['הרצליה', 'herzliya'], 'ירושלים': ['ירושלים', 'jerusalem'], 'תל אביב - יפו': ['תל אביב', 'יפו'] };
+const CITY_WORDS = { 'תל אביב': ['תל אביב', 'ת"א', 'ת״א', 'תל-אביב'], 'תל אביב - יפו': ['תל אביב', 'יפו'] }; // Hebrew spellings only: an English name never hides the Hebrew city ("HERZLIYA VILLE, ויצמן - מתחם 2, הרצליה")
 const carriesText = (hay, part) => { const h = String(hay || '').toLowerCase(), x = String(part || '').trim().toLowerCase(); return !x || h.includes(x); };
 const nameCarriesCity = (name, city) => { const n = String(name || '').toLowerCase(), c = String(city || '').trim(); return !c || (CITY_WORDS[c] || [c]).some((w) => n.includes(w.toLowerCase())); };
 const titleParts = (p) => { const n = String(p?.name || '').trim(), a = String(p?.address || '').trim(), c = String(p?.city || '').trim(); const parts = [n]; if (a && !carriesText(n, a)) parts.push(a); if (c && !nameCarriesCity(n, c) && !carriesText(a, c)) parts.push(c); return parts; };
