@@ -2033,6 +2033,32 @@ function personalLoads(act) {
   });
   return m;
 }
+/* a team's load follows its people (26.10.2026, Oded): every active person on a project carries an equal share of its score and brings it to
+   the team they belong to — so someone from another team who is active on a project takes that share off the project's team and onto their
+   own. A project with nobody active on it stays with its team, and so does the share of a person who belongs to no team.
+   Per team (or '_none' for projects without a team): load = own + helping; own = shares of the team's people on the team's own projects plus
+   projects with nobody on them; helping = shares of the team's people on other teams' projects; helped = shares of this team's projects that
+   people from other teams carry (not in load); projects = the team's own active projects; others = other teams' projects its people are on. */
+function teamLoads(act) {
+  const m = {};
+  const row = (tid) => (m[tid] = m[tid] || { load: 0, own: 0, helping: 0, helped: 0, projects: new Set(), others: new Set() });
+  act.forEach((p) => {
+    const home = team(p.teamId) ? p.teamId : '_none'; const w = projectWeight(p); const people = activePeople(p);
+    row(home).projects.add(p.id);
+    if (!people.length) { const r = row(home); r.load += w; r.own += w; return; }
+    const share = w / people.length;
+    people.forEach((cid) => {
+      const tid = S.contacts[cid]?.teamId; const dest = team(tid) ? tid : home; const r = row(dest);
+      r.load += share;
+      if (dest === home) r.own += share; else { r.helping += share; r.others.add(p.id); row(home).helped += share; }
+    });
+  });
+  return m;
+}
+const EMPTY_TEAM_LOAD = { load: 0, own: 0, helping: 0, helped: 0, projects: new Set(), others: new Set() };
+const teamLoadOf = (loads, tid) => loads[tid] || EMPTY_TEAM_LOAD;
+/* "+2.5 / −1" between teams, for a table cell or a chip */
+const loadExchange = (r) => (r.helping || r.helped) ? `<span dir="ltr">${r.helping ? `<span title="חלקם של אנשי הצוות בפרויקטים של צוותים אחרים (${r.others.size})">+${fmtNum(r.helping)}</span>` : ''}${r.helping && r.helped ? ' / ' : ''}${r.helped ? `<span title="חלק מפרויקטי הצוות שנושאים אנשים מצוותים אחרים — לא נספר לצוות">−${fmtNum(r.helped)}</span>` : ''}</span>` : '';
 const UTIL = [{ max: 0.7, label: 'פנוי', cls: 'good' }, { max: 1, label: 'מאוזן', cls: '' }, { max: 1.2, label: 'עמוס', cls: 'warn' }, { max: Infinity, label: 'עומס יתר', cls: 'crit' }];
 function utilInfo(load, levels) {
   const cap = levels * loadPerLevel();
@@ -2417,14 +2443,16 @@ function renderOfficeOverview(sw) {
 
   // workload by team — with the office's experience levels (management); administration and finance get no workload panels at all
   const levels = can('levels_all');
+  const tloads = teamLoads(act); // the load follows the people: a share carried by someone from another team moves to that team
   const teamRows = T().map((t) => {
-    const ps = act.filter((p) => p.teamId === t.id); const load = sum(ps, projectWeight);
+    const r = teamLoadOf(tloads, t.id); const load = r.load, ps = r.projects.size;
     const click = { action: 'goto-projects', attrs: `data-team="${t.id}"` };
-    if (!levels) return { label: t.name, small: cname(t.leadId, ''), value: load, display: `<strong>${fmtNum(load)}</strong> · ${ps.length} פרויקטים`, click };
+    const ex = (r.helping || r.helped) ? ` <small class="muted" title="בין צוותים: + חלקם של אנשי הצוות בפרויקטים של אחרים, − חלק שנושאים אנשים מצוותים אחרים">(${loadExchange(r)})</small>` : '';
+    if (!levels) return { label: t.name, small: cname(t.leadId, ''), value: load, display: `<strong>${fmtNum(load)}</strong> · ${ps} פרויקטים${ex}`, click };
     const u = utilInfo(load, teamCapacity(t.id));
-    return { label: t.name, small: cname(t.leadId, ''), value: u.pct || 0, cls: u.cls, display: `<strong>${u.pct == null ? u.label : u.pct + '%'}</strong> · ${fmtNum(load)} / ${fmtNum(u.cap)}`, click };
+    return { label: t.name, small: cname(t.leadId, ''), value: u.pct || 0, cls: u.cls, display: `<strong>${u.pct == null ? u.label : u.pct + '%'}</strong> · ${fmtNum(load)} / ${fmtNum(u.cap)}${ex}`, click };
   });
-  const noTeamW = sum(noTeam, projectWeight);
+  const noTeamW = teamLoadOf(tloads, '_none').load;
   if (noTeam.length) teamRows.push({ label: 'ללא צוות', value: levels ? 0 : noTeamW, cls: 'muted', display: `<strong>${fmtNum(noTeamW)}</strong> · ${noTeam.length} פרויקטים`, click: { action: 'goto-projects', attrs: 'data-flag="noTeam"' } });
 
   // workload by lead
@@ -3029,7 +3057,7 @@ function renderSettings() {
         <input type="number" step="0.1" min="0" id="size-w-${s.id}" value="${s.weight}" data-size-weight="${s.id}" title="משקל" ${ro ? 'disabled' : ''}>
         <div></div>
       </div>`).join('')}</div>
-      <div class="inline-note" style="margin-top:10px">ניקוד העומס של פרויקט = משקל הגודל × משקל השלב הפעיל. הסכום לכל צוות ולכל מוביל מוצג בסקירה.</div>
+      <div class="inline-note" style="margin-top:10px">ניקוד העומס של פרויקט = משקל הגודל × משקל השלב הפעיל. הניקוד מתחלק שווה בין המעורבים הפעילים בפרויקט ונזקף לצוות של כל אחד/ת — מי שפעיל/ה בפרויקט של צוות אחר נושא/ת את חלקו/ה בצוות שלו/ה. הסכום לכל צוות ולכל מוביל מוצג בסקירה ובמטריצת העומס.</div>
       ${canSeeLevels() ? `<div class="field-row" style="margin-top:14px">
         <div class="field"><label>נקודות עומס לעובד/ת ברמה 1 (קיבולת)</label><input type="number" step="0.5" min="0.5" id="set-load-per-level" value="${loadPerLevel()}" style="max-width:120px" ${ro ? 'disabled' : ''}></div>
         <div class="field"><label>הפחתה מקיבולת ראש/ת צוות לכל איש צוות (%)</label><input type="number" step="5" min="0" max="100" id="set-lead-per-member" value="${Math.round(leadSharePerMember() * 100)}" style="max-width:120px" ${ro ? 'disabled' : ''}></div>
@@ -3107,25 +3135,26 @@ function memberSub(c, act, loads) {
 /* load matrix: people, capacity (Σ levels × points per level), projects, load and utilisation per team */
 const levelsOfTeam = (t) => can('levels_all') || (can('levels_team') && t.leadId === myContactId());
 function loadMatrix(act) {
-  const rows = T().filter(levelsOfTeam).map((t) => { const ms = teamMembers(t.id); const ps = act.filter((p) => p.teamId === t.id); const load = sum(ps, projectWeight); const lv = sum(ms, capacityLevel); return { id: t.id, name: t.name, lead: cname(t.leadId, ''), n: ms.length, lv, ps: ps.length, load, u: utilInfo(load, lv), noStart: ms.filter((e) => !e.startDate && manualLevel(e) == null).length }; });
+  const tloads = teamLoads(act); // the load follows the people (see teamLoads)
+  const rows = T().filter(levelsOfTeam).map((t) => { const ms = teamMembers(t.id); const r = teamLoadOf(tloads, t.id); const lv = sum(ms, capacityLevel); return { id: t.id, name: t.name, lead: cname(t.leadId, ''), n: ms.length, lv, ps: r.projects.size, others: r.others.size, load: r.load, helping: r.helping, helped: r.helped, u: utilInfo(r.load, lv), noStart: ms.filter((e) => !e.startDate && manualLevel(e) == null).length }; });
   const office = can('levels_all'); // a team lead sees her own row only: no unassigned projects, no office total
-  const noTeam = office ? act.filter((p) => !p.teamId) : [];
-  const tot = { n: sum(rows, (r) => r.n), lv: sum(rows, (r) => r.lv), ps: sum(rows, (r) => r.ps) + noTeam.length, load: sum(rows, (r) => r.load) + sum(noTeam, projectWeight) };
+  const noTeam = office ? act.filter((p) => !team(p.teamId)) : []; const noTeamLoad = teamLoadOf(tloads, '_none');
+  const tot = { n: sum(rows, (r) => r.n), lv: sum(rows, (r) => r.lv), ps: sum(rows, (r) => r.ps) + noTeam.length, load: sum(rows, (r) => r.load) + noTeamLoad.load };
   tot.u = utilInfo(tot.load, tot.lv);
-  const unknown = sum(rows, (r) => r.noStart);
+  const unknown = sum(rows, (r) => r.noStart); const exchange = rows.some((r) => r.helping || r.helped) || noTeamLoad.helped > 0;
   return `<div class="panel" id="load-matrix" style="margin-bottom:14px">
-    <div class="panel-head"><h2 class="panel-title">מטריצת עומס</h2><span class="panel-sub">קיבולת = סכום רמות הניסיון × ${fmtNum(loadPerLevel())} נקודות לרמה 1 (ראש/ת צוות נספר/ת ב-100% פחות ${Math.round(leadSharePerMember() * 100)}% לכל איש צוות, מינימום ${Math.round(leadShareMin() * 100)}%) · עומס = סכום ניקוד הפרויקטים הפעילים (גודל × שלב) · לראשי צוותים ומעלה</span></div>
+    <div class="panel-head"><h2 class="panel-title">מטריצת עומס</h2><span class="panel-sub">קיבולת = סכום רמות הניסיון × ${fmtNum(loadPerLevel())} נקודות לרמה 1 (ראש/ת צוות נספר/ת ב-100% פחות ${Math.round(leadSharePerMember() * 100)}% לכל איש צוות, מינימום ${Math.round(leadShareMin() * 100)}%) · עומס = ניקוד הפרויקטים הפעילים (גודל × שלב), מחולק שווה בין המעורבים הפעילים ונזקף לצוות של כל אחד/ת · לראשי צוותים ומעלה</span></div>
     <div class="table-wrap"><table class="matrix">
-      <thead><tr><th>צוות</th><th class="num">אנשים</th><th class="num" title="סכום רמות הניסיון, ראש/ת הצוות בחלקו/ה בלבד">רמות נטו</th><th class="num">קיבולת</th><th class="num">פרויקטים</th><th class="num">עומס</th><th class="num">ניצולת</th><th>מצב</th></tr></thead>
+      <thead><tr><th>צוות</th><th class="num">אנשים</th><th class="num" title="סכום רמות הניסיון, ראש/ת הצוות בחלקו/ה בלבד">רמות נטו</th><th class="num">קיבולת</th><th class="num">פרויקטים</th><th class="num">עומס</th>${exchange ? '<th class="num" title="+ חלקם של אנשי הצוות בפרויקטים של צוותים אחרים · − חלק מפרויקטי הצוות שנושאים אנשים מצוותים אחרים">בין צוותים</th>' : ''}<th class="num">ניצולת</th><th>מצב</th></tr></thead>
       <tbody>${rows.map((r) => `<tr class="clickable" data-action="goto-projects" data-team="${r.id}">
-        <td><strong>${esc(r.name)}</strong>${r.lead ? ` <small class="muted">${esc(r.lead)}</small>` : ''}</td><td class="num">${r.n}</td><td class="num">${fmtNum(r.lv, 2)}</td><td class="num">${fmtNum(r.u.cap)}</td><td class="num">${r.ps}</td><td class="num">${fmtNum(r.load)}</td>
+        <td><strong>${esc(r.name)}</strong>${r.lead ? ` <small class="muted">${esc(r.lead)}</small>` : ''}</td><td class="num">${r.n}</td><td class="num">${fmtNum(r.lv, 2)}</td><td class="num">${fmtNum(r.u.cap)}</td><td class="num">${r.ps}${r.others ? ` <small class="muted" dir="ltr" title="ועוד ${r.others} פרויקטים של צוותים אחרים שאנשי הצוות פעילים בהם">+${r.others}</small>` : ''}</td><td class="num">${fmtNum(r.load)}</td>${exchange ? `<td class="num">${loadExchange(r) || '—'}</td>` : ''}
         <td class="num"><div class="util-bar"><div class="${r.u.cls}" style="width:${Math.min(100, r.u.pct || 0)}%"></div></div>${r.u.pct == null ? '—' : r.u.pct + '%'}</td><td>${utilChip(r.u)}</td>
       </tr>`).join('')}
-      ${noTeam.length ? `<tr class="muted clickable" data-action="goto-projects" data-flag="noTeam"><td>ללא צוות</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">${noTeam.length}</td><td class="num">${fmtNum(sum(noTeam, projectWeight))}</td><td class="num">—</td><td><span class="chip dim">לא משויך</span></td></tr>` : ''}
+      ${noTeam.length ? `<tr class="muted clickable" data-action="goto-projects" data-flag="noTeam"><td>ללא צוות</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">${noTeam.length}</td><td class="num">${fmtNum(noTeamLoad.load)}</td>${exchange ? `<td class="num">${loadExchange(noTeamLoad) || '—'}</td>` : ''}<td class="num">—</td><td><span class="chip dim">לא משויך</span></td></tr>` : ''}
       </tbody>
-      ${office ? `<tfoot><tr><td>סה"כ המשרד</td><td class="num">${tot.n}</td><td class="num">${fmtNum(tot.lv, 2)}</td><td class="num">${fmtNum(tot.u.cap)}</td><td class="num">${tot.ps}</td><td class="num">${fmtNum(tot.load)}</td><td class="num">${tot.u.pct == null ? '—' : tot.u.pct + '%'}</td><td>${utilChip(tot.u)}</td></tr></tfoot>` : ''}
+      ${office ? `<tfoot><tr><td>סה"כ המשרד</td><td class="num">${tot.n}</td><td class="num">${fmtNum(tot.lv, 2)}</td><td class="num">${fmtNum(tot.u.cap)}</td><td class="num">${tot.ps}</td><td class="num">${fmtNum(tot.load)}</td>${exchange ? '<td class="num"></td>' : ''}<td class="num">${tot.u.pct == null ? '—' : tot.u.pct + '%'}</td><td>${utilChip(tot.u)}</td></tr></tfoot>` : ''}
     </table></div>
-    <div class="inline-note" style="margin-top:8px">רמה אוטומטית לפי ותק: ${LEVEL_STEPS.map((s) => `${fmtNum(s.level, 2)} ${s.label}`).join(' · ')}. ערך ידני (עד ${LEVEL_MAX}) נקבע בכרטיס העובד/ת. ראש/ת צוות מנהל/ת את הצוות, ולכן נספר/ת רק בחלק מהרמה: 100% פחות ${Math.round(leadSharePerMember() * 100)}% לכל איש צוות, מינימום ${Math.round(leadShareMin() * 100)}%.${unknown ? ` <strong>${unknown} עובדים ללא תאריך תחילת עבודה</strong> נספרים כרמה 1 עד שיוזן תאריך או ערך ידני.` : ''}${isManager() ? ' הנקודות לרמה וחלק ראש הצוות נקבעים בהגדרות.' : ''}</div>
+    <div class="inline-note" style="margin-top:8px">העומס של פרויקט מתחלק שווה בין המעורבים הפעילים בו (מוביל/ה ומשתתפים) ונזקף לצוות של כל אחד/ת — מי שפעיל/ה בפרויקט של צוות אחר נושא/ת את חלקו/ה בצוות שלו/ה, והחלק הזה יורד מהצוות של הפרויקט. פרויקט בלי מעורבים פעילים נשאר כולו בצוות שלו. רמה אוטומטית לפי ותק: ${LEVEL_STEPS.map((s) => `${fmtNum(s.level, 2)} ${s.label}`).join(' · ')}. ערך ידני (עד ${LEVEL_MAX}) נקבע בכרטיס העובד/ת. ראש/ת צוות מנהל/ת את הצוות, ולכן נספר/ת רק בחלק מהרמה: 100% פחות ${Math.round(leadSharePerMember() * 100)}% לכל איש צוות, מינימום ${Math.round(leadShareMin() * 100)}%.${unknown ? ` <strong>${unknown} עובדים ללא תאריך תחילת עבודה</strong> נספרים כרמה 1 עד שיוזן תאריך או ערך ידני.` : ''}${isManager() ? ' הנקודות לרמה וחלק ראש הצוות נקבעים בהגדרות.' : ''}</div>
   </div>`;
 }
 function renderTeams() {
@@ -3135,17 +3164,18 @@ function renderTeams() {
   const mgr = can('teams_edit');
   const levels = canSeeLevels();
   const loads = levels ? personalLoads(act) : {};
+  const tloads = levels ? teamLoads(act) : {};
   const roleInput = (c) => mgr ? `<input type="text" list="dl-roles" id="role-${c.id}" value="${esc(S.ui.drafts['role-' + c.id] ?? (c.role || ''))}" data-bind="contacts:${c.id}:role" placeholder="הגדרה בצוות…">` : `<span class="muted">${esc(c.role || '')}</span>`;
   const cards = T().map((t) => {
     const lead = contact(t.leadId);
     const members = emp.filter((e) => e.teamId === t.id && e.id !== t.leadId);
     const ps = act.filter((p) => p.teamId === t.id);
-    const load = sum(ps, projectWeight);
+    const tl = teamLoadOf(tloads, t.id); const load = tl.load; // the team's share of its own projects + its people's shares elsewhere
     const u = levelsOfTeam(t) ? utilInfo(load, teamCapacity(t.id)) : null;
     return `<div class="panel team-card">
       <div class="panel-head">
         <div class="team-name">${mgr ? `<input type="text" id="team-name-${t.id}" value="${esc(t.name)}" data-team-name="${t.id}" aria-label="שם הצוות">` : `<span style="font-weight:600;font-size:16px">${esc(t.name)}</span>`}</div>
-        <div class="team-stats"><span>${members.length + (lead ? 1 : 0)} אנשים</span><span>${ps.length} פרויקטים פעילים</span>${u ? `<span>עומס ${fmtNum(load)} / ${fmtNum(u.cap)}</span>` : ''}${u ? utilChip(u) : ''}</div>
+        <div class="team-stats"><span>${members.length + (lead ? 1 : 0)} אנשים</span><span>${ps.length} פרויקטים פעילים</span>${u ? `<span title="העומס של פרויקט מתחלק שווה בין המעורבים הפעילים ונזקף לצוות של כל אחד/ת${tl.helping ? ` · +${fmtNum(tl.helping)} בפרויקטים של צוותים אחרים` : ''}${tl.helped ? ` · −${fmtNum(tl.helped)} נושאים אנשים מצוותים אחרים` : ''}">עומס ${fmtNum(load)} / ${fmtNum(u.cap)}${(tl.helping || tl.helped) ? ` <small class="muted">(${loadExchange(tl)})</small>` : ''}</span>` : ''}${u ? utilChip(u) : ''}</div>
       </div>
       <div class="team-lead">
         <span class="chip accent">${ICON.star} ראש/ת צוות</span>
@@ -9112,7 +9142,7 @@ function levelSection(c) {
       <span class="muted">עומס אישי ${fmtNum(load)} מתוך ${fmtNum(u.cap)} (${fmtNum(cl, 2)} × ${fmtNum(loadPerLevel())})</span>
       ${manual != null && edit ? `<button class="btn ghost small" data-action="level-auto" data-id="${c.id}">חזרה לחישוב אוטומטי</button>` : ''}
     </div>
-    <div class="inline-note">${LEVEL_STEPS.map((s) => `${fmtNum(s.level, 2)} ${s.label}`).join(' · ')}. העומס האישי הוא חלקו/ה בניקוד הפרויקטים הפעילים (מחולק שווה בין המוביל/ה והמשתתפים).${edit ? '' : ' עריכת הרמה: מנהלים וראש/ת הצוות של העובד/ת.'}</div>
+    <div class="inline-note">${LEVEL_STEPS.map((s) => `${fmtNum(s.level, 2)} ${s.label}`).join(' · ')}. העומס האישי הוא חלקו/ה בניקוד הפרויקטים הפעילים (מחולק שווה בין המוביל/ה והמשתתפים הפעילים), והוא נזקף לצוות שלו/ה גם בפרויקטים של צוותים אחרים.${edit ? '' : ' עריכת הרמה: מנהלים וראש/ת הצוות של העובד/ת.'}</div>
   </div>`;
 }
 function drawerContactReadOnly(c) {
