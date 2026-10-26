@@ -1414,6 +1414,121 @@
   .rp-pages.pdf-mode .rp-pi-img { width: 112px !important; height: 84px !important; }
   .rp-pages.pdf-mode .rp-pi-side { grid-column: auto !important; }
   .rp-pages.pdf-mode .rp-po-row { grid-template-columns: 26px minmax(0, 1fr) 120px 64px 80px 86px !important; font-size: 12px !important; }
+
+  /* ---------- work plan: the Gantt (26.10.2026) — the dot, stretched. Monochrome: the dot's colour is the only colour ---------- */
+  :root { --pl-label: 272px; --pl-day: 46px; --pl-wknd: 14px; --pl-week: 80px; --pl-lane: 60px; --pl-dot: 38px; --pl-red: var(--stg-late); --pl-orange: var(--stg-stuck); --pl-yellow: var(--stg-active); --pl-green: var(--go); --pl-off: #d9d9d9; --pl-stripe: rgba(0,0,0,.045); }
+  .pl-bar-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .pl-bar-row .tabs { margin-bottom: 0; border-bottom: 0; }
+  .pl-bar-row select { max-width: 340px; padding: 6px 10px; border: 1px solid var(--line-2); background: var(--surface); color: var(--ink); }
+  .pl-bar-row .spacer { flex: 1; }
+  .pl-nav { display: inline-flex; align-items: center; gap: 6px; }
+  .pl-nav .period { min-width: 170px; text-align: center; font-size: 17px; }
+  .pl-nav .btn.small { min-width: 34px; justify-content: center; font-size: 17px; line-height: 1; padding-block: 4px; }
+  .pl-nav .btn.ghost { font-size: 13px; min-width: 0; }
+  /* the dot */
+  .pl-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--pl-off); vertical-align: middle; flex: none; }
+  .pl-dot.red { background: var(--pl-red); } .pl-dot.orange { background: var(--pl-orange); } .pl-dot.yellow { background: var(--pl-yellow); } .pl-dot.green { background: var(--pl-green); }
+  .pl-dot.off { background: transparent; border: 1.5px solid var(--pl-off); }
+  .pl-dot.lg { width: 26px; height: 26px; box-shadow: 0 0 0 5px color-mix(in srgb, currentColor 10%, transparent); }
+  .pl-dot.lg.red { color: var(--pl-red); } .pl-dot.lg.orange { color: var(--pl-orange); } .pl-dot.lg.yellow { color: var(--pl-yellow); } .pl-dot.lg.green { color: var(--pl-green); }
+  .pl-dot.md { width: 16px; height: 16px; } .pl-dot.sm { width: 9px; height: 9px; }
+  .pl-dotline { display: inline-flex; align-items: center; gap: 5px; }
+  .pl-card { display: flex; align-items: center; gap: 14px; background: var(--surface-2); padding: 12px 18px; margin: 0 0 12px; flex-wrap: wrap; }
+  .pl-card .who { font-size: 19px; }
+  .pl-card .t { font-size: 13.5px; color: var(--ink-2); }
+  .pl-card .sep { width: 1px; height: 26px; background: var(--line-2); }
+  /* avatars */
+  .pl-av { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: var(--surface-2); color: var(--ink); font-size: 14px; letter-spacing: .02em; flex: none; }
+  .pl-av.sq { border-radius: 0; background: var(--ink); color: var(--accent-ink); }
+  .pl-load { color: var(--ink-2); border: 1px solid var(--line-2); padding: 0 6px; font-size: 11px; line-height: 16px; font-variant-numeric: tabular-nums; direction: ltr; }
+  /* the grid */
+  .pl-gantt { overflow-x: auto; overflow-y: hidden; position: relative; border: 1px solid var(--line); background: var(--surface); font-variant-numeric: tabular-nums; }
+  .pl-row { display: grid; grid-template-columns: var(--pl-cols); align-items: stretch; min-width: max-content; border-bottom: 1px solid var(--line); position: relative; }
+  .pl-row:last-child { border-bottom: 0; }
+  .pl-row.weeks { border-bottom: 0; }
+  .pl-row.head { border-bottom: 1px solid var(--rule); }
+  .pl-row.group { background: var(--surface-2); }
+  .pl-label { position: sticky; inset-inline-start: 0; background: var(--surface); border-inline-end: 1px solid var(--line-2); padding: 8px 14px; z-index: 3; display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .pl-row.group .pl-label { background: var(--surface-2); padding: 10px 14px; }
+  .pl-row.weeks .pl-label, .pl-row.head .pl-label { align-items: flex-end; padding-bottom: 6px; }
+  .pl-label .txt { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .pl-label .nm { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
+  .pl-label .nm a { text-decoration: none; } .pl-label .nm a:hover { text-decoration: underline; }
+  .pl-label .rl { font-size: 12px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
+  .pl-label .rl > * { flex: none; }
+  .pl-label .rl > .sh { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .pl-label .rl .chip { font-size: 11px; padding: 1px 6px; }
+  .pl-label .hd { font-size: 12.5px; color: var(--ink-3); letter-spacing: .04em; }
+  .pl-label .muted { color: var(--ink-3); font-size: 12px; }
+  .pl-cell { border-inline-end: 1px solid var(--line); min-height: var(--pl-lane); position: relative; }
+  .pl-cell.wk { background: repeating-linear-gradient(135deg, transparent 0 6px, var(--pl-stripe) 6px 7px); border-inline-end-color: transparent; }
+  .pl-cell.hol, .pl-cell.leave { background: repeating-linear-gradient(135deg, transparent 0 6px, var(--pl-stripe) 6px 7px); }
+  .pl-cell.leave { background-color: var(--surface-2); }
+  .pl-cell.wkend-last { border-inline-end: 1px solid var(--line-2); }
+  .pl-cell.thisweek { background-color: color-mix(in srgb, var(--surface-2) 55%, transparent); }
+  .pl-cell.today::after { content: ""; position: absolute; inset-inline-start: 50%; top: 0; bottom: 0; border-inline-start: 2px dashed var(--ink); opacity: .9; z-index: 1; pointer-events: none; }
+  .pl-row.rows .pl-cell.can { cursor: cell; }
+  .pl-row.rows .pl-cell.can:hover { background-color: var(--accent-soft); }
+  .pl-head { text-align: center; padding: 6px 0 7px; color: var(--ink-2); border-inline-end: 1px solid var(--line); line-height: 1.1; display: flex; flex-direction: column; align-items: center; gap: 3px; justify-content: flex-end; }
+  .pl-head.wk { color: var(--ink-3); border-inline-end-color: transparent; }
+  .pl-head.hol .d { text-decoration: line-through; color: var(--ink-3); }
+  .pl-head .d { font-size: 15px; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
+  .pl-head .d.wide { width: auto; padding-inline: 6px; font-size: 13px; }
+  .pl-head.today .d { background: var(--ink); color: var(--accent-ink); }
+  .pl-head.wk .d { font-size: 10px; width: auto; height: auto; }
+  .pl-head .w { font-size: 11px; color: var(--ink-3); }
+  .pl-wk { display: flex; align-items: center; justify-content: center; padding: 8px 4px 4px; }
+  .pl-pill { display: inline-flex; align-items: center; gap: 7px; padding: 4px 11px; border-radius: 999px; background: var(--surface-2); color: var(--ink-2); font-size: 12.5px; white-space: nowrap; }
+  .pl-wk.now .pl-pill { background: var(--ink); color: var(--accent-ink); }
+  /* bars: the dot, stretched. The shortest item is a perfect circle; a longer one is the same shape drawn out over its days. An empty frame
+     that fills from the start as the checklist is ticked; the fill takes the dot's colour for that progress */
+  .pl-bar { grid-row: var(--lane); margin: calc((var(--pl-lane) - var(--pl-dot)) / 2) 3px; height: var(--pl-dot); border-radius: 999px; border: 1.5px solid var(--ink); background: var(--surface); color: var(--ink); font-size: 13.5px; line-height: 1.2; white-space: nowrap; overflow: hidden; position: relative; z-index: 2; cursor: pointer; }
+  .pl-bar .fill { position: absolute; inset-block: 0; inset-inline-start: 0; width: var(--pct, 0%); background: var(--fc, transparent); }
+  .pl-bar.fade .fill, .pl-ckbar.fade .fill { background: linear-gradient(to left, var(--fc) 0%, color-mix(in srgb, var(--fc) 82%, transparent) 40%, color-mix(in srgb, var(--fc) 42%, transparent) 75%, transparent 100%); }
+  .pl-bar.fill-red, .pl-ckbar.fill-red { --fc: var(--pl-red); } .pl-bar.fill-orange, .pl-ckbar.fill-orange { --fc: var(--pl-orange); } .pl-bar.fill-yellow, .pl-ckbar.fill-yellow { --fc: var(--pl-yellow); } .pl-bar.fill-green, .pl-ckbar.fill-green { --fc: var(--pl-green); }
+  .pl-bar .lbl { position: absolute; inset: 0; display: flex; align-items: center; gap: 8px; padding-inline: 5px 12px; }
+  .pl-bar.future { border-style: dashed; border-color: var(--line-2); }
+  .pl-bar.late { border-color: var(--pl-red); border-width: 2px; }
+  .pl-bar.late .pct { color: var(--pl-red); opacity: 1; }
+  .pl-bar:hover, .pl-bar:focus-visible { box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--ink); outline: 0; }
+  .pl-bar .pl-av { width: 28px; height: 28px; font-size: 11px; background: rgba(255,255,255,.55); color: var(--ink); }
+  .pl-bar .pn { overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1 1 auto; }
+  .pl-bar .pn:has(+ .tag), .pl-bar .pn:has(+ .pct) { min-width: 45%; }
+  .pl-bar .tag { background: rgba(255,255,255,.55); padding: 2px 8px; border-radius: 999px; font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; max-width: 42%; flex: 0 1 auto; }
+  .pl-bar .pct { margin-inline-start: auto; font-size: 11.5px; flex: none; opacity: .85; }
+  .pl-bar.narrow .lbl { display: none; }
+  .pl-bar.narrow { width: var(--pl-dot); justify-self: center; }
+  /* stages (project view): the same frame, filled by the stage's progress; milestones hang from the current stage */
+  .pl-bar.stage { height: 30px; margin: 15px 3px; font-size: 13px; cursor: default; }
+  .pl-bar.stage:hover { box-shadow: none; }
+  .pl-bar.stage .lbl { justify-content: center; padding-inline: 12px; }
+  .pl-bar.stage.next { border-style: dashed; border-color: var(--line-2); color: var(--ink-3); }
+  .pl-ms { grid-row: 1; align-self: end; justify-self: center; margin-bottom: 6px; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 2px; pointer-events: none; width: 110px; text-align: center; }
+  .pl-ms::before { content: ""; width: 1px; height: 10px; background: var(--line-2); }
+  .pl-ms .ico { width: 24px; height: 24px; border-radius: 50%; background: var(--surface); border: 2px solid var(--ink); color: var(--ink); font-size: 11px; display: inline-flex; align-items: center; justify-content: center; }
+  .pl-ms.done .ico { background: var(--ink); color: var(--accent-ink); }
+  .pl-ms .nm { font-size: 11.5px; color: var(--ink); white-space: nowrap; max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
+  .pl-ms .dt { font-size: 10.5px; color: var(--ink-3); }
+  .pl-stg { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12.5px; background: var(--ink); color: var(--accent-ink); flex: none; }
+  .pl-stg.done { background: var(--ink-3); }
+  .pl-stg.next { background: var(--surface-2); color: var(--ink); border: 1px solid var(--line-2); }
+  /* the checklist bar in the task drawer: the same frame as the bar, so the person sees the fill they are adding */
+  .pl-ckbar { height: 10px; border-radius: 999px; border: 1.5px solid var(--ink); position: relative; overflow: hidden; margin: 2px 0 10px; }
+  .pl-ckbar .fill { position: absolute; inset-block: 0; inset-inline-start: 0; width: var(--pct, 0%); background: var(--fc, transparent); }
+  /* legend */
+  .pl-legend { display: flex; gap: 8px 18px; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--ink-2); margin-top: 12px; }
+  .pl-legend .sw { display: inline-block; width: 22px; height: 12px; border-radius: 999px; vertical-align: -1px; margin-inline-end: 5px; }
+  .pl-legend .sw.frame { border: 1.5px solid var(--ink); background: transparent; }
+  .pl-legend .k { color: var(--ink-3); margin-inline-end: 4px; }
+  .pl-gantt .empty { padding: 32px 16px; text-align: center; }
+  @media (max-width: 720px) {
+    :root { --pl-label: 158px; --pl-day: 36px; --pl-wknd: 11px; --pl-week: 60px; --pl-lane: 54px; --pl-dot: 34px; }
+    .pl-label { padding: 6px 8px; gap: 8px; } .pl-av { width: 32px; height: 32px; font-size: 12px; } .pl-label .nm { font-size: 14px; }
+    .pl-bar { margin-inline: 2px; font-size: 12.5px; } .pl-bar .pl-av { width: 24px; height: 24px; font-size: 10px; }
+    .pl-bar.stage { height: 28px; margin: 13px 2px; }
+    .pl-nav .period { min-width: 120px; font-size: 15px; }
+    .pl-card .who { font-size: 16px; }
+  }
 </style>
 </head>
 <body>
@@ -1595,6 +1710,7 @@ const ROLES = [
 const VIEWS = [
   { id: 'overview', label: 'סקירה' },
   { id: 'tasks', label: 'משימות' },
+  { id: 'plan', label: 'תוכנית', pref: 'planTab' }, // the work plan (Gantt) — optional: hidden per person by preference (26.10.2026)
   { id: 'time', label: 'שעות' },
   { id: 'meetings', label: 'פגישות' },
   { id: 'field', label: 'שטח' },
@@ -1610,7 +1726,7 @@ const VIEWS = [
   { id: 'settings', label: 'הגדרות', cap: 'settings_view' },
 ];
 /* a tab exists only for someone who may do something there (capabilities; the archive and the seating have their own rules) */
-const visibleViews = () => VIEWS.filter((v) => (!v.cap || can(v.cap)) && (!v.owner || isOwner()) && (!v.archive || (typeof canSeeArchive === 'function' && canSeeArchive())) && (!v.seating || (typeof canSeeSeating === 'function' && canSeeSeating())));
+const visibleViews = () => VIEWS.filter((v) => (!v.cap || can(v.cap)) && (!v.pref || S.prefs?.[v.pref] !== 'off') && (!v.owner || isOwner()) && (!v.archive || (typeof canSeeArchive === 'function' && canSeeArchive())) && (!v.seating || (typeof canSeeSeating === 'function' && canSeeSeating())));
 /* ===================== scope: שלי · הצוות · המשרד (10.10.2026) =====================
    Every list opens on what belongs to the person — the role's default — and the switch at its head widens it to the team or the office when
    the person may see that much. The choice is remembered per person (user_prefs.scope): everyone sets their own default by using the switch,
@@ -1707,6 +1823,8 @@ const DEFAULT_SETTINGS = {
   leadShareMin: 0.3, // … but never below this share
   fullWeekHours: 42,
   leaveLeadDays: 3,
+  /* office holidays (26.10.2026): grey days in the work plan, like the weekend; a manager edits the list in the settings (one date per line) */
+  holidays: ['2026-09-12', '2026-09-13', '2026-09-21', '2026-09-26', '2026-10-03', '2027-04-22', '2027-04-28', '2027-05-12', '2027-06-11', '2027-10-02', '2027-10-03', '2027-10-11', '2027-10-16', '2027-10-23'],
   partnerUserId: null,
   handoverStageId: 'handover', // reaching this stage opens the photoshoot & publication card
   shootFunctions: { pr: [], social: [] },
@@ -2125,6 +2243,7 @@ function loadUi() {
     if (saved.sort) S.ui.sort = saved.sort;
     if (saved.ttab) S.ui.ttab = saved.ttab;
     if (saved.tproject) S.ui.tproject = saved.tproject;
+    if (saved.plan && typeof saved.plan === 'object') S.ui.plan = Object.assign(S.ui.plan || { tab: '', month: '', zoom: 'month', team: '', project: '' }, { tab: saved.plan.tab || '', zoom: saved.plan.zoom || 'month', team: saved.plan.team || '', project: saved.plan.project || '' });
   } catch (e) { /* storage unavailable */ }
   const h = (location.hash || '').replace('#', '');
   if (VIEWS.some((v) => v.id === h)) S.ui.view = h;
@@ -2132,7 +2251,7 @@ function loadUi() {
   else if (h.startsWith('archive/')) { S.ui.view = 'archive-page'; S.ui.arcPage = h.slice(8); }
 }
 function saveUi() {
-  try { localStorage.setItem('obr-ui', JSON.stringify({ filters: S.ui.filters, ctab: S.ui.ctab, sort: S.ui.sort, ttab: S.ui.ttab, tproject: S.ui.tproject })); } catch (e) { /* ignore */ }
+  try { localStorage.setItem('obr-ui', JSON.stringify({ filters: S.ui.filters, ctab: S.ui.ctab, sort: S.ui.sort, ttab: S.ui.ttab, tproject: S.ui.tproject, plan: S.ui.plan ? { tab: S.ui.plan.tab, zoom: S.ui.plan.zoom, team: S.ui.plan.team, project: S.ui.plan.project } : undefined })); } catch (e) { /* ignore */ }
 }
 /* a view change becomes a history entry, so the browser's Back (and the phone's) goes to the previous screen; the same hash is only replaced */
 function setHash(h) { try { if ((location.hash || '') === '#' + h) history.replaceState(null, '', '#' + h); else history.pushState(null, '', '#' + h); } catch (e) { /* ignore */ } }
@@ -2164,10 +2283,12 @@ function render() {
   if (S.ui.view === 'archive-page' && !(typeof canSeeArchive === 'function' && canSeeArchive())) S.ui.view = 'overview';
   if (S.ui.view !== 'report' && S.ui.view !== 'project' && S.ui.view !== 'archive-page' && !visibleViews().some((v) => v.id === S.ui.view)) S.ui.view = 'overview';
   document.body.classList.toggle('report-view', S.ui.view === 'report');
+  if (typeof plBeforeRender === 'function') plBeforeRender();
   if (S.dbState === 'error') page.innerHTML = `<div class="banner">טעינת הנתונים נכשלה (${esc(S.error)}). <button class="btn small" data-action="reload-data">נסה שוב</button></div>`;
   else if (S.dbState === 'connecting') page.innerHTML = '<div class="loading">טוען את נתוני המשרד…</div>';
-  else page.innerHTML = { overview: renderOverview, tasks: renderTasks, time: renderTime, meetings: renderMeetings, field: renderField, report: renderReport, projects: renderProjects, project: renderProjectPage, teams: renderTeams, contacts: renderContacts, requests: renderRequests, archive: renderArchive, 'archive-page': renderArchivePage, seating: renderSeating, commissions: renderCommissions, users: renderUsers, settings: renderSettings, gop: renderGop }[S.ui.view]();
+  else page.innerHTML = { overview: renderOverview, tasks: renderTasks, time: renderTime, meetings: renderMeetings, field: renderField, report: renderReport, projects: renderProjects, project: renderProjectPage, teams: renderTeams, contacts: renderContacts, requests: renderRequests, archive: renderArchive, 'archive-page': renderArchivePage, seating: renderSeating, commissions: renderCommissions, users: renderUsers, settings: renderSettings, gop: renderGop, plan: renderPlan }[S.ui.view]();
   if (S.ui.view === 'report') paginateReport();
+  if (S.ui.view === 'plan') plAfterRender();
   renderOverlay();
   applyFrozen();
   renderPendingBar();
@@ -3093,6 +3214,7 @@ function renderSettings() {
         <div class="field"><label>שותף/ה מנהל/ת (מאשר/ת חופשות ארוכות)</label>${selectHtml('set-partner', st.partnerUserId || '', Object.values(S.profiles).filter((p) => ['owner', 'manager'].includes(p.role)).map((p) => ({ value: p.id, label: uname(p.id) })), { blank: 'כל הבעלים', attrs: ro ? 'disabled' : '' })}</div>
         <div class="field"><label>חופשה עד כמה ימי עבודה מאשר/ת ראש/ת הצוות לבד</label><input type="number" min="0" id="set-leave-days" value="${leaveLeadDays()}" style="max-width:120px" ${ro ? 'disabled' : ''}></div>
       </div>
+      <div class="field" style="margin-top:14px"><label>חגים וימי שבתון של המשרד — ימים אפורים בתוכנית העבודה (תאריך בכל שורה, למשל 21.9.2026)</label><textarea id="set-holidays" rows="5" style="max-width:260px;direction:ltr;text-align:left" ${ro ? 'disabled' : ''}>${esc(holidaysText())}</textarea></div>
       <div class="inline-note">בקשות פגישה ועדכוני מחלה/איחור מגיעים למשתמשים בתפקיד "אדמיניסטרציה" (משתמשים → תפקיד); אם אין — למנהלים.</div>` : ''}
       <div class="field"><label>שם המשרד</label><input type="text" id="set-office-name" value="${esc(st.officeName || '')}" ${ro ? 'disabled' : ''}></div>
     </div>
@@ -4008,6 +4130,7 @@ function drawerTask(id) {
       ${t.status === 'waiting' ? field('ממתין ל…', textInput('t-waitingOn', t.waitingOn, `data-bind="tasks:${id}:waitingOn" placeholder="לקוח, יועץ חשמל, קבלן…" list="dl-waiting" ${dis}`)) : ''}
       <div class="field-row">
         ${field('אחראי/ת', `<div style="padding-top:4px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">${menuChip(uname(t.assigneeId, 'ללא אחראי'), `data-action="menu" data-menu="assignee" data-id="${id}"`, t.assigneeId ? 'accent' : 'dim')}${!t.assigneeId && me()?.id ? `<button type="button" class="btn small ghost" data-action="assign-me" data-id="${id}">שבץ אותי</button>` : ''}</div>`)}
+        ${field('מתאריך', `<input type="date" id="t-startDate" value="${dateInput(t.startDate)}" data-bind="tasks:${id}:startDate" ${dis}>`, t.startDate || t.dueDate ? 'הימים של המשימה בתוכנית העבודה' : '')}
         ${field('תאריך יעד', `<input type="date" id="t-dueDate" value="${dateInput(t.dueDate)}" data-bind="tasks:${id}:dueDate" ${dis}>`)}
       </div>
       <div class="field-row">
@@ -4019,7 +4142,7 @@ function drawerTask(id) {
     <div class="section">
       <h3 class="section-title">צ'קליסט <small>${cl.length ? `${cl.filter((c) => c.done).length} מתוך ${cl.length}` : ''}</small>
         ${ro ? '' : `<span class="cl-tools"><button type="button" class="btn ghost small" data-action="menu" data-menu="clfrom" data-id="${id}" title="מעתיק לכאן את הפריטים של משימה אחרת — מה שכבר יש נשאר">${ICON.copy} מתוך משימה אחרת…</button>${cl.length ? `<button type="button" class="btn ghost small" data-action="menu" data-menu="clto" data-id="${id}" title="מעתיק את הצ'קליסט הזה למשימה אחרת (הפריטים שם נשארים)">למשימה אחרת…</button>` : ''}</span>`}</h3>
-      ${cl.length ? `<div class="progress"><div style="width:${Math.round((cl.filter((c) => c.done).length / cl.length) * 100)}%"></div></div>` : ''}
+      ${cl.length ? (planSpan(t) ? `<div class="pl-ckbar fill-${plFillClass(taskProgress(t).pct)} ${taskProgress(t).pct > 0 && taskProgress(t).pct < 100 ? 'fade' : ''}" style="--pct:${taskProgress(t).pct}%" title="${taskProgress(t).pct}% — כך המשימה נראית בתוכנית העבודה"><span class="fill"></span></div>` : `<div class="progress"><div style="width:${Math.round((cl.filter((c) => c.done).length / cl.length) * 100)}%"></div></div>`) : ''}
       <div class="checklist">${cl.map((c) => `<div class="check-row ${c.done ? 'done' : ''}"><label><input type="checkbox" ${c.done ? 'checked' : ''} data-check="${id}:${c.id}" ${dis}><span>${esc(c.text)}</span></label>${ro ? '' : `<button class="icon-btn" data-action="check-remove" data-id="${id}" data-item="${c.id}" title="הסר">${ICON.x}</button>`}</div>`).join('')}</div>
       ${ro ? '' : `<div class="add-row"><input type="text" id="check-add-${id}" placeholder="פריט חדש… (Enter)"><button class="btn small" data-action="check-add" data-id="${id}">${ICON.plus} הוסף</button></div>`}
     </div>
@@ -8935,6 +9058,7 @@ function drawerPrefs() {
   <div class="drawer-body">
     <div class="section">
       ${field('המסך שנפתח בכניסה', selectHtml('pref-landing', landing, views.map((v) => ({ value: v.id, label: v.label })), { blank: 'ברירת המחדל של התפקיד', attrs: 'data-pref="landing"' }))}
+      ${field('לשונית "תוכנית" (גנט תוכנית העבודה)', selectHtml('pref-plan-tab', S.prefs.planTab === 'off' ? 'off' : 'on', [{ value: 'on', label: 'מוצגת' }, { value: 'off', label: 'מוסתרת — נשאר/ת במצב הרגיל' }], { attrs: 'data-pref="planTab"' }), 'המשימות עצמן לא משתנות: הגנט רק מציג משימות שקיבלו ימים.')}
     </div>
     ${lists.length ? `<div class="section">
       <h3 class="section-title">על מה כל רשימה נפתחת <small>שלי · הצוות · המשרד</small></h3>
@@ -9470,6 +9594,253 @@ function openPicker(anchor, { col, doc, field, type, single }) {
   });
 }
 
+/* the holidays list as text (d.m.yyyy per line) and back — a manager edits it in the settings */
+const holidaysText = () => (Array.isArray(settings().holidays) ? settings().holidays : []).slice().sort().map((d) => { const [y, m, dd] = d.split('-'); return `${Number(dd)}.${Number(m)}.${y}`; }).join('\n');
+function parseHolidays(text) {
+  const out = new Set();
+  String(text || '').split(/[\n,;]+/).map((s) => s.trim()).filter(Boolean).forEach((s) => {
+    let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/); if (m) { out.add(`${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`); return; }
+    m = s.match(/^(\d{1,2})[./](\d{1,2})[./](\d{2,4})$/); if (m) { const y = m[3].length === 2 ? '20' + m[3] : m[3]; out.add(`${y}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`); }
+  });
+  return [...out].sort();
+}
+/* ===================== work plan — the Gantt (26.10.2026) =====================
+   A plan item is a task with days: tasks.start_date … tasks.due_date. Team leads and managers place tasks on the days of their people;
+   the person sees their own plan; management sees the office; a project shows its stages and the people planned on it.
+   Every item is the dot, stretched: a one-day task is a perfect circle, a longer one the same shape drawn out over its days. The frame
+   starts empty and fills from the start as the task's checklist is ticked — a dégradé in the dot's colour for that progress (red < 30%,
+   orange, yellow, green from 90%); the text stays black. Dashed = not started yet; a red frame = its days passed and the checklist is open.
+   The weekly dot of a person = the progress of that week's planned items, weighted by their days; a team or the office = the mean of its
+   people; the 3-month view shows one dot per month. Nothing here is reported — it is all derived from the tasks. */
+S.ui.plan = S.ui.plan || { tab: '', month: '', zoom: 'month', team: '', project: '' };
+const PL_DAY = 86400000;
+const plMonthStart = (ymd) => ymd.slice(0, 8) + '01';
+const plMonthEnd = (ymd) => { const d = new Date(ymd + 'T00:00:00'); return todayStr(new Date(d.getFullYear(), d.getMonth() + 1, 0)); };
+const plAddMonths = (ymd, n) => { const d = new Date(ymd + 'T00:00:00'); return todayStr(new Date(d.getFullYear(), d.getMonth() + n, 1)); };
+const plDow = (ymd) => new Date(ymd + 'T00:00:00').getDay();
+const plWeekStart = (ymd) => addDays(ymd, -plDow(ymd));
+const plDays = (a, b) => { const A = new Date(a + 'T00:00:00'), B = new Date(b + 'T00:00:00'); return Math.round((Date.UTC(B.getFullYear(), B.getMonth(), B.getDate()) - Date.UTC(A.getFullYear(), A.getMonth(), A.getDate())) / PL_DAY); };
+const plMax = (a, b) => (a > b ? a : b), plMin = (a, b) => (a < b ? a : b);
+const PL_MONTHS = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'];
+const PL_DAYS_HE = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];
+const plMonthName = (ymd) => { const d = new Date(ymd + 'T00:00:00'); return `${PL_MONTHS[d.getMonth()]} ${d.getFullYear()}`; };
+const plD = (ymd) => { const d = new Date(ymd + 'T00:00:00'); return `${d.getDate()}.${d.getMonth() + 1}`; };
+/* days off: the weekend and the office holidays (settings.holidays, editable by managers) */
+const holidays = () => new Set(Array.isArray(settings().holidays) ? settings().holidays : []);
+const isWeekendDay = (ymd) => plDow(ymd) >= 5;
+const isOffDay = (ymd) => isWeekendDay(ymd) || holidays().has(ymd);
+/* approved leave of a person (requests of kind leave) — grey days that are not planned on */
+function leaveDaysOf(cid) {
+  const out = new Set();
+  Object.values(S.requests || {}).forEach((r) => { if (r.kind !== 'leave' || r.status !== 'approved' || r.contactId !== cid || !r.startDate) return; for (let d = r.startDate; d <= (r.endDate || r.startDate); d = addDays(d, 1)) out.add(d); });
+  return out;
+}
+/* the plan item behind a task: its days (start … due; one of them alone = that single day) */
+const planSpan = (t) => { const from = t.startDate || t.dueDate, to = t.dueDate || t.startDate; return from ? { from: String(from).slice(0, 10), to: plMax(String(from).slice(0, 10), String(to).slice(0, 10)) } : null; };
+/* progress of a task: the checklist when there is one, else its status */
+function taskProgress(t) {
+  const cl = checklistOf(t); if (cl.length) { const done = cl.filter((c) => c.done).length; return { done, total: cl.length, pct: Math.round((done / cl.length) * 100) }; }
+  return { done: 0, total: 0, pct: t.status === 'done' ? 100 : t.status === 'in_progress' ? 50 : 0 };
+}
+const plFillClass = (pct) => pct <= 0 ? 'empty' : pct >= 90 ? 'green' : pct >= 60 ? 'yellow' : pct >= 30 ? 'orange' : 'red';
+const plDotClass = (sc) => sc == null ? 'off' : sc >= 0.9 ? 'green' : sc >= 0.6 ? 'yellow' : sc >= 0.3 ? 'orange' : 'red';
+const plDotWord = (sc) => sc == null ? 'אין תוכנית' : sc >= 0.9 ? 'ירוק' : sc >= 0.6 ? 'צהוב' : sc >= 0.3 ? 'כתום' : 'אדום';
+const plDot = (sc, cls = '', tip = '') => `<span class="pl-dot ${plDotClass(sc)} ${cls}" title="${esc(tip)}"></span>`;
+/* people ↔ users: a plan row is an employee; the tasks hang on the user account */
+function plUidOf() { const m = {}; Object.values(S.profiles).forEach((pr) => { if (pr.contactId && !['pending', 'disabled'].includes(pr.role)) m[pr.contactId] = pr.id; }); return m; }
+const plUid = (cid) => plUidOf()[cid] || null;
+/* the planned tasks of a person that touch a range */
+function plItemsOf(uid, from, to, pid) { if (!uid) return []; return TK().filter((t) => t.assigneeId === uid && (!pid || t.projectId === pid)).map((t) => ({ t, span: planSpan(t) })).filter((x) => x.span && x.span.from <= to && x.span.to >= from); }
+/* the week's dot: the progress of the week's items, weighted by their working days in the week (Sunday–Thursday) */
+function plWeekScore(uid, cid, sunday) {
+  const days = []; for (let i = 0; i < 5; i++) { const d = addDays(sunday, i); if (!isOffDay(d)) days.push(d); }
+  const leave = leaveDaysOf(cid); const items = plItemsOf(uid, sunday, addDays(sunday, 4));
+  let w = 0, acc = 0; const plannedDays = new Set();
+  items.forEach(({ t, span }) => { const n = days.filter((d) => d >= span.from && d <= span.to && !leave.has(d)).length; if (!n) return; days.filter((d) => d >= span.from && d <= span.to && !leave.has(d)).forEach((d) => plannedDays.add(d)); w += n; acc += n * taskProgress(t).pct / 100; });
+  if (!w) return { score: null, planned: 0, items: 0, future: sunday > todayStr() };
+  if (sunday > todayStr()) return { score: null, planned: plannedDays.size, items: items.length, future: true };
+  return { score: acc / w, planned: plannedDays.size, items: items.length, future: false };
+}
+function plWeeksIn(from, to) { const out = []; for (let s = plWeekStart(from); s <= to; s = addDays(s, 7)) out.push(s); return out; }
+function plMonthScore(uid, cid, m0) { const ws = plWeeksIn(m0, plMonthEnd(m0)).map((w) => plWeekScore(uid, cid, w)).filter((w) => w.score != null); if (!ws.length) return { score: null }; return { score: ws.reduce((s, w) => s + w.score, 0) / ws.length }; }
+function plGroupScore(people, fn) { const xs = people.map(fn).filter((x) => x.score != null); if (!xs.length) return { score: null }; return { score: xs.reduce((s, x) => s + x.score, 0) / xs.length }; }
+const plWeekTip = (w, sunday) => w.score == null ? (w.future ? `שבוע ${plD(sunday)} — עדיין לא הגיע` : `שבוע ${plD(sunday)} — לא תוכנן כלום`) : `שבוע ${plD(sunday)}: ${w.items} פריטים על ${w.planned} ימים → ${plDotWord(w.score)} (${Math.round(w.score * 100)}%)`;
+/* who may plan for whom: managers for everyone, a team lead for the team */
+const canPlanFor = (c) => !!c && (isManager() || leadsTeamOf(c));
+/* ---------- the columns: days of a month, or weeks of three months ---------- */
+function plColumns() {
+  const st = S.ui.plan; const m0 = st.month || plMonthStart(todayStr());
+  if (st.zoom !== 'quarter') { const from = m0, to = plMonthEnd(m0); const days = []; for (let d = from; d <= to; d = addDays(d, 1)) days.push(d); return { kind: 'day', from, to, units: days, width: (d) => (isWeekendDay(d) ? 'var(--pl-wknd)' : 'var(--pl-day)') }; }
+  const from = plWeekStart(plAddMonths(m0, -1)); const weeks = plWeeksIn(from, plMonthEnd(plAddMonths(m0, 1)));
+  return { kind: 'week', from, to: addDays(weeks[weeks.length - 1], 6), units: weeks, width: () => 'var(--pl-week)' };
+}
+const plCols = (c) => `--pl-cols: var(--pl-label) ${c.units.map(c.width).join(' ')}`;
+const plColOf = (c, d) => (c.kind === 'day' ? c.units.indexOf(d) : c.units.indexOf(plWeekStart(d))) + 2;
+function plSpanCols(c, from, to) { const a = plMax(from, c.from), b = plMin(to, c.to); if (a > b) return null; return [plColOf(c, a), plColOf(c, b) + 1]; }
+/* overlapping items stack in lanes; in the 3-month view a dot covers about four days of a week column, so neighbours stack too */
+function plLanes(bars, minDays = 1) { const ends = []; bars.sort((x, y) => x.from.localeCompare(y.from) || y.to.localeCompare(x.to)); bars.forEach((b) => { const to = plMax(b.to, addDays(b.from, minDays - 1)); let i = ends.findIndex((e) => e < b.from); if (i < 0) { i = ends.length; ends.push(to); } else ends[i] = to; b.lane = i + 1; }); return Math.max(1, ends.length); }
+/* ---------- rendering ---------- */
+function plHeadRows(c, subject) {
+  const today = todayStr(); const tw = plWeekStart(today);
+  const top = c.kind === 'day'
+    ? plWeeksIn(c.from, c.to).map((s) => { const a = plMax(s, c.from), b = plMin(addDays(s, 6), c.to); const sc = subject ? subject.week(s) : null; return `<div class="pl-wk ${s === tw ? 'now' : ''}" style="grid-column:${plColOf(c, a)} / ${plColOf(c, b) + 1}"><span class="pl-pill" title="${subject ? esc(subject.tip(sc, s)) : ''}">${subject ? plDot(sc?.score, 'md') : ''}<span>שבוע ${plD(s)}</span></span></div>`; }).join('')
+    : (() => { const m0 = S.ui.plan.month || plMonthStart(today); const monthOf = (w) => plMin(plMax(plMonthStart(addDays(w, 3)), plAddMonths(m0, -1)), plAddMonths(m0, 1)); const months = []; c.units.forEach((w) => { const m = monthOf(w); if (!months.includes(m)) months.push(m); }); return months.map((m) => { const ws = c.units.filter((w) => monthOf(w) === m); const sc = subject ? subject.month(m) : null; return `<div class="pl-wk ${m === plMonthStart(today) ? 'now' : ''}" style="grid-column:${plColOf(c, ws[0])} / ${plColOf(c, ws[ws.length - 1]) + 1}"><span class="pl-pill" title="${subject ? esc(subject.mtip(sc, m)) : ''}">${subject ? plDot(sc?.score, 'md') : ''}<span>${plMonthName(m)}</span></span></div>`; }).join(''); })();
+  const days = c.kind === 'day'
+    ? c.units.map((d) => `<div class="pl-head ${isWeekendDay(d) ? 'wk' : ''} ${holidays().has(d) ? 'hol' : ''} ${d === today ? 'today' : ''}" title="${holidays().has(d) ? 'חג / שבתון' : ''}"><span class="d">${Number(d.slice(8, 10))}</span><span class="w">${PL_DAYS_HE[plDow(d)]}</span></div>`).join('')
+    : c.units.map((w) => { const sc = subject ? subject.week(w) : null; return `<div class="pl-head ${w === tw ? 'today' : ''}">${subject ? plDot(sc?.score, 'sm', subject.tip(sc, w)) : ''}<span class="d wide">${plD(w)}</span></div>`; }).join('');
+  return `<div class="pl-row weeks" style="${plCols(c)}"><div class="pl-label"><span class="hd">${c.kind === 'day' ? 'שבועות · הנקודה' : 'חודשים · הנקודה'}</span></div>${top}</div>
+  <div class="pl-row head" style="${plCols(c)}"><div class="pl-label"><span class="hd">${c.kind === 'day' ? plMonthName(S.ui.plan.month || plMonthStart(today)) : 'שבועות'}</span></div>${days}</div>`;
+}
+function plCells(c, lanes, canAdd, cid, pid, leave) {
+  const today = todayStr(); const tw = plWeekStart(today); const hol = holidays();
+  return c.units.map((u, i) => { const off = c.kind === 'day' && (isWeekendDay(u) || hol.has(u)); const onLeave = c.kind === 'day' && leave && leave.has(u); const cls = c.kind === 'day' ? `${isWeekendDay(u) ? 'wk' : ''} ${hol.has(u) ? 'hol' : ''} ${onLeave ? 'leave' : ''} ${plDow(u) === 6 ? 'wkend-last' : ''} ${u === today ? 'today' : ''} ${plWeekStart(u) === tw && !isWeekendDay(u) ? 'thisweek' : ''}` : (u === tw ? 'thisweek' : ''); const can = canAdd && !off && !onLeave; return `<div class="pl-cell ${cls} ${can ? 'can' : ''}" style="grid-column:${i + 2};grid-row:1 / span ${lanes}" ${can ? `data-action="plan-add" data-cid="${cid}" data-day="${u}" ${pid ? `data-pid="${pid}"` : ''} title="הוספת משימה ל-${plD(u)}"` : ''}${onLeave ? ' title="חופשה מאושרת"' : ''}></div>`; }).join('');
+}
+const plLabel = (n, inner) => `<div class="pl-label" style="grid-row:1 / span ${n}">${inner}</div>`;
+const plInitials = (name) => { const w = String(name || '').trim().split(/\s+/).filter(Boolean); return (w[0]?.[0] || '') + (w[1]?.[0] || ''); };
+const plAvatar = (c) => `<span class="pl-av" title="${esc(c.name)}">${esc(plInitials(c.name))}</span>`;
+/* one bar: the task's days on the grid */
+function plBar(c, b, opts) {
+  const sp = plSpanCols(c, b.from, b.to); if (!sp) return '';
+  const a = plMax(b.from, c.from), z = plMin(b.to, c.to); const days = plDays(a, z) + 1;
+  let place = ''; let widthPx = days * 46;
+  if (c.kind === 'week') { const nW = sp[1] - sp[0]; const off = plDays(c.units[sp[0] - 2], a); widthPx = days * (80 / 7); place = `justify-self:start;margin-inline-start:calc(${off} / ${7 * nW} * 100%);width:max(var(--pl-dot), calc(${days} / ${7 * nW} * 100% - 6px));`; }
+  const narrow = widthPx < 50; const today = todayStr();
+  const pr = taskProgress(b.t); const cls = plFillClass(pr.pct); const future = b.from > today; const late = b.to < today && pr.pct < 100 && b.t.status !== 'done';
+  const title = opts.title; const tag = opts.tag || '';
+  const tip = `${title}${tag ? ' · ' + tag : ''} · ${plD(b.from)}${b.to !== b.from ? '–' + plD(b.to) : ''}${pr.total ? ` · צ'קליסט ${pr.done}/${pr.total}` : ` · ${TASK_STATUS[b.t.status]?.label || ''}`}${late ? ' · באיחור' : ''}`;
+  const body = narrow ? '' : `${widthPx >= 130 ? (opts.avatar || '') : ''}<span class="pn">${esc(title)}</span>${tag && widthPx >= 220 ? `<span class="tag">${esc(tag)}</span>` : ''}${pr.total && widthPx >= 130 ? `<span class="pct">${pr.done}/${pr.total}</span>` : ''}`;
+  const fade = pr.pct > 0 && pr.pct < 100 && !narrow;
+  return `<div class="pl-bar fill-${cls} ${fade ? 'fade' : ''} ${future ? 'future' : ''} ${late ? 'late' : ''} ${narrow ? 'narrow' : ''}" style="grid-column:${sp[0]} / ${sp[1]};--lane:${b.lane};--pct:${narrow ? (pr.pct > 0 ? 100 : 0) : pr.pct}%;${place}" title="${esc(tip)}" data-action="plan-open" data-id="${b.t.id}" role="button" tabindex="0"><span class="fill"></span><span class="lbl">${body}</span></div>`;
+}
+const plWeekDots = (c, uid, cid) => { if (c.kind === 'day') { const weeks = plWeeksIn(c.from, c.to).filter((w) => addDays(w, 4) >= c.from); return `<span class="pl-dotline">${weeks.map((w) => { const sc = plWeekScore(uid, cid, w); return plDot(sc.score, 'sm', plWeekTip(sc, w)); }).join('')}</span>`; } const m = S.ui.plan.month || plMonthStart(todayStr()); return `<span class="pl-dotline">${plDot(plMonthScore(uid, cid, m).score, 'sm', 'הנקודה החודשית')}</span>`; };
+/* planned working days of the month against the working days in it */
+function plMonthLoad(uid, cid) {
+  const m0 = S.ui.plan.month || plMonthStart(todayStr()); const end = plMonthEnd(m0); const leave = leaveDaysOf(cid);
+  let work = 0; const planned = new Set();
+  const items = plItemsOf(uid, m0, end);
+  for (let d = m0; d <= end; d = addDays(d, 1)) { if (isOffDay(d) || leave.has(d)) continue; work++; if (items.some(({ span }) => d >= span.from && d <= span.to)) planned.add(d); }
+  return { planned: planned.size, work };
+}
+function plPersonRow(c, e, opts = {}) {
+  const uid = plUid(e.id); const leave = leaveDaysOf(e.id);
+  const bars = uid ? (opts.items || plItemsOf(uid, c.from, c.to, opts.pid)).map(({ t, span }) => ({ t, from: span.from, to: span.to })) : [];
+  const n = plLanes(bars, c.kind === 'week' ? 4 : 1); const canAdd = !!uid && canPlanFor(e);
+  const load = uid ? plMonthLoad(uid, e.id) : null;
+  const sub = uid ? `${plWeekDots(c, uid, e.id)}<span class="sh">${esc(opts.sub ?? (e.role || ''))}</span>${load && c.kind === 'day' ? `<span class="pl-load" title="ימים מתוכננים מתוך ימי העבודה בחודש">${load.planned}/${load.work}</span>` : ''}` : '<span class="muted">אין חשבון GO — אי אפשר לתכנן</span>';
+  const inner = `${plAvatar(e)}<span class="txt"><span class="nm"><a href="#" data-action="open-contact" data-id="${e.id}">${esc(e.name)}</a></span><span class="rl">${sub}</span></span>`;
+  return `<div class="pl-row rows" style="${plCols(c)}">${plLabel(n, inner)}${plCells(c, n, canAdd, e.id, opts.pid || '', leave)}${bars.map((b) => plBar(c, b, opts.bar ? opts.bar(b) : { title: b.t.projectId && S.projects[b.t.projectId] ? S.projects[b.t.projectId].name : (b.t.title || 'משימה'), tag: b.t.projectId ? b.t.title : '' })).join('')}</div>`;
+}
+/* my plan: a row per project, the task's title on the bar */
+function plProjectRows(c, e) {
+  const uid = plUid(e.id); if (!uid) return `<div class="empty">אין לך עדיין חשבון מחובר לכרטיס עובד/ת — ההנהלה מחברת.</div>`;
+  const items = plItemsOf(uid, c.from, c.to); const keys = [...new Set(items.map(({ t }) => t.projectId || '_office'))].sort((a, b) => (a === '_office' ? 'תתת' : ptitleText(S.projects[a] || { name: '' })).localeCompare(b === '_office' ? 'תתת' : ptitleText(S.projects[b] || { name: '' }), 'he'));
+  if (!keys.length) return `<div class="empty">אין משימות עם ימים ב${c.kind === 'day' ? 'חודש' : 'תקופה'} הזאת. ${canPlanFor(e) ? 'לחיצה על יום בטבלה מוסיפה משימה.' : 'ראש/ת הצוות בונה את התוכנית; משימה מקבלת ימים בשדות "מתאריך" ו"תאריך יעד".'}</div>`;
+  const leave = leaveDaysOf(e.id); const canAdd = canPlanFor(e);
+  return keys.map((k) => { const p = k === '_office' ? null : S.projects[k]; const bars = items.filter(({ t }) => (t.projectId || '_office') === k).map(({ t, span }) => ({ t, from: span.from, to: span.to })); const n = plLanes(bars, c.kind === 'week' ? 4 : 1);
+    const inner = p ? `<span class="pl-av sq">${esc(String(p.name || '?').trim()[0] || '?')}</span><span class="txt"><span class="nm"><a href="#" data-action="open-project" data-id="${p.id}">${esc(p.name)}</a></span><span class="rl"><span class="sh">${esc([p.address, p.city].filter(Boolean).join(', '))}</span><span class="chip dim">${esc(phaseLabel(p))}</span></span></span>` : `<span class="pl-av sq">מ</span><span class="txt"><span class="nm">משימות משרדיות</span><span class="rl">בלי פרויקט</span></span>`;
+    return `<div class="pl-row rows" style="${plCols(c)}">${plLabel(n, inner)}${plCells(c, n, canAdd, e.id, p ? p.id : '', leave)}${bars.map((b) => plBar(c, b, { title: b.t.title || 'משימה', tag: '' })).join('')}</div>`; }).join('');
+}
+/* the project: a row per stage (dates from the stage targets and the milestones), then the people planned on it */
+function plStageRows(c, p) {
+  if (!S.milestonesLoaded[p.id]) { if (!S.milestonesLoading[p.id]) { S.milestonesLoading[p.id] = true; fetchMilestones(p.id).then(() => { S.milestonesLoading[p.id] = false; if (S.ui.view === 'plan') render(); }); } return `<div class="pl-row rows" style="${plCols(c)}">${plLabel(1, '<span class="txt"><span class="rl">טוען את אבני הדרך…</span></span>')}${plCells(c, 1, false)}</div>`; }
+  const stages = projectStages(p); const today = todayStr(); let prevEnd = null;
+  return stages.map((sg, i) => {
+    const dues = sg.real.map((m) => m.dueDate).filter(Boolean).map((d) => String(d).slice(0, 10)).sort();
+    const to = sg.target ? String(sg.target).slice(0, 10) : (dues.length ? dues[dues.length - 1] : null);
+    let from = prevEnd ? addDays(prevEnd, 1) : (p.startDate ? String(p.startDate).slice(0, 10) : (dues.length ? dues[0] : to));
+    if (from && to && from > to) from = to;
+    if (to) prevEnd = to;
+    const pct = sg.state === 'done' ? 100 : sg.realTotal ? Math.round((sg.realDone / sg.realTotal) * 100) : (sg.current && from && to ? Math.min(95, Math.max(5, Math.round((plDays(from, today) + 1) / (plDays(from, to) + 1) * 100))) : 0);
+    const state = sg.state === 'done' ? 'done' : sg.current ? 'now' : 'next';
+    const sp = from && to && to >= from ? plSpanCols(c, from, to) : null;
+    const ms = sg.current ? sg.real.filter((m) => m.dueDate).map((m) => { const d = String(m.dueDate).slice(0, 10); if (d < c.from || d > c.to) return ''; const col = plColOf(c, d); return `<div class="pl-ms ${m.state === 'done' ? 'done' : ''}" style="grid-column:${col}" title="${esc(msTypeName(m))} · ${fmtDate(d)}"><span class="ico">◆</span><span class="nm">${esc(msTypeName(m))}</span><span class="dt">${plD(d)}</span></div>`; }).join('') : '';
+    const inner = `<span class="pl-stg ${state}">${i + 1}</span><span class="txt"><span class="nm">${esc(sg.name)}</span><span class="rl"><span>${sg.state === 'done' ? 'הושלם' : sg.current ? STAGE_STATES[sg.state]?.label || 'השלב הנוכחי' : 'בהמשך'}</span>${from && to ? `<span dir="ltr">${plD(from)}–${plD(to)}</span>` : '<span>ללא יעד</span>'}${sg.realTotal ? `<span class="sh">· ${sg.realDone}/${sg.realTotal} אבני דרך</span>` : ''}</span></span>`;
+    return `<div class="pl-row rows ${state}" style="${plCols(c)}${ms ? ';--pl-lane:104px' : ''}">${plLabel(1, inner)}${plCells(c, 1, false)}${sp ? `<div class="pl-bar stage fill-${plFillClass(pct)} ${pct > 0 && pct < 100 ? 'fade' : ''} ${state}" style="grid-column:${sp[0]} / ${sp[1]};--lane:1;--pct:${pct}%" title="${esc(sg.name)} · ${plD(from)}–${plD(to)} · ${pct}%"><span class="fill"></span><span class="lbl">${esc(sg.name)}</span></div>` : ''}${ms}</div>`;
+  }).join('');
+}
+const plGroupRow = (c, inner) => `<div class="pl-row group" style="${plCols(c)};--pl-lane:48px"><div class="pl-label">${inner}</div>${plCells(c, 1, false)}</div>`;
+function plSubject(people) { const f = (e) => plUid(e.id); return { week: (s) => plGroupScore(people.filter(f), (e) => plWeekScore(plUid(e.id), e.id, s)), month: (m) => plGroupScore(people.filter(f), (e) => plMonthScore(plUid(e.id), e.id, m)), tip: (sc, s) => people.length === 1 ? plWeekTip(plWeekScore(plUid(people[0].id), people[0].id, s), s) : `שבוע ${plD(s)} — ממוצע של ${people.filter(f).length} אנשים: ${plDotWord(sc?.score)}`, mtip: (sc, m) => `${plMonthName(m)}: ${plDotWord(sc?.score)}` }; }
+/* which tabs the person gets */
+function plTabs() {
+  const tabs = []; const c = contact(myContactId());
+  if (c) tabs.push(['mine', 'התוכנית שלי']);
+  if (myTeamIds().length && (can('overview_team') || can('tasks_all') || isManager())) tabs.push(['team', 'תוכנית הצוות']);
+  if (can('overview_office') || can('tasks_all')) tabs.push(['office', 'גנט משרדי']);
+  tabs.push(['project', 'גנט פרויקט']);
+  return tabs;
+}
+/* the team's rows: the lead first, then the people by name */
+const plTeamPeople = (tid) => { const t = team(tid); const ms = teamMembers(tid); return t && t.leadId ? [...ms.filter((e) => e.id === t.leadId), ...ms.filter((e) => e.id !== t.leadId)] : ms; };
+const plTeamsFor = () => (isManager() || can('overview_office') ? T() : T().filter((t) => myTeamIds().includes(t.id))).filter((t) => teamMembers(t.id).length);
+const plProjectsFor = () => treeSorted(activeProjects().filter((p) => canTaskOn(p)));
+function plGantt(c, st) {
+  if (st.tab === 'mine') { const e = contact(myContactId()); if (!e) return `<div class="empty">אין לך כרטיס עובד/ת מחובר לחשבון.</div>`; return plHeadRows(c, plSubject([e])) + plProjectRows(c, e); }
+  if (st.tab === 'team') { const ms = plTeamPeople(st.team); if (!ms.length) return `<div class="empty">אין אנשים בצוות הזה.</div>`; return plHeadRows(c, plSubject(ms)) + ms.map((e) => plPersonRow(c, e)).join(''); }
+  if (st.tab === 'office') { const all = employees().filter((e) => !isFreelancer(e) || plUid(e.id)); return plHeadRows(c, plSubject(all)) + T().map((t) => { const ms = plTeamPeople(t.id).filter((e) => all.includes(e)); if (!ms.length) return ''; const sub = plSubject(ms); const weeks = c.kind === 'day' ? plWeeksIn(c.from, c.to).filter((w) => addDays(w, 4) >= c.from) : null; const dots = weeks ? weeks.map((w) => plDot(sub.week(w).score, 'sm', sub.tip(sub.week(w), w))).join('') : plDot(sub.month(st.month).score, 'sm'); return plGroupRow(c, `<span class="txt"><span class="nm">${esc(t.name)}</span><span class="rl"><span class="pl-dotline">${dots}</span><span class="sh">${ms.length} אנשים${t.leadId ? ' · ' + esc(cname(t.leadId, '')) : ''}</span></span></span>`) + ms.map((e) => plPersonRow(c, e)).join(''); }).join('') + (() => { const none = all.filter((e) => !e.teamId); return none.length ? plGroupRow(c, '<span class="txt"><span class="nm">ללא צוות</span></span>') + none.map((e) => plPersonRow(c, e)).join('') : ''; })(); }
+  if (st.tab === 'project') { const p = S.projects[st.project]; if (!p) return `<div class="empty">בחרו פרויקט.</div>`; const uids = plUidOf(); const people = employees().filter((e) => uids[e.id] && plItemsOf(uids[e.id], c.from, c.to, p.id).length);
+    const rows = people.map((e) => plPersonRow(c, e, { pid: p.id, items: plItemsOf(uids[e.id], c.from, c.to, p.id), sub: (e.role || '') + (p.leadId === e.id ? ' · מוביל/ה' : ''), bar: (b) => ({ title: b.t.title || 'משימה', tag: '', avatar: plAvatar(e) }) })).join('');
+    return plHeadRows(c, null) + plGroupRow(c, `<span class="txt"><span class="nm">שלבי הפרויקט</span><span class="rl">לפי יעדי השלבים ואבני הדרך</span></span>`) + plStageRows(c, p) + plGroupRow(c, `<span class="txt"><span class="nm">האנשים על הפרויקט</span><span class="rl">${people.length} עם משימות מתוכננות בתקופה</span></span>`) + (rows || `<div class="empty">אף משימה עם ימים על הפרויקט בתקופה הזאת.${canWriteProjects() ? ' לחיצה על יום בשורת אדם בתוכנית הצוות מוסיפה.' : ''}</div>`); }
+  return '';
+}
+function plDotCard(c, st) {
+  if (st.tab === 'project') { const p = S.projects[st.project]; if (!p) return ''; return `<div class="pl-card"><span class="pl-av sq">${esc(String(p.name || '?').trim()[0] || '?')}</span><span class="who">${ptitle(p)}</span><span class="sep"></span><span class="t">שלב: <b>${esc(phaseLabel(p))}</b></span></div>`; }
+  const people = st.tab === 'mine' ? [contact(myContactId())].filter(Boolean) : st.tab === 'team' ? plTeamPeople(st.team) : employees();
+  const sub = plSubject(people); const tw = plWeekStart(todayStr()); const thisWeek = people.length === 1 && plUid(people[0].id) ? plWeekScore(plUid(people[0].id), people[0].id, tw) : sub.week(tw); const m = sub.month(st.month);
+  const who = st.tab === 'mine' ? (people[0]?.name || '') : st.tab === 'team' ? tname(st.team, '') : 'כל המשרד';
+  return `<div class="pl-card">${plDot(thisWeek.score, 'lg', sub.tip(thisWeek, tw))}<span class="who">${esc(who)}</span><span class="t">השבוע: <b>${plDotWord(thisWeek.score)}</b>${people.length === 1 && thisWeek.items ? ` · ${thisWeek.items} פריטים על ${thisWeek.planned} ימים` : ''}</span><span class="sep"></span>${plDot(m.score, 'md', sub.mtip(m, st.month))}<span class="t">${plMonthName(st.month)}: <b>${plDotWord(m.score)}</b></span></div>`;
+}
+function renderPlan() {
+  const st = S.ui.plan; const tabs = plTabs();
+  if (!st.month) st.month = plMonthStart(todayStr());
+  if (!tabs.some((x) => x[0] === st.tab)) st.tab = tabs[0][0];
+  if (st.tab === 'team') { const ts = plTeamsFor(); if (!ts.some((t) => t.id === st.team)) st.team = (ts.find((t) => myTeamIds().includes(t.id)) || ts[0] || {}).id || ''; }
+  if (st.tab === 'project') { const ps = plProjectsFor(); if (!ps.some((p) => p.id === st.project)) st.project = (ps.find((p) => involvedIn(p)) || ps[0] || {}).id || ''; }
+  const c = plColumns();
+  const canAny = st.tab === 'mine' ? canPlanFor(contact(myContactId())) : st.tab === 'team' ? plTeamPeople(st.team).some(canPlanFor) : st.tab === 'office' ? isManager() : canWriteProjects();
+  return `
+  <div class="view-head">
+    <div><h1 class="view-title">תוכנית עבודה</h1><div class="view-sub">${canAny ? 'לחיצה על יום פנוי מוסיפה משימה לאותו יום · לחיצה על פס פותחת את המשימה והצ׳קליסט שלה.' : 'ראש/ת הצוות בונה את התוכנית; לחיצה על פס פותחת את המשימה — סימון שלב בצ׳קליסט ממלא אותו.'}</div></div>
+    <div class="view-actions"><div class="seg small" role="group" aria-label="זום"><button type="button" class="${st.zoom !== 'quarter' ? 'on' : ''}" data-action="plan-zoom" data-zoom="month" aria-pressed="${st.zoom !== 'quarter'}">חודש</button><button type="button" class="${st.zoom === 'quarter' ? 'on' : ''}" data-action="plan-zoom" data-zoom="quarter" aria-pressed="${st.zoom === 'quarter'}">3 חודשים</button></div></div>
+  </div>
+  <div class="pl-bar-row">
+    <div class="tabs pl-tabs">${tabs.map(([k, l]) => `<button type="button" class="tab ${st.tab === k ? 'on' : ''}" data-action="plan-tab" data-tab="${k}">${l}</button>`).join('')}</div>
+    ${st.tab === 'team' && plTeamsFor().length > 1 ? selectHtml('plan-team', st.team, plTeamsFor().map((t) => ({ value: t.id, label: t.name }))) : ''}
+    ${st.tab === 'project' ? selectHtml('plan-project', st.project, plProjectsFor().map((p) => ({ value: p.id, label: ptitleText(p) })), { blank: 'בחר פרויקט…' }) : ''}
+    <span class="spacer"></span>
+    <div class="pl-nav"><button type="button" class="btn small" data-action="plan-nav" data-n="-1" title="חודש קודם" dir="ltr">›</button><span class="period">${st.zoom === 'quarter' ? `${plMonthName(plAddMonths(st.month, -1)).split(' ')[0]} – ${plMonthName(plAddMonths(st.month, 1))}` : plMonthName(st.month)}</span><button type="button" class="btn small" data-action="plan-nav" data-n="1" title="חודש הבא" dir="ltr">‹</button><button type="button" class="btn small ghost" data-action="plan-nav" data-n="0">היום</button></div>
+  </div>
+  ${plDotCard(c, st)}
+  <div class="pl-gantt mono" id="pl-gantt">${plGantt(c, st)}</div>
+  <div class="pl-legend"><span class="k">פס = משימה עם ימים:</span><span><span class="sw frame"></span> מתחיל ריק</span><span><span class="sw" style="background:var(--pl-red)"></span> מתמלא עם הצ׳קליסט — עד 30%</span><span><span class="sw" style="background:var(--pl-orange)"></span> 30–60%</span><span><span class="sw" style="background:var(--pl-yellow)"></span> 60–90%</span><span><span class="sw" style="background:var(--pl-green)"></span> 90% ומעלה</span><span class="k">· מקווקו = עוד לא התחיל · מסגרת אדומה = הימים עברו והצ׳קליסט לא נסגר</span></div>
+  <div class="pl-legend"><span class="k">הנקודה (לשבוע):</span><span><span class="pl-dot red"></span> עד 30%</span><span><span class="pl-dot orange"></span> 30–60%</span><span><span class="pl-dot yellow"></span> 60–90%</span><span><span class="pl-dot green"></span> 90% ומעלה</span><span><span class="pl-dot off"></span> עוד לא / לא תוכנן</span><span class="k">· ההתקדמות של פריטי השבוע, משוקללת בימים</span></div>`;
+}
+/* after a render of the plan: open on today, and keep the scroll across re-renders */
+function plAfterRender() {
+  const g = document.getElementById('pl-gantt'); if (!g) { plAfterRender.key = null; return; }
+  const st = S.ui.plan; const key = [st.tab, st.month, st.zoom, st.team, st.project].join('|');
+  if (plAfterRender.key !== key) { plAfterRender.key = key; const t = g.querySelector('.pl-head.today'); if (t) { const r = t.getBoundingClientRect(), gr = g.getBoundingClientRect(); g.scrollLeft += (r.left + r.width / 2) - (gr.left + gr.width / 2); } }
+  else if (plAfterRender.scroll != null) g.scrollLeft = plAfterRender.scroll;
+}
+function plBeforeRender() { const g = document.getElementById('pl-gantt'); plAfterRender.scroll = g ? g.scrollLeft : null; }
+async function planAction(a, ds) {
+  if (!a.startsWith('plan-')) return false;
+  const st = S.ui.plan;
+  if (a === 'plan-tab') { st.tab = ds.tab; saveUi(); render(); return true; }
+  if (a === 'plan-zoom') { st.zoom = ds.zoom; saveUi(); render(); return true; }
+  if (a === 'plan-nav') { st.month = ds.n === '0' ? plMonthStart(todayStr()) : plAddMonths(st.month || plMonthStart(todayStr()), Number(ds.n)); saveUi(); render(); return true; }
+  if (a === 'plan-open') { openDrawer('task', ds.id); if (!S.taskComments[ds.id]) fetchComments(ds.id).then(render); return true; }
+  if (a === 'plan-add') {
+    const c = contact(ds.cid); const uid = plUid(ds.cid); if (!c || !uid || !canPlanFor(c)) { toast('תכנון: ראש/ת הצוות או ההנהלה'); return true; }
+    const p = ds.pid ? S.projects[ds.pid] : null; if (p && !canTaskOn(p)) { toast('אין לך גישה לפרויקט הזה'); return true; }
+    const day = ds.day; const id = await newTask({ title: '', assigneeId: uid, projectId: p ? p.id : null, startDate: day, dueDate: day });
+    if (id) { openDrawer('task', id); setTimeout(() => { const i = document.getElementById('t-title'); if (i) i.focus(); }, 30); }
+    return true;
+  }
+  return false;
+}
+/* a bar is a button: Enter or Space opens the task */
+document.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && e.target?.classList?.contains('pl-bar') && e.target.dataset.action === 'plan-open') { e.preventDefault(); e.target.click(); } });
+
 /* ===================== events ===================== */
 function bindHandler(el) {
   const [col, id, key] = el.dataset.bind.split(':');
@@ -9536,6 +9907,9 @@ document.addEventListener('change', (e) => {
   if (id === 'c-inactive') { S.ui.showInactive = el.checked; render(); return; }
   if (id === 'import-type') { S.ui.importState.type = el.value; render(); return; }
   if (el.dataset.pref === 'landing') { savePrefs({ landing: el.value || null }); return; }
+  if (el.dataset.pref === 'planTab') { savePrefs({ planTab: el.value === 'off' ? 'off' : null }); if (S.ui.view === 'plan' && el.value === 'off') S.ui.view = 'tasks'; render(); return; }
+  if (id === 'plan-team') { S.ui.plan.team = el.value; saveUi(); render(); return; }
+  if (id === 'plan-project') { S.ui.plan.project = el.value; saveUi(); render(); return; }
   if (el.dataset.prefScope) { setScope(el.dataset.prefScope, el.value); return; }
   if (el.classList.contains('acct-pick') || id === 'acct-role') { S.ui.acct = Object.assign({}, S.ui.acct || {}, { emails: [...document.querySelectorAll('.acct-pick:checked')].map((i) => i.value), role: document.getElementById('acct-role')?.value || 'staff' }); return; }
   if (el.dataset.userRole) { const pid = el.dataset.userRole; const role = el.value; patchDoc('profiles', pid, { role }).then((ok) => { if (ok) toast('התפקיד עודכן'); }); return; }
@@ -9575,6 +9949,7 @@ document.addEventListener('change', (e) => {
   if (id === 'set-stale-days') { patchSettings({ staleDays: Math.max(1, Number(el.value) || 14) }); return; }
   if (id === 'set-partner') { patchSettings({ partnerUserId: el.value || null }); return; }
   if (id === 'set-leave-days') { patchSettings({ leaveLeadDays: Math.max(0, Number(el.value) || 0) }); return; }
+  if (id === 'set-holidays') { patchSettings({ holidays: parseHolidays(el.value) }); return; }
   if (id === 'set-load-per-level') { patchSettings({ loadPerLevel: Math.max(0.5, Number(el.value) || 4) }); return; }
   if (id === 'set-lead-per-member') { const n = Number(el.value); patchSettings({ leadSharePerMember: isNaN(n) ? 0.1 : Math.min(1, Math.max(0, n / 100)) }); return; }
   if (id === 'set-lead-min') { const n = Number(el.value); patchSettings({ leadShareMin: isNaN(n) ? 0.3 : Math.min(1, Math.max(0, n / 100)) }); return; }
@@ -9638,6 +10013,7 @@ document.addEventListener('click', async (e) => {
   if (await gopAction(a, ds, t, e)) return;
   if (await procAction(a, ds, t, e)) return;
   if (await materialsAction(a, ds, t, e)) return;
+  if (await planAction(a, ds, t, e)) return;
   if (await shootAction(a, ds, t, e)) return;
   if (await meetingsAction(a, ds, t, e)) return;
   if (await sundayAction(a, ds, t, e)) return;
@@ -9966,7 +10342,7 @@ document.addEventListener('click', async (e) => {
     // scope and personal defaults
     case 'scope': setScope(ds.list, ds.scope); break;
     case 'prefs': openDrawer('prefs', null); break;
-    case 'prefs-reset': { S.ui.scope = {}; savePrefs({ landing: null, scope: {} }); render(); toast('ההעדפות אופסו'); break; }
+    case 'prefs-reset': { S.ui.scope = {}; savePrefs({ landing: null, scope: {}, planTab: null }); render(); toast('ההעדפות אופסו'); break; }
     // the signed-in user's own password
     case 'change-pw': { S.ui.pw = {}; openDrawer('password', null); setTimeout(() => document.getElementById('pw-new')?.focus(), 30); break; }
     case 'password-save': {
