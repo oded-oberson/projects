@@ -1480,7 +1480,7 @@ const HEALTH = {
   yellow: { label: 'לתשומת לב', cls: 'yellow', icon: ICON.tri, bar: 'warn' },
   red: { label: 'דחוף', cls: 'red', icon: ICON.square, bar: 'crit' },
 };
-const STATES = { active: 'פעיל', frozen: 'מוקפא', done: 'הושלם' };
+const STATES = { active: 'פעיל', frozen: 'HOLD', done: 'הושלם' }; // HOLD = מוקפא (26.10.2026, Oded)
 const CTYPES = {
   employee: { label: 'עובד/ת', plural: 'עובדים', new: 'עובד/ת חדש/ה', sub: 'צוות המשרד, פרילנסרים ומי שעבדו כאן' },
   client: { label: 'לקוח', plural: 'לקוחות', new: 'לקוח חדש', sub: 'מי שמזמין עבודה — אדם, משפחה או חברה' },
@@ -2023,6 +2023,30 @@ function setMemberActive(p, cid, active) {
   const cur = inactiveMemberIds(p); const next = active ? cur.filter((x) => x !== cid) : [...new Set([...cur, cid])];
   return patchDoc('projects', p.id, { inactiveMemberIds: next });
 }
+/* HOLD (26.10.2026, Oded): a project nobody works on is not an active project. The people who count are the current employees active on it
+   (the lead and the members not marked inactive; someone who left the office does not count). When a change leaves an active project with
+   none of them it goes on hold (state frozen) in the same write, and it cannot be set back to active until someone is assigned again. */
+const activeStaff = (p) => activePeople(p).filter((cid) => S.contacts[cid]?.active !== false);
+const PEOPLE_FIELDS = ['leadId', 'memberIds', 'inactiveMemberIds'];
+function holdWhenEmpty(doc, patch) {
+  const next = Object.assign({}, doc, patch);
+  if (patch.state === 'active' && doc.state !== 'active' && !activeStaff(next).length) { // see, then assign, then activate
+    toast('כדי להפעיל את הפרויקט צריך קודם לשבץ מוביל/ה או משתתף/ת');
+    const rest = Object.assign({}, patch); delete rest.state; return Object.keys(rest).length ? rest : null;
+  }
+  if (!('state' in patch) && next.state === 'active' && PEOPLE_FIELDS.some((k) => k in patch) && !activeStaff(next).length) {
+    toast(`${ptitleText(next)} — אין עובדים פעילים, הפרויקט עבר ל-${STATES.frozen}`);
+    return Object.assign({}, patch, { state: 'frozen' });
+  }
+  return patch;
+}
+/* someone leaves the office: every active project that is left without a current employee goes on hold */
+function holdProjectsOf(cid) {
+  const hit = activeProjects().filter((p) => activePeople(p).includes(cid) && !activeStaff(p).length);
+  hit.forEach((p) => { snapshot('projects', p.id); Object.assign(p, { state: 'frozen', updatedAt: nowIso() }); stage({ kind: 'patch', col: 'projects', id: p.id, patch: { state: 'frozen' } }); });
+  if (hit.length) toast(`${hit.length === 1 ? ptitleText(hit[0]) + ' עבר' : hit.length + ' פרויקטים עברו'} ל-${STATES.frozen} — לא נשארו עליהם עובדים פעילים`);
+  return hit.length;
+}
 function personalLoads(act) {
   const m = {};
   act.forEach((p) => {
@@ -2298,7 +2322,7 @@ function renderOverview() {
 function renderPersonalOverview(sw) {
   const uid = me()?.id, cid = myContactId();
   const open = sortTasks(myOpenTasks()); const overdue = open.filter(isOverdue), todayT = open.filter((t) => dueInfo(t).key === 'today'), week = open.filter((t) => dueInfo(t).key === 'week');
-  const mine = activeProjects().filter(involvedIn).sort(byName);
+  const mine = treeSorted(activeProjects().filter(involvedIn));
   const roleIn = (p) => [p.leadId === cid ? 'מוביל/ה' : '', p.pmId === cid ? 'ניהול פרויקט' : '', (p.memberIds || []).includes(cid) ? (isActiveOn(p, cid) ? 'חבר/ת צוות' : 'הייתי מעורב/ת (לא פעיל/ה כעת)') : ''].filter(Boolean).join(' · ') || 'משימה / שיתוף';
   const reqs = (typeof myRequests === 'function' ? myRequests() : []).filter((r) => r.status === 'open');
   const pend = typeof pendingForMe === 'function' ? pendingForMe() : [];
@@ -2590,7 +2614,7 @@ function visibleProjects() {
     updated: p.statusUpdatedAt || '', start: p.startDate || '',
   })[key];
   ps.sort((a, b) => { const x = val(a), y = val(b); const r = typeof x === 'number' ? x - y : String(x).localeCompare(String(y), 'he'); return r * dir; });
-  return ps;
+  return withChildrenAdjacent(ps); // sub-projects right under their parent, whatever the sort
 }
 function phaseFilterNames() {
   const tpl = settings().phases.map((x) => x.name);
@@ -3057,7 +3081,7 @@ function renderSettings() {
         <input type="number" step="0.1" min="0" id="size-w-${s.id}" value="${s.weight}" data-size-weight="${s.id}" title="משקל" ${ro ? 'disabled' : ''}>
         <div></div>
       </div>`).join('')}</div>
-      <div class="inline-note" style="margin-top:10px">ניקוד העומס של פרויקט = משקל הגודל × משקל השלב הפעיל. הניקוד מתחלק שווה בין המעורבים הפעילים בפרויקט ונזקף לצוות של כל אחד/ת — מי שפעיל/ה בפרויקט של צוות אחר נושא/ת את חלקו/ה בצוות שלו/ה. הסכום לכל צוות ולכל מוביל מוצג בסקירה ובמטריצת העומס.</div>
+      <div class="inline-note" style="margin-top:10px">ניקוד העומס של פרויקט = משקל הגודל × משקל השלב הפעיל. הניקוד מתחלק שווה בין המעורבים הפעילים בפרויקט ונזקף לצוות של כל אחד/ת — מי שפעיל/ה בפרויקט של צוות אחר נושא/ת את חלקו/ה בצוות שלו/ה. פרויקט שלא נשארו עליו עובדים פעילים עובר אוטומטית ל-HOLD. הסכום לכל צוות ולכל מוביל מוצג בסקירה ובמטריצת העומס.</div>
       ${canSeeLevels() ? `<div class="field-row" style="margin-top:14px">
         <div class="field"><label>נקודות עומס לעובד/ת ברמה 1 (קיבולת)</label><input type="number" step="0.5" min="0.5" id="set-load-per-level" value="${loadPerLevel()}" style="max-width:120px" ${ro ? 'disabled' : ''}></div>
         <div class="field"><label>הפחתה מקיבולת ראש/ת צוות לכל איש צוות (%)</label><input type="number" step="5" min="0" max="100" id="set-lead-per-member" value="${Math.round(leadSharePerMember() * 100)}" style="max-width:120px" ${ro ? 'disabled' : ''}></div>
@@ -3154,7 +3178,7 @@ function loadMatrix(act) {
       </tbody>
       ${office ? `<tfoot><tr><td>סה"כ המשרד</td><td class="num">${tot.n}</td><td class="num">${fmtNum(tot.lv, 2)}</td><td class="num">${fmtNum(tot.u.cap)}</td><td class="num">${tot.ps}</td><td class="num">${fmtNum(tot.load)}</td>${exchange ? '<td class="num"></td>' : ''}<td class="num">${tot.u.pct == null ? '—' : tot.u.pct + '%'}</td><td>${utilChip(tot.u)}</td></tr></tfoot>` : ''}
     </table></div>
-    <div class="inline-note" style="margin-top:8px">העומס של פרויקט מתחלק שווה בין המעורבים הפעילים בו (מוביל/ה ומשתתפים) ונזקף לצוות של כל אחד/ת — מי שפעיל/ה בפרויקט של צוות אחר נושא/ת את חלקו/ה בצוות שלו/ה, והחלק הזה יורד מהצוות של הפרויקט. פרויקט בלי מעורבים פעילים נשאר כולו בצוות שלו. רמה אוטומטית לפי ותק: ${LEVEL_STEPS.map((s) => `${fmtNum(s.level, 2)} ${s.label}`).join(' · ')}. ערך ידני (עד ${LEVEL_MAX}) נקבע בכרטיס העובד/ת. ראש/ת צוות מנהל/ת את הצוות, ולכן נספר/ת רק בחלק מהרמה: 100% פחות ${Math.round(leadSharePerMember() * 100)}% לכל איש צוות, מינימום ${Math.round(leadShareMin() * 100)}%.${unknown ? ` <strong>${unknown} עובדים ללא תאריך תחילת עבודה</strong> נספרים כרמה 1 עד שיוזן תאריך או ערך ידני.` : ''}${isManager() ? ' הנקודות לרמה וחלק ראש הצוות נקבעים בהגדרות.' : ''}</div>
+    <div class="inline-note" style="margin-top:8px">העומס של פרויקט מתחלק שווה בין המעורבים הפעילים בו (מוביל/ה ומשתתפים) ונזקף לצוות של כל אחד/ת — מי שפעיל/ה בפרויקט של צוות אחר נושא/ת את חלקו/ה בצוות שלו/ה, והחלק הזה יורד מהצוות של הפרויקט. פרויקט שאין עליו עובדים פעילים עובר ל-HOLD ואינו נספר. רמה אוטומטית לפי ותק: ${LEVEL_STEPS.map((s) => `${fmtNum(s.level, 2)} ${s.label}`).join(' · ')}. ערך ידני (עד ${LEVEL_MAX}) נקבע בכרטיס העובד/ת. ראש/ת צוות מנהל/ת את הצוות, ולכן נספר/ת רק בחלק מהרמה: 100% פחות ${Math.round(leadSharePerMember() * 100)}% לכל איש צוות, מינימום ${Math.round(leadShareMin() * 100)}%.${unknown ? ` <strong>${unknown} עובדים ללא תאריך תחילת עבודה</strong> נספרים כרמה 1 עד שיוזן תאריך או ערך ידני.` : ''}${isManager() ? ' הנקודות לרמה וחלק ראש הצוות נקבעים בהגדרות.' : ''}</div>
   </div>`;
 }
 function renderTeams() {
@@ -3472,9 +3496,11 @@ function scheduleAutoCommit(delay = 450) {
 function stage(op) { op.drawer = S.ui.drawer ? (S.ui.drawer.kind + ':' + S.ui.drawer.id) : null; S.pending.ops.push(op); scheduleAutoCommit(); }
 function patchDoc(col, id, patch) {
   const doc = S[col][id]; if (!doc) return Promise.resolve(false);
+  if (col === 'projects') { patch = holdWhenEmpty(doc, patch); if (!patch) { render(); return Promise.resolve(false); } } // HOLD: nobody active → not active
   snapshot(col, id);
   Object.assign(doc, patch, { updatedAt: nowIso() });
   stage({ kind: 'patch', col, id, patch: Object.assign({}, patch) });
+  if (col === 'contacts' && patch.active === false && doc.type === 'employee') holdProjectsOf(id);
   render();
   return Promise.resolve(true);
 }
@@ -3932,7 +3958,7 @@ function renderTasks() {
       ${scopeSwitch('tasks', counts, sc)}
       <div class="search">${ICON.search}<input type="search" id="tf-q" placeholder="חיפוש משימה…" value="${esc(f.q)}"></div>
       ${selectHtml('tf-assignee', f.assignee, [...people.map((u) => ({ value: u.id, label: uname(u.id) })), { value: 'none', label: 'ללא אחראי' }], { blank: 'כל האחראים' })}
-      ${selectHtml('tf-project', f.project, [{ value: 'office', label: 'משימות משרדיות' }, ...P().filter((x) => x.state === 'active').sort(byName).map((x) => ({ value: x.id, label: x.name }))], { blank: 'כל הפרויקטים' })}
+      ${selectHtml('tf-project', f.project, [{ value: 'office', label: 'משימות משרדיות' }, ...treeSorted(P().filter((x) => x.state === 'active')).map((x) => ({ value: x.id, label: x.name }))], { blank: 'כל הפרויקטים' })}
       ${selectHtml('tf-status', f.status, TASK_ORDER.map((s) => ({ value: s, label: TASK_STATUS[s].label })), { blank: 'כל הסטטוסים' })}
       ${selectHtml('tf-priority', f.priority, [{ value: 'urgent', label: 'דחוף' }, { value: 'normal', label: 'רגיל' }], { blank: 'כל העדיפויות' })}
       <label class="switch"><input type="checkbox" id="tf-done" ${f.done ? 'checked' : ''}> כולל בוצעו</label>
@@ -4764,7 +4790,7 @@ async function fieldAction(a, ds, t, e) {
       if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; }
       e.stopPropagation();
       const kind = ds.kind || 'site';
-      const projects = activeProjects().filter((p) => !isReduced(p)).sort(byName).map((p) => ({ label: p.name, sub: [p.number, p.city].filter(Boolean).join(' · '), value: p.id }));
+      const projects = treeSorted(activeProjects().filter((p) => !isReduced(p))).map((p) => ({ label: p.name, sub: [p.number, p.city].filter(Boolean).join(' · '), value: p.id }));
       const items = kind === 'meeting' ? [{ label: 'פגישה כללית', sub: 'ללא פרויקט — פגישת משרד, ספק, מועמד…', value: '' }, ...projects] : projects;
       openMenu(t, { search: true, placeholder: kind === 'meeting' ? 'באיזה הקשר?' : 'לאיזה פרויקט?', items, onPick: async (it) => { const id = await newVisit(it.value || null, kind, { venue: ds.venue }); if (id) openDrawer('visit', id); } });
       return true;
@@ -4773,7 +4799,7 @@ async function fieldAction(a, ds, t, e) {
     case 'visit-project': { // attach a meeting to a project (or move it); its number follows the new project's meetings
       e.stopPropagation(); if (!canWriteField()) { toast('אין לך הרשאת עריכה'); return true; }
       const v = S.site_visits[ds.id]; if (!v || v.kind !== 'meeting' || v.status === 'final') return true;
-      const projects = activeProjects().filter((p) => !isReduced(p) && p.id !== v.projectId).sort(byName).map((p) => ({ label: p.name, sub: [p.number, p.city].filter(Boolean).join(' · '), value: p.id }));
+      const projects = treeSorted(activeProjects().filter((p) => !isReduced(p) && p.id !== v.projectId)).map((p) => ({ label: p.name, sub: [p.number, p.city].filter(Boolean).join(' · '), value: p.id }));
       const items = v.projectId ? [{ label: 'פגישה כללית', sub: 'ללא פרויקט', value: '' }, ...projects] : projects;
       openMenu(t, { search: true, placeholder: 'לאיזה פרויקט?', items, onPick: (it) => { const pid = it.value || null; const seq = Math.max(0, ...visitsOf(pid, 'meeting').map((x) => x.seq || 0)) + 1; patchDoc('site_visits', ds.id, { projectId: pid, seq }); toast(pid ? 'הפגישה שויכה לפרויקט' : 'הפגישה הפכה לכללית'); } });
       return true;
@@ -5055,7 +5081,7 @@ function drawerNewRequest() {
   const days = f.kind === 'leave' ? workingDaysBetween(c, f.startDate, f.endDate) : 0;
   const lead = leadUserOf(me().id);
   const chain = f.kind === 'leave' ? (days > leaveLeadDays() ? `${lead ? uname(lead) : 'השותף/ה המנהל/ת'} + ${partnerIds().map((id) => uname(id)).join(' / ')}` : (lead ? uname(lead) : partnerIds().map((id) => uname(id)).join(' / '))) : '';
-  const projOpts = activeProjects().sort(byName).map((p) => ({ value: p.id, label: projectDisplayName(p) }));
+  const projOpts = treeSorted(activeProjects()).map((p) => ({ value: p.id, label: projectDisplayName(p) }));
   const body = !f.kind ? `<div class="req-kinds">${Object.entries(REQ_KINDS).map(([k, m]) => `<button type="button" class="req-kind" data-action="req-kind" data-kind="${k}"><strong>${m.label}</strong><span>${m.sub}</span></button>`).join('')}</div>`
     : f.kind === 'meeting' ? `
       <div class="field"><label>סוג הפגישה</label><span class="seg">${Object.entries(REQ_MEETING).map(([v, l]) => `<button type="button" class="${f.meetingType === v ? 'on' : ''}" data-action="req-set" data-key="meetingType" data-value="${v}">${l}</button>`).join('')}</span></div>
@@ -7458,7 +7484,7 @@ function sundayMenu(kind, id, anchor) {
   if (kind === 'srkind') openMenu(anchor, { items: Object.entries(SUNDAY_KINDS).map(([v, m]) => ({ label: m.label, value: v, selected: r.kind === v })), onPick: (it) => patchDoc('sunday_requests', id, { kind: it.value }) });
   else if (kind === 'srurgency') openMenu(anchor, { items: SUNDAY_URGENCY.map((u, i) => ({ label: u.label, value: i, selected: r.urgency === i })), onPick: (it) => patchDoc('sunday_requests', id, { urgency: it.value }) });
   else if (kind === 'srminutes') openMenu(anchor, { items: [...SUNDAY_MINUTES.map((m) => ({ label: fmtMinutes(m), value: m, selected: r.minutes === m })), { label: 'אחר…', value: 'other', selected: !SUNDAY_MINUTES.includes(r.minutes) }], onPick: (it) => { if (it.value === 'other') { S.ui.sundayOther = id; render(); setTimeout(() => document.getElementById('sr-other-' + id)?.focus(), 30); } else patchDoc('sunday_requests', id, { minutes: it.value }); } });
-  else if (kind === 'srproject') openMenu(anchor, { search: true, placeholder: 'איזה פרויקט?', items: [{ label: 'ללא פרויקט', value: '', selected: !r.projectId }, ...activeProjects().filter((p) => !isReduced(p)).sort(byName).map((p) => ({ label: p.name, sub: [p.number, p.city].filter(Boolean).join(' · '), value: p.id, selected: r.projectId === p.id }))], onPick: (it) => patchDoc('sunday_requests', id, { projectId: it.value || null }) });
+  else if (kind === 'srproject') openMenu(anchor, { search: true, placeholder: 'איזה פרויקט?', items: [{ label: 'ללא פרויקט', value: '', selected: !r.projectId }, ...treeSorted(activeProjects().filter((p) => !isReduced(p))).map((p) => ({ label: p.name, sub: [p.number, p.city].filter(Boolean).join(' · '), value: p.id, selected: r.projectId === p.id }))], onPick: (it) => patchDoc('sunday_requests', id, { projectId: it.value || null }) });
   else if (kind === 'srwith') { // + : anyone from the office (team members included), not only the partners and the lead
     const cur = r.withIds || [];
     const lead = r.teamId ? teamLeadId(r.teamId) : null;
@@ -7559,7 +7585,7 @@ function projectsOfPerson(cid, ymd) {
   if (p) TK().forEach((t) => { if (t.projectId && t.assigneeId === p.id && (isOpenTask(t) || (t.doneAt || t.updatedAt || '') >= since)) ids.add(t.projectId); });
   TE().forEach((e) => { if (e.contactId === cid && e.projectId && e.date >= since) ids.add(e.projectId); });
   entriesOf(cid, ymd).forEach((e) => { if (e.projectId) ids.add(e.projectId); });
-  return [...ids].map((id) => S.projects[id]).filter(Boolean).sort(byName);
+  return treeSorted([...ids].map((id) => S.projects[id]).filter(Boolean));
 }
 /* the days a person still has to close: today once their day has ended, and the last 7 workdays — not days they were away */
 function openDaysOf(cid, now = new Date()) {
@@ -7736,7 +7762,7 @@ async function timeAction(a, ds, t, e) {
     case 'te-add-project': { // any project in the office — the person may have been handed a task outside their plan
       e.stopPropagation(); if (!canTouchHours(ds.cid)) { toast(hoursViewer() ? 'מנהלים ואדמיניסטרציה לא רושמים שעות — רק רואים' : 'רק העובד/ת או ראש/ת הצוות'); return true; }
       const have = new Set(entriesOf(ds.cid, ds.date).map((x) => x.projectId).concat(projectsOfPerson(ds.cid, ds.date).map((p) => p.id)));
-      const items = P().filter((p) => p.state === 'active' && !have.has(p.id)).sort(byName).map((p) => ({ label: p.name, sub: [p.number, p.city, cname(p.clientId, '')].filter(Boolean).join(' · '), value: p.id }));
+      const items = treeSorted(P().filter((p) => p.state === 'active' && !have.has(p.id))).map((p) => ({ label: p.name, sub: [p.number, p.city, cname(p.clientId, '')].filter(Boolean).join(' · '), value: p.id }));
       openMenu(t, { search: true, placeholder: 'איזה פרויקט? (כל פרויקטי המשרד)', items, onPick: (it) => setHours(ds.cid, ds.date, 'p:' + it.value, 0.5) });
       return true;
     }
@@ -8043,7 +8069,7 @@ async function archiveAction(a, ds, t, e) {
     case 'arc-sync': e.stopPropagation(); syncArchiveFromSite(); return true;
     case 'arc-add': { // a completed office project that has no card yet — or any project the office wants in the archive
       e.stopPropagation(); if (!canEditArchive()) return true;
-      const items = P().filter((p) => !S.project_archive[p.id]).sort((x, y) => ((x.state === 'done') - (y.state === 'done')) * -1 || byName(x, y)).map((p) => ({ label: p.name, sub: [p.number, STATES[p.state], p.city].filter(Boolean).join(' · '), value: p.id }));
+      const items = treeSorted(P().filter((p) => !S.project_archive[p.id]), (x, y) => ((x.state === 'done') - (y.state === 'done')) * -1 || byName(x, y)).map((p) => ({ label: p.name, sub: [p.number, STATES[p.state], p.city].filter(Boolean).join(' · '), value: p.id }));
       openMenu(t, { search: true, placeholder: 'איזה פרויקט?', emptyText: 'כל הפרויקטים כבר בארכיון', items, onPick: (it) => { ensureArchive(it.value); openArchivePage(it.value); } });
       return true;
     }
@@ -8872,6 +8898,19 @@ function splitSections(par, secs) {
 /* sub-projects: a project can sit under a parent (e.g. a floor of a building) */
 const childrenOf = (pid) => P().filter((x) => x.parentId === pid).sort(byName);
 const parentOf = (p) => (p && p.parentId && S.projects[p.parentId]) || null;
+/* a sub-project always sits right under its parent (26.10.2026, Oded), in every list and picker: the sort orders the parents (and the
+   sub-projects whose parent is not in the list), and each sub-project in the list follows its parent — siblings in the same sort order */
+function withChildrenAdjacent(ps) {
+  const inList = new Set(ps.map((p) => p.id)); const kids = {};
+  ps.forEach((p) => { if (p.parentId && p.parentId !== p.id && inList.has(p.parentId)) (kids[p.parentId] = kids[p.parentId] || []).push(p); });
+  if (!Object.keys(kids).length) return ps;
+  const out = [], seen = new Set();
+  const push = (p) => { if (seen.has(p.id)) return; seen.add(p.id); out.push(p); (kids[p.id] || []).forEach(push); };
+  ps.forEach((p) => { if (!(p.parentId && inList.has(p.parentId))) push(p); });
+  ps.forEach(push); // a cycle of parents would otherwise hide its members
+  return out;
+}
+const treeSorted = (ps, cmp = byName) => withChildrenAdjacent([...ps].sort(cmp));
 const isDescendant = (candidate, ofId) => { let x = S.projects[candidate]; let guard = 0; while (x && guard++ < 20) { if (x.id === ofId) return true; x = x.parentId ? S.projects[x.parentId] : null; } return false; };
 const projectDisplayName = (p) => { const par = parentOf(p); return par ? `${ptitleText(par)} › ${p.name}` : ptitleText(p); };
 function subProjectsSection(p) {
@@ -9169,7 +9208,7 @@ function drawerCommission(id) {
   if (!k) return `<div class="drawer-head"><h2 class="drawer-title">העמלה נמחקה</h2><button class="icon-btn" data-action="close-drawer">${ICON.x}</button></div>`;
   const p = S.projects[k.projectId];
   const suppliers = C().filter((c) => c.type === 'supplier' && (c.active !== false || c.id === k.supplierId)).sort(byName);
-  const projects = P().sort(byName);
+  const projects = treeSorted(P());
   return `
   <div class="drawer-head">
     <div style="flex:1;min-width:0">
@@ -9353,7 +9392,7 @@ function menuFor(kind, id, anchor) {
   if (kind === 'parent') {
     if (!canWriteProjects()) { toast('אין לך הרשאת עריכה'); return; }
     const p = S.projects[id]; if (!p) return;
-    const items = [{ label: 'אין — פרויקט ראשי', value: '', selected: !p.parentId }, ...P().filter((x) => x.id !== id && !isDescendant(x.id, id) && (x.state === 'active' || x.id === p.parentId)).sort(byName).map((x) => ({ label: projectDisplayName(x), sub: [x.number, x.city].filter(Boolean).join(' · '), value: x.id, selected: p.parentId === x.id }))];
+    const items = [{ label: 'אין — פרויקט ראשי', value: '', selected: !p.parentId }, ...treeSorted(P().filter((x) => x.id !== id && !isDescendant(x.id, id) && (x.state === 'active' || x.id === p.parentId))).map((x) => ({ label: projectDisplayName(x), sub: [x.number, x.city].filter(Boolean).join(' · '), value: x.id, selected: p.parentId === x.id }))];
     openMenu(anchor, { search: true, placeholder: 'תחת איזה פרויקט?', items, onPick: (it) => patchDoc('projects', id, { parentId: it.value || null }) });
     return;
   }
@@ -9370,7 +9409,7 @@ function menuFor(kind, id, anchor) {
   }
   if (kind === 'tproject' || kind === 'tpick') {
     const cur = kind === 'tproject' ? S.tasks[id]?.projectId : S.ui.tproject;
-    const items = [{ label: kind === 'tpick' ? 'כל הפרויקטים' : 'משימה משרדית (ללא פרויקט)', value: '', selected: !cur }, ...P().filter((p) => (p.state === 'active' || p.id === cur) && (kind === 'tpick' || canTaskOn(p))).sort(byName).map((p) => ({ label: ptitleText(p), sub: [p.number, cname(p.leadId, '')].filter(Boolean).join(' · '), value: p.id, selected: cur === p.id }))];
+    const items = [{ label: kind === 'tpick' ? 'כל הפרויקטים' : 'משימה משרדית (ללא פרויקט)', value: '', selected: !cur }, ...treeSorted(P().filter((p) => (p.state === 'active' || p.id === cur) && (kind === 'tpick' || canTaskOn(p)))).map((p) => ({ label: ptitleText(p), sub: [p.number, cname(p.leadId, '')].filter(Boolean).join(' · '), value: p.id, selected: cur === p.id }))];
     openMenu(anchor, { search: true, placeholder: 'חיפוש פרויקט…', items, onPick: (it) => { if (kind === 'tpick') { S.ui.tproject = it.value || ''; saveUi(); savePrefs({ tproject: S.ui.tproject }); render(); } else patchDoc('tasks', id, { projectId: it.value || null, phaseId: null }); } });
     return;
   }
