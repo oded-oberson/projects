@@ -1498,6 +1498,15 @@
   .pl-bar .pct { margin-inline-start: auto; font-size: 11.5px; flex: none; opacity: .85; }
   .pl-bar.narrow .lbl { display: none; }
   .pl-bar.narrow { width: var(--pl-dot); justify-self: center; }
+  /* the week zoom: a one-day item is the circle at the start of its day, its caption beside it (the caption opens the task too) */
+  .pl-cap { grid-row: var(--lane); align-self: center; justify-self: start; min-width: 0; max-width: calc(100% - var(--pl-dot) - 14px); margin-inline-start: calc(var(--pl-dot) + 14px); display: flex; align-items: center; gap: 6px; font-size: 13px; line-height: 1.2; white-space: nowrap; overflow: hidden; z-index: 2; cursor: pointer; color: var(--ink); }
+  .pl-cap .pn { overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
+  .pl-cap .tag { background: var(--surface-2); padding: 1px 7px; border-radius: 999px; font-size: 11px; flex: 0 1 auto; max-width: 48%; overflow: hidden; text-overflow: ellipsis; }
+  .pl-cap .pct { color: var(--ink-3); font-size: 11px; flex: none; }
+  .pl-cap.late .pct { color: var(--pl-red); }
+  .pl-cap:hover .pn { text-decoration: underline; text-underline-offset: 3px; }
+  .pl-gantt.week .pl-head .w { font-size: 12.5px; color: var(--ink-2); }
+  .pl-gantt.week .pl-head.wk .w { font-size: 11px; color: var(--ink-3); }
   /* stages (project view): the same frame, filled by the stage's progress; milestones hang from the current stage */
   .pl-bar.stage { height: 30px; margin: 15px 3px; font-size: 13px; cursor: default; }
   .pl-bar.stage:hover { box-shadow: none; }
@@ -2243,7 +2252,7 @@ function loadUi() {
     if (saved.sort) S.ui.sort = saved.sort;
     if (saved.ttab) S.ui.ttab = saved.ttab;
     if (saved.tproject) S.ui.tproject = saved.tproject;
-    if (saved.plan && typeof saved.plan === 'object') S.ui.plan = Object.assign(S.ui.plan || { tab: '', month: '', zoom: 'month', team: '', project: '' }, { tab: saved.plan.tab || '', zoom: saved.plan.zoom || 'month', team: saved.plan.team || '', project: saved.plan.project || '' });
+    if (saved.plan && typeof saved.plan === 'object') S.ui.plan = Object.assign(S.ui.plan || { tab: '', month: '', week: '', zoom: 'month', team: '', project: '' }, { tab: saved.plan.tab || '', zoom: ['week', 'month', 'quarter'].includes(saved.plan.zoom) ? saved.plan.zoom : 'month', team: saved.plan.team || '', project: saved.plan.project || '' });
   } catch (e) { /* storage unavailable */ }
   const h = (location.hash || '').replace('#', '');
   if (VIEWS.some((v) => v.id === h)) S.ui.view = h;
@@ -9612,7 +9621,7 @@ function parseHolidays(text) {
    orange, yellow, green from 90%); the text stays black. Dashed = not started yet; a red frame = its days passed and the checklist is open.
    The weekly dot of a person = the progress of that week's planned items, weighted by their days; a team or the office = the mean of its
    people; the 3-month view shows one dot per month. Nothing here is reported — it is all derived from the tasks. */
-S.ui.plan = S.ui.plan || { tab: '', month: '', zoom: 'month', team: '', project: '' };
+S.ui.plan = S.ui.plan || { tab: '', month: '', week: '', zoom: 'month', team: '', project: '' };
 const PL_DAY = 86400000;
 const plMonthStart = (ymd) => ymd.slice(0, 8) + '01';
 const plMonthEnd = (ymd) => { const d = new Date(ymd + 'T00:00:00'); return todayStr(new Date(d.getFullYear(), d.getMonth() + 1, 0)); };
@@ -9623,6 +9632,7 @@ const plDays = (a, b) => { const A = new Date(a + 'T00:00:00'), B = new Date(b +
 const plMax = (a, b) => (a > b ? a : b), plMin = (a, b) => (a < b ? a : b);
 const PL_MONTHS = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'];
 const PL_DAYS_HE = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];
+const PL_DAYS_FULL = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
 const plMonthName = (ymd) => { const d = new Date(ymd + 'T00:00:00'); return `${PL_MONTHS[d.getMonth()]} ${d.getFullYear()}`; };
 const plD = (ymd) => { const d = new Date(ymd + 'T00:00:00'); return `${d.getDate()}.${d.getMonth() + 1}`; };
 /* days off: the weekend and the office holidays (settings.holidays, editable by managers) */
@@ -9668,11 +9678,22 @@ const plWeekTip = (w, sunday) => w.score == null ? (w.future ? `שבוע ${plD(s
 /* who may plan for whom: managers for everyone, a team lead for the team */
 const canPlanFor = (c) => !!c && (isManager() || leadsTeamOf(c));
 /* ---------- the columns: days of a month, or weeks of three months ---------- */
+/* the week a month opens on: this week when the month is the current one, else its first week (the week whose Wednesday is in it) */
+const plFirstWeekOf = (m) => { let w = plWeekStart(m); if (plMonthStart(addDays(w, 3)) < m) w = addDays(w, 7); return w; };
+const plWeekForMonth = (m) => { const tw = plWeekStart(todayStr()); return plMonthStart(addDays(tw, 3)) === m ? tw : plFirstWeekOf(m); };
 function plColumns() {
   const st = S.ui.plan; const m0 = st.month || plMonthStart(todayStr());
-  if (st.zoom !== 'quarter') { const from = m0, to = plMonthEnd(m0); const days = []; for (let d = from; d <= to; d = addDays(d, 1)) days.push(d); return { kind: 'day', from, to, units: days, width: (d) => (isWeekendDay(d) ? 'var(--pl-wknd)' : 'var(--pl-day)') }; }
+  const dayRange = (from, to) => { const days = []; for (let d = from; d <= to; d = addDays(d, 1)) days.push(d); return days; };
+  if (st.zoom === 'week') { const from = st.week || plWeekForMonth(m0); return { kind: 'day', zoom: 'week', from, to: addDays(from, 6), units: dayRange(from, addDays(from, 6)), width: (d) => (isWeekendDay(d) ? 'var(--pl-wknd)' : 'minmax(var(--pl-day), 1fr)') }; }
+  if (st.zoom !== 'quarter') { const from = m0, to = plMonthEnd(m0); return { kind: 'day', zoom: 'month', from, to, units: dayRange(from, to), width: (d) => (isWeekendDay(d) ? 'var(--pl-wknd)' : 'var(--pl-day)') }; }
   const from = plWeekStart(plAddMonths(m0, -1)); const weeks = plWeeksIn(from, plMonthEnd(plAddMonths(m0, 1)));
-  return { kind: 'week', from, to: addDays(weeks[weeks.length - 1], 6), units: weeks, width: () => 'var(--pl-week)' };
+  return { kind: 'week', zoom: 'quarter', from, to: addDays(weeks[weeks.length - 1], 6), units: weeks, width: () => 'var(--pl-week)' };
+}
+/* the width of a weekday column in the week zoom (the columns stretch to the page): measured from the gantt on the page, else estimated */
+function plDayWidth() {
+  const phone = window.innerWidth <= 720; const g = document.getElementById('pl-gantt');
+  const w = g ? g.clientWidth : Math.min(window.innerWidth, 1480) - 48;
+  return Math.max(46, (w - (phone ? 158 : 272) - 2 * (phone ? 11 : 14) - 2) / 5);
 }
 const plCols = (c) => `--pl-cols: var(--pl-label) ${c.units.map(c.width).join(' ')}`;
 const plColOf = (c, d) => (c.kind === 'day' ? c.units.indexOf(d) : c.units.indexOf(plWeekStart(d))) + 2;
@@ -9686,7 +9707,7 @@ function plHeadRows(c, subject) {
     ? plWeeksIn(c.from, c.to).map((s) => { const a = plMax(s, c.from), b = plMin(addDays(s, 6), c.to); const sc = subject ? subject.week(s) : null; return `<div class="pl-wk ${s === tw ? 'now' : ''}" style="grid-column:${plColOf(c, a)} / ${plColOf(c, b) + 1}"><span class="pl-pill" title="${subject ? esc(subject.tip(sc, s)) : ''}">${subject ? plDot(sc?.score, 'md') : ''}<span>שבוע ${plD(s)}</span></span></div>`; }).join('')
     : (() => { const m0 = S.ui.plan.month || plMonthStart(today); const monthOf = (w) => plMin(plMax(plMonthStart(addDays(w, 3)), plAddMonths(m0, -1)), plAddMonths(m0, 1)); const months = []; c.units.forEach((w) => { const m = monthOf(w); if (!months.includes(m)) months.push(m); }); return months.map((m) => { const ws = c.units.filter((w) => monthOf(w) === m); const sc = subject ? subject.month(m) : null; return `<div class="pl-wk ${m === plMonthStart(today) ? 'now' : ''}" style="grid-column:${plColOf(c, ws[0])} / ${plColOf(c, ws[ws.length - 1]) + 1}"><span class="pl-pill" title="${subject ? esc(subject.mtip(sc, m)) : ''}">${subject ? plDot(sc?.score, 'md') : ''}<span>${plMonthName(m)}</span></span></div>`; }).join(''); })();
   const days = c.kind === 'day'
-    ? c.units.map((d) => `<div class="pl-head ${isWeekendDay(d) ? 'wk' : ''} ${holidays().has(d) ? 'hol' : ''} ${d === today ? 'today' : ''}" title="${holidays().has(d) ? 'חג / שבתון' : ''}"><span class="d">${Number(d.slice(8, 10))}</span><span class="w">${PL_DAYS_HE[plDow(d)]}</span></div>`).join('')
+    ? c.units.map((d) => `<div class="pl-head ${isWeekendDay(d) ? 'wk' : ''} ${holidays().has(d) ? 'hol' : ''} ${d === today ? 'today' : ''}" title="${holidays().has(d) ? 'חג / שבתון' : ''}"><span class="d">${Number(d.slice(8, 10))}</span><span class="w">${c.zoom === 'week' && !isWeekendDay(d) ? PL_DAYS_FULL[plDow(d)] : PL_DAYS_HE[plDow(d)]}</span></div>`).join('')
     : c.units.map((w) => { const sc = subject ? subject.week(w) : null; return `<div class="pl-head ${w === tw ? 'today' : ''}">${subject ? plDot(sc?.score, 'sm', subject.tip(sc, w)) : ''}<span class="d wide">${plD(w)}</span></div>`; }).join('');
   return `<div class="pl-row weeks" style="${plCols(c)}"><div class="pl-label"><span class="hd">${c.kind === 'day' ? 'שבועות · הנקודה' : 'חודשים · הנקודה'}</span></div>${top}</div>
   <div class="pl-row head" style="${plCols(c)}"><div class="pl-label"><span class="hd">${c.kind === 'day' ? plMonthName(S.ui.plan.month || plMonthStart(today)) : 'שבועות'}</span></div>${days}</div>`;
@@ -9702,31 +9723,33 @@ const plAvatar = (c) => `<span class="pl-av" title="${esc(c.name)}">${esc(plInit
 function plBar(c, b, opts) {
   const sp = plSpanCols(c, b.from, b.to); if (!sp) return '';
   const a = plMax(b.from, c.from), z = plMin(b.to, c.to); const days = plDays(a, z) + 1;
-  let place = ''; let widthPx = days * 46;
+  let place = ''; let widthPx = days * 46; const dayW = c.zoom === 'week' ? plDayWidth() : 0;
   if (c.kind === 'week') { const nW = sp[1] - sp[0]; const off = plDays(c.units[sp[0] - 2], a); widthPx = days * (80 / 7); place = `justify-self:start;margin-inline-start:calc(${off} / ${7 * nW} * 100%);width:max(var(--pl-dot), calc(${days} / ${7 * nW} * 100% - 6px));`; }
-  const narrow = widthPx < 50; const today = todayStr();
+  else if (c.zoom === 'week') { widthPx = days * dayW; if (days === 1 && dayW >= 110) place = 'justify-self:start;margin-inline-start:8px;'; }
+  const narrow = widthPx < 50 || (c.zoom === 'week' && days === 1); const today = todayStr();
   const pr = taskProgress(b.t); const cls = plFillClass(pr.pct); const future = b.from > today; const late = b.to < today && pr.pct < 100 && b.t.status !== 'done';
   const title = opts.title; const tag = opts.tag || '';
   const tip = `${title}${tag ? ' · ' + tag : ''} · ${plD(b.from)}${b.to !== b.from ? '–' + plD(b.to) : ''}${pr.total ? ` · צ'קליסט ${pr.done}/${pr.total}` : ` · ${TASK_STATUS[b.t.status]?.label || ''}`}${late ? ' · באיחור' : ''}`;
   const body = narrow ? '' : `${widthPx >= 130 ? (opts.avatar || '') : ''}<span class="pn">${esc(title)}</span>${tag && widthPx >= 220 ? `<span class="tag">${esc(tag)}</span>` : ''}${pr.total && widthPx >= 130 ? `<span class="pct">${pr.done}/${pr.total}</span>` : ''}`;
   const fade = pr.pct > 0 && pr.pct < 100 && !narrow;
-  return `<div class="pl-bar fill-${cls} ${fade ? 'fade' : ''} ${future ? 'future' : ''} ${late ? 'late' : ''} ${narrow ? 'narrow' : ''}" style="grid-column:${sp[0]} / ${sp[1]};--lane:${b.lane};--pct:${narrow ? (pr.pct > 0 ? 100 : 0) : pr.pct}%;${place}" title="${esc(tip)}" data-action="plan-open" data-id="${b.t.id}" role="button" tabindex="0"><span class="fill"></span><span class="lbl">${body}</span></div>`;
+  const cap = narrow && c.zoom === 'week' && dayW >= 110 ? `<div class="pl-cap ${late ? 'late' : ''}" style="grid-column:${sp[0]} / ${sp[1]};--lane:${b.lane}" title="${esc(tip)}" data-action="plan-open" data-id="${b.t.id}"><span class="pn">${esc(title)}</span>${tag ? `<span class="tag">${esc(tag)}</span>` : ''}${pr.total ? `<span class="pct">${pr.done}/${pr.total}</span>` : ''}</div>` : '';
+  return `<div class="pl-bar fill-${cls} ${fade ? 'fade' : ''} ${future ? 'future' : ''} ${late ? 'late' : ''} ${narrow ? 'narrow' : ''}" style="grid-column:${sp[0]} / ${sp[1]};--lane:${b.lane};--pct:${narrow ? (pr.pct > 0 ? 100 : 0) : pr.pct}%;${place}" title="${esc(tip)}" data-action="plan-open" data-id="${b.t.id}" role="button" tabindex="0"><span class="fill"></span><span class="lbl">${body}</span></div>${cap}`;
 }
 const plWeekDots = (c, uid, cid) => { if (c.kind === 'day') { const weeks = plWeeksIn(c.from, c.to).filter((w) => addDays(w, 4) >= c.from); return `<span class="pl-dotline">${weeks.map((w) => { const sc = plWeekScore(uid, cid, w); return plDot(sc.score, 'sm', plWeekTip(sc, w)); }).join('')}</span>`; } const m = S.ui.plan.month || plMonthStart(todayStr()); return `<span class="pl-dotline">${plDot(plMonthScore(uid, cid, m).score, 'sm', 'הנקודה החודשית')}</span>`; };
-/* planned working days of the month against the working days in it */
-function plMonthLoad(uid, cid) {
-  const m0 = S.ui.plan.month || plMonthStart(todayStr()); const end = plMonthEnd(m0); const leave = leaveDaysOf(cid);
-  let work = 0; const planned = new Set();
-  const items = plItemsOf(uid, m0, end);
-  for (let d = m0; d <= end; d = addDays(d, 1)) { if (isOffDay(d) || leave.has(d)) continue; work++; if (items.some(({ span }) => d >= span.from && d <= span.to)) planned.add(d); }
+/* planned working days against the working days in a range (the viewed week or month) */
+function plLoadBetween(uid, cid, from, to) {
+  const leave = leaveDaysOf(cid); let work = 0; const planned = new Set();
+  const items = plItemsOf(uid, from, to);
+  for (let d = from; d <= to; d = addDays(d, 1)) { if (isOffDay(d) || leave.has(d)) continue; work++; if (items.some(({ span }) => d >= span.from && d <= span.to)) planned.add(d); }
   return { planned: planned.size, work };
 }
+const plMonthLoad = (uid, cid) => { const m0 = S.ui.plan.month || plMonthStart(todayStr()); return plLoadBetween(uid, cid, m0, plMonthEnd(m0)); };
 function plPersonRow(c, e, opts = {}) {
   const uid = plUid(e.id); const leave = leaveDaysOf(e.id);
   const bars = uid ? (opts.items || plItemsOf(uid, c.from, c.to, opts.pid)).map(({ t, span }) => ({ t, from: span.from, to: span.to })) : [];
   const n = plLanes(bars, c.kind === 'week' ? 4 : 1); const canAdd = !!uid && canPlanFor(e);
-  const load = uid ? plMonthLoad(uid, e.id) : null;
-  const sub = uid ? `${plWeekDots(c, uid, e.id)}<span class="sh">${esc(opts.sub ?? (e.role || ''))}</span>${load && c.kind === 'day' ? `<span class="pl-load" title="ימים מתוכננים מתוך ימי העבודה בחודש">${load.planned}/${load.work}</span>` : ''}` : '<span class="muted">אין חשבון GO — אי אפשר לתכנן</span>';
+  const load = uid && c.kind === 'day' ? plLoadBetween(uid, e.id, c.from, c.to) : null;
+  const sub = uid ? `${plWeekDots(c, uid, e.id)}<span class="sh">${esc(opts.sub ?? (e.role || ''))}</span>${load ? `<span class="pl-load" title="ימים מתוכננים מתוך ימי העבודה ב${c.zoom === 'week' ? 'שבוע' : 'חודש'}">${load.planned}/${load.work}</span>` : ''}` : '<span class="muted">אין חשבון GO — אי אפשר לתכנן</span>';
   const inner = `${plAvatar(e)}<span class="txt"><span class="nm"><a href="#" data-action="open-contact" data-id="${e.id}">${esc(e.name)}</a></span><span class="rl">${sub}</span></span>`;
   return `<div class="pl-row rows" style="${plCols(c)}">${plLabel(n, inner)}${plCells(c, n, canAdd, e.id, opts.pid || '', leave)}${bars.map((b) => plBar(c, b, opts.bar ? opts.bar(b) : { title: b.t.projectId && S.projects[b.t.projectId] ? S.projects[b.t.projectId].name : (b.t.title || 'משימה'), tag: b.t.projectId ? b.t.title : '' })).join('')}</div>`;
 }
@@ -9734,7 +9757,7 @@ function plPersonRow(c, e, opts = {}) {
 function plProjectRows(c, e) {
   const uid = plUid(e.id); if (!uid) return `<div class="empty">אין לך עדיין חשבון מחובר לכרטיס עובד/ת — ההנהלה מחברת.</div>`;
   const items = plItemsOf(uid, c.from, c.to); const keys = [...new Set(items.map(({ t }) => t.projectId || '_office'))].sort((a, b) => (a === '_office' ? 'תתת' : ptitleText(S.projects[a] || { name: '' })).localeCompare(b === '_office' ? 'תתת' : ptitleText(S.projects[b] || { name: '' }), 'he'));
-  if (!keys.length) return `<div class="empty">אין משימות עם ימים ב${c.kind === 'day' ? 'חודש' : 'תקופה'} הזאת. ${canPlanFor(e) ? 'לחיצה על יום בטבלה מוסיפה משימה.' : 'ראש/ת הצוות בונה את התוכנית; משימה מקבלת ימים בשדות "מתאריך" ו"תאריך יעד".'}</div>`;
+  if (!keys.length) return `<div class="empty">אין משימות עם ימים ב${c.zoom === 'week' ? 'שבוע' : c.zoom === 'month' ? 'חודש' : 'תקופה'} הזאת. ${canPlanFor(e) ? 'לחיצה על יום בטבלה מוסיפה משימה.' : 'ראש/ת הצוות בונה את התוכנית; משימה מקבלת ימים בשדות "מתאריך" ו"תאריך יעד".'}</div>`;
   const leave = leaveDaysOf(e.id); const canAdd = canPlanFor(e);
   return keys.map((k) => { const p = k === '_office' ? null : S.projects[k]; const bars = items.filter(({ t }) => (t.projectId || '_office') === k).map(({ t, span }) => ({ t, from: span.from, to: span.to })); const n = plLanes(bars, c.kind === 'week' ? 4 : 1);
     const inner = p ? `<span class="pl-av sq">${esc(String(p.name || '?').trim()[0] || '?')}</span><span class="txt"><span class="nm"><a href="#" data-action="open-project" data-id="${p.id}">${esc(p.name)}</a></span><span class="rl"><span class="sh">${esc([p.address, p.city].filter(Boolean).join(', '))}</span><span class="chip dim">${esc(phaseLabel(p))}</span></span></span>` : `<span class="pl-av sq">מ</span><span class="txt"><span class="nm">משימות משרדיות</span><span class="rl">בלי פרויקט</span></span>`;
@@ -9785,13 +9808,14 @@ function plGantt(c, st) {
 function plDotCard(c, st) {
   if (st.tab === 'project') { const p = S.projects[st.project]; if (!p) return ''; return `<div class="pl-card"><span class="pl-av sq">${esc(String(p.name || '?').trim()[0] || '?')}</span><span class="who">${ptitle(p)}</span><span class="sep"></span><span class="t">שלב: <b>${esc(phaseLabel(p))}</b></span></div>`; }
   const people = st.tab === 'mine' ? [contact(myContactId())].filter(Boolean) : st.tab === 'team' ? plTeamPeople(st.team) : employees();
-  const sub = plSubject(people); const tw = plWeekStart(todayStr()); const thisWeek = people.length === 1 && plUid(people[0].id) ? plWeekScore(plUid(people[0].id), people[0].id, tw) : sub.week(tw); const m = sub.month(st.month);
+  const sub = plSubject(people); const tw = plWeekStart(todayStr()); const wk = st.zoom === 'week' && st.week ? st.week : tw; const thisWeek = people.length === 1 && plUid(people[0].id) ? plWeekScore(plUid(people[0].id), people[0].id, wk) : sub.week(wk); const m = sub.month(st.month);
   const who = st.tab === 'mine' ? (people[0]?.name || '') : st.tab === 'team' ? tname(st.team, '') : 'כל המשרד';
-  return `<div class="pl-card">${plDot(thisWeek.score, 'lg', sub.tip(thisWeek, tw))}<span class="who">${esc(who)}</span><span class="t">השבוע: <b>${plDotWord(thisWeek.score)}</b>${people.length === 1 && thisWeek.items ? ` · ${thisWeek.items} פריטים על ${thisWeek.planned} ימים` : ''}</span><span class="sep"></span>${plDot(m.score, 'md', sub.mtip(m, st.month))}<span class="t">${plMonthName(st.month)}: <b>${plDotWord(m.score)}</b></span></div>`;
+  return `<div class="pl-card">${plDot(thisWeek.score, 'lg', sub.tip(thisWeek, wk))}<span class="who">${esc(who)}</span><span class="t">${wk === tw ? 'השבוע' : 'שבוע ' + plD(wk)}: <b>${plDotWord(thisWeek.score)}</b>${people.length === 1 && thisWeek.items ? ` · ${thisWeek.items} פריטים על ${thisWeek.planned} ימים` : ''}</span><span class="sep"></span>${plDot(m.score, 'md', sub.mtip(m, st.month))}<span class="t">${plMonthName(st.month)}: <b>${plDotWord(m.score)}</b></span></div>`;
 }
 function renderPlan() {
   const st = S.ui.plan; const tabs = plTabs();
   if (!st.month) st.month = plMonthStart(todayStr());
+  if (!st.week) st.week = plWeekForMonth(st.month);
   if (!tabs.some((x) => x[0] === st.tab)) st.tab = tabs[0][0];
   if (st.tab === 'team') { const ts = plTeamsFor(); if (!ts.some((t) => t.id === st.team)) st.team = (ts.find((t) => myTeamIds().includes(t.id)) || ts[0] || {}).id || ''; }
   if (st.tab === 'project') { const ps = plProjectsFor(); if (!ps.some((p) => p.id === st.project)) st.project = (ps.find((p) => involvedIn(p)) || ps[0] || {}).id || ''; }
@@ -9800,24 +9824,24 @@ function renderPlan() {
   return `
   <div class="view-head">
     <div><h1 class="view-title">תוכנית עבודה</h1><div class="view-sub">${canAny ? 'לחיצה על יום פנוי מוסיפה משימה לאותו יום · לחיצה על פס פותחת את המשימה והצ׳קליסט שלה.' : 'ראש/ת הצוות בונה את התוכנית; לחיצה על פס פותחת את המשימה — סימון שלב בצ׳קליסט ממלא אותו.'}</div></div>
-    <div class="view-actions"><div class="seg small" role="group" aria-label="זום"><button type="button" class="${st.zoom !== 'quarter' ? 'on' : ''}" data-action="plan-zoom" data-zoom="month" aria-pressed="${st.zoom !== 'quarter'}">חודש</button><button type="button" class="${st.zoom === 'quarter' ? 'on' : ''}" data-action="plan-zoom" data-zoom="quarter" aria-pressed="${st.zoom === 'quarter'}">3 חודשים</button></div></div>
+    <div class="view-actions"><div class="seg small" role="group" aria-label="זום">${[['week', 'שבוע'], ['month', 'חודש'], ['quarter', '3 חודשים']].map(([z, l]) => `<button type="button" class="${(st.zoom || 'month') === z ? 'on' : ''}" data-action="plan-zoom" data-zoom="${z}" aria-pressed="${(st.zoom || 'month') === z}">${l}</button>`).join('')}</div></div>
   </div>
   <div class="pl-bar-row">
     <div class="tabs pl-tabs">${tabs.map(([k, l]) => `<button type="button" class="tab ${st.tab === k ? 'on' : ''}" data-action="plan-tab" data-tab="${k}">${l}</button>`).join('')}</div>
     ${st.tab === 'team' && plTeamsFor().length > 1 ? selectHtml('plan-team', st.team, plTeamsFor().map((t) => ({ value: t.id, label: t.name }))) : ''}
     ${st.tab === 'project' ? selectHtml('plan-project', st.project, plProjectsFor().map((p) => ({ value: p.id, label: ptitleText(p) })), { blank: 'בחר פרויקט…' }) : ''}
     <span class="spacer"></span>
-    <div class="pl-nav"><button type="button" class="btn small" data-action="plan-nav" data-n="-1" title="חודש קודם" dir="ltr">›</button><span class="period">${st.zoom === 'quarter' ? `${plMonthName(plAddMonths(st.month, -1)).split(' ')[0]} – ${plMonthName(plAddMonths(st.month, 1))}` : plMonthName(st.month)}</span><button type="button" class="btn small" data-action="plan-nav" data-n="1" title="חודש הבא" dir="ltr">‹</button><button type="button" class="btn small ghost" data-action="plan-nav" data-n="0">היום</button></div>
+    <div class="pl-nav"><button type="button" class="btn small" data-action="plan-nav" data-n="-1" title="${st.zoom === 'week' ? 'שבוע קודם' : 'חודש קודם'}" dir="ltr">›</button><span class="period">${st.zoom === 'week' ? `<span dir="ltr">${plD(st.week)} – ${plD(addDays(st.week, 6))}</span> · ${plMonthName(plMonthStart(addDays(st.week, 3)))}` : st.zoom === 'quarter' ? `${plMonthName(plAddMonths(st.month, -1)).split(' ')[0]} – ${plMonthName(plAddMonths(st.month, 1))}` : plMonthName(st.month)}</span><button type="button" class="btn small" data-action="plan-nav" data-n="1" title="${st.zoom === 'week' ? 'שבוע הבא' : 'חודש הבא'}" dir="ltr">‹</button><button type="button" class="btn small ghost" data-action="plan-nav" data-n="0">היום</button></div>
   </div>
   ${plDotCard(c, st)}
-  <div class="pl-gantt mono" id="pl-gantt">${plGantt(c, st)}</div>
+  <div class="pl-gantt mono ${st.zoom === 'week' ? 'week' : ''}" id="pl-gantt">${plGantt(c, st)}</div>
   <div class="pl-legend"><span class="k">פס = משימה עם ימים:</span><span><span class="sw frame"></span> מתחיל ריק</span><span><span class="sw" style="background:var(--pl-red)"></span> מתמלא עם הצ׳קליסט — עד 30%</span><span><span class="sw" style="background:var(--pl-orange)"></span> 30–60%</span><span><span class="sw" style="background:var(--pl-yellow)"></span> 60–90%</span><span><span class="sw" style="background:var(--pl-green)"></span> 90% ומעלה</span><span class="k">· מקווקו = עוד לא התחיל · מסגרת אדומה = הימים עברו והצ׳קליסט לא נסגר</span></div>
   <div class="pl-legend"><span class="k">הנקודה (לשבוע):</span><span><span class="pl-dot red"></span> עד 30%</span><span><span class="pl-dot orange"></span> 30–60%</span><span><span class="pl-dot yellow"></span> 60–90%</span><span><span class="pl-dot green"></span> 90% ומעלה</span><span><span class="pl-dot off"></span> עוד לא / לא תוכנן</span><span class="k">· ההתקדמות של פריטי השבוע, משוקללת בימים</span></div>`;
 }
 /* after a render of the plan: open on today, and keep the scroll across re-renders */
 function plAfterRender() {
   const g = document.getElementById('pl-gantt'); if (!g) { plAfterRender.key = null; return; }
-  const st = S.ui.plan; const key = [st.tab, st.month, st.zoom, st.team, st.project].join('|');
+  const st = S.ui.plan; const key = [st.tab, st.month, st.week, st.zoom, st.team, st.project].join('|');
   if (plAfterRender.key !== key) { plAfterRender.key = key; const t = g.querySelector('.pl-head.today'); if (t) { const r = t.getBoundingClientRect(), gr = g.getBoundingClientRect(); g.scrollLeft += (r.left + r.width / 2) - (gr.left + gr.width / 2); } }
   else if (plAfterRender.scroll != null) g.scrollLeft = plAfterRender.scroll;
 }
@@ -9826,8 +9850,13 @@ async function planAction(a, ds) {
   if (!a.startsWith('plan-')) return false;
   const st = S.ui.plan;
   if (a === 'plan-tab') { st.tab = ds.tab; saveUi(); render(); return true; }
-  if (a === 'plan-zoom') { st.zoom = ds.zoom; saveUi(); render(); return true; }
-  if (a === 'plan-nav') { st.month = ds.n === '0' ? plMonthStart(todayStr()) : plAddMonths(st.month || plMonthStart(todayStr()), Number(ds.n)); saveUi(); render(); return true; }
+  if (a === 'plan-zoom') { if (ds.zoom === 'week' && st.zoom !== 'week') st.week = plWeekForMonth(st.month || plMonthStart(todayStr())); st.zoom = ds.zoom; saveUi(); render(); return true; }
+  if (a === 'plan-nav') {
+    const today = todayStr();
+    if (st.zoom === 'week') { st.week = ds.n === '0' ? plWeekStart(today) : addDays(st.week || plWeekStart(today), 7 * Number(ds.n)); st.month = plMonthStart(addDays(st.week, 3)); }
+    else { st.month = ds.n === '0' ? plMonthStart(today) : plAddMonths(st.month || plMonthStart(today), Number(ds.n)); st.week = plWeekForMonth(st.month); }
+    saveUi(); render(); return true;
+  }
   if (a === 'plan-open') { openDrawer('task', ds.id); if (!S.taskComments[ds.id]) fetchComments(ds.id).then(render); return true; }
   if (a === 'plan-add') {
     const c = contact(ds.cid); const uid = plUid(ds.cid); if (!c || !uid || !canPlanFor(c)) { toast('תכנון: ראש/ת הצוות או ההנהלה'); return true; }
