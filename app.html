@@ -3752,9 +3752,12 @@ async function fetchNotifications() {
   if (error) { console.warn(error); return; }
   S.notifications = (data || []).map(fromRow);
 }
+/* A task is never without an assignee (26.10.2026): whoever opens it is responsible until it is handed to someone else — so nothing sits
+   in "ללא אחראי" and every task shows up in somebody's "היום שלי". The database keeps the same rule (trigger tasks_default_assignee). */
 function newTask(overrides = {}) {
   const id = uid('t');
   const body = Object.assign({ title: '', description: '', projectId: null, phaseId: null, assigneeId: null, milestoneId: null, itemId: null, createdBy: me()?.id || null, status: 'todo', waitingOn: '', priority: 'normal', dueDate: null, checklist: [], doneAt: null, sortIndex: TK().length + 1 }, overrides);
+  if (!body.assigneeId) body.assigneeId = me()?.id || null;
   return createDoc('tasks', id, body).then((ok) => (ok ? id : null));
 }
 function setTaskStatus(id, status, waitingOn) {
@@ -4804,7 +4807,7 @@ function renderLightbox() {
    settings.partnerUserId, else the owners). Leave up to `leaveLeadDays` (3) working days needs the lead; longer leave needs lead + partner.
    The database notifies the approvers on insert and the requester on a decision (requests_notify). */
 const REQ_KINDS = {
-  meeting: { label: 'בקשת פגישה', sub: 'האדמיניסטרציה תקבע לפי הדחיפות (0–5) — פנימית או חיצונית, לפרויקט / אישית / כללית', verb: 'לקבוע' },
+  meeting: { label: 'בקשת פגישה', sub: 'האדמיניסטרציה מקבלת מיד משימה לתאם, לפי הדחיפות (0–5) — פנימית או חיצונית, לפרויקט / אישית / כללית', verb: 'לקבוע' },
   leave: { label: 'בקשת חופשה', sub: 'עד 3 ימי עבודה: אישור ראש/ת הצוות. מעל: גם השותף/ה המנהל/ת', verb: 'לאשר' },
   sick: { label: 'עדכון מחלה', sub: 'מעדכן את ראש/ת הצוות ואת האדמיניסטרציה', verb: '' },
   late: { label: 'איחור / הגעה מאוחרת', sub: 'עדכון קצר לצוות ולאדמיניסטרציה', verb: '' },
@@ -9324,7 +9327,7 @@ function menuFor(kind, id, anchor) {
   if (kind === 'assignee') {
     const t = S.tasks[id];
     const myId = me()?.id; const users = activeUsers(); const mine = users.find((u) => u.id === myId); // me first, whatever the alphabet says (GO+ 21.10)
-    openMenu(anchor, { search: true, placeholder: 'חיפוש איש צוות…', items: [{ label: 'ללא אחראי', value: '', selected: !t.assigneeId }, ...(mine ? [{ label: uname(mine.id), sub: 'אני', value: mine.id, selected: t.assigneeId === mine.id }] : []), ...users.filter((u) => u.id !== myId).map((u) => ({ label: uname(u.id), sub: ROLE_LABELS[u.role] || '', value: u.id, selected: t.assigneeId === u.id }))], onPick: (it) => patchDoc('tasks', id, { assigneeId: it.value || null }) });
+    openMenu(anchor, { search: true, placeholder: 'חיפוש איש צוות…', items: [...(t.assigneeId ? [] : [{ label: 'ללא אחראי', value: '', selected: true }]), ...(mine ? [{ label: uname(mine.id), sub: 'אני', value: mine.id, selected: t.assigneeId === mine.id }] : []), ...users.filter((u) => u.id !== myId).map((u) => ({ label: uname(u.id), sub: ROLE_LABELS[u.role] || '', value: u.id, selected: t.assigneeId === u.id }))], onPick: (it) => { if (it.value) patchDoc('tasks', id, { assigneeId: it.value }); } });
     return;
   }
   if (kind === 'tproject' || kind === 'tpick') {
