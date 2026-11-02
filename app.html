@@ -331,6 +331,8 @@
   .msr-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 8px; align-items: center; padding: 7px 10px; }
   .msr-name { cursor: pointer; min-width: 0; }
   .msr-name small { display: block; color: var(--ink-3); font-size: 11.5px; }
+  .msr-name .ms-type { color: var(--ink-3); font-size: 12.5px; margin-inline-start: 8px; }
+  @media (max-width: 720px) { .msr-name .ms-type { display: block; margin-inline-start: 0; } }
   .msr.done .msr-name { color: var(--ink-3); text-decoration: line-through; }
   .msr-meta { display: inline-flex; gap: 10px; font-size: 12.5px; color: var(--ink-3); white-space: nowrap; }
   .msr-caret { width: 26px; height: 26px; }
@@ -3995,7 +3997,7 @@ function taskItem(t, opts = {}) {
   const cl = checklistOf(t);
   const ms_ = t.milestoneId ? S.project_milestones[t.milestoneId] : null;
   const src = t.itemId && S.visit_items[t.itemId] && S.site_visits[S.visit_items[t.itemId].visitId] ? visitTitle(S.site_visits[S.visit_items[t.itemId].visitId]) : '';
-  const meta = [opts.hideProject ? '' : (p ? p.name : (t.projectId ? 'פרויקט שנמחק' : 'משימה משרדית')), src, ms_ && !opts.hideMilestone ? msTypeName(ms_) : '', opts.hideAssignee ? '' : uname(t.assigneeId, 'ללא אחראי'), t.status === 'waiting' && t.waitingOn ? 'ממתין ל' + t.waitingOn : ''].filter(Boolean).join(' · ');
+  const meta = [opts.hideProject ? '' : (p ? p.name : (t.projectId ? 'פרויקט שנמחק' : 'משימה משרדית')), src, ms_ && !opts.hideMilestone ? msLabel(ms_) : '', opts.hideAssignee ? '' : uname(t.assigneeId, 'ללא אחראי'), t.status === 'waiting' && t.waitingOn ? 'ממתין ל' + t.waitingOn : ''].filter(Boolean).join(' · ');
   return `<div class="task-item ${t.status === 'done' ? 'is-done' : ''}" data-action="open-task" data-id="${t.id}">
     <button type="button" class="task-check ${t.status}" data-action="task-toggle-done" data-id="${t.id}" title="${t.status === 'done' ? 'החזר לביצוע' : 'סמן כבוצע'}" aria-label="${t.status === 'done' ? 'החזר לביצוע' : 'סמן כבוצע'}">${t.status === 'done' ? ICON.check : ''}</button>
     <div class="li-body">
@@ -4144,7 +4146,7 @@ function drawerTask(id) {
       </div>
       <div class="field-row">
         ${field('פרויקט', `<div style="padding-top:4px">${menuChip(p ? p.name : 'משימה משרדית', `data-action="menu" data-menu="tproject" data-id="${id}"`, p ? '' : 'dim')}</div>`)}
-        ${p ? field('אבן דרך', selectHtml('t-milestone', t.milestoneId || '', milestonesOf(p.id).map((m) => ({ value: m.id, label: msTypeName(m) })), { blank: 'ללא אבן דרך', attrs: `data-bind="tasks:${id}:milestoneId" ${dis}` })) : ''}
+        ${p ? field('אבן דרך', selectHtml('t-milestone', t.milestoneId || '', milestonesOf(p.id).map((m) => ({ value: m.id, label: msLabel(m) })), { blank: 'ללא אבן דרך', attrs: `data-bind="tasks:${id}:milestoneId" ${dis}` })) : ''}
       </div>
       ${field('תיאור', textArea('t-description', t.description, `rows="3" data-bind="tasks:${id}:description" placeholder="פרטים, קישורים, מה בדיוק צריך לקרות" ${dis}`))}
     </div>
@@ -8796,6 +8798,13 @@ const RENDER_STAGES = () => [{ id: 'cs_advance', name: 'מקדמה' }, { id: 'cs
 const canEditMilestones = () => ['owner', 'manager', 'team_lead'].includes(myRole());
 const milestonesOf = (pid) => Object.values(S.project_milestones).filter((m) => m.projectId === pid).sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0) || (a.createdAt || '').localeCompare(b.createdAt || ''));
 const msTypeName = (m) => (m.typeId && S.milestone_types[m.typeId]?.name) || m.name;
+/* the area of a milestone = its contract section, shown whenever the project's milestones come from more than one section — so four
+   "תוכניות עבודה מפורטות לביצוע" read as the four lobbies they belong to (Oded, 2.11.2026, THE CAPITAL). A task that points at an area's
+   milestone belongs to that area. */
+const msAreaCache = new Map();
+function msAreaCount(pid) { const n = Object.keys(S.project_milestones).length; const c = msAreaCache.get(pid); if (c && c.n === n) return c.count; const count = new Set(milestonesOf(pid).filter((m) => !msIsStageRow(m)).map((m) => m.section).filter(Boolean)).size; msAreaCache.set(pid, { n, count }); return count; }
+const msArea = (m) => (m && m.section && msAreaCount(m.projectId) > 1 ? m.section : '');
+const msLabel = (m) => { const a = msArea(m); const t = msTypeName(m); return a ? (a === t ? a : `${a} · ${t}`) : t; };
 const msChecklist = (m) => (Array.isArray(m.checklist) ? m.checklist : []);
 const tasksOfMilestone = (mid) => TK().filter((t) => t.milestoneId === mid);
 function milestoneRow(p, m, ro) {
@@ -8811,7 +8820,7 @@ function milestoneRow(p, m, ro) {
   return `<div class="msr ${m.state} ${open ? 'open' : ''}" id="msr-${m.id}">
     <div class="msr-head">
       <button type="button" class="phase-state" data-action="ms-state" data-id="${m.id}" title="${st.label} — לחיצה משנה ל: ${MS_STATE[st.next].label}" ${ro ? 'disabled' : ''}>${ICON[st.icon]}</button>
-      <div class="msr-name" data-action="ms-toggle" data-id="${m.id}" ${hint ? `title="${esc(hint)}"` : ''}>${esc(tname_)}${msMarkLabel(m) ? ` <span class="tag internal ms-mark ${m.mark}">${msMarkLabel(m)}</span>` : ''}</div>
+      <div class="msr-name" data-action="ms-toggle" data-id="${m.id}" ${hint ? `title="${esc(hint)}"` : ''}>${msArea(m) && msArea(m) !== tname_ ? `<span class="ms-area">${esc(msArea(m))}</span><span class="ms-type">${esc(tname_)}</span>` : esc(tname_)}${msMarkLabel(m) ? ` <span class="tag internal ms-mark ${m.mark}">${msMarkLabel(m)}</span>` : ''}</div>
       <div class="msr-meta">${tOpen.length ? `<span title="משימות פתוחות">${tOpen.length} משימות</span>` : ''}${cl.length ? `<span title="צ'קליסט">${clDone}/${cl.length} ✓</span>` : ''}${nFiles ? `<span title="מסמכים">${ICON.doc} ${nFiles}</span>` : ''}${due.label ? `<span class="due ${due.cls}">${esc(due.label)}</span>` : ''}</div>
       <button type="button" class="icon-btn msr-caret" data-action="ms-toggle" data-id="${m.id}" title="${open ? 'סגור' : 'פתח'}">${open ? '▴' : '▾'}</button>
     </div>
@@ -9776,7 +9785,7 @@ function plStageRows(c, p) {
     const pct = sg.state === 'done' ? 100 : sg.realTotal ? Math.round((sg.realDone / sg.realTotal) * 100) : (sg.current && from && to ? Math.min(95, Math.max(5, Math.round((plDays(from, today) + 1) / (plDays(from, to) + 1) * 100))) : 0);
     const state = sg.state === 'done' ? 'done' : sg.current ? 'now' : 'next';
     const sp = from && to && to >= from ? plSpanCols(c, from, to) : null;
-    const ms = sg.current ? sg.real.filter((m) => m.dueDate).map((m) => { const d = String(m.dueDate).slice(0, 10); if (d < c.from || d > c.to) return ''; const col = plColOf(c, d); return `<div class="pl-ms ${m.state === 'done' ? 'done' : ''}" style="grid-column:${col}" title="${esc(msTypeName(m))} · ${fmtDate(d)}"><span class="ico">◆</span><span class="nm">${esc(msTypeName(m))}</span><span class="dt">${plD(d)}</span></div>`; }).join('') : '';
+    const ms = sg.current ? sg.real.filter((m) => m.dueDate).map((m) => { const d = String(m.dueDate).slice(0, 10); if (d < c.from || d > c.to) return ''; const col = plColOf(c, d); return `<div class="pl-ms ${m.state === 'done' ? 'done' : ''}" style="grid-column:${col}" title="${esc(msLabel(m))} · ${fmtDate(d)}"><span class="ico">◆</span><span class="nm">${esc(msArea(m) || msTypeName(m))}</span><span class="dt">${plD(d)}</span></div>`; }).join('') : '';
     const inner = `<span class="pl-stg ${state}">${i + 1}</span><span class="txt"><span class="nm">${esc(sg.name)}</span><span class="rl"><span>${sg.state === 'done' ? 'הושלם' : sg.current ? STAGE_STATES[sg.state]?.label || 'השלב הנוכחי' : 'בהמשך'}</span>${from && to ? `<span dir="ltr">${plD(from)}–${plD(to)}</span>` : '<span>ללא יעד</span>'}${sg.realTotal ? `<span class="sh">· ${sg.realDone}/${sg.realTotal} אבני דרך</span>` : ''}</span></span>`;
     return `<div class="pl-row rows ${state}" style="${plCols(c)}${ms ? ';--pl-lane:104px' : ''}">${plLabel(1, inner)}${plCells(c, 1, false)}${sp ? `<div class="pl-bar stage fill-${plFillClass(pct)} ${pct > 0 && pct < 100 ? 'fade' : ''} ${state}" style="grid-column:${sp[0]} / ${sp[1]};--lane:1;--pct:${pct}%" title="${esc(sg.name)} · ${plD(from)}–${plD(to)} · ${pct}%"><span class="fill"></span><span class="lbl">${esc(sg.name)}</span></div>` : ''}${ms}</div>`;
   }).join('');
