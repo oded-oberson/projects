@@ -1521,6 +1521,9 @@
   .pl-ms .nm { font-size: 11.5px; color: var(--ink); white-space: nowrap; max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
   .pl-ms .dt { font-size: 10.5px; color: var(--ink-3); }
   .pl-ms.multi .ico { font-weight: 600; font-size: 12px; }
+  .pl-row.group.sub .pl-label { padding-block: 6px; }
+  .pl-row.group.sub .pl-label .nm { font-size: 12.5px; }
+  .pl-row.target .pl-label { background: color-mix(in srgb, var(--surface-2) 45%, var(--surface)); }
   .pl-ms .nm.more { color: var(--ink-3); }
   .pl-stg { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12.5px; background: var(--ink); color: var(--accent-ink); flex: none; }
   .pl-stg.done { background: var(--ink-3); }
@@ -3385,7 +3388,7 @@ const TABLES = ['projects', 'contacts', 'teams', 'commissions', 'tasks', 'site_v
 
 S.auth = { status: 'loading', session: null, profile: null, notice: '', error: '' };
 S.profiles = {}; S.invitations = {}; S.audit = [];
-S.milestone_types = {}; S.project_milestones = {}; S.milestonesLoaded = {}; S.milestonesLoading = {}; // contract milestones per project (DataWave + manual), loaded when a project drawer opens
+S.milestone_types = {}; S.project_milestones = {}; S.milestonesLoaded = {}; S.milestonesLoading = {}; S.plTargets = { key: null, loading: null }; // the plan's targets window (dated milestones across the office) // contract milestones per project (DataWave + manual), loaded when a project drawer opens
 S.employee_levels = {}; // manual experience levels (team leads and up; RLS hides the table from staff)
 S.work_schedules = {}; // fixed working days / hours / remote days per employee (contact id)
 S.requests = {}; // requests & updates: meetings, leave, sickness, late arrival (RLS: own + approvers)
@@ -9774,6 +9777,50 @@ function plProjectRows(c, e) {
     const inner = p ? `<span class="pl-av sq">${esc(String(p.name || '?').trim()[0] || '?')}</span><span class="txt"><span class="nm"><a href="#" data-action="open-project" data-id="${p.id}">${esc(p.name)}</a></span><span class="rl"><span class="sh">${esc([p.address, p.city].filter(Boolean).join(', '))}</span><span class="chip dim">${esc(phaseLabel(p))}</span></span></span>` : `<span class="pl-av sq">מ</span><span class="txt"><span class="nm">משימות משרדיות</span><span class="rl">בלי פרויקט</span></span>`;
     return `<div class="pl-row rows" style="${plCols(c)}">${plLabel(n, inner)}${plCells(c, n, canAdd, e.id, p ? p.id : '', leave)}${bars.map((b) => plBar(c, b, { title: b.t.title || 'משימה', tag: '' })).join('')}</div>`; }).join('');
 }
+/* the dated milestones as markers, one per day: several targets on the same day (the month-end targets of the work plan, 4.11.2026) share a
+   marker with their count in the circle and up to three names under it; all of them in the tooltip. Done ones are filled. */
+function plMarkers(c, list) {
+  const byDay = new Map();
+  list.filter((m) => m.dueDate).forEach((m) => { const d = String(m.dueDate).slice(0, 10); if (d < c.from || d > c.to) return; if (!byDay.has(d)) byDay.set(d, []); byDay.get(d).push(m); });
+  let lines = 1;
+  const html = [...byDay.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([d, group]) => { const col = plColOf(c, d); const n = group.length; const shown = group.slice(0, 3); lines = Math.max(lines, shown.length + (n > 3 ? 1 : 0)); return `<div class="pl-ms ${group.every((m) => m.state === 'done') ? 'done' : ''} ${n > 1 ? 'multi' : ''}" style="grid-column:${col}" title="${esc(group.map(msLabel).join(' · '))} · ${fmtDate(d)}"><span class="ico">${n > 1 ? n : '◆'}</span>${shown.map((m) => `<span class="nm">${esc(msArea(m) || msTypeName(m))}</span>`).join('')}${n > 3 ? `<span class="nm more">+${n - 3}</span>` : ''}<span class="dt">${plD(d)}</span></div>`; }).join('');
+  return { html, lines };
+}
+/* the targets of the period across the office: one query for the dated milestones in the window, then the full milestone sets of the
+   projects that have any (so the areas resolve), once per window */
+async function plLoadTargets(c) {
+  const key = c.from + '..' + c.to; const st = S.plTargets;
+  if (st.key === key || st.loading === key || !isMember()) return;
+  st.loading = key;
+  try {
+    const { data, error } = await sb.from('project_milestones').select('id, project_id').not('due_date', 'is', null).gte('due_date', c.from).lte('due_date', c.to);
+    if (error) throw error;
+    const pids = [...new Set((data || []).map((r) => r.project_id))].filter((pid) => !S.milestonesLoaded[pid]);
+    if (pids.length) {
+      const { data: rows, error: e2 } = await sb.from('project_milestones').select('*').in('project_id', pids).order('sort_order');
+      if (e2) throw e2;
+      Object.keys(S.project_milestones).forEach((id) => { if (pids.includes(S.project_milestones[id].projectId)) delete S.project_milestones[id]; });
+      (rows || []).forEach((r) => { const o = fromRow(r); S.project_milestones[o.id] = o; });
+      applyPendingTo('project_milestones');
+      pids.forEach((pid) => { S.milestonesLoaded[pid] = true; });
+    }
+    st.key = key;
+  } catch (e) { console.warn(e); st.key = key; st.failed = true; }
+  st.loading = null;
+  if (S.ui.view === 'plan') render();
+}
+const plTargetsOf = (c, p) => milestonesOf(p.id).filter((m) => msIsWork(m) && !msIsStageRow(m) && m.dueDate && String(m.dueDate).slice(0, 10) >= c.from && String(m.dueDate).slice(0, 10) <= c.to);
+/* the projects' targets in the period: a row per project that has any, the markers on it (the stage list stays in the project tab) */
+function plTargetRows(c, projects, title) {
+  if (S.plTargets.key !== c.from + '..' + c.to) { plLoadTargets(c); return plGroupRow(c, `<span class="txt"><span class="nm">${esc(title)}</span><span class="rl">טוען את היעדים…</span></span>`, 'sub'); }
+  const rows = projects.map((p) => ({ p, ms: plTargetsOf(c, p) })).filter((x) => x.ms.length);
+  if (!rows.length) return '';
+  const n = rows.reduce((s, x) => s + x.ms.length, 0);
+  return plGroupRow(c, `<span class="txt"><span class="nm">${esc(title)}</span><span class="rl">${n} יעדים ב${c.zoom === 'week' ? 'שבוע' : c.zoom === 'month' ? 'חודש' : 'תקופה'} · ${rows.length} פרויקטים</span></span>`, 'sub') + rows.map(({ p, ms }) => {
+    const { html, lines } = plMarkers(c, ms); const open = ms.filter((m) => m.state !== 'done').length;
+    const inner = `<span class="pl-av sq">${esc(String(p.name || '?').trim()[0] || '?')}</span><span class="txt"><span class="nm"><a href="#" data-action="open-project" data-id="${p.id}">${esc(p.name)}</a></span><span class="rl"><span class="sh">${esc(p.leadId ? cname(p.leadId, '') : '')}</span><span class="chip dim">${esc(phaseLabel(p))}</span><span class="sh">${open ? `${open} יעדים` : 'הושגו'}</span></span></span>`;
+    return `<div class="pl-row rows target" style="${plCols(c)};--pl-lane:${76 + 14 * (lines - 1)}px">${plLabel(1, inner)}${plCells(c, 1, false)}${html}</div>`; }).join('');
+}
 /* the project: a row per stage (dates from the stage targets and the milestones), then the people planned on it. Every stage shows its dated
    milestones that are still open (the work-plan targets, 4.11.2026); the current stage also shows the dated ones already done */
 function plStageRows(c, p) {
@@ -9788,17 +9835,12 @@ function plStageRows(c, p) {
     const pct = sg.state === 'done' ? 100 : sg.realTotal ? Math.round((sg.realDone / sg.realTotal) * 100) : (sg.current && from && to ? Math.min(95, Math.max(5, Math.round((plDays(from, today) + 1) / (plDays(from, to) + 1) * 100))) : 0);
     const state = sg.state === 'done' ? 'done' : sg.current ? 'now' : 'next';
     const sp = from && to && to >= from ? plSpanCols(c, from, to) : null;
-    /* the dated milestones, one marker per day: several targets on the same day (the month-end targets of the work plan) share a marker
-       with their count in the circle and up to three names under it */
-    const byDay = new Map();
-    sg.real.filter((m) => m.dueDate && (sg.current || m.state !== 'done')).forEach((m) => { const d = String(m.dueDate).slice(0, 10); if (d < c.from || d > c.to) return; if (!byDay.has(d)) byDay.set(d, []); byDay.get(d).push(m); });
-    let msLines = 1;
-    const ms = [...byDay.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([d, list]) => { const col = plColOf(c, d); const n = list.length; const shown = list.slice(0, 3); msLines = Math.max(msLines, shown.length + (n > 3 ? 1 : 0)); return `<div class="pl-ms ${list.every((m) => m.state === 'done') ? 'done' : ''} ${n > 1 ? 'multi' : ''}" style="grid-column:${col}" title="${esc(list.map(msLabel).join(' · '))} · ${fmtDate(d)}"><span class="ico">${n > 1 ? n : '◆'}</span>${shown.map((m) => `<span class="nm">${esc(msArea(m) || msTypeName(m))}</span>`).join('')}${n > 3 ? `<span class="nm more">+${n - 3}</span>` : ''}<span class="dt">${plD(d)}</span></div>`; }).join('');
+    const { html: ms, lines: msLines } = plMarkers(c, sg.real.filter((m) => sg.current || m.state !== 'done'));
     const inner = `<span class="pl-stg ${state}">${i + 1}</span><span class="txt"><span class="nm">${esc(sg.name)}</span><span class="rl"><span>${sg.state === 'done' ? 'הושלם' : sg.current ? STAGE_STATES[sg.state]?.label || 'השלב הנוכחי' : 'בהמשך'}</span>${from && to ? `<span dir="ltr">${plD(from)}–${plD(to)}</span>` : '<span>ללא יעד</span>'}${sg.realTotal ? `<span class="sh">· ${sg.realDone}/${sg.realTotal} אבני דרך</span>` : ''}</span></span>`;
     return `<div class="pl-row rows ${state}" style="${plCols(c)}${ms ? `;--pl-lane:${104 + 14 * (msLines - 1)}px` : ''}">${plLabel(1, inner)}${plCells(c, 1, false)}${sp ? `<div class="pl-bar stage fill-${plFillClass(pct)} ${pct > 0 && pct < 100 ? 'fade' : ''} ${state}" style="grid-column:${sp[0]} / ${sp[1]};--lane:1;--pct:${pct}%" title="${esc(sg.name)} · ${plD(from)}–${plD(to)} · ${pct}%"><span class="fill"></span><span class="lbl">${esc(sg.name)}</span></div>` : ''}${ms}</div>`;
   }).join('');
 }
-const plGroupRow = (c, inner) => `<div class="pl-row group" style="${plCols(c)};--pl-lane:48px"><div class="pl-label">${inner}</div>${plCells(c, 1, false)}</div>`;
+const plGroupRow = (c, inner, cls = '') => `<div class="pl-row group ${cls}" style="${plCols(c)};--pl-lane:${cls === 'sub' ? 36 : 48}px"><div class="pl-label">${inner}</div>${plCells(c, 1, false)}</div>`;
 function plSubject(people) { const f = (e) => plUid(e.id); return { week: (s) => plGroupScore(people.filter(f), (e) => plWeekScore(plUid(e.id), e.id, s)), month: (m) => plGroupScore(people.filter(f), (e) => plMonthScore(plUid(e.id), e.id, m)), tip: (sc, s) => people.length === 1 ? plWeekTip(plWeekScore(plUid(people[0].id), people[0].id, s), s) : `שבוע ${plD(s)} — ממוצע של ${people.filter(f).length} אנשים: ${plDotWord(sc?.score)}`, mtip: (sc, m) => `${plMonthName(m)}: ${plDotWord(sc?.score)}` }; }
 /* which tabs the person gets */
 function plTabs() {
@@ -9814,9 +9856,9 @@ const plTeamPeople = (tid) => { const t = team(tid); const ms = teamMembers(tid)
 const plTeamsFor = () => (isManager() || can('overview_office') ? T() : T().filter((t) => myTeamIds().includes(t.id))).filter((t) => teamMembers(t.id).length);
 const plProjectsFor = () => treeSorted(activeProjects().filter((p) => canTaskOn(p)));
 function plGantt(c, st) {
-  if (st.tab === 'mine') { const e = contact(myContactId()); if (!e) return `<div class="empty">אין לך כרטיס עובד/ת מחובר לחשבון.</div>`; return plHeadRows(c, plSubject([e])) + plProjectRows(c, e); }
-  if (st.tab === 'team') { const ms = plTeamPeople(st.team); if (!ms.length) return `<div class="empty">אין אנשים בצוות הזה.</div>`; return plHeadRows(c, plSubject(ms)) + ms.map((e) => plPersonRow(c, e)).join(''); }
-  if (st.tab === 'office') { const all = employees().filter((e) => !isFreelancer(e) || plUid(e.id)); return plHeadRows(c, plSubject(all)) + T().map((t) => { const ms = plTeamPeople(t.id).filter((e) => all.includes(e)); if (!ms.length) return ''; const sub = plSubject(ms); const weeks = c.kind === 'day' ? plWeeksIn(c.from, c.to).filter((w) => addDays(w, 4) >= c.from) : null; const dots = weeks ? weeks.map((w) => plDot(sub.week(w).score, 'sm', sub.tip(sub.week(w), w))).join('') : plDot(sub.month(st.month).score, 'sm'); return plGroupRow(c, `<span class="txt"><span class="nm">${esc(t.name)}</span><span class="rl"><span class="pl-dotline">${dots}</span><span class="sh">${ms.length} אנשים${t.leadId ? ' · ' + esc(cname(t.leadId, '')) : ''}</span></span></span>`) + ms.map((e) => plPersonRow(c, e)).join(''); }).join('') + (() => { const none = all.filter((e) => !e.teamId); return none.length ? plGroupRow(c, '<span class="txt"><span class="nm">ללא צוות</span></span>') + none.map((e) => plPersonRow(c, e)).join('') : ''; })(); }
+  if (st.tab === 'mine') { const e = contact(myContactId()); if (!e) return `<div class="empty">אין לך כרטיס עובד/ת מחובר לחשבון.</div>`; return plHeadRows(c, plSubject([e])) + plProjectRows(c, e) + plTargetRows(c, treeSorted(activeProjects().filter(involvedIn)), 'יעדים בפרויקטים שלי'); }
+  if (st.tab === 'team') { const ms = plTeamPeople(st.team); if (!ms.length) return `<div class="empty">אין אנשים בצוות הזה.</div>`; return plHeadRows(c, plSubject(ms)) + ms.map((e) => plPersonRow(c, e)).join('') + plTargetRows(c, treeSorted(activeProjects().filter((p) => p.teamId === st.team)), 'יעדי הפרויקטים של הצוות'); }
+  if (st.tab === 'office') { const all = employees().filter((e) => !isFreelancer(e) || plUid(e.id)); return plHeadRows(c, plSubject(all)) + T().map((t) => { const ms = plTeamPeople(t.id).filter((e) => all.includes(e)); if (!ms.length) return ''; const sub = plSubject(ms); const weeks = c.kind === 'day' ? plWeeksIn(c.from, c.to).filter((w) => addDays(w, 4) >= c.from) : null; const dots = weeks ? weeks.map((w) => plDot(sub.week(w).score, 'sm', sub.tip(sub.week(w), w))).join('') : plDot(sub.month(st.month).score, 'sm'); return plGroupRow(c, `<span class="txt"><span class="nm">${esc(t.name)}</span><span class="rl"><span class="pl-dotline">${dots}</span><span class="sh">${ms.length} אנשים${t.leadId ? ' · ' + esc(cname(t.leadId, '')) : ''}</span></span></span>`) + ms.map((e) => plPersonRow(c, e)).join('') + plTargetRows(c, treeSorted(activeProjects().filter((p) => p.teamId === t.id)), `יעדי הפרויקטים · ${t.name}`); }).join('') + (() => { const none = all.filter((e) => !e.teamId); return (none.length ? plGroupRow(c, '<span class="txt"><span class="nm">ללא צוות</span></span>') + none.map((e) => plPersonRow(c, e)).join('') : '') + plTargetRows(c, treeSorted(activeProjects().filter((p) => !p.teamId || !T().some((t) => t.id === p.teamId))), 'יעדי פרויקטים ללא צוות'); })(); }
   if (st.tab === 'project') { const p = S.projects[st.project]; if (!p) return `<div class="empty">בחרו פרויקט.</div>`; const uids = plUidOf(); const people = employees().filter((e) => uids[e.id] && plItemsOf(uids[e.id], c.from, c.to, p.id).length);
     const rows = people.map((e) => plPersonRow(c, e, { pid: p.id, items: plItemsOf(uids[e.id], c.from, c.to, p.id), sub: (e.role || '') + (p.leadId === e.id ? ' · מוביל/ה' : ''), bar: (b) => ({ title: b.t.title || 'משימה', tag: '', avatar: plAvatar(e) }) })).join('');
     return plHeadRows(c, null) + plGroupRow(c, `<span class="txt"><span class="nm">שלבי הפרויקט</span><span class="rl">לפי יעדי השלבים ואבני הדרך</span></span>`) + plStageRows(c, p) + plGroupRow(c, `<span class="txt"><span class="nm">האנשים על הפרויקט</span><span class="rl">${people.length} עם משימות מתוכננות בתקופה</span></span>`) + (rows || `<div class="empty">אף משימה עם ימים על הפרויקט בתקופה הזאת.${canWriteProjects() ? ' לחיצה על יום בשורת אדם בתוכנית הצוות מוסיפה.' : ''}</div>`); }
