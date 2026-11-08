@@ -712,6 +712,22 @@
   .sa-table th { text-align: start; font-weight: 400; color: var(--ink-3); border-bottom: 1px solid var(--ink); padding: 3px 6px; font-size: 11.5px; letter-spacing: .04em; }
   .sa-table td { border-bottom: 1px solid var(--line); padding: 4px 6px; vertical-align: top; }
   .sa-table td.num { font-family: var(--font-num); white-space: nowrap; }
+  .sunday-agenda h1 { font-size: 20px; font-weight: 400; margin: 0 0 4px; }
+  .sunday-agenda .sp-sub { font-size: 12.5px; color: var(--ink-3); margin-bottom: 10px; }
+  .sunday-agenda h2.sp-team { font-size: 15px; font-weight: 400; margin: 14px 0 4px; padding-bottom: 3px; border-bottom: 1px solid var(--ink); }
+  .sunday-agenda h2.sp-team .meta { font-size: 12px; color: var(--ink-3); }
+  .sunday-agenda h3.sp-older { font-size: 14px; font-weight: 400; margin: 18px 0 4px; }
+  .sunday-agenda .sp-subteam { font-size: 12.5px; margin: 8px 0 2px; }
+  .sunday-agenda .sp-note, .sunday-agenda .sp-foot { font-size: 11.5px; color: var(--ink-3); margin: 4px 0; }
+  .sunday-agenda table.sp { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .sunday-agenda table.sp th { text-align: start; font-weight: 400; color: var(--ink-3); border-bottom: 1px solid var(--ink); padding: 3px 6px; font-size: 11.5px; }
+  .sunday-agenda table.sp td { border-bottom: 1px solid var(--line); padding: 4px 6px; vertical-align: top; }
+  .sunday-agenda table.sp .c-note { display: none; }
+  .sunday-agenda table.sp tr.done td { color: var(--ink-3); } .sunday-agenda table.sp tr.done .c-topic b { text-decoration: line-through; }
+  .sunday-agenda table.sp b { font-weight: 400; } .sunday-agenda table.sp .note { font-size: 11px; color: var(--ink-3); } .sunday-agenda table.sp .muted { color: var(--ink-3); }
+  .sunday-agenda table.sp .box { display: inline-flex; align-items: center; justify-content: center; width: 13px; height: 13px; border: 1px solid var(--ink); font-size: 10px; }
+  .sunday-agenda table.sp .tag { font-size: 10.5px; border: 1px solid var(--line-2); border-radius: 999px; padding: 0 5px; }
+  .sunday-agenda table.sp td.c-urg.star { font-weight: 400; }
   @media print {
     body.sunday-print .masthead, body.sunday-print .no-print, body.sunday-print #overlay, body.sunday-print #toast, body.sunday-print .pending-bar, body.sunday-print #sunday-mine { display: none !important; }
     body.sunday-print .page { padding: 10mm 12mm !important; max-width: none !important; }
@@ -3057,7 +3073,7 @@ function accountsPanel() {
 const CAP_GROUPS = [
   { title: 'סקירה ופרויקטים', keys: ['overview_office', 'overview_team', 'projects_all', 'projects_edit', 'tasks_all'] },
   { title: 'כסף ועובדים', keys: ['money', 'hr', 'levels_team', 'levels_all'] },
-  { title: 'שעות ובקשות', keys: ['hours_team', 'hours_all', 'requests_all'] },
+  { title: 'שעות, בקשות ויום ראשון', keys: ['hours_team', 'hours_all', 'requests_all', 'sunday_all'] },
   { title: 'צוותים, הושבה וארכיון', keys: ['teams_view', 'teams_edit', 'seating_view', 'seating_edit', 'archive'] },
   { title: 'הגדרות ומשתמשים', keys: ['settings_view', 'settings_edit', 'users', 'audit'] },
 ];
@@ -3428,6 +3444,7 @@ const CAPS = [
   { key: 'hours_all', label: 'שעות של כולם', sub: 'צפייה וייצוא' },
   { key: 'tasks_all', label: 'כל המשימות', sub: 'כל המשימות במשרד, לא רק של הפרויקטים שלי' },
   { key: 'requests_all', label: 'כל הבקשות', sub: 'טיפול בבקשות של כולם' },
+  { key: 'sunday_all', label: 'ישיבות יום ראשון — כל הצוותים', sub: 'כל הצוותים, עריכה, «טופל», סדר היום וההדפסה (מי שמוציא/ה את הרשימה)' },
   { key: 'teams_view', label: 'צוותים', sub: 'לשונית הצוותים' },
   { key: 'teams_edit', label: 'עריכת צוותים', sub: 'שמות, ראשי צוותים, שיוך עובדים' },
   { key: 'seating_view', label: 'הושבה — צפייה', sub: '' },
@@ -3442,7 +3459,7 @@ const ALL_CAPS = CAPS.map((c) => c.key);
 const ROLE_CAPS = {
   owner: ALL_CAPS, manager: ALL_CAPS,
   finance: ['overview_office', 'projects_all', 'money', 'hours_all', 'seating_view'],
-  admin: ['overview_office', 'projects_all', 'hours_all', 'requests_all', 'teams_view', 'seating_view', 'seating_edit', 'archive'],
+  admin: ['overview_office', 'projects_all', 'hours_all', 'requests_all', 'teams_view', 'seating_view', 'seating_edit', 'archive', 'sunday_all'],
   team_lead: ['overview_team', 'projects_all', 'projects_edit', 'levels_team', 'hours_team', 'teams_view', 'seating_view', 'settings_view'],
   staff: ['projects_all'],
 };
@@ -3973,7 +3990,7 @@ function setTaskStatus(id, status, waitingOn) {
 async function sendComment(taskId) {
   const ta = document.getElementById('comment-' + taskId);
   const body = (ta?.value || '').trim();
-  if (!body) return;
+  if (!body) { toast('אין מה לשלוח — התיבה ריקה'); return; }
   const known = S.ui.mentions[taskId] || [];
   const mentions = [...new Set(known.filter((m) => body.includes('@' + m.name)).map((m) => m.id))];
   const id = uid('cm');
@@ -3983,6 +4000,7 @@ async function sendComment(taskId) {
   render();
   const ok = await write(() => sb.from('task_comments').insert(row));
   if (!ok) { S.taskComments[taskId] = (S.taskComments[taskId] || []).filter((c) => c.id !== id); render(); return; }
+  toast('התגובה נשלחה');
   S.ui.mentions[taskId] = [];
   fetchComments(taskId).then(render);
 }
@@ -4029,6 +4047,31 @@ function taskBoard(arr, quick) {
   return `${quick || ''}<div class="board">${cols}</div>`;
 }
 
+/* the tasks list as a print document (8.11.2026, Rotem's request): the displayed tab with its grouping — a tick box, the task (its
+   description under it), project, assignee, dates, status, priority, checklist; overdue ones marked; a summary line. A4 portrait. */
+function tasksPrintHtml(shown) {
+  const groups = shown.groups.filter((g) => g.arr.length); const all = groups.flatMap((g) => g.arr); const late = all.filter(isOverdue).length;
+  const row = (t) => { const p = t.projectId ? S.projects[t.projectId] : null; const cl = Array.isArray(t.checklist) ? t.checklist : []; const d = dueInfo(t); const over = isOverdue(t);
+    const dates = t.startDate && t.dueDate && t.startDate !== t.dueDate ? `${fmtDate(t.startDate)} – ${fmtDate(t.dueDate)}` : t.dueDate ? fmtDate(t.dueDate) : '';
+    return `<tr class="${over ? 'late' : ''} ${t.status === 'done' ? 'done' : ''}"><td class="c-chk"><span class="box">${t.status === 'done' ? '✓' : ''}</span></td><td class="c-task"><b>${esc(t.title || '(ללא כותרת)')}</b>${(t.description || '').trim() ? `<div class="note">${esc(t.description.trim().slice(0, 160))}${t.description.trim().length > 160 ? '…' : ''}</div>` : ''}</td><td class="c-proj">${p ? titleParts(p).map(esc).join(', ') : '<span class="muted">משרדי</span>'}</td><td class="c-who">${t.assigneeId ? esc(uname(t.assigneeId, '')) : '<span class="muted">ללא אחראי</span>'}</td><td class="c-date">${esc(dates)}${over ? ` <span class="late-tag">${esc(d.label)}</span>` : ''}</td><td class="c-st">${esc(TASK_STATUS[t.status]?.label || t.status)}</td><td class="c-pri">${t.priority === 'urgent' ? '★ דחוף' : ''}</td><td class="c-cl">${cl.length ? `${cl.filter((c) => c.done).length}/${cl.length}` : ''}</td></tr>`; };
+  const table = (arr) => `<table class="tp"><thead><tr><th class="c-chk">☐</th><th class="c-task">משימה</th><th class="c-proj">פרויקט</th><th class="c-who">אחראי/ת</th><th class="c-date">תאריכים</th><th class="c-st">סטטוס</th><th class="c-pri">דחיפות</th><th class="c-cl">צ׳קליסט</th></tr></thead><tbody>${arr.map(row).join('')}</tbody></table>`;
+  return `<div class="tp-head"><h1>משימות — ${esc(shown.title)}</h1><div class="tp-sub">${shown.sub ? esc(shown.sub) + ' · ' : ''}${all.length} משימות${late ? ` · ${late} באיחור` : ''} · הופק מ-GO ${esc(fmtDate(todayStr()))} · ☐ = בוצע</div></div>
+    ${groups.map((g) => `${g.title ? `<h2 class="tp-group">${esc(g.title)}<span class="meta"> · ${g.arr.length}</span></h2>` : ''}${table(g.arr)}`).join('')}
+    <div class="tp-foot">★ דחוף = עדיפות דחופה ב-GO · משימה באיחור מסומנת עם מספר הימים · הופק מתוך הנתונים ב-GO כפי שהיו בשעת ההפקה.</div>`;
+}
+const TASKS_PRINT_CSS = `
+body { font-size: 10pt; }
+h1 { font-size: 18pt; margin: 0 0 2mm; font-weight: 400; }
+.tp-sub { font-size: 9.5pt; color: #333; margin-bottom: 4mm; }
+h2.tp-group { font-size: 12pt; font-weight: 400; margin: 5mm 0 1.5mm; padding-bottom: 1mm; border-bottom: 1pt solid #000; page-break-after: avoid; } h2.tp-group .meta { font-size: 9.5pt; color: #333; }
+table.tp { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 2mm; } table.tp thead { display: table-header-group; }
+table.tp th { font-size: 8.5pt; font-weight: 400; text-align: right; padding: 1mm 1.5mm; border: 0.5pt solid #000; background: #eee; }
+table.tp td { vertical-align: top; padding: 1.3mm 1.5mm; border: 0.5pt solid #000; font-size: 9.5pt; line-height: 1.25; } table.tp tr { page-break-inside: avoid; }
+table.tp tr.late td { border-right-width: 2pt; } table.tp tr.done td { color: #777; }
+.c-chk { width: 6mm; text-align: center; } .c-task { width: 58mm; } .c-proj { width: 36mm; } .c-who { width: 24mm; } .c-date { width: 26mm; } .c-st { width: 15mm; } .c-pri { width: 13mm; } .c-cl { width: 12mm; text-align: center; }
+.box { display: inline-flex; align-items: center; justify-content: center; width: 3.6mm; height: 3.6mm; border: 0.7pt solid #000; font-size: 7.5pt; }
+.note { font-size: 8.5pt; color: #333; margin-top: 0.6mm; } .muted { color: #666; } .late-tag { display: inline-block; border: 0.6pt solid #000; padding: 0 1mm; font-size: 7.5pt; margin-right: 1mm; white-space: nowrap; }
+.tp-foot { margin-top: 5mm; font-size: 8.5pt; color: #333; border-top: 0.6pt solid #999; padding-top: 1.5mm; }`;
 /* ===================== tasks: view ===================== */
 function renderTasks() {
   const tab = S.ui.ttab;
@@ -4041,13 +4084,15 @@ function renderTasks() {
   const teamUids = new Set(teamMembersList.map((c) => uidOf[c.id]).filter(Boolean));
   const teamTasks = teamTab ? TK().filter((t) => isOpenTask(t) && (teamUids.has(t.assigneeId) || (t.projectId && tids.includes(S.projects[t.projectId]?.teamId)))) : [];
   const tabs = [['mine', 'היום שלי', overdueMine], ...(teamTab ? [['team', 'הצוות', teamTasks.filter(isOverdue).length]] : []), ['project', 'לפי פרויקט', 0], ['office', 'משרד', 0], ['all', 'הכול', 0]];
-  let body = '';
+  let body = ''; let shown = { title: '', sub: '', groups: [] }; // the displayed list, for «PDF»
+  const byStatus = (arr) => TASK_ORDER.filter((st) => st !== 'done').map((st) => ({ title: TASK_STATUS[st].label, arr: sortTasks(arr.filter((t) => t.status === st)) }));
   if (tab === 'team' && teamTab) {
     // the team's open tasks, a group per person (the lead first), then what sits on the team's projects with no owner
     const people = [...teamMembersList].sort((a, b) => (isTeamLead(b.id) - isTeamLead(a.id)) || byName(a, b));
     const groups = people.map((c) => { const uid = uidOf[c.id]; return { c, arr: sortTasks(teamTasks.filter((t) => t.assigneeId === uid)) }; }).filter((g) => g.arr.length);
     const seen = new Set(groups.flatMap((g) => g.arr.map((t) => t.id)));
     const rest = sortTasks(teamTasks.filter((t) => !seen.has(t.id)));
+    shown = { title: 'הצוות', sub: tids.map((x) => tname(x, '')).filter(Boolean).join(', '), groups: [...groups.map((g) => ({ title: g.c.name + (isTeamLead(g.c.id) ? ' · ראש/ת צוות' : ''), arr: g.arr })), { title: 'ללא אחראי / מחוץ לצוות', arr: rest }] };
     body = `${quickAdd('task-quick', 'משימה חדשה לצוות… (Enter)', 'data-scope="mine"')}
       ${groups.length || rest.length ? '' : '<div class="panel"><div class="empty">אין משימות פתוחות בצוות.</div></div>'}
       ${groups.map((g) => taskGroup(`${esc(g.c.name)}${isTeamLead(g.c.id) ? ' · ראש/ת צוות' : ''}`, g.arr, { cls: g.arr.some(isOverdue) ? 'warn' : '' })).join('')}
@@ -4059,6 +4104,7 @@ function renderTasks() {
     const recent = addDays(todayStr(), -7);
     const doneRecent = mine.filter((t) => t.status === 'done' && (t.doneAt || t.updatedAt || '') >= recent).sort((a, b) => (b.doneAt || '').localeCompare(a.doneAt || ''));
     const delegated = sortTasks(TK().filter((t) => t.createdBy === myId && t.assigneeId !== myId && isOpenTask(t)));
+    shown = { title: 'היום שלי', sub: uname(myId, ''), groups: [{ title: 'באיחור', arr: g.overdue }, { title: 'היום', arr: g.today }, { title: 'השבוע', arr: g.week }, { title: 'בהמשך', arr: g.later }, { title: 'ללא תאריך', arr: g.none }, { title: 'משימות שפתחתי לאחרים', arr: delegated }] };
     body = `${typeof timePanel === 'function' ? timePanel() : ''}${typeof sundayPanel === 'function' ? sundayPanel() : ''}${quickAdd('task-quick', 'משימה חדשה לעצמי… (Enter)', 'data-scope="mine"')}
       ${open.length ? '' : '<div class="panel"><div class="empty">אין לך משימות פתוחות. יופי — או שהגיע הזמן לפתוח אחת.</div></div>'}
       ${taskGroup('באיחור', g.overdue, { cls: 'crit' })}${taskGroup('היום', g.today, { cls: 'warn' })}${taskGroup('השבוע', g.week)}${taskGroup('בהמשך', g.later)}${taskGroup('ללא תאריך', g.none)}
@@ -4075,11 +4121,13 @@ function renderTasks() {
         <div class="panel"><div class="panel-head"><h2 class="panel-title">פרויקטים עם משימות פתוחות</h2><span class="panel-sub">לחיצה פותחת את הלוח</span></div>
         ${withTasks.length ? `<div class="list">${withTasks.map((x) => `<div class="list-item" data-action="tproject" data-id="${x.id}">${healthChip(x.health)}<div class="li-body"><div class="li-title">${esc(x.name)}</div><div class="li-sub">${esc(phaseLabel(x))} · ${esc(cname(x.leadId, ''))}</div></div><div class="li-side"><strong>${counts[x.id]}</strong> פתוחות · ${TK().filter((t) => t.projectId === x.id && isOverdue(t)).length} באיחור</div></div>`).join('')}</div>` : '<div class="empty">עדיין אין משימות בפרויקטים. בחרו פרויקט למעלה כדי להתחיל.</div>'}</div>`;
     } else {
+      shown = { title: 'לפי פרויקט', sub: ptitleText(p), groups: byStatus(tasksOfProject(p.id)) };
       body = `<div class="filters">${picker}<button class="btn ghost small" data-action="open-project" data-id="${p.id}">לכרטיס הפרויקט</button><span class="count-note">${tasksOfProject(p.id).filter(isOpenTask).length} פתוחות</span></div>
         ${taskBoard(tasksOfProject(p.id), quickAdd('task-quick', `משימה חדשה ב${p.name}… (Enter)`, `data-scope="project" data-project="${p.id}"`))}`;
     }
   } else if (tab === 'office') {
     const arr = TK().filter((t) => !t.projectId);
+    shown = { title: 'משרד', sub: 'משימות שלא שייכות לפרויקט', groups: byStatus(arr) };
     body = taskBoard(arr, quickAdd('task-quick', 'משימה משרדית חדשה… (Enter)', 'data-scope="office"'));
   } else {
     const f = S.ui.tfilter; const q = norm(f.q);
@@ -4091,6 +4139,7 @@ function renderTasks() {
     const counts = {}; scopeOptions('tasks').forEach((o) => { counts[o] = TK().filter((t) => isOpenTask(t) && (o === 'office' ? true : o === 'team' ? (t.assigneeId === myId || t.createdBy === myId || teamUids.has(t.assigneeId) || (!!t.projectId && tids.includes(S.projects[t.projectId]?.teamId))) : (t.assigneeId === myId || t.createdBy === myId))).length; });
     let arr = scoped.filter((t) => (f.done ? true : isOpenTask(t)) && (!f.assignee || (f.assignee === 'none' ? !t.assigneeId : t.assigneeId === f.assignee)) && (!f.project || (f.project === 'office' ? !t.projectId : t.projectId === f.project)) && (!f.status || t.status === f.status) && (!f.priority || t.priority === f.priority) && (!q || norm([t.title, t.description, S.projects[t.projectId]?.name, uname(t.assigneeId, ''), t.waitingOn].join(' ')).includes(q)));
     arr = sortTasks(arr);
+    shown = { title: 'הכול', sub: [sc === 'office' ? 'כל המשרד' : sc === 'team' ? 'הצוות' : 'שלי', f.q ? `חיפוש «${f.q}»` : '', f.assignee ? (f.assignee === 'none' ? 'ללא אחראי' : uname(f.assignee, '')) : '', f.project ? (f.project === 'office' ? 'משימות משרדיות' : (S.projects[f.project]?.name || '')) : '', f.status ? TASK_STATUS[f.status]?.label : '', f.priority ? (f.priority === 'urgent' ? 'דחוף' : 'רגיל') : '', f.done ? 'כולל בוצעו' : ''].filter(Boolean).join(' · '), groups: [{ title: '', arr }] };
     const people = sc === 'office' ? activeUsers() : sc === 'team' ? activeUsers().filter((u) => u.id === myId || teamUids.has(u.id) || scoped.some((t) => t.assigneeId === u.id)) : activeUsers().filter((u) => u.id === myId || scoped.some((t) => t.assigneeId === u.id));
     body = `<div class="filters">
       ${scopeSwitch('tasks', counts, sc)}
@@ -4107,10 +4156,10 @@ function renderTasks() {
   return `
   <div class="view-head">
     <div><h1 class="view-title">משימות</h1><div class="view-sub">${tab === 'mine' ? 'מה מחכה לך, לפי דחיפות ותאריך. לחיצה על העיגול מסמנת כבוצע.' : tab === 'team' ? 'המשימות הפתוחות של הצוות, לפי אנשים.' : tab === 'project' ? 'לוח משימות לכל פרויקט: לביצוע, בעבודה, ממתין, בוצע.' : tab === 'office' ? 'משימות שלא שייכות לפרויקט: אדמיניסטרציה, שיווק, משרד.' : tasksAllScope() === 'office' ? 'כל המשימות במשרד, עם סינון.' : tasksAllScope() === 'team' ? 'כל המשימות של הצוות, עם סינון.' : 'כל המשימות שלך — מה שמוטל עליך ומה שפתחת לאחרים — עם סינון.'}</div></div>
-    <div class="view-actions">${canWriteTasks() ? `<button class="btn primary" data-action="new-task">${ICON.plus} משימה חדשה</button>` : ''}</div>
+    <div class="view-actions"><button type="button" class="btn ghost small" data-action="tasks-print" title="הרשימה המוצגת — הלשונית והמסננים כפי שהם — להדפסה או לשמירה כ-PDF">${ICON.doc} PDF</button>${canWriteTasks() ? `<button class="btn primary" data-action="new-task">${ICON.plus} משימה חדשה</button>` : ''}</div>
   </div>
   <div class="tabs">${tabs.map(([id, l, n]) => `<button type="button" class="${tab === id ? 'on' : ''}" data-action="ttab" data-tab="${id}">${l}${n ? `<span class="tab-badge">${n}</span>` : ''}</button>`).join('')}</div>
-  ${body}`;
+  ${(S.ui.tasksShown = shown, '')}${body}`;
 }
 
 /* ===================== tasks: drawer ===================== */
@@ -4169,12 +4218,12 @@ function drawerTask(id) {
         ? `<div class="comment system"><span class="comment-who">${esc(uname(c.authorId, 'מערכת'))}</span> ${esc(c.body)} <time>${fmtDateTime(c.createdAt)}</time></div>`
         : `<div class="comment"><div class="comment-head"><span class="comment-who">${esc(uname(c.authorId))}</span><time>${fmtDateTime(c.createdAt)}</time>${(c.authorId === me()?.id || isManager()) ? `<button class="icon-btn" data-action="comment-delete" data-id="${c.id}" data-task="${id}" title="מחק תגובה">${ICON.x}</button>` : ''}</div><div class="comment-body">${renderMentions(c.body)}</div></div>`).join('') : '<div class="inline-note">אין עדיין תגובות.</div>'}</div>
       ${ro ? '' : `<div class="composer"><textarea id="comment-${id}" rows="2" placeholder="תגובה… הקלידו @ כדי לתייג מישהו. Ctrl+Enter שולח" data-comment="${id}">${esc(S.ui.drafts['comment-' + id] ?? '')}</textarea>
-        <div class="composer-tools"><button class="btn ghost small" data-action="mention-open" data-id="${id}">@ תיוג</button><button class="btn primary small" data-action="comment-send" data-id="${id}">שלח</button></div></div>`}
+        <div class="composer-tools"><button class="btn ghost small" data-action="mention-open" data-id="${id}">@ תיוג</button><button class="btn primary small" data-action="comment-send" data-id="${id}">שלח תגובה</button></div></div>`}
     </div>
   </div>
   <div class="drawer-foot">
     <span class="inline-note">נפתח על ידי ${esc(uname(t.createdBy, '—'))} · ${fmtDate(t.createdAt)}${t.doneAt ? ` · בוצע ${fmtDate(t.doneAt)}` : ''}</span>
-    <span style="display:inline-flex;gap:6px;flex-wrap:wrap">${ro ? '' : `<button type="button" class="btn ghost small" data-action="task-duplicate" data-id="${id}" title="משימה חדשה עם אותה כותרת, תיאור, פרויקט וצ'קליסט (לא מסומן) — אפשר לשנות לה פרויקט ואחראי/ת">${ICON.copy} שכפל משימה</button>`}
+    <span style="display:inline-flex;gap:6px;flex-wrap:wrap"><button type="button" class="btn primary small" data-action="task-finish" data-id="${id}" title="המשימה נשמרת לבד תוך כדי הקלדה — «סיום» סוגר את הכרטיס">סיום</button>${ro ? '' : `<button type="button" class="btn ghost small" data-action="task-duplicate" data-id="${id}" title="משימה חדשה עם אותה כותרת, תיאור, פרויקט וצ'קליסט (לא מסומן) — אפשר לשנות לה פרויקט ואחראי/ת">${ICON.copy} שכפל משימה</button>`}
     ${(isManager() || t.createdBy === me()?.id) ? confirmButton('delete-doc', `data-col="tasks" data-id="${id}"`, 'מחק משימה') : ''}</span>
   </div>`;
 }
@@ -6722,6 +6771,26 @@ async function makePagesPdf({ key, name, projectId, path }) {
   document.getElementById('rp-pages')?.classList.remove('pdf-mode');
   S.ui.pdfBusy = false; render();
 }
+/* ===================== print documents (8.11.2026) =====================
+   A printable document (the Sunday agenda, the tasks list) is written into a hidden frame with its own @page size and CSS — the app's
+   screen styles never leak in — and the browser's print dialog opens on it: print, or «שמור כ-PDF» (the title is the file name). The
+   markup comes from a pure function so the tests read it without printing. */
+const PRINT_BASE_CSS = `* { box-sizing: border-box; } body { margin: 0; color: #000; background: #fff; font-family: "Narkiss Block", "Heebo", "Segoe UI", Arial, sans-serif; direction: rtl; -webkit-print-color-adjust: exact; print-color-adjust: exact; }`;
+function printFontFaces() { try { return [...document.styleSheets].flatMap((ss) => { try { return [...ss.cssRules]; } catch (e) { return []; } }).filter((r) => r instanceof CSSFontFaceRule).map((r) => r.cssText).join('\n'); } catch (e) { return ''; } }
+function printDocument({ title = 'GO', html = '', css = '', landscape = false }) {
+  const old = document.getElementById('print-frame'); if (old) old.remove();
+  const f = document.createElement('iframe'); f.id = 'print-frame'; f.setAttribute('aria-hidden', 'true'); f.title = title;
+  f.style.cssText = 'position:fixed;inset-inline-start:-10000px;top:0;width:1px;height:1px;border:0;opacity:0.01;pointer-events:none';
+  document.body.appendChild(f);
+  const doc = f.contentDocument; doc.open();
+  doc.write(`<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${printFontFaces()}\n@page { size: A4 ${landscape ? 'landscape' : 'portrait'}; margin: 10mm 10mm 12mm; }\n${PRINT_BASE_CSS}\n${css}</style></head><body>${html}</body></html>`);
+  doc.close();
+  const go = () => { try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) { console.warn(e); toast('חלון ההדפסה לא נפתח — נסו שוב'); } setTimeout(() => { if (f.parentNode) f.remove(); }, 90000); };
+  const ready = doc.fonts && doc.fonts.ready ? doc.fonts.ready : Promise.resolve();
+  ready.then(() => setTimeout(go, 200), () => setTimeout(go, 200));
+  toast('בחלון ההדפסה: «שמור כ-PDF» נותן קובץ');
+  return f;
+}
 /* ===================== GO+ — תמיכה ושיפורים (19.10.2026) =====================
    Every employee has a GO+ button in the masthead: a bug, an idea or a question about GO, written in a few words. The screen the person
    is looking at is captured automatically — a snapshot of GO's own page (the DOM, with the typed values, the open drawer and the scroll
@@ -7339,7 +7408,7 @@ const upcomingRow = (u) => `<div class="task-item" ${u.attrs}>
 /* ---------- view: פגישות ---------- */
 function renderMeetings() {
   const tab = S.ui.mtab === 'sunday' ? 'sunday' : 'summaries';
-  const sundayCount = typeof requestsFor === 'function' ? requestsFor(sundayDate()).filter((r) => r.status === 'open').length : 0;
+  const sundayCount = typeof SR === 'function' ? SR().filter((r) => r.status === 'open' && r.sunday === sundayDate()).length : 0;
   const tabs = `<div class="tabs no-print">${[['summaries', 'סיכומי פגישות'], ['sunday', `ישיבות יום ראשון${sundayCount ? ` · ${sundayCount}` : ''}`]].map(([id, label]) => `<button type="button" class="tab ${tab === id ? 'on' : ''}" data-action="mtab" data-tab="${id}">${label}</button>`).join('')}</div>`;
   if (tab === 'sunday') return `
   <div class="view-head no-print">
@@ -7445,9 +7514,12 @@ const sundayDate = () => S.ui.sundayDate || sundayCycle().sunday;
 /* who can be asked for: settings.sundayWith (contact ids), else the partners (role mentions שותף) */
 const sundayPeople = () => { const ids = settings().sundayWith; const list_ = Array.isArray(ids) && ids.length ? ids.map((id) => contact(id)).filter(Boolean) : employees().filter((c) => /שותפ/.test(c.role || '')); return list_.sort(byName); };
 const myTeamIdNow = () => (myContactId() ? S.contacts[myContactId()]?.teamId || null : null);
-const leadsOf = (teamId) => isManager() || (myRole() === 'team_lead' && !!teamId && teamLeadId(teamId) === myContactId());
-const amLead = () => isManager() || (myRole() === 'team_lead' && T().some((t) => t.leadId === myContactId()));
-const teamsILead = () => (isManager() ? T() : T().filter((t) => t.leadId === myContactId()));
+/* who runs the Sunday list of every team: owners / managers, and whoever holds the sunday_all capability — administration by default
+   (Rotem prints the agenda and tracks what was handled; 26.10 → 8.11.2026). The server already hands them every topic (RLS, 1.11). */
+const canSundayAll = () => isManager() || can('sunday_all');
+const leadsOf = (teamId) => canSundayAll() || (myRole() === 'team_lead' && !!teamId && teamLeadId(teamId) === myContactId());
+const amLead = () => canSundayAll() || (myRole() === 'team_lead' && T().some((t) => t.leadId === myContactId()));
+const teamsILead = () => (canSundayAll() ? T() : T().filter((t) => t.leadId === myContactId()));
 /* the label of "with whom": 'lead' = the lead of the requester's team */
 function withNames(r) {
   return (r.withIds || []).map((id) => (id === 'lead' ? (r.teamId && teamLeadId(r.teamId) ? cname(teamLeadId(r.teamId)) : 'ראש/ת הצוות') : cname(id, ''))).filter(Boolean);
@@ -7512,8 +7584,8 @@ function sundayRow(r, opts = {}) {
       ${chip(r.projectId ? (S.projects[r.projectId]?.name || 'פרויקט') : 'ללא פרויקט', 'srproject', r.projectId ? '' : 'dim')}
       ${chip(u.label, 'srurgency', u.cls)}
       ${S.ui.sundayOther === r.id && !ro ? `<span class="sr-other"><input type="number" id="sr-other-${r.id}" data-srother="${r.id}" min="5" step="5" placeholder="דקות" value="${esc(String(r.minutes || ''))}"><button type="button" class="btn small" data-action="sr-other-set" data-id="${r.id}">אישור</button></span>` : chip(fmtMinutes(r.minutes), 'srminutes')}
-      ${opts.markDone && !ro ? `<label class="sr-done"><input type="checkbox" data-srdone="${r.id}" ${done ? 'checked' : ''}> נדון</label>` : (done ? '<span class="chip green">נדון</span>' : '')}
-      ${ro ? '' : (armed ? `<span class="confirm-inline"><button type="button" class="btn small danger" data-action="sr-del" data-id="${r.id}" data-confirmed="1">הסר</button><button type="button" class="btn small" data-action="cancel-confirm">בטל</button></span>` : `<button type="button" class="icon-btn" data-action="sr-del" data-id="${r.id}" title="הסר">${ICON.x}</button>`)}
+      ${!ro && (opts.markDone || r.requesterId === me()?.id) ? `<label class="sr-done" title="${done ? `טופל ${r.doneAt ? fmtDateTime(r.doneAt) : ''} ${r.doneBy ? '· ' + uname(r.doneBy, '') : ''}` : 'הנושא נדון / טופל — נשאר ברשימה של השבוע שלו, מסומן'}"><input type="checkbox" data-srdone="${r.id}" ${done ? 'checked' : ''}> טופל</label>` : (done ? '<span class="chip green">טופל</span>' : '')}
+      ${ro ? '' : (armed ? `<span class="confirm-inline"><small class="muted">נדון? סמנו «טופל» במקום למחוק</small><button type="button" class="btn small danger" data-action="sr-del" data-id="${r.id}" data-confirmed="1">הסר</button><button type="button" class="btn small" data-action="cancel-confirm">בטל</button></span>` : `<button type="button" class="icon-btn" data-action="sr-del" data-id="${r.id}" title="הסר">${ICON.x}</button>`)}
     </div>
   </div>`;
 }
@@ -7533,7 +7605,7 @@ function mySundaySection(sunday, opts = {}) {
 /* a team's block: the lead's controls (priority, note, ready) and the ordered topics */
 function sundayTeamBlock(sunday, info, opts = {}) {
   const { team, rows, tr } = info;
-  const lead = team ? leadsOf(team.id) : isManager();
+  const lead = team ? leadsOf(team.id) : canSundayAll();
   const prio = tr?.priority ?? 2;
   const open = rows.filter((r) => r.status === 'open');
   const title = team ? `${esc(team.name)}${team.leadId ? ` <small>${esc(cname(team.leadId))}</small>` : ''}` : 'ללא צוות';
@@ -7541,7 +7613,7 @@ function sundayTeamBlock(sunday, info, opts = {}) {
   return `<div class="section sunday-team ${tr?.readyAt ? 'ready' : ''}" id="st-${team?.id || 'none'}">
     <h3 class="section-title">${opts.index != null ? `<span class="st-no">${opts.index + 1}</span>` : ''}${title} <small>${open.length} נושאים · ${fmtMinutes(sundayMinutes(open))}${info.urgent ? ` · ${info.urgent} ליום ראשון הזה` : ''}</small>
       ${tr?.readyAt ? `<span class="chip green" title="${esc(fmtDateTime(tr.readyAt))}">הרשימה מוכנה</span>` : (team && lead ? '<span class="chip dim">עדיין לא סומנה כמוכנה</span>' : '')}
-      ${isManager() && opts.index != null ? `<span class="st-move"><button type="button" class="icon-btn" data-action="st-move" data-team="${team?.id || ''}" data-sunday="${sunday}" data-dir="-1" title="להזיז למעלה">${ICON.up}</button><button type="button" class="icon-btn" data-action="st-move" data-team="${team?.id || ''}" data-sunday="${sunday}" data-dir="1" title="להזיז למטה">${ICON.down}</button></span>` : ''}
+      ${canSundayAll() && opts.index != null ? `<span class="st-move"><button type="button" class="icon-btn" data-action="st-move" data-team="${team?.id || ''}" data-sunday="${sunday}" data-dir="-1" title="להזיז למעלה">${ICON.up}</button><button type="button" class="icon-btn" data-action="st-move" data-team="${team?.id || ''}" data-sunday="${sunday}" data-dir="1" title="להזיז למטה">${ICON.down}</button></span>` : ''}
     </h3>
     ${team && lead ? `<div class="st-lead">
       <div class="field"><label>כמה דחוף לנו להיכנס ראשונים</label><div class="chips">${prioChips}</div></div>
@@ -7552,22 +7624,73 @@ function sundayTeamBlock(sunday, info, opts = {}) {
     ${team && lead && !opts.readonly ? sundayAddRow('sr-add-' + team.id, `data-team="${team.id}"`) : ''}
   </div>`;
 }
-/* the printable agenda: teams in order, open topics only */
-function sundayAgenda(sunday) {
-  const order = teamOrder(sunday);
-  const people = sundayPeople();
-  const perPerson = people.map((c) => ({ c, minutes: requestsFor(sunday).filter((r) => r.status === 'open' && ((r.withIds || []).includes(c.id) || ((r.withIds || []).includes('lead') && r.teamId && teamLeadId(r.teamId) === c.id))).reduce((s, r) => s + (Number(r.minutes) || 0), 0) }));
-  return `<div class="sunday-agenda" id="sunday-agenda">
-    <div class="sa-head"><h2>סדר יום ראשון ${esc(fmtDate(sunday))}</h2><div class="sa-sub">${order.length} צוותים · ${fmtMinutes(order.reduce((s, x) => s + x.minutes, 0))}${perPerson.length ? ' · ' + perPerson.map((x) => `${esc(x.c.name.split(' ')[0])} ${fmtMinutes(x.minutes)}`).join(' · ') : ''} · הודפס ${esc(fmtDate(todayStr()))}</div></div>
-    ${order.map((info, i) => { const open = info.rows.filter((r) => r.status === 'open'); return `<div class="sa-team">
-      <div class="sa-team-head"><span class="st-no">${i + 1}</span><strong>${esc(info.team?.name || 'ללא צוות')}</strong>${info.team?.leadId ? `<span>${esc(cname(info.team.leadId))}</span>` : ''}<span class="sa-min">${open.length} נושאים · ${fmtMinutes(info.minutes)}${info.tr && info.tr.priority != null ? ` · דחיפות כניסה ${info.tr.priority}` : ''}</span></div>
-      ${info.tr?.note ? `<div class="sa-note">${esc(info.tr.note)}</div>` : ''}
-      <table class="sa-table"><thead><tr><th>#</th><th>נושא</th><th>פרויקט</th><th>סוג</th><th>עם מי</th><th>דחיפות</th><th>זמן</th><th>מבקש/ת</th></tr></thead><tbody>
-      ${open.map((r, j) => `<tr><td>${i + 1}.${j + 1}</td><td>${esc(r.topic || '')}</td><td>${esc(r.projectId ? (S.projects[r.projectId]?.name || '') : '')}</td><td>${esc((SUNDAY_KINDS[r.kind] || SUNDAY_KINDS.short).short)}</td><td>${esc(withNames(r).join(', '))}</td><td class="num">${r.urgency ?? ''}</td><td class="num">${esc(fmtMinutes(r.minutes))}</td><td>${esc(cname(r.contactId, uname(r.requesterId, '')))}</td></tr>`).join('') || '<tr><td colspan="8" class="muted">אין נושאים פתוחים</td></tr>'}
-      </tbody></table>
-    </div>`; }).join('') || '<div class="inline-note">עדיין אין נושאים ליום ראשון הזה.</div>'}
-  </div>`;
+/* the agenda as Oded approved it for print (1.11 / 8.11.2026): per team in meeting order, a table with a tick box, the topic (note and
+   kind under it), project · number, requester (+ team-lead tag), with whom, urgency, minutes, and two wide empty columns for Dana's and
+   Oded's hand-written notes; topics already handled print ticked and grey; after this week's topics, the still-open topics of earlier
+   Sundays, by week then team, in lower rows. The same markup is the on-screen agenda (the notes columns hidden there). */
+const sundayUrgencyLabel = (u) => u === 0 ? '★ חייב היום' : u === 1 ? 'השבוע' : u === 2 ? 'שבוע הבא' : `דחיפות ${u}`;
+const hmOf = (minutes) => { const m = Math.max(0, Math.round(Number(minutes) || 0)); return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
+function sundayPrintTable(rows, start, tall) {
+  let i = start;
+  const body = rows.map((r) => { i += 1; const done = r.status !== 'open'; const p = r.projectId ? S.projects[r.projectId] : null; const k = SUNDAY_KINDS[r.kind] || SUNDAY_KINDS.short;
+    return `<tr class="${done ? 'done' : ''}"><td class="c-chk"><span class="box">${done ? '✓' : ''}</span></td><td class="c-num">${i}</td>
+      <td class="c-topic"><b>${esc(r.topic || '(ללא נושא)')}</b>${r.note ? `<div class="note">${esc(r.note)}</div>` : ''}${r.kind && r.kind !== 'short' && r.kind !== 'other' ? `<div class="note">${esc(k.short)}</div>` : ''}</td>
+      <td class="c-proj">${p ? `${esc(p.name)}${p.number ? ` <span class="muted">· ${esc(p.number)}</span>` : ''}` : ''}</td>
+      <td class="c-req">${esc(cname(r.contactId, uname(r.requesterId, '')))}${r.byLead ? ' <span class="tag">ראש/ת צוות</span>' : ''}</td>
+      <td class="c-with">${esc(withNames(r).join(', '))}</td><td class="c-urg ${r.urgency === 0 ? 'star' : ''}">${esc(sundayUrgencyLabel(r.urgency ?? 1))}</td><td class="c-min">${Number(r.minutes) || 0}</td>
+      <td class="c-note"></td><td class="c-note"></td></tr>`; }).join('');
+  return { html: `<table class="sp ${tall ? 'tall' : 'short'}"><thead><tr><th class="c-chk">☐</th><th class="c-num">#</th><th class="c-topic">נושא</th><th class="c-proj">פרויקט</th><th class="c-req">מבקש/ת</th><th class="c-with">עם מי</th><th class="c-urg">דחיפות</th><th class="c-min">דק׳</th><th class="c-note">הערות דנה</th><th class="c-note">הערות עודד</th></tr></thead><tbody>${body || '<tr><td colspan="10" class="muted">אין נושאים</td></tr>'}</tbody></table>`, next: i };
 }
+function sundayPrintHtml(sunday, opts = {}) {
+  const all = requestsFor(sunday);
+  const order = teamOrder(sunday).map((info) => Object.assign({}, info, { rows: info.rows.filter((r) => r.sunday === sunday) })).filter((x) => x.rows.length || x.tr);
+  const own = all.filter((r) => r.sunday === sunday); const openOwn = own.filter((r) => r.status === 'open');
+  const older = all.filter((r) => r.sunday < sunday && r.status === 'open');
+  const mins = (arr) => arr.reduce((acc, r) => acc + (Number(r.minutes) || 0), 0);
+  const withHas = (r, cid) => (r.withIds || []).includes(cid) || ((r.withIds || []).includes('lead') && r.teamId && teamLeadId(r.teamId) === cid);
+  const people = sundayPeople();
+  const perPerson = people.map((c) => `${esc(c.name.split(' ')[0])} מסומן/ת ב-${hmOf(mins(openOwn.filter((r) => withHas(r, c.id))))}`).join(' · ');
+  const now = new Date(); const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  let idx = 0; const parts = [];
+  parts.push(`<div class="sp-head"><h1>ישיבת יום ראשון — ${esc(fmtDate(sunday))}</h1><div class="sp-sub"><b>${own.length} נושאים</b> · סה״כ <b>${hmOf(mins(openOwn))} שעות</b> (${mins(openOwn)} דק׳)${perPerson ? ' · ' + perPerson : ''} · ${order.length} צוותים · הופק מ-GO ב-${hhmm} · ☐ = טופל</div></div>`);
+  order.forEach((info) => { const t = sundayPrintTable(info.rows, idx, true); idx = t.next;
+    parts.push(`<h2 class="sp-team">${esc(info.team?.name || 'ללא צוות')}<span class="meta">${info.team?.leadId ? ` — ראש/ת צוות: ${esc(cname(info.team.leadId))}` : ''} · ${info.rows.filter((r) => r.status === 'open').length} נושאים · ${mins(info.rows.filter((r) => r.status === 'open'))} דק׳${info.tr?.readyAt ? ' · מוכן ✓' : ''}</span></h2>${info.tr?.note ? `<div class="sp-note">${esc(info.tr.note)}</div>` : ''}${t.html}`); });
+  if (!order.length) parts.push('<div class="sp-note">עדיין אין נושאים ליום ראשון הזה.</div>');
+  if (older.length) {
+    const weeks = [...new Set(older.map((r) => r.sunday))].sort().reverse();
+    parts.push('<h3 class="sp-older">משבועות קודמים — נושאים שעדיין פתוחים ב-GO (לא סומנו «טופל» ולא נמחקו)</h3>');
+    weeks.forEach((wk) => { const rows = sortRequests(older.filter((r) => r.sunday === wk)); parts.push(`<h2 class="sp-team">ישיבת ${esc(fmtDate(wk))}<span class="meta"> · ${rows.length} נושאים פתוחים · ${mins(rows)} דק׳</span></h2>`);
+      const tids = [...new Set(rows.map((r) => r.teamId || '_none'))];
+      tids.forEach((tid) => { const team = tid === '_none' ? null : S.teams[tid]; const t = sundayPrintTable(rows.filter((r) => (r.teamId || '_none') === tid), idx, false); idx = t.next; parts.push(`<div class="sp-subteam">${esc(team?.name || 'ללא צוות')}${team?.leadId ? ` — ${esc(cname(team.leadId))}` : ''}</div>${t.html}`); }); });
+  }
+  parts.push('<div class="sp-foot">«עם מי» = מי שהמבקש/ת סימן/ה שצריך להיות בדיון (ראש/ת צוות מתורגם/ת לשם) · ★ חייב היום = דחיפות 0 · העמודות «הערות דנה» ו«הערות עודד» ריקות לכתיבה ביד · הופק מתוך הנתונים ב-GO כפי שהיו בשעת ההפקה.</div>');
+  return parts.join('');
+}
+const SUNDAY_PRINT_CSS = `
+@page { size: A4 landscape; margin: 9mm 10mm 11mm 10mm; }
+body { font-size: 10.5pt; }
+h1 { font-size: 19pt; margin: 0 0 2mm 0; font-weight: 400; }
+.sp-sub { font-size: 10pt; color: #333; margin-bottom: 5mm; } .sp-sub b { color: #000; font-weight: 400; }
+h2.sp-team { font-size: 13pt; font-weight: 400; margin: 6mm 0 2mm 0; padding-bottom: 1mm; border-bottom: 1.2pt solid #000; page-break-after: avoid; }
+h2.sp-team .meta { font-size: 10pt; color: #333; }
+h3.sp-older { font-size: 12pt; font-weight: 400; margin: 8mm 0 2mm 0; page-break-before: always; page-break-after: avoid; }
+.sp-subteam { font-weight: 400; margin: 2.5mm 0 1mm 0; page-break-after: avoid; }
+.sp-note { font-size: 9.5pt; color: #333; margin: 0 0 2mm; }
+table.sp { width: 100%; border-collapse: collapse; table-layout: fixed; } table.sp thead { display: table-header-group; }
+table.sp th { font-size: 9pt; font-weight: 400; text-align: right; padding: 1.2mm 1.5mm; border: 0.6pt solid #000; background: #eee; }
+table.sp td { vertical-align: top; padding: 1.5mm 1.5mm; border: 0.6pt solid #000; font-size: 10pt; line-height: 1.25; }
+table.sp tr { page-break-inside: avoid; } table.sp.tall td { height: 14mm; } table.sp.short td { height: 9mm; font-size: 9.2pt; }
+table.sp tr.done td { color: #777; } table.sp tr.done .c-topic b { text-decoration: line-through; }
+.c-chk { width: 7mm; text-align: center; } .c-num { width: 7mm; text-align: center; color: #333; }
+.c-topic { width: 60mm; } .c-proj { width: 32mm; } .c-req { width: 26mm; } .c-with { width: 32mm; }
+.c-urg { width: 17mm; font-size: 8.5pt; } .c-min { width: 9mm; text-align: center; } .c-note { width: 41mm; }
+td.c-urg.star { font-weight: 700; }
+.box { display: inline-flex; align-items: center; justify-content: center; width: 4mm; height: 4mm; border: 0.8pt solid #000; margin-top: 0.5mm; font-size: 8pt; }
+.tag { display: inline-block; border: 0.6pt solid #000; border-radius: 2mm; padding: 0 1.2mm; font-size: 7.5pt; margin-right: 1mm; white-space: nowrap; }
+.muted { color: #444; font-size: 8.5pt; } .note { font-size: 8.5pt; color: #333; margin-top: 0.8mm; }
+.sp-foot { margin-top: 5mm; font-size: 8.5pt; color: #333; border-top: 0.6pt solid #999; padding-top: 1.5mm; }`;
+/* the on-screen agenda = the print markup, wrapped */
+function sundayAgenda(sunday) { return `<div class="sunday-agenda" id="sunday-agenda">${sundayPrintHtml(sunday)}</div>`; }
 /* the Thursday panel: shown from Thursday to Sunday on the overview and on "היום שלי" */
 function sundayPanel() {
   if (!isMember()) return '';
@@ -7589,15 +7712,16 @@ function renderSunday() {
   const order = teamOrder(sunday);
   const total = requestsFor(sunday).filter((r) => r.status === 'open');
   const nav = `<div class="sunday-nav"><button class="btn ghost small" data-action="sunday-shift" data-days="-7">${ICON.back} ראשון הקודם</button><strong>יום ראשון ${esc(fmtDate(sunday))}</strong><button class="btn ghost small" data-action="sunday-shift" data-days="7">ראשון הבא</button>${S.ui.sundayDate && S.ui.sundayDate !== sundayCycle().sunday ? `<button class="btn ghost small" data-action="sunday-shift" data-days="0">חזרה להקרוב</button>` : ''}</div>`;
-  const myBlocks = amLead() ? order.filter((x) => x.team ? leadsOf(x.team.id) : isManager()) : [];
+  const myBlocks = amLead() ? order.filter((x) => x.team ? leadsOf(x.team.id) : canSundayAll()) : [];
+  const own = total.filter((r) => r.sunday === sunday); const carried = total.length - own.length;
   return `
   <div class="sunday-tools no-print">
     ${nav}
-    <span style="margin-inline-start:auto;display:inline-flex;gap:6px;flex-wrap:wrap">${amLead() ? `<button class="btn small" data-action="sunday-print">${ICON.doc} הדפסת סדר היום</button>` : ''}</span>
+    <span style="margin-inline-start:auto;display:inline-flex;gap:6px;flex-wrap:wrap">${amLead() ? `<button class="btn small" data-action="sunday-print" title="סדר היום של השבוע המוצג להדפסה — בחלון ההדפסה אפשר לבחור «שמור כ-PDF»">${ICON.doc} הפק PDF / הדפסה</button>` : ''}</span>
   </div>
-  <div class="inline-note no-print" style="margin-bottom:12px">${total.length} נושאים פתוחים · ${fmtMinutes(sundayMinutes(total))} · ${order.length} צוותים. ימי ראשון = פגישות פנימיות בלבד: DR, בקרת איכות ואישור תוכניות, התנעות, העברות שרביט ופגישות קצרות. הרשימה נרשמת ביום חמישי; ראשי הצוותים מסדרים ומסמנים "מוכן".</div>
+  <div class="inline-note no-print" style="margin-bottom:12px">${own.length} נושאים לשבוע הזה · ${fmtMinutes(sundayMinutes(own))} · ${order.length} צוותים${carried ? ` · ועוד ${carried} פתוחים משבועות קודמים` : ''}. ימי ראשון = פגישות פנימיות בלבד: DR, בקרת איכות ואישור תוכניות, התנעות, העברות שרביט ופגישות קצרות. הרשימה נרשמת ביום חמישי; ראשי הצוותים מסדרים ומסמנים "מוכן".</div>
   <div class="no-print">${mySundaySection(sunday)}</div>
-  ${myBlocks.length ? `<div class="no-print"><h2 class="panel-title" style="margin:18px 0 6px">${isManager() ? 'כל הצוותים, לפי סדר הכניסה' : 'הצוות שלי'}</h2>${myBlocks.map((info, i) => sundayTeamBlock(sunday, info, { index: isManager() ? i : null })).join('')}</div>` : ''}
+  ${myBlocks.length ? `<div class="no-print"><h2 class="panel-title" style="margin:18px 0 6px">${canSundayAll() ? 'כל הצוותים, לפי סדר הכניסה' : 'הצוות שלי'}</h2>${myBlocks.map((info, i) => sundayTeamBlock(sunday, info, { index: canSundayAll() ? i : null })).join('')}</div>` : ''}
   ${amLead() ? sundayAgenda(sunday) : ''}`;
 }
 function sundaySettingsPanel() {
@@ -7636,7 +7760,7 @@ async function sundayAction(a, ds, t, e) {
   switch (a) {
     case 'goto-sunday': S.ui.mtab = 'sunday'; nav('meetings'); return true;
     case 'sunday-shift': { const d = Number(ds.days); S.ui.sundayDate = d ? addDays(sundayDate(), d) : null; render(); return true; }
-    case 'sunday-print': { document.body.classList.add('sunday-print'); setTimeout(() => { window.print(); setTimeout(() => document.body.classList.remove('sunday-print'), 500); }, 50); return true; }
+    case 'sunday-print': { const d = sundayDate(); printDocument({ title: `ישיבת יום ראשון ${fmtDate(d)}`, landscape: true, html: sundayPrintHtml(d), css: SUNDAY_PRINT_CSS }); return true; }
     case 'sr-add': {
       const inp = document.getElementById(ds.input); const topic = (inp?.value || '').trim(); if (!topic) { inp?.focus(); return true; }
       inp.value = '';
@@ -7659,8 +7783,8 @@ async function sundayAction(a, ds, t, e) {
     case 'sr-other-set': { const r = S.sunday_requests[ds.id]; const inp = document.getElementById('sr-other-' + ds.id); const m = Math.round(Number(inp?.value)); S.ui.sundayOther = null; if (r && m > 0) patchDoc('sunday_requests', ds.id, { minutes: m }); else render(); return true; }
     case 'st-priority': { if (!leadsOf(ds.team)) { toast('ראש/ת הצוות או מנהל/ת'); return true; } const id = await ensureTeamRow(ds.sunday, ds.team); if (id) patchDoc('sunday_teams', id, { priority: Number(ds.value) }); return true; }
     case 'st-ready': { if (!leadsOf(ds.team)) { toast('ראש/ת הצוות או מנהל/ת'); return true; } const id = await ensureTeamRow(ds.sunday, ds.team); if (id) { patchDoc('sunday_teams', id, ds.value === '1' ? { readyAt: nowIso(), readyBy: me().id } : { readyAt: null, readyBy: null }); toast(ds.value === '1' ? 'הרשימה סומנה כמוכנה' : 'הרשימה נפתחה לעריכה'); } return true; }
-    case 'st-move': { // managers: manual order of the teams (sort_index), starting from the computed order
-      if (!isManager()) return true;
+    case 'st-move': { // managers and whoever runs the list: manual order of the teams (sort_index), starting from the computed order
+      if (!canSundayAll()) return true;
       const order = teamOrder(ds.sunday).filter((x) => x.team); const i = order.findIndex((x) => x.team.id === ds.team); const j = i + Number(ds.dir);
       if (i < 0 || j < 0 || j >= order.length) return true;
       const ids = order.map((x) => x.team.id); [ids[i], ids[j]] = [ids[j], ids[i]];
@@ -7678,7 +7802,7 @@ document.addEventListener('keydown', (e) => {
 });
 document.addEventListener('change', (e) => {
   const el = e.target;
-  if (el.dataset.srdone) { const r = S.sunday_requests[el.dataset.srdone]; if (!r || !leadsOf(r.teamId)) { render(); return; } patchDoc('sunday_requests', r.id, { status: el.checked ? 'done' : 'open' }); return; }
+  if (el.dataset.srdone) { const r = S.sunday_requests[el.dataset.srdone]; if (!r || !(leadsOf(r.teamId) || r.requesterId === me()?.id)) { render(); return; } patchDoc('sunday_requests', r.id, el.checked ? { status: 'done', doneAt: nowIso(), doneBy: me().id } : { status: 'open', doneAt: null, doneBy: null }); return; }
   if (el.dataset.stnote) { if (!leadsOf(el.dataset.stnote)) return; ensureTeamRow(el.dataset.sunday, el.dataset.stnote).then((id) => { if (id) patchDoc('sunday_teams', id, { note: el.value.trim() }); }); }
 });
 /* ===================== daily hours: the end-of-day questionnaire and the hours views =====================
@@ -8573,9 +8697,14 @@ function renderOverlay() {
   renderMenu();
 }
 function openDrawer(kind, id) { S.ui.menu = null; S.ui.confirm = null; S.ui.drawer = { kind, id }; render(); }
+/* a task card closed with nothing in it — no title, no description, no checklist, no comment, no file — is dropped quietly: «משימה חדשה»
+   creates the row at once, and an abandoned card used to leave an empty task behind (10 of them by 1.11.2026; Gili, 28.10) */
+const isEmptyTask = (t) => !!t && !(t.title || '').trim() && !(t.description || '').trim() && !(Array.isArray(t.checklist) && t.checklist.length) && !(S.taskComments[t.id] || []).some((c) => c.kind === 'comment') && !(typeof filesOf === 'function' && filesOf({ taskId: t.id }).length);
+function dropEmptyTask(id) { const t = S.tasks[id]; if (!t || !isEmptyTask(t) || t.createdBy !== me()?.id) return false; delete S.ui.drafts['t-title']; deleteDoc('tasks', id); return true; }
 function closeDrawer(force) {
   if (!force && drawerHasPending() && S.ui.autoSaveFailed) { S.ui.confirmClose = true; S.ui.menu = null; render(); return; }
   if (!force && drawerHasPending() && !S.ui.committing) scheduleAutoCommit(0); // the pending edits save in the background
+  if (S.ui.drawer && S.ui.drawer.kind === 'task') dropEmptyTask(S.ui.drawer.id);
   const wasGop = !!S.ui.drawer && S.ui.drawer.kind === 'gop';
   S.ui.drawer = wasGop && S.ui.gopReturn ? S.ui.gopReturn : null; S.ui.gopReturn = null; S.ui.menu = null; S.ui.confirm = null; S.ui.confirmClose = false; S.ui.drafts = {}; render();
 }
@@ -10242,7 +10371,7 @@ document.addEventListener('click', async (e) => {
       if (!canWriteTasks()) { toast('אין לך הרשאת עריכה'); break; }
       const ov = {}; if (S.ui.view === 'tasks' && S.ui.ttab === 'mine') ov.assigneeId = me().id; if (S.ui.view === 'tasks' && S.ui.ttab === 'project' && S.ui.tproject) ov.projectId = S.ui.tproject; if (ds.project) ov.projectId = ds.project;
       const id = await newTask(ov); if (!id) break;
-      openDrawer('task', id); S.taskComments[id] = [];
+      S.ui.newTaskId = id; openDrawer('task', id); S.taskComments[id] = [];
       setTimeout(() => { const i = document.getElementById('t-title'); if (i) i.focus(); }, 30); break;
     }
     case 'check-add': { const inp = document.getElementById('check-add-' + ds.id); const text = (inp?.value || '').trim(); const tk = S.tasks[ds.id]; if (!text || !tk) break; inp.value = ''; await patchDoc('tasks', ds.id, { checklist: [...checklistOf(tk), { id: uid('c'), text, done: false }] }); setTimeout(() => document.getElementById('check-add-' + ds.id)?.focus(), 30); break; }
@@ -10255,6 +10384,8 @@ document.addEventListener('click', async (e) => {
       break;
     }
     case 'comment-send': await sendComment(ds.id); break;
+    case 'task-finish': { const t = S.tasks[ds.id]; const fresh = S.ui.newTaskId === ds.id; S.ui.newTaskId = null; closeDrawer(); if (t && !isEmptyTask(t)) toast(fresh ? 'המשימה נשמרה ומופיעה ברשימה' : 'המשימה נשמרה'); break; }
+    case 'tasks-print': { const shown = S.ui.tasksShown; if (!shown || !shown.groups.some((g) => g.arr.length)) { toast('אין משימות ברשימה המוצגת'); break; } printDocument({ title: `משימות — ${shown.title} — ${fmtDate(todayStr())}`, html: tasksPrintHtml(shown), css: TASKS_PRINT_CSS }); break; }
     case 'comment-delete': { S.taskComments[ds.task] = (S.taskComments[ds.task] || []).filter((c) => c.id !== ds.id); render(); await write(() => sb.from('task_comments').delete().eq('id', ds.id)); break; }
     case 'mention-open': { e.stopPropagation(); openMenu(t, { search: true, placeholder: 'את מי לתייג?', items: mentionCandidates(''), onPick: (it) => { const ta = document.getElementById('comment-' + ds.id); if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); if (ta.value && !/\s$/.test(ta.value)) { ta.value += ' '; } } insertMention(ds.id, it.value, 0); } }); break; }
     case 'bell-toggle': e.stopPropagation(); S.ui.bell = !S.ui.bell; renderBell(); break;
